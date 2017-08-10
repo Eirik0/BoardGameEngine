@@ -4,6 +4,8 @@ import game.IPlayer;
 import game.IPosition;
 
 public class GuiPlayer implements IPlayer {
+	private static final Object NULL_MOVE = new Object();
+
 	public static final GuiPlayer HUMAN = new GuiPlayer();
 
 	private volatile boolean isRequestingMove = false;
@@ -32,13 +34,17 @@ public class GuiPlayer implements IPlayer {
 		}
 	}
 
+	@Override
+	public void notifyGameEnded() {
+		setMove(NULL_MOVE);
+	}
+
 	public boolean isRequestingMove() {
 		return isRequestingMove;
 	}
 
 	public synchronized void setMove(Object move) {
 		this.move = move;
-		System.out.println(move);
 		notify();
 	}
 

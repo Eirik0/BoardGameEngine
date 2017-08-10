@@ -9,6 +9,8 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private final IGame<M, P> game;
 	private P position;
 
+	private IPlayer currentPlayer;
+
 	public GameRunner(IGame<M, P> game) {
 		this.game = game;
 		position = game.newInitialPosition();
@@ -33,9 +35,12 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 				position = game.newInitialPosition();
 				int playerNum = 0;
 				while (!stopRequested && position.getPossibleMoves().size() > 0) {
-					M move = players.get(playerNum).getMove(position);
-					position.makeMove(move);
-					playerNum = (playerNum + 1) % players.size();
+					currentPlayer = players.get(playerNum);
+					M move = currentPlayer.getMove(position);
+					if (!stopRequested) {
+						position.makeMove(move);
+						playerNum = (playerNum + 1) % players.size();
+					}
 				}
 			} finally {
 				notifyGameEnded();
@@ -62,6 +67,9 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 	public synchronized void endGame() {
 		stopRequested = true;
+		if (currentPlayer != null) {
+			currentPlayer.notifyGameEnded();
+		}
 		while (isRunning) {
 			try {
 				wait();
@@ -74,6 +82,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 	private synchronized void notifyGameEnded() {
 		isRunning = false;
+		currentPlayer = null;
 		notify();
 	}
 }

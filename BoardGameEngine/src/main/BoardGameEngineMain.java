@@ -43,9 +43,12 @@ public class BoardGameEngineMain {
 			GameRunner<?, ?> gameRunner = new GameRunner<>(game);
 			GameGuiManager.setGameState(GameRegistry.newGameState(gameClass, gameRunner));
 			PlayerControllerPanel playerControllerPanel = new PlayerControllerPanel(game, gameRunner);
+			playerControllerPanel.setBackAction(() -> {
+				contentPane.remove(playerControllerPanel);
+				repackFrame(mainFrame, gamePanel);
+			});
 			contentPane.add(playerControllerPanel, BorderLayout.NORTH);
-			gamePanel.setPreferredSize(gamePanel.getSize());
-			mainFrame.pack();
+			repackFrame(mainFrame, gamePanel);
 		});
 
 		GameGuiManager.setGameState(new MainMenuState());
@@ -91,5 +94,10 @@ public class BoardGameEngineMain {
 		mainFrame.setFocusable(false);
 		mainFrame.setContentPane(contentPane);
 		return mainFrame;
+	}
+
+	private static void repackFrame(JFrame mainFrame, GamePanel gamePanel) {
+		gamePanel.setPreferredSize(gamePanel.getSize());
+		mainFrame.pack();
 	}
 }

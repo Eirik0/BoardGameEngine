@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import gui.GuiPlayer;
+
 public class GameRunnerTest {
 	@Test
 	public void testStartStopGame() throws InterruptedException {
@@ -48,10 +50,28 @@ public class GameRunnerTest {
 		System.out.println(game.list.get(game.list.size() - 1));
 	}
 
+	@Test
+	public void testEndWhenWaitingOnPlayer() throws InterruptedException {
+		AddToListTestGame game = new AddToListTestGame(GuiPlayer.HUMAN);
+		GameRunner<?, ?> gameRunner = new GameRunner<>(game);
+		Thread.sleep(10); // we seem to get stuck if we don't wait
+		gameRunner.startNewGame(Collections.singletonList(game.player));
+		gameRunner.endGame();
+		assertEquals(2, game.numNewPositions);
+	}
+
 	static class AddToListTestGame implements IGame<Integer, AddToListPosition> {
-		final AddToListTestPlayer player = new AddToListTestPlayer();
+		final IPlayer player;
 		final List<Integer> list = new ArrayList<>();
 		int numNewPositions = 0;
+
+		public AddToListTestGame() {
+			this(new AddToListTestPlayer());
+		}
+
+		public AddToListTestGame(IPlayer player) {
+			this.player = player;
+		}
 
 		@Override
 		public String getName() {
@@ -82,9 +102,16 @@ public class GameRunnerTest {
 	}
 
 	static class AddToListTestPlayer implements IPlayer {
+		boolean notified;
+
 		@Override
 		public <M, P extends IPosition<M, P>> M getMove(IPosition<M, P> position) {
 			return position.getPossibleMoves().get(0);
+		}
+
+		@Override
+		public void notifyGameEnded() {
+			notified = true;
 		}
 	}
 
