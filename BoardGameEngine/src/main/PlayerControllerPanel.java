@@ -22,7 +22,7 @@ public class PlayerControllerPanel extends JPanel {
 	private final List<JComboBox<IPlayer>> playerComboBoxes = new ArrayList<>();
 
 	public PlayerControllerPanel(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
-		setLayout(new FlowLayout(FlowLayout.LEADING));
+		setLayout(new FlowLayout(FlowLayout.CENTER));
 		setBackground(Color.WHITE);
 		int numberOfPlayers = game.getNumberOfPlayers();
 		IPlayer[] avaliablePlayers = game.getAvailablePlayers();

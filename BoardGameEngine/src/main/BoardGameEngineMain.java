@@ -15,7 +15,9 @@ import game.tictactoe.TicTacToeGame;
 import game.tictactoe.TicTacToeGameState;
 import gui.FixedDurationGameLoop;
 import gui.GameGuiManager;
+import gui.GameImage;
 import gui.GameMouseAdapter;
+import gui.GamePanel;
 import gui.GameRegistry;
 import gui.MainMenuState;
 
@@ -28,33 +30,36 @@ public class BoardGameEngineMain {
 	public static void main(String[] args) {
 		registerGames();
 
+		GameImage gameImage = new GameImage();
+
 		JPanel contentPane = new JPanel(new BorderLayout());
 		JFrame mainFrame = createMainFrame(contentPane);
-		JPanel gamePanel = createGamePanel();
+		GamePanel gamePanel = createGamePanel(gameImage);
 
 		contentPane.add(gamePanel, BorderLayout.CENTER);
 
 		GameGuiManager.setSetGameAction(gameClass -> {
 			IGame<?, ?> game = GameRegistry.newGame(gameClass);
 			GameRunner<?, ?> gameRunner = new GameRunner<>(game);
+			GameGuiManager.setGameState(GameRegistry.newGameState(gameClass, gameRunner));
 			PlayerControllerPanel playerControllerPanel = new PlayerControllerPanel(game, gameRunner);
 			contentPane.add(playerControllerPanel, BorderLayout.NORTH);
-			GameGuiManager.setGameState(GameRegistry.newGameState(gameClass, gameRunner));
+			gamePanel.setPreferredSize(gamePanel.getSize());
 			mainFrame.pack();
 		});
 
 		GameGuiManager.setGameState(new MainMenuState());
-		FixedDurationGameLoop gameLoop = new FixedDurationGameLoop(gamePanel);
+		FixedDurationGameLoop gameLoop = new FixedDurationGameLoop(gamePanel, gameImage);
 
 		gamePanel.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				gameLoop.checkResized();
+				gameImage.checkResized(gamePanel);
+				GameGuiManager.setComponentSize(gamePanel.getWidth(), gamePanel.getHeight());
 			}
 		});
 
 		mainFrame.pack();
-		gameLoop.checkResized();
 
 		new Thread(() -> gameLoop.runLoop(), "Game_Loop_Thread").start();
 
@@ -68,8 +73,8 @@ public class BoardGameEngineMain {
 		GameRegistry.registerGame(TicTacToeGame.class, TicTacToeGameState.class);
 	}
 
-	private static JPanel createGamePanel() {
-		JPanel gamePanel = new JPanel();
+	private static GamePanel createGamePanel(GameImage gameImage) {
+		GamePanel gamePanel = new GamePanel(gameImage);
 		gamePanel.setPreferredSize(new Dimension(DEFAULT_HEIGHT, DEFAULT_HEIGHT));
 
 		GameMouseAdapter mouseAdapter = new GameMouseAdapter();
