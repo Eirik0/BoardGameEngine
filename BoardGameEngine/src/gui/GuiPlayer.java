@@ -19,6 +19,7 @@ public class GuiPlayer implements IPlayer {
 	public synchronized <M, P extends IPosition<M, P>> M getMove(IPosition<M, P> position) {
 		move = null;
 		isRequestingMove = true;
+		isGameRunning = true;
 		try {
 			while (move == null && isGameRunning) {
 				try {
