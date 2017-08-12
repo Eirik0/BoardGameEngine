@@ -30,12 +30,17 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		}
 
 		new Thread(() -> {
-			notifyGameStarted();
 			try {
 				position = game.newInitialPosition();
+				if (position.getPossibleMoves().isEmpty()) {
+					notifyGameStarted();
+				}
 				int playerNum = 0;
 				while (!stopRequested && position.getPossibleMoves().size() > 0) {
 					currentPlayer = players.get(playerNum);
+					if (!isRunning) {
+						notifyGameStarted();
+					}
 					M move = currentPlayer.getMove(position);
 					if (!stopRequested) {
 						position.makeMove(move);

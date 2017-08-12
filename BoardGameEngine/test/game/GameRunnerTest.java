@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import org.junit.Test;
 
@@ -54,15 +55,23 @@ public class GameRunnerTest {
 	public void testEndWhenWaitingOnPlayer() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame(GuiPlayer.HUMAN);
 		GameRunner<?, ?> gameRunner = new GameRunner<>(game);
-		Thread.sleep(10); // we seem to get stuck if we don't wait
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		gameRunner.endGame();
+		assertEquals(2, game.numNewPositions);
+	}
+
+	@Test
+	public void testStardAndEndWhenNoMoves() throws InterruptedException {
+		AddToListTestGame game = new AddToListTestGame(new AddToListTestPlayer(), i -> Collections.emptyList());
+		GameRunner<?, ?> gameRunner = new GameRunner<>(game);
+		gameRunner.startNewGame(Collections.singletonList(game.player));
 		assertEquals(2, game.numNewPositions);
 	}
 
 	static class AddToListTestGame implements IGame<Integer, AddToListPosition> {
 		final IPlayer player;
 		final List<Integer> list = new ArrayList<>();
+		final Function<Integer, List<Integer>> possibleMovesFunction;
 		int numNewPositions = 0;
 
 		public AddToListTestGame() {
@@ -70,7 +79,12 @@ public class GameRunnerTest {
 		}
 
 		public AddToListTestGame(IPlayer player) {
+			this(player, i -> Collections.singletonList(i));
+		}
+
+		public AddToListTestGame(IPlayer player, Function<Integer, List<Integer>> possibleMovesFunction) {
 			this.player = player;
+			this.possibleMovesFunction = possibleMovesFunction;
 		}
 
 		@Override
@@ -97,7 +111,7 @@ public class GameRunnerTest {
 		public AddToListPosition newInitialPosition() {
 			numNewPositions++;
 			list.clear();
-			return new AddToListPosition(list);
+			return new AddToListPosition(0, list, possibleMovesFunction);
 		}
 	}
 
@@ -118,19 +132,17 @@ public class GameRunnerTest {
 	static class AddToListPosition implements IPosition<Integer, AddToListPosition> {
 		int index;
 		final List<Integer> list;
+		final Function<Integer, List<Integer>> possibleMovesFunction;
 
-		private AddToListPosition(List<Integer> list) {
-			this(0, list);
-		}
-
-		private AddToListPosition(int index, List<Integer> list) {
+		private AddToListPosition(int index, List<Integer> list, Function<Integer, List<Integer>> possibleMovesFunction) {
 			this.index = index;
 			this.list = list;
+			this.possibleMovesFunction = possibleMovesFunction;
 		}
 
 		@Override
 		public List<Integer> getPossibleMoves() {
-			return Collections.singletonList(index);
+			return possibleMovesFunction.apply(index);
 		}
 
 		@Override
@@ -152,7 +164,7 @@ public class GameRunnerTest {
 
 		@Override
 		public AddToListPosition createCopy() {
-			return new AddToListPosition(index, new ArrayList<>(list));
+			return new AddToListPosition(index, new ArrayList<>(list), possibleMovesFunction);
 		}
 	}
 }

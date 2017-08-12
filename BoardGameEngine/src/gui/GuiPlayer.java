@@ -4,11 +4,10 @@ import game.IPlayer;
 import game.IPosition;
 
 public class GuiPlayer implements IPlayer {
-	private static final Object NULL_MOVE = new Object();
-
 	public static final GuiPlayer HUMAN = new GuiPlayer();
 
 	private volatile boolean isRequestingMove = false;
+	private volatile boolean isGameRunning = true;
 
 	private Object move = null;
 
@@ -21,7 +20,7 @@ public class GuiPlayer implements IPlayer {
 		move = null;
 		isRequestingMove = true;
 		try {
-			while (move == null) {
+			while (move == null && isGameRunning) {
 				try {
 					wait();
 				} catch (InterruptedException e) {
@@ -35,8 +34,9 @@ public class GuiPlayer implements IPlayer {
 	}
 
 	@Override
-	public void notifyGameEnded() {
-		setMove(NULL_MOVE);
+	public synchronized void notifyGameEnded() {
+		isGameRunning = false;
+		notify();
 	}
 
 	public boolean isRequestingMove() {
