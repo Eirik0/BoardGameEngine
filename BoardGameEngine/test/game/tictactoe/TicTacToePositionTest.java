@@ -2,6 +2,7 @@ package game.tictactoe;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -60,6 +61,30 @@ public class TicTacToePositionTest {
 		TicTacToePosition position = new TicTacToePosition();
 		position.makeMove(new Coordinate(1, 1));
 		position.makeMove(new Coordinate(0, 2));
+		position.makeMove(new Coordinate(2, 2));
 		assertEquals(position.toString(), position.createCopy().toString());
+	}
+
+	@Test
+	public void testGameEnds() {
+		TicTacToePosition position = new TicTacToePosition();
+		position.makeMove(new Coordinate(1, 0));
+		position.makeMove(new Coordinate(2, 0));
+		position.makeMove(new Coordinate(1, 1));
+		position.makeMove(new Coordinate(2, 1));
+		position.makeMove(new Coordinate(1, 2));
+		assertEquals(0, position.getPossibleMoves().size());
+	}
+
+	@Test
+	public void testWinsExist() {
+		assertTrue(TicTacToePosition.winsExist(new int[][] { { 1, 1, 1 }, { 0, 0, 0 }, { 0, 0, 0 } }, 1));
+		assertTrue(TicTacToePosition.winsExist(new int[][] { { 0, 0, 0 }, { 1, 1, 1 }, { 0, 0, 0 } }, 1));
+		assertTrue(TicTacToePosition.winsExist(new int[][] { { 0, 0, 0 }, { 0, 0, 0 }, { 1, 1, 1 } }, 1));
+		assertTrue(TicTacToePosition.winsExist(new int[][] { { 1, 0, 0 }, { 1, 0, 0 }, { 1, 0, 0 } }, 1));
+		assertTrue(TicTacToePosition.winsExist(new int[][] { { 0, 1, 0 }, { 0, 1, 0 }, { 0, 1, 0 } }, 1));
+		assertTrue(TicTacToePosition.winsExist(new int[][] { { 0, 0, 1 }, { 0, 0, 1 }, { 0, 0, 1 } }, 1));
+		assertTrue(TicTacToePosition.winsExist(new int[][] { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } }, 1));
+		assertTrue(TicTacToePosition.winsExist(new int[][] { { 0, 0, 1 }, { 0, 1, 0 }, { 1, 0, 0 } }, 1));
 	}
 }

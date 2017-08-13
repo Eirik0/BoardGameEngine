@@ -31,7 +31,7 @@ public class AnalysisResult<M> {
 		movesWithScore.add(Pair.valueOf(move, score));
 	}
 
-	public AnalysisResult<M> mergeWith(AnalysisResult<M> result) {
+	public synchronized AnalysisResult<M> mergeWith(AnalysisResult<M> result) {
 		AnalysisResult<M> mergedResult = new AnalysisResult<>();
 		Map<M, Double> mergedMoveMap = new HashMap<>();
 		for (Pair<M, Double> moveWithScore : movesWithScore) {
@@ -66,7 +66,7 @@ public class AnalysisResult<M> {
 		return max;
 	}
 
-	public M getBestMove() {
+	public synchronized M getBestMove() {
 		return bestMove;
 	}
 

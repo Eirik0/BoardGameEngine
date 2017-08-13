@@ -44,18 +44,35 @@ public class TicTacToeTreeSearchTest {
 		assertEquals("[[1, 2, 1], [2, 0, 0], [0, 0, 0]]", position.toString());
 		searchAndMove(treeSearcher, position, 2);
 		assertEquals("[[1, 2, 1], [2, 1, 0], [0, 0, 0]]", position.toString());
-		searchAndMove(treeSearcher, position, 2);
-		assertEquals("[[1, 2, 1], [2, 1, 2], [0, 0, 0]]", position.toString());
 	}
 
-	private void searchAndMove(IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher, TicTacToePosition position, int plies) {
+	private static void searchAndMove(IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher, TicTacToePosition position, int plies) {
 		AnalysisResult<Coordinate> search = search(treeSearcher, position, plies);
 		position.makeMove(search.getBestMove());
 	}
 
-	private AnalysisResult<Coordinate> search(IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher, TicTacToePosition position, int plies) {
+	private static AnalysisResult<Coordinate> search(IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher, TicTacToePosition position, int plies) {
 		treeSearcher.startSearch(position, plies);
-		assertEquals(plies, treeSearcher.getPlies());
 		return treeSearcher.getResult();
+	}
+
+	@Test
+	public void testFullSearch() {
+		TicTacToePosition position = new TicTacToePosition();
+		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
+		AnalysisResult<Coordinate> search = search(treeSearcher, position, 9);
+		System.out.println("Full search:");
+		System.out.println(search);
+	}
+
+	@Test
+	public void testFindWin() {
+		TicTacToePosition position = new TicTacToePosition();
+		position.makeMove(new Coordinate(1, 1));
+		position.makeMove(new Coordinate(0, 1));
+		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
+		AnalysisResult<Coordinate> search = search(treeSearcher, position, 9);
+		System.out.println("Find Win:");
+		System.out.println(search);
 	}
 }

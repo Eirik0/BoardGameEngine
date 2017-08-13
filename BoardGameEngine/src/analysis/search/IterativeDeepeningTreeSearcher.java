@@ -50,7 +50,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		do {
 			++plies;
 			AnalysisResult<M> search = search(position, position.getCurrentPlayer(), plies);
-			if (searchNotStopped && result != null) {
+			if (!searchNotStopped && result != null) { // merge only when the search is stopped
 				result.mergeWith(search);
 			} else {
 				result = search;

@@ -2,6 +2,7 @@ package game.tictactoe;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import game.Coordinate;
@@ -22,6 +23,9 @@ public class TicTacToePosition implements IPosition<Coordinate, TicTacToePositio
 
 	@Override
 	public List<Coordinate> getPossibleMoves() {
+		if (winsExist(board, 1) || winsExist(board, 2)) {
+			return Collections.emptyList();
+		}
 		List<Coordinate> moves = new ArrayList<>();
 		for (int y = 0; y < board.length; y++) {
 			int[] row = board[y];
@@ -32,6 +36,44 @@ public class TicTacToePosition implements IPosition<Coordinate, TicTacToePositio
 			}
 		}
 		return moves;
+	}
+
+	public static boolean winsExist(int[][] cells, int player) {
+		// win with middle
+		if (cells[1][1] == player) {
+			if (cells[0][0] == player && cells[2][2] == player) {
+				return true;
+			}
+			if (cells[2][0] == player && cells[0][2] == player) {
+				return true;
+			}
+			if (cells[1][0] == player && cells[1][2] == player) {
+				return true;
+			}
+			if (cells[0][1] == player && cells[2][1] == player) {
+				return true;
+			}
+		}
+		// win with upper left but not middle
+		if (cells[0][0] == player) {
+			if (cells[1][0] == player && cells[2][0] == player) {
+				return true;
+			}
+			if (cells[0][1] == player && cells[0][2] == player) {
+				return true;
+			}
+		}
+		// win with bottom right but not middle (or upper left)
+		if (cells[2][2] == player) {
+			if (cells[2][0] == player && cells[2][1] == player) {
+				return true;
+			}
+			if (cells[0][2] == player && cells[1][2] == player) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	@Override
@@ -61,7 +103,11 @@ public class TicTacToePosition implements IPosition<Coordinate, TicTacToePositio
 	}
 
 	private void switchPlayer() {
-		currentPlayer = currentPlayer == 1 ? 2 : 1;
+		currentPlayer = otherPlayer(currentPlayer);
+	}
+
+	public static int otherPlayer(int player) {
+		return player == 1 ? 2 : 1;
 	}
 
 	@Override

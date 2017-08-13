@@ -9,7 +9,7 @@ import game.IPlayer;
 import gui.GuiPlayer;
 
 public class TicTacToeGame implements IGame<Coordinate, TicTacToePosition> {
-	private final IPlayer computerPlayer = new ComputerPlayer(new IterativeDeepeningTreeSearcher<>(new MinimaxStrategy<>(new TicTacToePositionEvaluator()), 1), "Computer");
+	private final IPlayer computerPlayer = new ComputerPlayer(new IterativeDeepeningTreeSearcher<>(new MinimaxStrategy<>(new TicTacToePositionEvaluator()), 2), "Computer");
 
 	@Override
 	public String getName() {
