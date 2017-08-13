@@ -2,6 +2,7 @@ package game.tictactoe;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.List;
 
 import game.Coordinate;
 import game.GameRunner;
@@ -49,7 +50,10 @@ public class TicTacToeGameState implements GameState {
 	public void handleUserInput(UserInput input) {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			if (GuiPlayer.HUMAN.isRequestingMove()) {
-				GuiPlayer.HUMAN.setMove(getCoordinate());
+				Coordinate coordinate = getCoordinate();
+				if (gameRunner.getCurrentPosition().getPossibleMoves().contains(coordinate)) {
+					GuiPlayer.HUMAN.setMove(coordinate);
+				}
 			}
 		}
 	}

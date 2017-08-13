@@ -44,6 +44,7 @@ public class PlayerControllerPanel extends JPanel {
 	private JComboBox<IPlayer> createPlayerComboBox(IPlayer[] availablePlayers, IPlayer defaultPlayer) {
 		JComboBox<IPlayer> jComboBox = new JComboBox<>(availablePlayers);
 		jComboBox.setSelectedItem(defaultPlayer);
+		jComboBox.setFocusable(false);
 		return jComboBox;
 	}
 

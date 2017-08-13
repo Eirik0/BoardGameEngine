@@ -1,8 +1,11 @@
 package analysis;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import util.Pair;
 
@@ -26,6 +29,21 @@ public class AnalysisResult<M> {
 			bestMove = move;
 		}
 		movesWithScore.add(Pair.valueOf(move, score));
+	}
+
+	public AnalysisResult<M> mergeWith(AnalysisResult<M> result) {
+		AnalysisResult<M> mergedResult = new AnalysisResult<>();
+		Map<M, Double> mergedMoveMap = new HashMap<>();
+		for (Pair<M, Double> moveWithScore : movesWithScore) {
+			mergedMoveMap.put(moveWithScore.getFirst(), moveWithScore.getSecond());
+		}
+		for (Pair<M, Double> moveWithScore : result.movesWithScore) {
+			mergedMoveMap.put(moveWithScore.getFirst(), moveWithScore.getSecond());
+		}
+		for (Entry<M, Double> moveWithScore : mergedMoveMap.entrySet()) {
+			mergedResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue());
+		}
+		return mergedResult;
 	}
 
 	public void addUnanalyzedMove(M move) {

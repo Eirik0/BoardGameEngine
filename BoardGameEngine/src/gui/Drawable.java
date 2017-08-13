@@ -11,6 +11,7 @@ public interface Drawable {
 	}
 
 	public default void drawCenteredString(Graphics2D g, String text, double x, double y) {
+		g.setFont(g.getFont().deriveFont(44f));
 		FontMetrics metrics = g.getFontMetrics();
 		double height = metrics.getHeight();
 		double width = metrics.stringWidth(text);

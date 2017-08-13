@@ -16,7 +16,7 @@ public class GuiPlayer implements IPlayer {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public synchronized <M, P extends IPosition<M, P>> M getMove(IPosition<M, P> position) {
+	public synchronized <M, P extends IPosition<M, P>> M getMove(P position) {
 		move = null;
 		isRequestingMove = true;
 		isGameRunning = true;

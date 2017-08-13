@@ -35,13 +35,14 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	}
 
 	public void searchForever(P position) {
+		result = null;
 		thread = new Thread(() -> {
 			searchNotStopped = true;
 			plies = 0;
 			do {
 				++plies;
-				result = search(position, position.getCurrentPlayer(), plies);
-				// XXX merge results on cancel
+				AnalysisResult<M> search = search(position, position.getCurrentPlayer(), plies);
+				result = result == null ? search : result.mergeWith(search);
 			} while (searchNotStopped);
 		});
 		thread.start();
