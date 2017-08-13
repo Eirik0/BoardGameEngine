@@ -35,17 +35,27 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	}
 
 	public void searchForever(P position) {
-		result = null;
-		thread = new Thread(() -> {
-			searchNotStopped = true;
-			plies = 0;
-			do {
-				++plies;
-				AnalysisResult<M> search = search(position, position.getCurrentPlayer(), plies);
-				result = result == null ? search : result.mergeWith(search);
-			} while (searchNotStopped);
-		});
+		searchForever(position, Integer.MAX_VALUE);
+	}
+
+	public void searchForever(P position, int maxPlies) {
+		thread = new Thread(() -> startSearch(position, maxPlies));
 		thread.start();
+	}
+
+	public void startSearch(P position, int maxPlies) {
+		result = null;
+		searchNotStopped = true;
+		plies = 0;
+		do {
+			++plies;
+			AnalysisResult<M> search = search(position, position.getCurrentPlayer(), plies);
+			if (searchNotStopped && result != null) {
+				result.mergeWith(search);
+			} else {
+				result = search;
+			}
+		} while (searchNotStopped && plies < maxPlies);
 	}
 
 	public void stopSearch() {

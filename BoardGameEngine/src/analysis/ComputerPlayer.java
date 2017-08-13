@@ -19,16 +19,10 @@ public class ComputerPlayer implements IPlayer {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		treeSearcher.stopSearch();
-		System.out.println(position.getPossibleMoves());
-		AnalysisResult<?> result = treeSearcher.getResult();
-		System.out.println(result.getMovesWithScore());
-		Object bestMove = result.getBestMove();
-		System.out.println(bestMove);
-		return (M) bestMove;
+		return (M) treeSearcher.getResult().getBestMove();
 	}
 
 	@Override

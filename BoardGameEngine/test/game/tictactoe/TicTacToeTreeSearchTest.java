@@ -1,0 +1,61 @@
+package game.tictactoe;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
+import analysis.AnalysisResult;
+import analysis.MinimaxStrategy;
+import analysis.search.IterativeDeepeningTreeSearcher;
+import game.Coordinate;
+
+public class TicTacToeTreeSearchTest {
+	private static IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> newTreeSearcher() {
+		return new IterativeDeepeningTreeSearcher<>(new MinimaxStrategy<>(new TicTacToePositionEvaluator()), 1);
+	}
+
+	@Test
+	public void testSearchTicTacToe() {
+		TicTacToePosition position = new TicTacToePosition();
+		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
+		AnalysisResult<Coordinate> search = treeSearcher.search(position, 1, 1);
+		assertEquals(new Coordinate(0, 0), search.getBestMove());
+	}
+
+	@Test
+	public void testSearchTicTacToe_TestSearchTwoPlies() throws InterruptedException {
+		TicTacToePosition position = new TicTacToePosition();
+		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
+		AnalysisResult<Coordinate> result = search(treeSearcher, position, 2);
+		assertEquals(new Coordinate(0, 0), result.getBestMove());
+	}
+
+	@Test
+	public void testSearchTicTacToe_TestPlayGame() throws InterruptedException {
+		TicTacToePosition position = new TicTacToePosition();
+		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
+		searchAndMove(treeSearcher, position, 2);
+		assertEquals("[[1, 0, 0], [0, 0, 0], [0, 0, 0]]", position.toString());
+		searchAndMove(treeSearcher, position, 2);
+		assertEquals("[[1, 2, 0], [0, 0, 0], [0, 0, 0]]", position.toString());
+		searchAndMove(treeSearcher, position, 2);
+		assertEquals("[[1, 2, 1], [0, 0, 0], [0, 0, 0]]", position.toString());
+		searchAndMove(treeSearcher, position, 2);
+		assertEquals("[[1, 2, 1], [2, 0, 0], [0, 0, 0]]", position.toString());
+		searchAndMove(treeSearcher, position, 2);
+		assertEquals("[[1, 2, 1], [2, 1, 0], [0, 0, 0]]", position.toString());
+		searchAndMove(treeSearcher, position, 2);
+		assertEquals("[[1, 2, 1], [2, 1, 2], [0, 0, 0]]", position.toString());
+	}
+
+	private void searchAndMove(IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher, TicTacToePosition position, int plies) {
+		AnalysisResult<Coordinate> search = search(treeSearcher, position, plies);
+		position.makeMove(search.getBestMove());
+	}
+
+	private AnalysisResult<Coordinate> search(IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher, TicTacToePosition position, int plies) {
+		treeSearcher.startSearch(position, plies);
+		assertEquals(plies, treeSearcher.getPlies());
+		return treeSearcher.getResult();
+	}
+}

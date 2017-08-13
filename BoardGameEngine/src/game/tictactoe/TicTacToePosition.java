@@ -55,7 +55,7 @@ public class TicTacToePosition implements IPosition<Coordinate, TicTacToePositio
 	public TicTacToePosition createCopy() {
 		int[][] boardCopy = new int[3][3];
 		for (int y = 0; y < board.length; y++) {
-			System.arraycopy(board[y], 0, boardCopy[y], 0, 2);
+			System.arraycopy(board[y], 0, boardCopy[y], 0, 3);
 		}
 		return new TicTacToePosition(boardCopy, currentPlayer);
 	}

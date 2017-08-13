@@ -13,9 +13,9 @@ public class AnalysisResult<M> {
 	private final List<Pair<M, Double>> movesWithScore = new ArrayList<>();
 	private final List<M> unanalyzedMoves = new ArrayList<>();
 
-	private double min = Double.POSITIVE_INFINITY;
-	private double max = Double.NEGATIVE_INFINITY;
-	private M bestMove;
+	private volatile double min = Double.POSITIVE_INFINITY;
+	private volatile double max = Double.NEGATIVE_INFINITY;
+	private volatile M bestMove;
 
 	public AnalysisResult() {
 	}
