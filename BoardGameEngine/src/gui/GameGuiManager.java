@@ -3,7 +3,8 @@ package gui;
 import java.util.function.Consumer;
 
 import game.IGame;
-import gui.GameState.UserInput;
+import gui.gamestate.GameState;
+import gui.gamestate.GameState.UserInput;
 
 public class GameGuiManager {
 	private static int mouseX;
@@ -54,6 +55,9 @@ public class GameGuiManager {
 	public static void setComponentSize(int componentWidth, int componentHeight) {
 		GameGuiManager.componentWidth = componentWidth;
 		GameGuiManager.componentHeight = componentHeight;
+		if (currentState != null) {
+			currentState.componentResized();
+		}
 	}
 
 	public static GameState getGameState() {

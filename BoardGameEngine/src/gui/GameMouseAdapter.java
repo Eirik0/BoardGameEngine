@@ -4,7 +4,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
-import gui.GameState.UserInput;
+import gui.gamestate.GameState.UserInput;
 
 public class GameMouseAdapter extends MouseAdapter {
 	@Override

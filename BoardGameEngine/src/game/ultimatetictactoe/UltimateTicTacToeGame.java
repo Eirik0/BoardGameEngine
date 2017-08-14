@@ -7,7 +7,7 @@ import gui.GuiPlayer;
 public class UltimateTicTacToeGame implements IGame<UTTTCoordinate, UltimateTicTacToePosition> {
 	@Override
 	public String getName() {
-		return null;
+		return "Ultimate Tic Tac Toe";
 	}
 
 	@Override

@@ -17,7 +17,7 @@ import game.GameRunner;
 import game.IGame;
 import game.IPlayer;
 import gui.GameGuiManager;
-import gui.MainMenuState;
+import gui.gamestate.MainMenuState;
 
 @SuppressWarnings("serial")
 public class PlayerControllerPanel extends JPanel {

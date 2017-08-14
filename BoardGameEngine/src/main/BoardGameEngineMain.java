@@ -2,6 +2,7 @@ package main;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
@@ -12,20 +13,25 @@ import javax.swing.SwingUtilities;
 import game.GameRunner;
 import game.IGame;
 import game.tictactoe.TicTacToeGame;
-import game.tictactoe.TicTacToeGameState;
+import game.tictactoe.TicTacToeGameRenderer;
+import game.ultimatetictactoe.UltimateTicTacToeGame;
+import game.ultimatetictactoe.UltimateTicTacToeGameRenderer;
 import gui.FixedDurationGameLoop;
 import gui.GameGuiManager;
 import gui.GameImage;
 import gui.GameMouseAdapter;
 import gui.GamePanel;
 import gui.GameRegistry;
-import gui.MainMenuState;
+import gui.gamestate.GameRunningState;
+import gui.gamestate.MainMenuState;
 
 public class BoardGameEngineMain {
 	private static final String TITLE = "Board Game Engine";
 
 	public static final int DEFAULT_WIDTH = 1024;
 	public static final int DEFAULT_HEIGHT = 768;
+
+	public static final Font DEFAULT_FONT = new Font("consolas", Font.PLAIN, 24);
 
 	public static void main(String[] args) {
 		registerGames();
@@ -41,7 +47,7 @@ public class BoardGameEngineMain {
 		GameGuiManager.setSetGameAction(gameClass -> {
 			IGame<?, ?> game = GameRegistry.newGame(gameClass);
 			GameRunner<?, ?> gameRunner = new GameRunner<>(game);
-			GameGuiManager.setGameState(GameRegistry.newGameState(gameClass, gameRunner));
+			setGameState(gameClass, gameRunner);
 			PlayerControllerPanel playerControllerPanel = new PlayerControllerPanel(game, gameRunner);
 			playerControllerPanel.setBackAction(() -> {
 				contentPane.remove(playerControllerPanel);
@@ -57,7 +63,7 @@ public class BoardGameEngineMain {
 		gamePanel.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				gameImage.checkResized(gamePanel);
+				gameImage.checkResized(gamePanel.getWidth(), gamePanel.getHeight());
 				GameGuiManager.setComponentSize(gamePanel.getWidth(), gamePanel.getHeight());
 			}
 		});
@@ -73,7 +79,13 @@ public class BoardGameEngineMain {
 	}
 
 	private static void registerGames() {
-		GameRegistry.registerGame(TicTacToeGame.class, TicTacToeGameState.class);
+		GameRegistry.registerGame(TicTacToeGame.class, TicTacToeGameRenderer.class);
+		GameRegistry.registerGame(UltimateTicTacToeGame.class, UltimateTicTacToeGameRenderer.class);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static void setGameState(Class<? extends IGame<?, ?>> gameClass, GameRunner<?, ?> gameRunner) {
+		GameGuiManager.setGameState(new GameRunningState(gameRunner, GameRegistry.newGameRenderer(gameClass)));
 	}
 
 	private static GamePanel createGamePanel(GameImage gameImage) {

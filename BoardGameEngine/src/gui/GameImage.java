@@ -28,12 +28,12 @@ public class GameImage {
 		graphics.drawImage(oldImage, 0, 0, width, height, null);
 	}
 
-	public void checkResized(GamePanel component) {
-		if (component.getWidth() <= 0 || component.getHeight() < 0) {
+	public void checkResized(int width, int height) {
+		if (width <= 0 || height < 0) {
 			return;
 		}
-		if (image.getWidth() != component.getWidth() || image.getHeight() != component.getHeight()) {
-			resizeImage(component.getWidth(), component.getHeight());
+		if (image.getWidth() != width || image.getHeight() != height) {
+			resizeImage(width, height);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package gui;
+package gui.gamestate;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -7,12 +7,16 @@ import java.util.List;
 
 import game.IGame;
 import game.tictactoe.TicTacToeGame;
+import game.ultimatetictactoe.UltimateTicTacToeGame;
+import gui.Drawable;
+import gui.GameGuiManager;
 
 public class MainMenuState implements GameState {
 	List<MenuItem> menuItems = new ArrayList<>();
 
 	public MainMenuState() {
-		menuItems.add(new MenuItem("Tic Tac Toe", TicTacToeGame.class, .25, .25, .75, .75));
+		menuItems.add(new MenuItem("Tic Tac Toe", TicTacToeGame.class, .25, .25, .75, .45));
+		menuItems.add(new MenuItem("Ultimate Tic Tac Toe", UltimateTicTacToeGame.class, .20, .55, .80, .75));
 	}
 
 	@Override
@@ -22,6 +26,11 @@ public class MainMenuState implements GameState {
 		for (MenuItem menuItem : menuItems) {
 			menuItem.drawOn(graphics);
 		}
+	}
+
+	@Override
+	public void componentResized() {
+		// do nothing
 	}
 
 	@Override

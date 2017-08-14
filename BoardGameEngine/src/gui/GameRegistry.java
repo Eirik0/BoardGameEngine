@@ -1,18 +1,17 @@
 package gui;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-import game.GameRunner;
 import game.IGame;
 import game.IPosition;
+import gui.gamestate.IGameRenderer;
 
 public class GameRegistry {
-	private static final Map<Class<? extends IGame<?, ?>>, Class<? extends GameState>> gameStateMap = new HashMap<>();
+	private static final Map<Class<? extends IGame<?, ?>>, Class<? extends IGameRenderer<?, ?>>> gameStateMap = new HashMap<>();
 
-	public static void registerGame(Class<? extends IGame<?, ?>> gameClass, Class<? extends GameState> gameState) {
-		gameStateMap.put(gameClass, gameState);
+	public static <M, P extends IPosition<M, P>> void registerGame(Class<? extends IGame<M, P>> gameClass, Class<? extends IGameRenderer<M, P>> gameRenderer) {
+		gameStateMap.put(gameClass, gameRenderer);
 	}
 
 	public static <M, P extends IPosition<M, P>> IGame<M, P> newGame(Class<? extends IGame<M, P>> gameClass) {
@@ -23,15 +22,16 @@ public class GameRegistry {
 		}
 	}
 
-	public static GameState newGameState(Class<? extends IGame<?, ?>> gameClass, GameRunner<?, ?> gameRunner) {
-		Class<? extends GameState> gameState = gameStateMap.get(gameClass);
-		if (gameState == null) {
-			throw new IllegalStateException("No game state found for " + gameClass.getName());
+	@SuppressWarnings("unchecked")
+	public static <M, P extends IPosition<M, P>> IGameRenderer<M, P> newGameRenderer(Class<? extends IGame<M, P>> gameClass) {
+		Class<? extends IGameRenderer<?, ?>> gameRenderer = gameStateMap.get(gameClass);
+		if (gameRenderer == null) {
+			throw new IllegalStateException("No game renderer found for " + gameClass.getName());
 		}
 		try {
-			return gameState.getConstructor(gameRunner.getClass()).newInstance(gameRunner);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			throw new IllegalStateException("Could not instantiate " + gameState.getClass().getName() + " with " + gameRunner.getClass().getName(), e);
+			return (IGameRenderer<M, P>) gameRenderer.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new IllegalStateException("Could not instantiate " + gameRenderer.getClass().getName(), e);
 		}
 	}
 }
