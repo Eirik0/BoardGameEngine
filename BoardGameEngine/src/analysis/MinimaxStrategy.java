@@ -8,7 +8,7 @@ import util.Pair;
 public class MinimaxStrategy<M, P extends IPosition<M, P>> implements IDepthBasedStrategy<M, P> {
 	private final IPositionEvaluator<M, P> positionEvaluator;
 
-	private volatile boolean searchCanceled = false;
+	private volatile boolean searchCancelled = false;
 	private volatile boolean isSearching = false;
 	private volatile int remainingBranches = 0;
 
@@ -22,8 +22,8 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> implements IDepthBase
 		List<M> possibleMoves;
 		synchronized (this) { // so we can't getRemainingBranches() after isSearching until we have counted how many
 			isSearching = true;
-			searchCanceled = false;
-			analysisResult = new AnalysisResult<M>();
+			searchCancelled = false;
+			analysisResult = new AnalysisResult<>();
 			if (plies == 0) {
 				isSearching = false;
 				return analysisResult;
@@ -37,7 +37,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> implements IDepthBase
 			position.makeMove(move);
 			double score = minimax(position, positionEvaluator, player, plies - 1);
 			position.unmakeMove(move);
-			if (searchCanceled) {
+			if (searchCancelled) { // we need to check search cancelled after making the call to minimax
 				analysisResult.addUnanalyzedMove(move);
 			} else {
 				analysisResult.addMoveWithScore(move, score);
@@ -54,7 +54,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> implements IDepthBase
 	}
 
 	private double minimax(P position, IPositionEvaluator<M, P> positionEvaluator, int player, int plies) {
-		if (searchCanceled) {
+		if (searchCancelled) {
 			return 0;
 		}
 
@@ -93,7 +93,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> implements IDepthBase
 
 	@Override
 	public void stopSearch() {
-		searchCanceled = true;
+		searchCancelled = true;
 	}
 
 	@Override
@@ -120,6 +120,6 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> implements IDepthBase
 
 	@Override
 	public IDepthBasedStrategy<M, P> createCopy() {
-		return new MinimaxStrategy<M, P>(positionEvaluator);
+		return new MinimaxStrategy<>(positionEvaluator);
 	}
 }

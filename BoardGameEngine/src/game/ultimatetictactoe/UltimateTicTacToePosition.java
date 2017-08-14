@@ -9,7 +9,7 @@ import game.Coordinate;
 import game.IPosition;
 
 public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, UltimateTicTacToePosition> {
-	private static final int ANY_BOARD = -1;
+	static final int ANY_BOARD = -1;
 
 	static final int BOARD_WIDTH = 9;
 	static final int UNPLAYED = 0;

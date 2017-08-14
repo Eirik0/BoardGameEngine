@@ -13,19 +13,24 @@ import gui.gamestate.IGameRenderer;
 
 public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordinate, UltimateTicTacToePosition> {
 	private static final Color WOOD_COLOR = new Color(166, 128, 100);
+
+	private int boardWidth = 0;
+	private int smallBoardWidth = 0;
 	private double offsetX = 0;
 	private double offsetY = 0;
-	private double cellWidth;
+	private double cellWidth = 0;
 
 	@Override
 	public void initializeAndDrawBoard(Graphics2D g) {
 		int imageWidth = GameGuiManager.getComponentWidth();
 		int imageHeight = GameGuiManager.getComponentHeight();
-		int boardWidth = Math.min(imageWidth, imageHeight);
 
-		offsetX = (double) (imageWidth - boardWidth) / 2;
-		offsetY = (double) (imageHeight - boardWidth) / 2;
-		cellWidth = (double) boardWidth / 9;
+		boardWidth = Math.min(imageWidth, imageHeight);
+		smallBoardWidth = boardWidth / 3;
+
+		offsetX = (imageWidth - boardWidth) / 2;
+		offsetY = (imageHeight - boardWidth) / 2;
+		cellWidth = boardWidth / 9;
 
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, imageWidth, imageHeight);
@@ -34,7 +39,6 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 		g.fillRect(round(offsetX), round(offsetY), boardWidth, boardWidth);
 
 		int padding = getSquareWidthFraction(.1);
-		int smallBoardWidth = boardWidth / 3;
 
 		g.setColor(Color.BLACK);
 		drawBoard(g, offsetX, offsetY, boardWidth, padding, 4);
@@ -63,6 +67,12 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 
 	@Override
 	public void drawPosition(Graphics2D g, UltimateTicTacToePosition position) {
+		drawMoves(g, position);
+		highlightBoardInPlay(g, position);
+		drawMouseOn(g, position);
+	}
+
+	private void drawMoves(Graphics2D g, UltimateTicTacToePosition position) {
 		g.setColor(Color.BLACK);
 		Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, getSquareWidthFraction(.33));
 		for (int n = 0; n < UltimateTicTacToePosition.BOARD_WIDTH; ++n) {
@@ -76,7 +86,6 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 		}
 		Font largeFont = new Font(Font.SANS_SERIF, Font.PLAIN, getSquareWidthFraction(3));
 		for (int i = 0; i < UltimateTicTacToePosition.BOARD_WIDTH; ++i) {
-			Coordinate boardNM = new Coordinate(i, 4);
 			if (position.wonBoards[i] != UltimateTicTacToePosition.UNPLAYED) {
 				String player;
 				if (position.wonBoards[i] == UltimateTicTacToePosition.BOTH_PLAYERS) {
@@ -84,23 +93,33 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 				} else {
 					player = position.wonBoards[i] == UltimateTicTacToePosition.PLAYER_1 ? "X" : "O";
 				}
-				Coordinate intersection = UltimateTicTacToeUtilities.getBoardXY(boardNM.x, boardNM.y);
+				Coordinate intersection = UltimateTicTacToeUtilities.getBoardXY(i, 4); // 4 = the center square of that board
 				drawCenteredString(g, largeFont, player, getCenterX(intersection.x), getCenterY(intersection.y));
 			}
 		}
-		drawMouseOn(g, position);
+	}
+
+	private void highlightBoardInPlay(Graphics2D g, UltimateTicTacToePosition position) {
+		// draw the current board in play
+		g.setColor(Color.BLUE);
+		int padding = getSquareWidthFraction(.05);
+		if (position.currentBoard == UltimateTicTacToePosition.ANY_BOARD) {
+			int highlightWidth = boardWidth - 2 * padding;
+			g.drawRect(round(offsetX) + padding, round(offsetY) + padding, highlightWidth, highlightWidth);
+		} else {
+			Coordinate boardXY = UltimateTicTacToeUtilities.getBoardXY(position.currentBoard, 0); // 0 = upper left square
+			int highlightWidth = smallBoardWidth - 2 * padding;
+			g.drawRect(getSquareCornerX(boardXY.x) + padding, getSquareCornerY(boardXY.y) + padding, highlightWidth, highlightWidth);
+		}
 	}
 
 	private void drawMouseOn(Graphics g, UltimateTicTacToePosition position) {
-		if (GameGuiManager.isMouseEntered() && GuiPlayer.HUMAN.isRequestingMove()) {
-			int mouseX = GameGuiManager.getMouseX();
-			int mouseY = GameGuiManager.getMouseY();
-			Coordinate coordinate = getCoordinate(mouseX, mouseY);
-			// XXX highlight current board
+		if (GuiPlayer.HUMAN.isRequestingMove() && GameGuiManager.isMouseEntered()) {// highlight the cell if the mouse if over a playable move
+			Coordinate coordinate = getCoordinate(GameGuiManager.getMouseX(), GameGuiManager.getMouseY());
 			if (position.getPossibleMoves().contains(new UTTTCoordinate(coordinate, position.currentBoard))) {
 				g.setColor(Color.BLUE);
-				int intersectionX = getIntersectionX(mouseX);
-				int intersectionY = getIntersectionY(mouseY);
+				int intersectionX = getIntersectionX(GameGuiManager.getMouseX());
+				int intersectionY = getIntersectionY(GameGuiManager.getMouseY());
 
 				int snapX = getSquareCornerX(intersectionX);
 				int snapY = getSquareCornerY(intersectionY);
