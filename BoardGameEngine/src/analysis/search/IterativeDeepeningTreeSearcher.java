@@ -10,7 +10,8 @@ import analysis.IDepthBasedStrategy;
 import game.IPosition;
 
 public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
-	private Thread thread;
+	private Thread treeSearchThread;
+	private int theadNum = 0;
 
 	private final IDepthBasedStrategy<M, P> strategy;
 
@@ -39,8 +40,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	}
 
 	public void searchForever(P position, int maxPlies) {
-		thread = new Thread(() -> startSearch(position, maxPlies));
-		thread.start();
+		treeSearchThread = new Thread(() -> startSearch(position, maxPlies), "Tree_Search_Thread_" + theadNum++);
+		treeSearchThread.start();
 	}
 
 	public void startSearch(P position, int maxPlies) {
@@ -61,7 +62,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	public void stopSearch() {
 		stopWorkers();
 		try {
-			thread.join();
+			treeSearchThread.join();
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
