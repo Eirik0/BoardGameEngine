@@ -2,6 +2,7 @@ package game.forkjoinexample;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ public class ForkJoinExampleThreadTracker {
 	public static final int SLEEP_PER_MERGE = 63;
 
 	private static Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> nodeToInfoMap = new HashMap<>();
-	private static List<List<ForkJoinExampleNode>> nodesByBredth = new ArrayList<>();
+	private static List<List<ForkJoinExampleNode>> nodesByBredth = Collections.synchronizedList(new ArrayList<>());
 
 	public static synchronized void init(ForkJoinExampleTree tree) {
 		nodesByBredth.clear();
@@ -27,7 +28,7 @@ public class ForkJoinExampleThreadTracker {
 	//3 4 6 7
 	private static void buildList(ForkJoinExampleNode currentNode, int depth) {
 		if (depth + 1 > nodesByBredth.size()) {
-			nodesByBredth.add(new ArrayList<>());
+			nodesByBredth.add(Collections.synchronizedList(new ArrayList<>()));
 		}
 		nodesByBredth.get(depth).add(currentNode);
 		for (ForkJoinExampleNode child : currentNode.getChildren()) {
