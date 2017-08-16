@@ -2,12 +2,10 @@ package game.forkjoinexample;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
+import java.util.Random;
 
 import game.forkjoinexample.ForkJoinExampleThreadTracker.ForkJoinExampleNodeInfo;
 import gui.GameGuiManager;
@@ -16,11 +14,10 @@ import gui.gamestate.IGameRenderer;
 import util.Pair;
 
 public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampleNode, ForkJoinExampleTree> {
-	private static final Queue<Color> COLOR_QUEUE = new LinkedList<>(Arrays.asList(Color.RED, Color.BLUE, Color.GREEN, Color.CYAN, Color.MAGENTA));
-
 	private static final int BREDTH = (int) Math.round(Math.pow(ForkJoinExampleGame.DEPTH, ForkJoinExampleGame.BRANCHING_FACTOR));
 
 	private final Map<String, Color> threadColorMap = new HashMap<>();
+	private final Random random = new Random();
 
 	private double nodeRadius = 0;
 
@@ -63,7 +60,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 	private Color getColorFromThreadName(String threadName) {
 		Color color = threadColorMap.get(threadName);
 		if (color == null) {
-			color = COLOR_QUEUE.poll();
+			color = new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255));
 			threadColorMap.put(threadName, color);
 		}
 		return color;

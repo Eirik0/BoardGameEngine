@@ -7,6 +7,8 @@ import java.util.function.Consumer;
 import game.IPosition;
 
 public class TreeSearchWorker<M, P extends IPosition<M, P>> {
+	private static int threadNum = 0;
+
 	private final String threadName;
 
 	private final Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer;
@@ -17,6 +19,10 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 
 	private final BlockingQueue<Runnable> runnableQueue = new ArrayBlockingQueue<>(1);
 	private volatile GameTreeSearch<M, P> treeSearch;
+
+	public TreeSearchWorker(Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer) {
+		this("WorkerThread_" + threadNum++, completedWorkerConsumer);
+	}
 
 	public TreeSearchWorker(String threadName, Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer) {
 		this.threadName = threadName;
@@ -30,7 +36,7 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 					throw new RuntimeException(e);
 				}
 			}
-		} , threadName);
+		}, threadName);
 
 		thread.start();
 	}

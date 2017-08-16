@@ -5,7 +5,7 @@ import game.IGame;
 import game.IPlayer;
 
 public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinExampleTree> {
-	public static final int DEPTH = 7;
+	public static final int DEPTH = 8;
 	public static final int BRANCHING_FACTOR = 2;
 
 	private final ComputerPlayer oneThreadPlayer = new ComputerPlayer(new ForkJoinExampleStraregy(), 1, "1 Worker", Long.MAX_VALUE);
@@ -13,6 +13,7 @@ public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinE
 	private final ComputerPlayer threeThreadPlayer = new ComputerPlayer(new ForkJoinExampleStraregy(), 3, "3 Workers", Long.MAX_VALUE);
 	private final ComputerPlayer fourThreadPlayer = new ComputerPlayer(new ForkJoinExampleStraregy(), 4, "4 Workers", Long.MAX_VALUE);
 	private final ComputerPlayer fiveThreadPlayer = new ComputerPlayer(new ForkJoinExampleStraregy(), 5, "5 Workers", Long.MAX_VALUE);
+	private final ComputerPlayer tenThreadPlayer = new ComputerPlayer(new ForkJoinExampleStraregy(), 10, "10 Workers", Long.MAX_VALUE);
 
 	@Override
 	public String getName() {
@@ -26,7 +27,7 @@ public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinE
 
 	@Override
 	public IPlayer[] getAvailablePlayers() {
-		return new IPlayer[] { oneThreadPlayer, twoThreadPlayer, threeThreadPlayer, fourThreadPlayer, fiveThreadPlayer };
+		return new IPlayer[] { oneThreadPlayer, twoThreadPlayer, threeThreadPlayer, fourThreadPlayer, fiveThreadPlayer, tenThreadPlayer };
 	}
 
 	@Override

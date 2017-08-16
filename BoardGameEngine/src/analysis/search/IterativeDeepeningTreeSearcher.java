@@ -31,7 +31,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		this.strategy = strategy;
 		this.numWorkers = numWorkers;
 		for (int i = 0; i < numWorkers; i++) {
-			availableWorkers.add(new TreeSearchWorker<M, P>("WorkerThread_" + i, finishedWorker -> workerComplete(finishedWorker)));
+			availableWorkers.add(new TreeSearchWorker<M, P>(finishedWorker -> workerComplete(finishedWorker)));
 		}
 	}
 
