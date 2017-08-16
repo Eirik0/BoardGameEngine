@@ -13,6 +13,7 @@ import game.forkjoinexample.ForkJoinExampleThreadTracker.ForkJoinExampleNodeInfo
 import gui.GameGuiManager;
 import gui.gamestate.GameState.UserInput;
 import gui.gamestate.IGameRenderer;
+import util.Pair;
 
 public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampleNode, ForkJoinExampleTree> {
 	private static final Queue<Color> COLOR_QUEUE = new LinkedList<>(Arrays.asList(Color.RED, Color.BLUE, Color.GREEN, Color.CYAN, Color.MAGENTA));
@@ -43,8 +44,9 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 				double nodeY = nodeInfo.fractionY * height;
 				// draw lines to children
 				g.setColor(Color.BLACK);
-				for (ForkJoinExampleNode child : node.getChildren()) {
-					ForkJoinExampleNodeInfo childInfo = ForkJoinExampleThreadTracker.getForkJoinExampleNodeInfo(child);
+				for (Pair<ForkJoinExampleNodeInfo, String> child : nodeInfo.getChildren()) {
+					g.setColor(getColorFromThreadName(child.getSecond()));
+					ForkJoinExampleNodeInfo childInfo = child.getFirst();
 					g.drawLine(round(nodeX), round(nodeY), round(childInfo.fractionX * width), round(childInfo.fractionY * height));
 				}
 				// draw node

@@ -1,9 +1,12 @@
 package game.forkjoinexample;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import util.Pair;
 
 public class ForkJoinExampleThreadTracker {
 	public static final int SLEEP_PER_EVAL = 125;
@@ -56,6 +59,10 @@ public class ForkJoinExampleThreadTracker {
 
 	public static void setThreadName(ForkJoinExampleNode node, long sleep) {
 		nodeToInfoMap.get(node).setThreadName(Thread.currentThread().getName());
+		sleep(sleep);
+	}
+
+	private static void sleep(long sleep) {
 		try {
 			Thread.sleep(sleep);
 		} catch (InterruptedException e) {
@@ -63,10 +70,16 @@ public class ForkJoinExampleThreadTracker {
 		}
 	}
 
+	public static void branchVisited(ForkJoinExampleNode parent, ForkJoinExampleNode child, long sleep) {
+		nodeToInfoMap.get(parent).addChild(child);
+		sleep(sleep);
+	}
+
 	static class ForkJoinExampleNodeInfo {
 		final double fractionX;
 		final double fractionY;
 		private String threadName;
+		private final Map<ForkJoinExampleNode, Pair<ForkJoinExampleNodeInfo, String>> childMap = new HashMap<>(); // child -> info,threadname
 
 		public ForkJoinExampleNodeInfo(double fractionX, double fractionY) {
 			this.fractionX = fractionX;
@@ -80,5 +93,14 @@ public class ForkJoinExampleThreadTracker {
 		public void setThreadName(String threadName) {
 			this.threadName = threadName;
 		}
+
+		public Collection<Pair<ForkJoinExampleNodeInfo, String>> getChildren() {
+			return childMap.values();
+		}
+
+		public void addChild(ForkJoinExampleNode child) {
+			childMap.put(child, Pair.valueOf(ForkJoinExampleThreadTracker.getForkJoinExampleNodeInfo(child), Thread.currentThread().getName()));
+		}
+
 	}
 }

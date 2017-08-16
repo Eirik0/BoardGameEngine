@@ -19,8 +19,10 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 			ForkJoinExampleThreadTracker.setThreadName(position.getCurrentNode(), ForkJoinExampleThreadTracker.SLEEP_PER_EVAL);
 			return 0;
 		} else {
+			ForkJoinExampleNode parent = position.getCurrentNode();
 			for (ForkJoinExampleNode move : possibleMoves) {
 				position.makeMove(move);
+				ForkJoinExampleThreadTracker.branchVisited(parent, position.getCurrentNode(), ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
 				evaluate(position, player, plies - 1);
 				position.unmakeMove(move);
 			}
