@@ -15,7 +15,7 @@ public class ForkJoinExampleThreadTracker {
 	private static Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> nodeToInfoMap = new HashMap<>();
 	private static List<List<ForkJoinExampleNode>> nodesByBredth = new ArrayList<>();
 
-	public static void init(ForkJoinExampleTree tree) {
+	public static synchronized void init(ForkJoinExampleTree tree) {
 		nodesByBredth.clear();
 		nodeToInfoMap.clear();
 		buildList(tree.getCurrentNode(), 0);
@@ -49,7 +49,7 @@ public class ForkJoinExampleThreadTracker {
 		}
 	}
 
-	public static List<List<ForkJoinExampleNode>> getNodesByBredth() {
+	public static synchronized List<List<ForkJoinExampleNode>> getNodesByBredth() {
 		return nodesByBredth;
 	}
 
