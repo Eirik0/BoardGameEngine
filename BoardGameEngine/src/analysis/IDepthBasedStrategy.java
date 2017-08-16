@@ -12,9 +12,9 @@ public interface IDepthBasedStrategy<M, P extends IPosition<M, P>> {
 
 	public void stopSearch();
 
+	public int getRemainingBranches();
+
 	public AnalysisResult<M> join(P position, int player, List<Pair<M, Double>> movesWithScore, List<Pair<M, AnalysisResult<M>>> results);
 
 	public IDepthBasedStrategy<M, P> createCopy();
-
-	public int getRemainingBranches();
 }

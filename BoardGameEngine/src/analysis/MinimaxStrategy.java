@@ -5,55 +5,19 @@ import java.util.List;
 import game.IPosition;
 import util.Pair;
 
-public class MinimaxStrategy<M, P extends IPosition<M, P>> implements IDepthBasedStrategy<M, P> {
+public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
 	private final IPositionEvaluator<M, P> positionEvaluator;
-
-	private volatile boolean searchCancelled = false;
-	private volatile boolean isSearching = false;
-	private volatile int remainingBranches = 0;
 
 	public MinimaxStrategy(IPositionEvaluator<M, P> positionEvaluator) {
 		this.positionEvaluator = positionEvaluator;
 	}
 
 	@Override
-	public AnalysisResult<M> search(P position, int player, int plies) {
-		AnalysisResult<M> analysisResult;
-		List<M> possibleMoves;
-		synchronized (this) { // so we can't getRemainingBranches() after isSearching until we have counted how many
-			isSearching = true;
-			searchCancelled = false;
-			analysisResult = new AnalysisResult<>();
-			if (plies == 0) {
-				isSearching = false;
-				return analysisResult;
-			}
-
-			possibleMoves = position.getPossibleMoves();
-			remainingBranches = possibleMoves.size();
-		}
-
-		for (M move : possibleMoves) {
-			position.makeMove(move);
-			double score = minimax(position, positionEvaluator, player, plies - 1);
-			position.unmakeMove(move);
-			if (searchCancelled) { // we need to check search cancelled after making the call to minimax
-				analysisResult.addUnanalyzedMove(move);
-			} else {
-				analysisResult.addMoveWithScore(move, score);
-			}
-			--remainingBranches;
-		}
-		isSearching = false;
-		return analysisResult;
+	public double evaluate(P position, int player, int plies) {
+		return minimax(position, player, plies);
 	}
 
-	@Override
-	public synchronized int getRemainingBranches() {
-		return remainingBranches;
-	}
-
-	private double minimax(P position, IPositionEvaluator<M, P> positionEvaluator, int player, int plies) {
+	private double minimax(P position, int player, int plies) {
 		if (searchCancelled) {
 			return 0;
 		}
@@ -74,7 +38,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> implements IDepthBase
 
 		for (M move : possibleMoves) {
 			position.makeMove(move);
-			double score = minimax(position, positionEvaluator, player, plies - 1);
+			double score = minimax(position, player, plies - 1);
 			position.unmakeMove(move);
 
 			if (max) {
@@ -92,21 +56,8 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> implements IDepthBase
 	}
 
 	@Override
-	public void stopSearch() {
-		searchCancelled = true;
-	}
-
-	@Override
-	public boolean isSearching() {
-		return isSearching;
-	}
-
-	@Override
 	public AnalysisResult<M> join(P position, int player, List<Pair<M, Double>> movesWithScore, List<Pair<M, AnalysisResult<M>>> results) {
-		AnalysisResult<M> joinedResult = new AnalysisResult<>();
-		for (Pair<M, Double> moveWithScore : movesWithScore) {
-			joinedResult.addMoveWithScore(moveWithScore.getFirst(), moveWithScore.getSecond());
-		}
+		AnalysisResult<M> joinedResult = new AnalysisResult<>(movesWithScore);
 		boolean min = player == position.getCurrentPlayer();
 		for (Pair<M, AnalysisResult<M>> analysisResult : results) {
 			if (min) {

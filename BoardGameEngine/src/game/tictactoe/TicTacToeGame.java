@@ -2,14 +2,13 @@ package game.tictactoe;
 
 import analysis.ComputerPlayer;
 import analysis.MinimaxStrategy;
-import analysis.search.IterativeDeepeningTreeSearcher;
 import game.Coordinate;
 import game.IGame;
 import game.IPlayer;
 import gui.GuiPlayer;
 
 public class TicTacToeGame implements IGame<Coordinate, TicTacToePosition> {
-	private final IPlayer computerPlayer = new ComputerPlayer(new IterativeDeepeningTreeSearcher<>(new MinimaxStrategy<>(new TicTacToePositionEvaluator()), 2), "Computer");
+	private final IPlayer computerPlayer = new ComputerPlayer(new MinimaxStrategy<>(new TicTacToePositionEvaluator()), 2, "Computer", 500);
 
 	@Override
 	public String getName() {

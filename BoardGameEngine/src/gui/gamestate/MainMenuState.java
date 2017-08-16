@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import game.IGame;
+import game.forkjoinexample.ForkJoinExampleGame;
 import game.tictactoe.TicTacToeGame;
 import game.ultimatetictactoe.UltimateTicTacToeGame;
 import gui.Drawable;
@@ -15,8 +16,9 @@ public class MainMenuState implements GameState {
 	List<MenuItem> menuItems = new ArrayList<>();
 
 	public MainMenuState() {
-		menuItems.add(new MenuItem("Tic Tac Toe", TicTacToeGame.class, .25, .25, .75, .45));
-		menuItems.add(new MenuItem("Ultimate Tic Tac Toe", UltimateTicTacToeGame.class, .20, .55, .80, .75));
+		menuItems.add(new MenuItem("Tic Tac Toe", TicTacToeGame.class, .25, .15, .75, .30));
+		menuItems.add(new MenuItem("Ultimate Tic Tac Toe", UltimateTicTacToeGame.class, .20, .35, .80, .50));
+		menuItems.add(new MenuItem("Fork Join Example", ForkJoinExampleGame.class, .20, .55, .80, .70));
 	}
 
 	@Override

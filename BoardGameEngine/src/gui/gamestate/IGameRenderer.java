@@ -11,5 +11,5 @@ public interface IGameRenderer<M, P extends IPosition<M, P>> extends DrawingMeth
 
 	public void drawPosition(Graphics2D g, P position);
 
-	public M maybeGetMove(UserInput input, P position);
+	public M maybeGetUserMove(UserInput input, P position);
 }

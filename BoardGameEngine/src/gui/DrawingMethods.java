@@ -22,4 +22,15 @@ public interface DrawingMethods {
 		double width = metrics.stringWidth(text);
 		g.drawString(text, round(x - width / 2), round(y + height / 3));
 	}
+
+	public default void drawCircle(Graphics2D g, double x, double y, double radius) {
+		double height = 2 * radius;
+		g.drawOval(round(x - radius), round(y - radius), round(height), round(height));
+	}
+
+	public default void fillCircle(Graphics2D g, double x, double y, double radius) {
+		double height = 2 * radius;
+		g.fillOval(round(x - radius), round(y - radius), round(height), round(height));
+	}
+
 }

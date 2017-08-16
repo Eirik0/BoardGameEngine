@@ -18,6 +18,13 @@ public class AnalysisResult<M> {
 	private volatile M bestMove;
 
 	public AnalysisResult() {
+
+	}
+
+	public AnalysisResult(List<Pair<M, Double>> movesWithScore) {
+		for (Pair<M, Double> pair : movesWithScore) {
+			addMoveWithScore(pair.getFirst(), pair.getSecond());
+		}
 	}
 
 	public void addMoveWithScore(M move, double score) {

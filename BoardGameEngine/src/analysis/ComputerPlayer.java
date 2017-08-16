@@ -7,27 +7,39 @@ import game.IPosition;
 public class ComputerPlayer implements IPlayer {
 	private final IterativeDeepeningTreeSearcher<?, ?> treeSearcher;
 	private final String name;
+	private final long msToPerMove;
 
-	public ComputerPlayer(IterativeDeepeningTreeSearcher<?, ?> treeSearcher, String name) {
-		this.treeSearcher = treeSearcher;
+	private volatile boolean keepSearching = true;
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public ComputerPlayer(IDepthBasedStrategy<?, ?> strategy, int numWorkers, String name, long msToPerMove) {
+		treeSearcher = new IterativeDeepeningTreeSearcher(strategy, numWorkers);
 		this.name = name;
+		this.msToPerMove = msToPerMove;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public <M, P extends IPosition<M, P>> M getMove(P position) {
+	public synchronized <M, P extends IPosition<M, P>> M getMove(P position) {
 		((IterativeDeepeningTreeSearcher<M, P>) treeSearcher).searchForever(position);
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
+		long start = System.currentTimeMillis();
+		keepSearching = true;
+		while (keepSearching && msToPerMove > System.currentTimeMillis() - start) {
+			try {
+				wait(msToPerMove);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		treeSearcher.stopSearch();
 		return (M) treeSearcher.getResult().getBestMove();
 	}
 
 	@Override
-	public void notifyGameEnded() {
+	public synchronized void notifyGameEnded() {
 		treeSearcher.stopSearch();
+		keepSearching = false;
+		notify();
 	}
 
 	@Override

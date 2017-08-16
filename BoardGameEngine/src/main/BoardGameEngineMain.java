@@ -12,6 +12,8 @@ import javax.swing.SwingUtilities;
 
 import game.GameRunner;
 import game.IGame;
+import game.forkjoinexample.ForkJoinExampleGame;
+import game.forkjoinexample.ForkJoinExampleGameRenderer;
 import game.tictactoe.TicTacToeGame;
 import game.tictactoe.TicTacToeGameRenderer;
 import game.ultimatetictactoe.UltimateTicTacToeGame;
@@ -81,6 +83,7 @@ public class BoardGameEngineMain {
 	private static void registerGames() {
 		GameRegistry.registerGame(TicTacToeGame.class, TicTacToeGameRenderer.class);
 		GameRegistry.registerGame(UltimateTicTacToeGame.class, UltimateTicTacToeGameRenderer.class);
+		GameRegistry.registerGame(ForkJoinExampleGame.class, ForkJoinExampleGameRenderer.class);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

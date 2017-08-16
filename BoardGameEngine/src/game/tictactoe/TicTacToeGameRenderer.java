@@ -12,17 +12,14 @@ import gui.gamestate.IGameRenderer;
 public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacToePosition> {
 	@Override
 	public void initializeAndDrawBoard(Graphics2D g) {
-		// TODO Auto-generated method stub
-
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
 	}
 
 	@Override
 	public void drawPosition(Graphics2D g, TicTacToePosition position) {
 		int width = GameGuiManager.getComponentWidth();
 		int height = GameGuiManager.getComponentHeight();
-
-		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, width, height);
 
 		g.setColor(Color.BLACK);
 		for (int i = 1; i < 3; ++i) {
@@ -46,7 +43,7 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
 	}
 
 	@Override
-	public Coordinate maybeGetMove(UserInput input, TicTacToePosition position) {
+	public Coordinate maybeGetUserMove(UserInput input, TicTacToePosition position) {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			if (GuiPlayer.HUMAN.isRequestingMove()) {
 				return getCoordinate(3);
