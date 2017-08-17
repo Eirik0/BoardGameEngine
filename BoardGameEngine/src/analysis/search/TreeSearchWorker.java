@@ -13,7 +13,7 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 
 	private final Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer;
 
-	private final Thread thread;
+	private Thread thread;
 	private volatile boolean notShutdown = true;
 	private volatile boolean treeSearchNotSet = true;
 
@@ -27,27 +27,33 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 	public TreeSearchWorker(String threadName, Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer) {
 		this.threadName = threadName;
 		this.completedWorkerConsumer = completedWorkerConsumer;
-
-		thread = new Thread(() -> {
-			while (notShutdown) {
-				try {
-					runnableQueue.take().run();
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}, threadName);
-
-		thread.start();
 	}
 
-	public void joinThread() {
+	private void maybeInitThread() {
+		if (thread == null) {
+			thread = new Thread(() -> {
+				while (notShutdown) {
+					try {
+						runnableQueue.take().run();
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}, threadName);
+
+			thread.start();
+		}
+	}
+
+	public void joinThread() { // this is only called in tests
+		maybeInitThread();
 		notShutdown = false;
 		try {
 			runnableQueue.put(() -> {
 				// We have to say do nothing if we are waiting to take from the queue
 			});
 			thread.join();
+			thread = null;
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
@@ -55,6 +61,7 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 
 	public void workOn(GameTreeSearch<M, P> treeSearch) {
 		treeSearchNotSet = true;
+		maybeInitThread();
 		try {
 			runnableQueue.put(() -> {
 				synchronized (this) {
