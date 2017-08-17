@@ -14,6 +14,7 @@ public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinE
 	private final ComputerPlayer fourThreadPlayer = new ComputerPlayer(new ForkJoinExampleStraregy(), 4, "4 Workers", Long.MAX_VALUE);
 	private final ComputerPlayer fiveThreadPlayer = new ComputerPlayer(new ForkJoinExampleStraregy(), 5, "5 Workers", Long.MAX_VALUE);
 	private final ComputerPlayer tenThreadPlayer = new ComputerPlayer(new ForkJoinExampleStraregy(), 10, "10 Workers", Long.MAX_VALUE);
+	private final ComputerPlayer thirtySevenThreadPlayer = new ComputerPlayer(new ForkJoinExampleStraregy(), 37, "37 Workers", Long.MAX_VALUE);
 
 	@Override
 	public String getName() {
@@ -27,7 +28,7 @@ public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinE
 
 	@Override
 	public IPlayer[] getAvailablePlayers() {
-		return new IPlayer[] { oneThreadPlayer, twoThreadPlayer, threeThreadPlayer, fourThreadPlayer, fiveThreadPlayer, tenThreadPlayer };
+		return new IPlayer[] { oneThreadPlayer, twoThreadPlayer, threeThreadPlayer, fourThreadPlayer, fiveThreadPlayer, tenThreadPlayer, thirtySevenThreadPlayer };
 	}
 
 	@Override

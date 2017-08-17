@@ -15,24 +15,33 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 
 	@Override
 	public double evaluate(ForkJoinExampleTree position, int player, int plies) {
+		ForkJoinExampleNode parent = position.getCurrentNode().getParent();
+		if (parent != null) {
+			ForkJoinExampleThreadTracker.setThreadName(position.getCurrentNode(), 0);
+			ForkJoinExampleThreadTracker.branchVisited(parent, position.getCurrentNode(), ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
+		}
+		visitNodes(position, player, plies);
+		return 0;
+	}
+
+	private void visitNodes(ForkJoinExampleTree position, int player, int plies) {
 		if (searchCancelled) {
-			return 0;
+			return;
 		}
 
 		List<ForkJoinExampleNode> possibleMoves = position.getPossibleMoves();
 		if (plies == 0 || possibleMoves.size() == 0) {
 			ForkJoinExampleThreadTracker.setThreadName(position.getCurrentNode(), ForkJoinExampleThreadTracker.SLEEP_PER_EVAL);
-			return 0;
+			return;
 		} else {
 			ForkJoinExampleNode parent = position.getCurrentNode();
 			for (ForkJoinExampleNode move : possibleMoves) {
 				position.makeMove(move);
 				ForkJoinExampleThreadTracker.branchVisited(parent, position.getCurrentNode(), ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
-				evaluate(position, player, plies - 1);
+				visitNodes(position, player, plies - 1);
 				position.unmakeMove(move);
 			}
 		}
-		return 0;
 	}
 
 	@Override
@@ -43,7 +52,7 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 		if (hasParent) {
 			ForkJoinExampleThreadTracker.branchVisited(currentNode.getParent(), currentNode, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
 		}
-		int sleepTime = hasParent ? ForkJoinExampleThreadTracker.SLEEP_PER_MERGE : ForkJoinExampleThreadTracker.SLEEP_PER_EVAL * 8;
+		int sleepTime = hasParent ? ForkJoinExampleThreadTracker.SLEEP_PER_MERGE : ForkJoinExampleThreadTracker.SLEEP_PER_EVAL * 16;
 		ForkJoinExampleThreadTracker.setThreadName(currentNode, sleepTime);
 		return new AnalysisResult<>();
 	}

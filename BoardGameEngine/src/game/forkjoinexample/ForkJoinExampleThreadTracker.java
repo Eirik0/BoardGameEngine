@@ -73,6 +73,9 @@ public class ForkJoinExampleThreadTracker {
 	}
 
 	private static void sleep(long sleep) {
+		if (sleep == 0) {
+			return;
+		}
 		try {
 			Thread.sleep(sleep);
 		} catch (InterruptedException e) {
