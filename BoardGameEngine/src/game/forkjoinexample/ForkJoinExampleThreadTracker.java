@@ -2,7 +2,6 @@ package game.forkjoinexample;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,45 +12,48 @@ public class ForkJoinExampleThreadTracker {
 	public static final int SLEEP_PER_EVAL = 125;
 	public static final int SLEEP_PER_MERGE = 63;
 
+	private static List<List<ForkJoinExampleNode>> nodesByDepth = new ArrayList<>();
 	private static Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> nodeToInfoMap = new HashMap<>();
-	private static List<List<ForkJoinExampleNode>> nodesByBredth = Collections.synchronizedList(new ArrayList<>());
 
 	public static synchronized void init(ForkJoinExampleTree tree) {
-		nodesByBredth.clear();
-		nodeToInfoMap.clear();
-		buildList(tree.getCurrentNode(), 0);
-		buildNodeInfoMap();
+		List<List<ForkJoinExampleNode>> newNodesByDepth = new ArrayList<>();
+		buildList(newNodesByDepth, tree.getCurrentNode(), 0);
+		Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> newNodeInfoMap = buildNodeInfoMap(newNodesByDepth);
+		nodesByDepth = newNodesByDepth;
+		nodeToInfoMap = newNodeInfoMap;
 	}
 
 	//   1
 	// 2   5
 	//3 4 6 7
-	private static void buildList(ForkJoinExampleNode currentNode, int depth) {
-		if (depth + 1 > nodesByBredth.size()) {
-			nodesByBredth.add(Collections.synchronizedList(new ArrayList<>()));
+	private static void buildList(List<List<ForkJoinExampleNode>> newNodesByBredth, ForkJoinExampleNode currentNode, int depth) {
+		if (depth + 1 > newNodesByBredth.size()) {
+			newNodesByBredth.add(new ArrayList<>());
 		}
-		nodesByBredth.get(depth).add(currentNode);
+		newNodesByBredth.get(depth).add(currentNode);
 		for (ForkJoinExampleNode child : currentNode.getChildren()) {
-			buildList(child, depth + 1);
+			buildList(newNodesByBredth, child, depth + 1);
 		}
 	}
 
-	private static void buildNodeInfoMap() {
+	private static Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> buildNodeInfoMap(List<List<ForkJoinExampleNode>> newNodesByDepth) {
+		Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> newNodeToInfoMap = new HashMap<>();
 		double fractionY = 1.0 / (ForkJoinExampleGame.DEPTH + 1); // + 1 for extra space
 		double currentFractionY = fractionY;
-		for (List<ForkJoinExampleNode> nodes : nodesByBredth) {
+		for (List<ForkJoinExampleNode> nodes : newNodesByDepth) {
 			double fractionX = 1.0 / (nodes.size() * 2);
 			double currentFractionX = fractionX;
 			for (ForkJoinExampleNode node : nodes) {
-				nodeToInfoMap.put(node, new ForkJoinExampleNodeInfo(currentFractionX, currentFractionY));
+				newNodeToInfoMap.put(node, new ForkJoinExampleNodeInfo(currentFractionX, currentFractionY));
 				currentFractionX += 2 * fractionX;
 			}
 			currentFractionY += fractionY;
 		}
+		return newNodeToInfoMap;
 	}
 
 	public static synchronized List<List<ForkJoinExampleNode>> getNodesByBredth() {
-		return nodesByBredth;
+		return nodesByDepth;
 	}
 
 	public static ForkJoinExampleNodeInfo getForkJoinExampleNodeInfo(ForkJoinExampleNode node) {
@@ -102,6 +104,5 @@ public class ForkJoinExampleThreadTracker {
 		public void addChild(ForkJoinExampleNode child) {
 			childMap.put(child, Pair.valueOf(ForkJoinExampleThreadTracker.getForkJoinExampleNodeInfo(child), Thread.currentThread().getName()));
 		}
-
 	}
 }

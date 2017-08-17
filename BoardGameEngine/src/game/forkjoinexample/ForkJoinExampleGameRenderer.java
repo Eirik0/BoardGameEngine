@@ -37,6 +37,9 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 		for (List<ForkJoinExampleNode> nodes : nodesByBredth) {
 			for (ForkJoinExampleNode node : nodes) {
 				ForkJoinExampleNodeInfo nodeInfo = ForkJoinExampleThreadTracker.getForkJoinExampleNodeInfo(node);
+				if (nodeInfo == null) {
+					continue;
+				}
 				double nodeX = nodeInfo.fractionX * width;
 				double nodeY = nodeInfo.fractionY * height;
 				// draw lines to children
