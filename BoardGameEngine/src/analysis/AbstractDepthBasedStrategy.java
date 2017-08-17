@@ -13,8 +13,7 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 	public AnalysisResult<M> search(P position, int player, int plies) {
 		AnalysisResult<M> analysisResult;
 		List<M> possibleMoves;
-		synchronized (this) { // so we can't getRemainingBranches() after isSearching until we have counted
-								// how many
+		synchronized (this) { // so we can't getRemainingBranches() after isSearching until we have counted how many
 			isSearching = true;
 			searchCancelled = false;
 			analysisResult = new AnalysisResult<>();

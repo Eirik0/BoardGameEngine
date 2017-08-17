@@ -72,6 +72,11 @@ public class ForkJoinExampleThreadTracker {
 		sleep(sleep);
 	}
 
+	public static void branchVisited(ForkJoinExampleNode parent, ForkJoinExampleNode child, long sleep) {
+		nodeToInfoMap.get(parent).addChild(child);
+		sleep(sleep);
+	}
+
 	private static void sleep(long sleep) {
 		if (sleep == 0) {
 			return;
@@ -81,11 +86,6 @@ public class ForkJoinExampleThreadTracker {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	public static void branchVisited(ForkJoinExampleNode parent, ForkJoinExampleNode child, long sleep) {
-		nodeToInfoMap.get(parent).addChild(child);
-		sleep(sleep);
 	}
 
 	static class ForkJoinExampleNodeInfo {
