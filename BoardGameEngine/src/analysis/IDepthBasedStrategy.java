@@ -17,4 +17,6 @@ public interface IDepthBasedStrategy<M, P extends IPosition<M, P>> {
 	public AnalysisResult<M> join(P position, int player, List<Pair<M, Double>> movesWithScore, List<Pair<M, AnalysisResult<M>>> results);
 
 	public IDepthBasedStrategy<M, P> createCopy();
+
+	public void notifySearchStarted();
 }

@@ -10,7 +10,8 @@ import util.Pair;
 
 public class ForkJoinExampleThreadTracker {
 	public static final int SLEEP_PER_EVAL = 125;
-	public static final int SLEEP_PER_MERGE = 63;
+	public static final int SLEEP_PER_BRANCH = 63;
+	public static final int SLEEP_PER_MERGE = 15;
 
 	private static List<List<ForkJoinExampleNode>> nodesByDepth = new ArrayList<>();
 	private static Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> nodeToInfoMap = new HashMap<>();
@@ -21,6 +22,12 @@ public class ForkJoinExampleThreadTracker {
 		Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> newNodeInfoMap = buildNodeInfoMap(newNodesByDepth);
 		nodesByDepth = newNodesByDepth;
 		nodeToInfoMap = newNodeInfoMap;
+	}
+
+	public static synchronized void clearInfo() {
+		for (ForkJoinExampleNodeInfo nodeInfo : nodeToInfoMap.values()) {
+			nodeInfo.clearInfo();
+		}
 	}
 
 	//   1
@@ -87,6 +94,11 @@ public class ForkJoinExampleThreadTracker {
 		public ForkJoinExampleNodeInfo(double fractionX, double fractionY) {
 			this.fractionX = fractionX;
 			this.fractionY = fractionY;
+		}
+
+		public void clearInfo() {
+			threadName = null;
+			childMap.clear();
 		}
 
 		public String getThreadName() {

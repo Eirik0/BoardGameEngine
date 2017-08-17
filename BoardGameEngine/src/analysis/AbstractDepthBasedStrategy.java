@@ -3,7 +3,6 @@ package analysis;
 import java.util.List;
 
 import game.IPosition;
-import util.Pair;
 
 public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> implements IDepthBasedStrategy<M, P> {
 	protected volatile boolean searchCancelled = false;
@@ -14,7 +13,8 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 	public AnalysisResult<M> search(P position, int player, int plies) {
 		AnalysisResult<M> analysisResult;
 		List<M> possibleMoves;
-		synchronized (this) { // so we can't getRemainingBranches() after isSearching until we have counted how many
+		synchronized (this) { // so we can't getRemainingBranches() after isSearching until we have counted
+								// how many
 			isSearching = true;
 			searchCancelled = false;
 			analysisResult = new AnalysisResult<>();
@@ -56,11 +56,10 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 		return remainingBranches;
 	}
 
+	@Override
+	public void notifySearchStarted() {
+		// do nothing by default
+	}
+
 	public abstract double evaluate(P position, int player, int plies);
-
-	@Override
-	public abstract AnalysisResult<M> join(P position, int player, List<Pair<M, Double>> movesWithScore, List<Pair<M, AnalysisResult<M>>> results);
-
-	@Override
-	public abstract IDepthBasedStrategy<M, P> createCopy();
 }
