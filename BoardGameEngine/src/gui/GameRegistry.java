@@ -14,16 +14,17 @@ public class GameRegistry {
 		gameStateMap.put(gameClass, gameRenderer);
 	}
 
-	public static <M, P extends IPosition<M, P>> IGame<M, P> newGame(Class<? extends IGame<M, P>> gameClass) {
+	@SuppressWarnings("unchecked")
+	public static <M, P extends IPosition<M, P>> IGame<M, P> newGame(Class<? extends IGame<?, ?>> gameClass) {
 		try {
-			return gameClass.newInstance();
+			return (IGame<M, P>) gameClass.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <M, P extends IPosition<M, P>> IGameRenderer<M, P> newGameRenderer(Class<? extends IGame<M, P>> gameClass) {
+	public static <M, P extends IPosition<M, P>> IGameRenderer<M, P> newGameRenderer(Class<? extends IGame<?, ?>> gameClass) {
 		Class<? extends IGameRenderer<?, ?>> gameRenderer = gameStateMap.get(gameClass);
 		if (gameRenderer == null) {
 			throw new IllegalStateException("No game renderer found for " + gameClass.getName());
