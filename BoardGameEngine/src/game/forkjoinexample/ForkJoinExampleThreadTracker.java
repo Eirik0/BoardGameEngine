@@ -89,14 +89,14 @@ public class ForkJoinExampleThreadTracker {
 		final double fractionX;
 		final double fractionY;
 		private String threadName;
-		private final Map<ForkJoinExampleNode, Pair<ForkJoinExampleNodeInfo, String>> childMap = new HashMap<>(); // child -> info,threadname
+		private final Map<ForkJoinExampleNode, Pair<ForkJoinExampleNodeInfo, String>> childMap = new HashMap<>(); // child -> (info, thread name)
 
 		public ForkJoinExampleNodeInfo(double fractionX, double fractionY) {
 			this.fractionX = fractionX;
 			this.fractionY = fractionY;
 		}
 
-		public void clearInfo() {
+		public synchronized void clearInfo() {
 			threadName = null;
 			childMap.clear();
 		}
@@ -109,11 +109,11 @@ public class ForkJoinExampleThreadTracker {
 			this.threadName = threadName;
 		}
 
-		public Collection<Pair<ForkJoinExampleNodeInfo, String>> getChildren() {
-			return childMap.values();
+		public synchronized Collection<Pair<ForkJoinExampleNodeInfo, String>> getChildren() {
+			return new ArrayList<>(childMap.values());
 		}
 
-		public void addChild(ForkJoinExampleNode child) {
+		public synchronized void addChild(ForkJoinExampleNode child) {
 			childMap.put(child, Pair.valueOf(ForkJoinExampleThreadTracker.getForkJoinExampleNodeInfo(child), Thread.currentThread().getName()));
 		}
 	}
