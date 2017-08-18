@@ -1,14 +1,15 @@
 package analysis.search;
 
+import game.IPosition;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import util.Pair;
 import analysis.AnalysisResult;
 import analysis.IDepthBasedStrategy;
-import game.IPosition;
-import util.Pair;
 
 public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private final M parentMove;
@@ -24,7 +25,8 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private volatile boolean notForked = true;
 	private volatile boolean alreadyForked = false;
 
-	public GameTreeSearch(M parentMove, P position, int player, int plies, IDepthBasedStrategy<M, P> strategy, Consumer<Pair<M, AnalysisResult<M>>> resultConsumer) {
+	public GameTreeSearch(M parentMove, P position, int player, int plies, IDepthBasedStrategy<M, P> strategy,
+			Consumer<Pair<M, AnalysisResult<M>>> resultConsumer) {
 		this.parentMove = parentMove;
 		this.position = position.createCopy();
 		this.player = player;
@@ -34,7 +36,11 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	}
 
 	public synchronized void search() {
-		result = strategy.search(position, player, plies);
+		if (plies == 0) {
+			result = new AnalysisResult<>(Collections.singletonList(Pair.valueOf(parentMove, strategy.evaluate(position, player, plies))));
+		} else {
+			result = strategy.search(position, player, plies);
+		}
 		notify();
 		if (notForked) {
 			alreadyForked = true;
@@ -61,7 +67,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	}
 
 	public boolean isForkable() {
-		return plies > 1 && getRemainingBranches() > 0;
+		return plies > 0 && getRemainingBranches() > 0;
 	}
 
 	public List<GameTreeSearch<M, P>> fork() {
@@ -114,6 +120,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			gameTreeSearches.add(new GameTreeSearch<M, P>(move, position, player, plies - 1, strategy, consumerWrapper));
 			position.unmakeMove(move);
 		}
+		strategy.notifyForked(parentMove, unanalyzedMoves);
 		return gameTreeSearches;
 	}
 }

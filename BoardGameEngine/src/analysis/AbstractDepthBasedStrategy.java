@@ -17,7 +17,7 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 			isSearching = true;
 			searchCancelled = false;
 			analysisResult = new AnalysisResult<>();
-			if (plies == 0) { // it doesn't really make sense to search 0 deep
+			if (plies == 0) {
 				isSearching = false;
 				return analysisResult;
 			}
@@ -60,5 +60,8 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 		// do nothing by default
 	}
 
-	public abstract double evaluate(P position, int player, int plies);
+	@Override
+	public void notifyForked(M parentMove, List<M> unanalyzedMoves) {
+		// do nothing by default
+	}
 }

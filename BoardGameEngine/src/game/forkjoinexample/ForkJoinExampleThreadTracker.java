@@ -9,9 +9,9 @@ import java.util.Map;
 import util.Pair;
 
 public class ForkJoinExampleThreadTracker {
-	public static final int SLEEP_PER_EVAL = 125;
-	public static final int SLEEP_PER_BRANCH = 63;
-	public static final int SLEEP_PER_MERGE = 15;
+	public static int SLEEP_PER_EVAL = 128;
+	public static int SLEEP_PER_BRANCH = 32;
+	public static int SLEEP_PER_MERGE = 16;
 
 	private static List<List<ForkJoinExampleNode>> nodesByDepth = new ArrayList<>();
 	private static Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> nodeToInfoMap = new HashMap<>();
@@ -24,22 +24,28 @@ public class ForkJoinExampleThreadTracker {
 		nodeToInfoMap = newNodeInfoMap;
 	}
 
+	public static void setSleepTimes(int eval, int branch, int merge) {
+		SLEEP_PER_EVAL = eval;
+		SLEEP_PER_BRANCH = branch;
+		SLEEP_PER_MERGE = merge;
+	}
+
 	public static synchronized void clearInfo() {
 		for (ForkJoinExampleNodeInfo nodeInfo : nodeToInfoMap.values()) {
 			nodeInfo.clearInfo();
 		}
 	}
 
-	//   1
-	// 2   5
-	//3 4 6 7
-	private static void buildList(List<List<ForkJoinExampleNode>> newNodesByBredth, ForkJoinExampleNode currentNode, int depth) {
-		if (depth + 1 > newNodesByBredth.size()) {
-			newNodesByBredth.add(new ArrayList<>());
+	// 1
+	// 2 5
+	// 3 4 6 7
+	private static void buildList(List<List<ForkJoinExampleNode>> newnodesByDepth, ForkJoinExampleNode currentNode, int depth) {
+		if (depth + 1 > newnodesByDepth.size()) {
+			newnodesByDepth.add(new ArrayList<>());
 		}
-		newNodesByBredth.get(depth).add(currentNode);
+		newnodesByDepth.get(depth).add(currentNode);
 		for (ForkJoinExampleNode child : currentNode.getChildren()) {
-			buildList(newNodesByBredth, child, depth + 1);
+			buildList(newnodesByDepth, child, depth + 1);
 		}
 	}
 
@@ -59,7 +65,7 @@ public class ForkJoinExampleThreadTracker {
 		return newNodeToInfoMap;
 	}
 
-	public static synchronized List<List<ForkJoinExampleNode>> getNodesByBredth() {
+	public static synchronized List<List<ForkJoinExampleNode>> nodesByDepth() {
 		return nodesByDepth;
 	}
 
@@ -72,12 +78,17 @@ public class ForkJoinExampleThreadTracker {
 		sleep(sleep);
 	}
 
+	public static void setForked(ForkJoinExampleNode parentMove) {
+		nodeToInfoMap.get(parentMove).setForked();
+
+	}
+
 	public static void branchVisited(ForkJoinExampleNode parent, ForkJoinExampleNode child, long sleep) {
 		nodeToInfoMap.get(parent).addChild(child);
 		sleep(sleep);
 	}
 
-	private static void sleep(long sleep) {
+	static void sleep(long sleep) {
 		if (sleep == 0) {
 			return;
 		}
@@ -93,6 +104,7 @@ public class ForkJoinExampleThreadTracker {
 		final double fractionY;
 		private String threadName;
 		private final Map<ForkJoinExampleNode, Pair<ForkJoinExampleNodeInfo, String>> childMap = new HashMap<>(); // child -> (info, thread name)
+		private boolean isForked = false;
 
 		public ForkJoinExampleNodeInfo(double fractionX, double fractionY) {
 			this.fractionX = fractionX;
@@ -101,6 +113,7 @@ public class ForkJoinExampleThreadTracker {
 
 		public synchronized void clearInfo() {
 			threadName = null;
+			isForked = false;
 			childMap.clear();
 		}
 
@@ -110,6 +123,14 @@ public class ForkJoinExampleThreadTracker {
 
 		public void setThreadName(String threadName) {
 			this.threadName = threadName;
+		}
+
+		public boolean isForked() {
+			return isForked;
+		}
+
+		public void setForked() {
+			isForked = true;
 		}
 
 		public synchronized Collection<Pair<ForkJoinExampleNodeInfo, String>> getChildren() {

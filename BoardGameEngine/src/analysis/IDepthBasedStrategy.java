@@ -1,12 +1,15 @@
 package analysis;
 
+import game.IPosition;
+
 import java.util.List;
 
-import game.IPosition;
 import util.Pair;
 
 public interface IDepthBasedStrategy<M, P extends IPosition<M, P>> {
 	public AnalysisResult<M> search(P position, int player, int plies);
+
+	public double evaluate(P position, int player, int plies);
 
 	public boolean isSearching();
 
@@ -19,4 +22,6 @@ public interface IDepthBasedStrategy<M, P extends IPosition<M, P>> {
 	public IDepthBasedStrategy<M, P> createCopy();
 
 	public void notifySearchStarted();
+
+	public void notifyForked(M parentMove, List<M> unanalyzedMoves);
 }

@@ -29,7 +29,7 @@ public class GameImage {
 	}
 
 	public void checkResized(int width, int height) {
-		if (width <= 0 || height < 0) {
+		if (width <= 0 || height <= 0) {
 			return;
 		}
 		if (image.getWidth() != width || image.getHeight() != height) {

@@ -14,10 +14,21 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 	}
 
 	@Override
+	public void notifyForked(ForkJoinExampleNode parentMove, List<ForkJoinExampleNode> unanalyzedMoves) {
+		if (parentMove == null) {
+			parentMove = ForkJoinExampleThreadTracker.nodesByDepth().get(0).get(0);
+		}
+		ForkJoinExampleThreadTracker.setThreadName(parentMove, 0);
+		ForkJoinExampleThreadTracker.setForked(parentMove);
+		for (ForkJoinExampleNode move : unanalyzedMoves) {
+			ForkJoinExampleThreadTracker.branchVisited(parentMove, move, ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
+		}
+	}
+
+	@Override
 	public double evaluate(ForkJoinExampleTree position, int player, int plies) {
 		ForkJoinExampleNode parent = position.getCurrentNode().getParent();
 		if (parent != null) {
-			ForkJoinExampleThreadTracker.setThreadName(position.getCurrentNode(), 0);
 			ForkJoinExampleThreadTracker.branchVisited(parent, position.getCurrentNode(), ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
 		}
 		visitNodes(position, player, plies);
@@ -48,15 +59,12 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 	public AnalysisResult<ForkJoinExampleNode> join(ForkJoinExampleTree position, int player, List<Pair<ForkJoinExampleNode, Double>> movesWithScore,
 			List<Pair<ForkJoinExampleNode, AnalysisResult<ForkJoinExampleNode>>> results) {
 		ForkJoinExampleNode currentNode = position.getCurrentNode();
-		for (Pair<ForkJoinExampleNode, Double> moveWithScore : movesWithScore) {
-			ForkJoinExampleThreadTracker.branchVisited(currentNode, moveWithScore.getFirst(), ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
-		}
 		boolean hasParent = currentNode.getParent() != null;
 		if (hasParent) {
 			ForkJoinExampleThreadTracker.branchVisited(currentNode.getParent(), currentNode, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
+		} else {
+			ForkJoinExampleThreadTracker.sleep(ForkJoinExampleThreadTracker.SLEEP_PER_EVAL * 16);
 		}
-		int sleepTime = hasParent ? ForkJoinExampleThreadTracker.SLEEP_PER_MERGE : ForkJoinExampleThreadTracker.SLEEP_PER_EVAL * 16;
-		ForkJoinExampleThreadTracker.setThreadName(currentNode, sleepTime);
 		return new AnalysisResult<>();
 	}
 

@@ -1,5 +1,10 @@
 package game.forkjoinexample;
 
+import game.forkjoinexample.ForkJoinExampleThreadTracker.ForkJoinExampleNodeInfo;
+import gui.GameGuiManager;
+import gui.gamestate.GameState.UserInput;
+import gui.gamestate.IGameRenderer;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.HashMap;
@@ -7,10 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import game.forkjoinexample.ForkJoinExampleThreadTracker.ForkJoinExampleNodeInfo;
-import gui.GameGuiManager;
-import gui.gamestate.GameState.UserInput;
-import gui.gamestate.IGameRenderer;
 import util.Pair;
 
 public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampleNode, ForkJoinExampleTree> {
@@ -33,29 +34,35 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 	public void drawPosition(Graphics2D g, ForkJoinExampleTree position) {
 		int width = GameGuiManager.getComponentWidth();
 		int height = GameGuiManager.getComponentHeight();
-		List<List<ForkJoinExampleNode>> nodesByBredth = ForkJoinExampleThreadTracker.getNodesByBredth();
-		for (List<ForkJoinExampleNode> nodes : nodesByBredth) {
+		List<List<ForkJoinExampleNode>> nodesByDepth = ForkJoinExampleThreadTracker.nodesByDepth();
+		for (List<ForkJoinExampleNode> nodes : nodesByDepth) {
 			for (ForkJoinExampleNode node : nodes) {
 				ForkJoinExampleNodeInfo nodeInfo = ForkJoinExampleThreadTracker.getForkJoinExampleNodeInfo(node);
 				if (nodeInfo == null) {
 					continue;
 				}
+				Color color = nodeInfo.getThreadName() != null ? getColorFromThreadName(nodeInfo.getThreadName()) : Color.BLACK;
 				double nodeX = nodeInfo.fractionX * width;
 				double nodeY = nodeInfo.fractionY * height;
 				// draw lines to children
-				g.setColor(Color.BLACK);
+
 				for (Pair<ForkJoinExampleNodeInfo, String> child : nodeInfo.getChildren()) {
 					g.setColor(getColorFromThreadName(child.getSecond()));
 					ForkJoinExampleNodeInfo childInfo = child.getFirst();
 					g.drawLine(round(nodeX), round(nodeY), round(childInfo.fractionX * width), round(childInfo.fractionY * height));
 				}
 				// draw node
-				g.setColor(Color.BLACK);
-				drawCircle(g, nodeX, nodeY, nodeRadius);
-				// maybe fill in node
-				if (nodeInfo.getThreadName() != null) {
-					g.setColor(getColorFromThreadName(nodeInfo.getThreadName()));
-					fillCircle(g, nodeX, nodeY, nodeRadius);
+				if (nodeInfo.isForked()) {
+					g.setColor(color);
+					fillCircle(g, nodeX, nodeY, nodeRadius * 3);
+				} else {
+					g.setColor(Color.BLACK);
+					drawCircle(g, nodeX, nodeY, nodeRadius);
+					// maybe fill in node
+					if (nodeInfo.getThreadName() != null) {
+						g.setColor(color);
+						fillCircle(g, nodeX, nodeY, nodeRadius);
+					}
 				}
 			}
 		}
