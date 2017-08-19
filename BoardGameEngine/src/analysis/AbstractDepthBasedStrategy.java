@@ -17,11 +17,10 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 			isSearching = true;
 			searchCancelled = false;
 			analysisResult = new AnalysisResult<>();
-			if (plies == 0) {
+			if (plies == 0) { // it doesn't really make sense to search 0 deep because this method expects to be able to return scores associated with moves
 				isSearching = false;
 				return analysisResult;
 			}
-
 			possibleMoves = position.getPossibleMoves();
 			remainingBranches = possibleMoves.size();
 		}

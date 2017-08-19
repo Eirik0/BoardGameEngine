@@ -78,8 +78,8 @@ public class ForkJoinExampleThreadTracker {
 	}
 
 	public static void setThreadName(ForkJoinExampleNode node, long sleep) {
-		nodeToInfoMap.get(node).setThreadName(Thread.currentThread().getName());
 		sleep(sleep);
+		nodeToInfoMap.get(node).setThreadName(Thread.currentThread().getName());
 	}
 
 	public static void setForked(ForkJoinExampleNode parentMove) {
@@ -88,8 +88,8 @@ public class ForkJoinExampleThreadTracker {
 	}
 
 	public static void branchVisited(ForkJoinExampleNode parent, ForkJoinExampleNode child, long sleep) {
-		nodeToInfoMap.get(parent).addChild(child);
 		sleep(sleep);
+		nodeToInfoMap.get(parent).addChild(child);
 	}
 
 	static void sleep(long sleep) {
@@ -145,5 +145,4 @@ public class ForkJoinExampleThreadTracker {
 			childMap.put(child, Pair.valueOf(ForkJoinExampleThreadTracker.getForkJoinExampleNodeInfo(child), Thread.currentThread().getName()));
 		}
 	}
-
 }

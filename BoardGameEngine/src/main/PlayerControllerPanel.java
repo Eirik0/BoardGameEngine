@@ -1,10 +1,17 @@
 package main;
 
+import game.GameRunner;
+import game.IGame;
+import game.IPlayer;
+import gui.GameGuiManager;
+import gui.gamestate.MainMenuState;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.Box;
@@ -13,15 +20,9 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import game.GameRunner;
-import game.IGame;
-import game.IPlayer;
-import gui.GameGuiManager;
-import gui.gamestate.MainMenuState;
-
 @SuppressWarnings("serial")
 public class PlayerControllerPanel extends JPanel {
-	private final List<JComboBox<IPlayer>> playerComboBoxes = new ArrayList<>();
+	private final List<JComboBox<IPlayer>> playerComboBoxes;
 	private Runnable backAction;
 
 	public PlayerControllerPanel(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
@@ -30,14 +31,14 @@ public class PlayerControllerPanel extends JPanel {
 		int numberOfPlayers = game.getNumberOfPlayers();
 		IPlayer[] avaliablePlayers = game.getAvailablePlayers();
 		IPlayer defaultPlayer = game.getDefaultPlayer();
-		playerComboBoxes.clear();
+		playerComboBoxes = new ArrayList<>();
 		for (int i = 0; i < numberOfPlayers; i++) {
 			playerComboBoxes.add(createPlayerComboBox(avaliablePlayers, defaultPlayer));
 		}
 		rebuildWith(game, gameRunner);
 	}
 
-	public void setBackAction(Runnable backAction) {
+	public void setBackAction(Runnable backAction) { // this allows for easy self reference outside of this
 		this.backAction = backAction;
 	}
 
@@ -61,39 +62,44 @@ public class PlayerControllerPanel extends JPanel {
 
 		JButton newGameButton = new JButton("New Game");
 		JButton endGameButton = new JButton("End Game");
+		JButton backButton = new JButton("Back");
 		newGameButton.setFocusable(false);
 		endGameButton.setFocusable(false);
+		backButton.setFocusable(false);
+		List<JButton> buttons = Arrays.asList(newGameButton, endGameButton, backButton);
 
-		newGameButton.addActionListener(createEnableDisableRunnableWrapper(newGameButton, endGameButton, () -> startNewGame(game, gameRunner)));
-		endGameButton.addActionListener(createEnableDisableRunnableWrapper(newGameButton, endGameButton, () -> gameRunner.endGame()));
+		newGameButton.addActionListener(createEnableDisableRunnableWrapper(buttons, () -> startNewGame(game, gameRunner)));
+		endGameButton.addActionListener(createEnableDisableRunnableWrapper(buttons, () -> gameRunner.endGame()));
+		backButton.addActionListener(createEnableDisableRunnableWrapper(buttons, () -> {
+			gameRunner.endGame();
+			backAction.run();
+			GameGuiManager.setGameState(new MainMenuState());
+		}));
 
 		buttonPanel.add(Box.createHorizontalStrut(30));
 		buttonPanel.add(newGameButton);
 		buttonPanel.add(Box.createHorizontalStrut(10));
 		buttonPanel.add(endGameButton);
 
-		JButton backButton = new JButton("Back");
-		backButton.addActionListener(e -> {
-			gameRunner.endGame();
-			backAction.run();
-			GameGuiManager.setGameState(new MainMenuState());
-		});
-
 		add(new JLabel(game.getName()), BorderLayout.WEST);
 		add(buttonPanel, BorderLayout.CENTER);
 		add(backButton, BorderLayout.EAST);
 	}
 
-	private ActionListener createEnableDisableRunnableWrapper(JButton newGameButton, JButton endGameButton, Runnable r) {
+	private ActionListener createEnableDisableRunnableWrapper(List<JButton> buttons, Runnable r) {
 		return e -> {
-			try {
-				newGameButton.setEnabled(false);
-				endGameButton.setEnabled(false);
-				r.run();
-			} finally {
-				endGameButton.setEnabled(true);
-				newGameButton.setEnabled(true);
+			for (JButton button : buttons) {
+				button.setEnabled(false);
 			}
+			new Thread(() -> {
+				try {
+					r.run();
+				} finally {
+					for (JButton button : buttons) {
+						button.setEnabled(true);
+					}
+				}
+			}).start();
 		};
 	}
 
@@ -104,5 +110,4 @@ public class PlayerControllerPanel extends JPanel {
 		}
 		gameRunner.startNewGame(players);
 	}
-
 }
