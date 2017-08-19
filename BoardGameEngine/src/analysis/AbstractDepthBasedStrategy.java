@@ -1,8 +1,8 @@
 package analysis;
 
-import java.util.List;
-
 import game.IPosition;
+
+import java.util.List;
 
 public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> implements IDepthBasedStrategy<M, P> {
 	protected volatile boolean searchCancelled = false;
@@ -62,6 +62,11 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 
 	@Override
 	public void notifyForked(M parentMove, List<M> unanalyzedMoves) {
+		// do nothing by default
+	}
+
+	@Override
+	public void notifySearchComplete() {
 		// do nothing by default
 	}
 }

@@ -24,6 +24,10 @@ public class ForkJoinExampleThreadTracker {
 		nodeToInfoMap = newNodeInfoMap;
 	}
 
+	public static ForkJoinExampleNode getRoot() {
+		return nodesByDepth.get(0).get(0);
+	}
+
 	public static void setSleepTimes(int eval, int branch, int merge) {
 		SLEEP_PER_EVAL = eval;
 		SLEEP_PER_BRANCH = branch;
@@ -141,4 +145,5 @@ public class ForkJoinExampleThreadTracker {
 			childMap.put(child, Pair.valueOf(ForkJoinExampleThreadTracker.getForkJoinExampleNodeInfo(child), Thread.currentThread().getName()));
 		}
 	}
+
 }

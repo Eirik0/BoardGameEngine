@@ -1,5 +1,7 @@
 package analysis.search;
 
+import game.IPosition;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -7,7 +9,6 @@ import java.util.concurrent.SynchronousQueue;
 
 import analysis.AnalysisResult;
 import analysis.IDepthBasedStrategy;
-import game.IPosition;
 
 public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	private Thread treeSearchThread;
@@ -57,6 +58,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			} else {
 				result = search;
 			}
+			strategy.notifySearchComplete();
 		} while (searchNotStopped && plies < maxPlies);
 	}
 
@@ -136,7 +138,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		GameTreeSearch<M, P> toFork = null;
 		for (TreeSearchWorker<M, P> worker : workingWorkers) {
 			GameTreeSearch<M, P> treeSearch = worker.getTreeSearch();
-			if (toFork == null || treeSearch.getPlies() > toFork.getPlies() || (treeSearch.getPlies() == toFork.getPlies() && treeSearch.getRemainingBranches() > toFork.getRemainingBranches())) {
+			if (toFork == null || treeSearch.getPlies() > toFork.getPlies()
+					|| (treeSearch.getPlies() == toFork.getPlies() && treeSearch.getRemainingBranches() > toFork.getRemainingBranches())) {
 				if (treeSearch.isForkable()) {
 					toFork = treeSearch;
 				}

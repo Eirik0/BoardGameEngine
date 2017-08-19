@@ -24,4 +24,6 @@ public interface IDepthBasedStrategy<M, P extends IPosition<M, P>> {
 	public void notifySearchStarted();
 
 	public void notifyForked(M parentMove, List<M> unanalyzedMoves);
+
+	public void notifySearchComplete();
 }
