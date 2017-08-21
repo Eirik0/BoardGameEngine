@@ -38,13 +38,12 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 		double bestScore = max ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
 
 		for (M move : possibleMoves) {
-			position.makeMove(move);
-			double score = minimax(position, player, plies - 1);
-			position.unmakeMove(move);
-			
 			if (searchCanceled) {
 				return 0;
 			}
+			position.makeMove(move);
+			double score = minimax(position, player, plies - 1);
+			position.unmakeMove(move);
 
 			if (max) {
 				if (score > bestScore) {

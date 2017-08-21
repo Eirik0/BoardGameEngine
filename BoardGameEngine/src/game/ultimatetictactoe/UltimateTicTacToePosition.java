@@ -1,12 +1,12 @@
 package game.ultimatetictactoe;
 
+import game.Coordinate;
+import game.IPosition;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import game.Coordinate;
-import game.IPosition;
 
 public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, UltimateTicTacToePosition> {
 	static final int ANY_BOARD = -1;
@@ -42,7 +42,7 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 
 	@Override
 	public List<UTTTCoordinate> getPossibleMoves() {
-		if (UltimateTicTacToeUtilities.winsExist(wonBoards, PLAYER_1) || UltimateTicTacToeUtilities.winsExist(wonBoards, PLAYER_1)) {
+		if (UltimateTicTacToeUtilities.winsExist(wonBoards, PLAYER_1) || UltimateTicTacToeUtilities.winsExist(wonBoards, PLAYER_2)) {
 			return Collections.emptyList();
 		}
 		List<UTTTCoordinate> possibleMoves = new ArrayList<>();

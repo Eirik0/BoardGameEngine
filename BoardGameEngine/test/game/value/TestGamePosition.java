@@ -1,8 +1,8 @@
 package game.value;
 
-import java.util.List;
-
 import game.IPosition;
+
+import java.util.List;
 
 public class TestGamePosition implements IPosition<TestGameNode, TestGamePosition> {
 	private TestGameNode previousNode;
@@ -12,6 +12,12 @@ public class TestGamePosition implements IPosition<TestGameNode, TestGamePositio
 
 	public TestGamePosition(TestGameNode initialNode) {
 		currentNode = initialNode;
+	}
+
+	public TestGamePosition(TestGameNode currentNode, TestGameNode previousNode, int currentPlayer) {
+		this.previousNode = previousNode;
+		this.currentNode = currentNode;
+		this.currentPlayer = currentPlayer;
 	}
 
 	public TestGameNode getCurrentNode() {
@@ -53,10 +59,7 @@ public class TestGamePosition implements IPosition<TestGameNode, TestGamePositio
 
 	@Override
 	public TestGamePosition createCopy() {
-		TestGamePosition copy = new TestGamePosition(currentNode);
-		copy.previousNode = previousNode;
-		copy.currentPlayer = currentPlayer;
-		return copy;
+		return new TestGamePosition(currentNode, previousNode, currentPlayer);
 	}
 
 	/**

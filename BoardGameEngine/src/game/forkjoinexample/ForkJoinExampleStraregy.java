@@ -49,12 +49,12 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 			return;
 		} else {
 			for (ForkJoinExampleNode move : possibleMoves) {
-				position.makeMove(move);
-				visitNodes(position, player, plies - 1);
-				position.unmakeMove(move);
 				if (searchCanceled) {
 					return;
 				}
+				position.makeMove(move);
+				visitNodes(position, player, plies - 1);
+				position.unmakeMove(move);
 			}
 		}
 	}
