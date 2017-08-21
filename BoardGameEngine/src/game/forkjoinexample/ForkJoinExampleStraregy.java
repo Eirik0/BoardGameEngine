@@ -6,6 +6,7 @@ import util.Pair;
 import analysis.AbstractDepthBasedStrategy;
 import analysis.AnalysisResult;
 import analysis.IDepthBasedStrategy;
+import analysis.MoveWithScore;
 
 public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> {
 	@Override
@@ -37,7 +38,7 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 	}
 
 	private void visitNodes(ForkJoinExampleTree position, int player, int plies) {
-		if (searchCancelled) {
+		if (searchCanceled) {
 			return;
 		}
 		ForkJoinExampleNode currentNode = position.getCurrentNode();
@@ -51,15 +52,18 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 				position.makeMove(move);
 				visitNodes(position, player, plies - 1);
 				position.unmakeMove(move);
+				if (searchCanceled) {
+					return;
+				}
 			}
 		}
 	}
 
 	@Override
-	public AnalysisResult<ForkJoinExampleNode> join(ForkJoinExampleTree position, int player, List<Pair<ForkJoinExampleNode, Double>> movesWithScore,
+	public AnalysisResult<ForkJoinExampleNode> join(ForkJoinExampleTree position, int player, List<MoveWithScore<ForkJoinExampleNode>> movesWithScore,
 			List<Pair<ForkJoinExampleNode, AnalysisResult<ForkJoinExampleNode>>> results) {
-		for (Pair<ForkJoinExampleNode, Double> moveWithScore : movesWithScore) {
-			ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), moveWithScore.getFirst(), ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
+		for (MoveWithScore<ForkJoinExampleNode> moveWithScore : movesWithScore) {
+			ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), moveWithScore.move, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
 		}
 		for (Pair<ForkJoinExampleNode, AnalysisResult<ForkJoinExampleNode>> movesWithResult : results) {
 			ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), movesWithResult.getFirst(), ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);

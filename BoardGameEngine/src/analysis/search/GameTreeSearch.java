@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import util.Pair;
 import analysis.AnalysisResult;
 import analysis.IDepthBasedStrategy;
+import analysis.MoveWithScore;
 
 public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private final M parentMove;
@@ -37,7 +38,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 
 	public synchronized void search() {
 		if (plies == 0) {
-			result = new AnalysisResult<>(Collections.singletonList(Pair.valueOf(parentMove, strategy.evaluate(position, player, plies))));
+			result = new AnalysisResult<>(Collections.singletonList(new MoveWithScore<>(parentMove, strategy.evaluate(position, player, plies))));
 		} else {
 			result = strategy.search(position, player, plies);
 		}
@@ -73,7 +74,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	public List<GameTreeSearch<M, P>> fork() {
 		notForked = false;
 		List<M> unanalyzedMoves;
-		List<Pair<M, Double>> movesWithScore;
+		List<MoveWithScore<M>> movesWithScore;
 
 		if (strategy.isSearching()) {
 			strategy.stopSearch();

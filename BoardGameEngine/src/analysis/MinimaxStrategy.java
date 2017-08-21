@@ -1,8 +1,9 @@
 package analysis;
 
+import game.IPosition;
+
 import java.util.List;
 
-import game.IPosition;
 import util.Pair;
 
 public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
@@ -18,7 +19,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 	}
 
 	private double minimax(P position, int player, int plies) {
-		if (searchCancelled) {
+		if (searchCanceled) {
 			return 0;
 		}
 
@@ -40,6 +41,10 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 			position.makeMove(move);
 			double score = minimax(position, player, plies - 1);
 			position.unmakeMove(move);
+			
+			if (searchCanceled) {
+				return 0;
+			}
 
 			if (max) {
 				if (score > bestScore) {
@@ -56,7 +61,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 	}
 
 	@Override
-	public AnalysisResult<M> join(P position, int player, List<Pair<M, Double>> movesWithScore, List<Pair<M, AnalysisResult<M>>> results) {
+	public AnalysisResult<M> join(P position, int player, List<MoveWithScore<M>> movesWithScore, List<Pair<M, AnalysisResult<M>>> results) {
 		AnalysisResult<M> joinedResult = new AnalysisResult<>(movesWithScore);
 		boolean min = player == position.getCurrentPlayer();
 		for (Pair<M, AnalysisResult<M>> analysisResult : results) {

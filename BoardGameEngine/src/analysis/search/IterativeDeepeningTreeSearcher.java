@@ -51,6 +51,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		plies = 0;
 		do {
 			++plies;
+			System.out.println(plies);
 			strategy.notifySearchStarted();
 			AnalysisResult<M> search = search(position, position.getCurrentPlayer(), plies);
 			if (!searchNotStopped && result != null) { // merge only when the search is stopped
@@ -126,6 +127,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
+
 		return result;
 	}
 

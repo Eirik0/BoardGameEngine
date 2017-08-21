@@ -71,7 +71,6 @@ public class UltimateTicTacToeUtilities {
 				return true;
 			}
 		}
-
 		return false;
 	}
 }

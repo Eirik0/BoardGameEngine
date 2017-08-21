@@ -84,7 +84,6 @@ public class ForkJoinExampleThreadTracker {
 
 	public static void setForked(ForkJoinExampleNode parentMove) {
 		nodeToInfoMap.get(parentMove).setForked();
-
 	}
 
 	public static void branchVisited(ForkJoinExampleNode parent, ForkJoinExampleNode child, long sleep) {

@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import util.Pair;
-
 public class AnalysisResult<M> {
-	private final List<Pair<M, Double>> movesWithScore = new ArrayList<>();
+	private final List<MoveWithScore<M>> movesWithScore = new ArrayList<>();
 	private final List<M> unanalyzedMoves = new ArrayList<>();
 
 	private volatile double min = Double.POSITIVE_INFINITY;
@@ -21,9 +19,9 @@ public class AnalysisResult<M> {
 
 	}
 
-	public AnalysisResult(List<Pair<M, Double>> movesWithScore) {
-		for (Pair<M, Double> pair : movesWithScore) {
-			addMoveWithScore(pair.getFirst(), pair.getSecond());
+	public AnalysisResult(List<MoveWithScore<M>> movesWithScore) {
+		for (MoveWithScore<M> moveWithScore : movesWithScore) {
+			addMoveWithScore(moveWithScore.move, moveWithScore.score);
 		}
 	}
 
@@ -31,21 +29,21 @@ public class AnalysisResult<M> {
 		if (score < min) {
 			min = score;
 		}
-		if (score > max) {
+		if (score > max || bestMove == null) {
 			max = score;
 			bestMove = move;
 		}
-		movesWithScore.add(Pair.valueOf(move, score));
+		movesWithScore.add(new MoveWithScore<>(move, score));
 	}
 
-	public synchronized AnalysisResult<M> mergeWith(AnalysisResult<M> result) {
+	public AnalysisResult<M> mergeWith(AnalysisResult<M> resultToMerge) {
 		AnalysisResult<M> mergedResult = new AnalysisResult<>();
 		Map<M, Double> mergedMoveMap = new HashMap<>();
-		for (Pair<M, Double> moveWithScore : movesWithScore) {
-			mergedMoveMap.put(moveWithScore.getFirst(), moveWithScore.getSecond());
+		for (MoveWithScore<M> moveWithScore : movesWithScore) {
+			mergedMoveMap.put(moveWithScore.move, moveWithScore.score);
 		}
-		for (Pair<M, Double> moveWithScore : result.movesWithScore) {
-			mergedMoveMap.put(moveWithScore.getFirst(), moveWithScore.getSecond());
+		for (MoveWithScore<M> moveWithScore : resultToMerge.movesWithScore) {
+			mergedMoveMap.put(moveWithScore.move, moveWithScore.score);
 		}
 		for (Entry<M, Double> moveWithScore : mergedMoveMap.entrySet()) {
 			mergedResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue());
@@ -57,7 +55,7 @@ public class AnalysisResult<M> {
 		unanalyzedMoves.add(move);
 	}
 
-	public List<Pair<M, Double>> getMovesWithScore() {
+	public List<MoveWithScore<M>> getMovesWithScore() {
 		return movesWithScore;
 	}
 
@@ -80,10 +78,10 @@ public class AnalysisResult<M> {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		Iterator<Pair<M, Double>> moveScoreIter = movesWithScore.iterator();
+		Iterator<MoveWithScore<M>> moveScoreIter = movesWithScore.iterator();
 		while (moveScoreIter.hasNext()) {
-			Pair<M, Double> scoreMove = moveScoreIter.next();
-			sb.append(scoreMove.getFirst()).append(": ").append(scoreMove.getSecond());
+			MoveWithScore<M> scoreMove = moveScoreIter.next();
+			sb.append(scoreMove.move).append(": ").append(scoreMove.score);
 			if (moveScoreIter.hasNext()) {
 				sb.append("\n");
 			}

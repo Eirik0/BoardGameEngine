@@ -1,13 +1,14 @@
 package game.tictactoe;
 
 import static org.junit.Assert.assertEquals;
+import game.Coordinate;
 
 import org.junit.Test;
 
 import analysis.AnalysisResult;
 import analysis.MinimaxStrategy;
+import analysis.MoveWithScore;
 import analysis.search.IterativeDeepeningTreeSearcher;
-import game.Coordinate;
 
 public class TicTacToeTreeSearchTest {
 	private static IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> newTreeSearcher() {
@@ -61,8 +62,9 @@ public class TicTacToeTreeSearchTest {
 		TicTacToePosition position = new TicTacToePosition();
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
 		AnalysisResult<Coordinate> search = search(treeSearcher, position, 9);
-		System.out.println("Full search:");
-		System.out.println(search);
+		for (MoveWithScore<Coordinate> moveWithScore : search.getMovesWithScore()) {
+			assertEquals(0.0, moveWithScore.score, 0.0);
+		}
 	}
 
 	@Test
@@ -72,7 +74,9 @@ public class TicTacToeTreeSearchTest {
 		position.makeMove(new Coordinate(0, 1));
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
 		AnalysisResult<Coordinate> search = search(treeSearcher, position, 9);
-		System.out.println("Find Win:");
-		System.out.println(search);
+		Coordinate draw = new Coordinate(2, 1);
+		for (MoveWithScore<Coordinate> moveWithScore : search.getMovesWithScore()) {
+			assertEquals(moveWithScore.move.toString(), moveWithScore.move.equals(draw) ? 0.0 : Double.POSITIVE_INFINITY, moveWithScore.score, 0.0);
+		}
 	}
 }

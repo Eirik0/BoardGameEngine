@@ -1,7 +1,7 @@
 package gui;
 
 public class FixedDurationGameLoop {
-	private static final double TARGET_FPS = 60;
+	private static final double TARGET_FPS = 30;
 
 	public static final long NANOS_PER_SECOND = 1000000000; // in nanoseconds
 	public static final long NANOS_PER_MILLISECOND = 1000000;

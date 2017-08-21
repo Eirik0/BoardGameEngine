@@ -2,6 +2,12 @@ package analysis;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import game.lock.TestLockingEvaluator;
+import game.lock.TestLockingNode;
+import game.lock.TestLockingPosition;
+import game.value.TestGameEvaluator;
+import game.value.TestGameNode;
+import game.value.TestGamePosition;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,12 +15,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import game.lock.TestLockingEvaluator;
-import game.lock.TestLockingNode;
-import game.lock.TestLockingPosition;
-import game.value.TestGameEvaluator;
-import game.value.TestGameNode;
-import game.value.TestGamePosition;
 import util.Pair;
 
 public class MinimaxStrategyTest {
@@ -150,7 +150,7 @@ public class MinimaxStrategyTest {
 	public void testJoin_MovesWithScore() {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new TestGameEvaluator());
-		List<Pair<TestGameNode, Double>> movesWithScore = minimaxStrategy.search(testGamePosition, 0, 4).getMovesWithScore();
+		List<MoveWithScore<TestGameNode>> movesWithScore = minimaxStrategy.search(testGamePosition, 0, 4).getMovesWithScore();
 		AnalysisResult<TestGameNode> result = minimaxStrategy.join(testGamePosition, 0, movesWithScore, Collections.emptyList());
 		assertEquals("1 -> [6, 5]: 25.0\n"
 				+ "2 -> [4, 3]: 17.0", result.toString());
@@ -161,7 +161,7 @@ public class MinimaxStrategyTest {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new TestGameEvaluator());
 
-		List<Pair<TestGameNode, Double>> firstMoveWithScore = Collections.singletonList(minimaxStrategy.search(testGamePosition, 0, 4).getMovesWithScore().get(0));
+		List<MoveWithScore<TestGameNode>> firstMoveWithScore = Collections.singletonList(minimaxStrategy.search(testGamePosition, 0, 4).getMovesWithScore().get(0));
 
 		List<Pair<TestGameNode, AnalysisResult<TestGameNode>>> results = new ArrayList<>();
 		for (TestGameNode move : testGamePosition.getPossibleMoves()) {

@@ -17,10 +17,10 @@ public class AnalysisRestutTest {
 		AnalysisResult<Integer> result2 = createResult(Arrays.asList(Pair.valueOf(1, 2.0), Pair.valueOf(2, 0.5)));
 		AnalysisResult<Integer> mergedRestult = result1.mergeWith(result2);
 		assertEquals(4, result1.getMovesWithScore().size());
-		assertTrue(mergedRestult.getMovesWithScore().contains(Pair.valueOf(1, 2.0)));
-		assertTrue(mergedRestult.getMovesWithScore().contains(Pair.valueOf(2, 0.5)));
-		assertTrue(mergedRestult.getMovesWithScore().contains(Pair.valueOf(3, 1.0)));
-		assertTrue(mergedRestult.getMovesWithScore().contains(Pair.valueOf(4, 1.0)));
+		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(1, 2.0)));
+		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(2, 0.5)));
+		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(3, 1.0)));
+		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(4, 1.0)));
 		assertEquals(2.0, mergedRestult.getMax(), 0.001);
 		assertEquals(0.5, mergedRestult.getMin(), 0.001);
 		assertEquals(Integer.valueOf(1), mergedRestult.getBestMove());
@@ -32,5 +32,12 @@ public class AnalysisRestutTest {
 			result.addMoveWithScore(moveWithScore.getFirst(), moveWithScore.getSecond());
 		}
 		return result;
+	}
+
+	@Test
+	public void testFindBestMoveEvenIfLost() {
+		AnalysisResult<Integer> result = new AnalysisResult<>();
+		result.addMoveWithScore(1, Double.NEGATIVE_INFINITY);
+		assertEquals(Integer.valueOf(1), result.getBestMove());
 	}
 }
