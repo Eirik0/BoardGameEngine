@@ -15,6 +15,7 @@ import analysis.MoveWithScore;
 public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private final M parentMove;
 	private final P position;
+	private final int numBranches;
 	private final int player;
 	private final int plies;
 
@@ -24,12 +25,13 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private volatile AnalysisResult<M> result = null;
 
 	private volatile boolean notForked = true;
-	private volatile boolean alreadyForked = false;
+	private volatile boolean consumedResult = false;
 
 	public GameTreeSearch(M parentMove, P position, int player, int plies, IDepthBasedStrategy<M, P> strategy,
 			Consumer<Pair<M, AnalysisResult<M>>> resultConsumer) {
 		this.parentMove = parentMove;
 		this.position = position.createCopy();
+		numBranches = this.position.getPossibleMoves().size();
 		this.player = player;
 		this.plies = plies;
 		this.strategy = strategy.createCopy();
@@ -37,16 +39,17 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	}
 
 	public synchronized void search() {
+		P positionCopy = position.createCopy();
 		if (plies == 0) {
-			result = new AnalysisResult<>(Collections.singletonList(new MoveWithScore<>(parentMove, strategy.evaluate(position, player, plies))));
+			result = new AnalysisResult<>(Collections.singletonList(new MoveWithScore<>(parentMove, strategy.evaluate(positionCopy, player, plies))));
 		} else {
-			result = strategy.search(position, player, plies);
+			result = strategy.search(positionCopy, player, plies);
 		}
-		notify();
 		if (notForked) {
-			alreadyForked = true;
+			consumedResult = true;
 			resultConsumer.accept(Pair.valueOf(parentMove, result));
 		}
+		notify();
 	}
 
 	public void stopSearch() {
@@ -63,7 +66,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		} else if (result != null) { // search started and finished
 			return 0;
 		} else {
-			return position.getPossibleMoves().size();
+			return numBranches;
 		}
 	}
 
@@ -97,7 +100,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		}
 
 		if (unanalyzedMoves.isEmpty()) {
-			if (!alreadyForked) { // It seems unlikely that we have already forked, but let's be safe
+			if (!consumedResult) { // It seems unlikely that we have already forked, but let's be safe
 				resultConsumer.accept(Pair.valueOf(parentMove, strategy.join(position, player, movesWithScore, Collections.emptyList())));
 			}
 			return Collections.emptyList();
@@ -121,7 +124,9 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			gameTreeSearches.add(new GameTreeSearch<M, P>(move, position, player, plies - 1, strategy, consumerWrapper));
 			position.unmakeMove(move);
 		}
+
 		strategy.notifyForked(parentMove, unanalyzedMoves);
+
 		return gameTreeSearches;
 	}
 }

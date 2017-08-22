@@ -118,6 +118,6 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 
 	@Override
 	public String toString() {
-		return Arrays.deepToString(cells);
+		return Arrays.deepToString(cells) + "\n" + Arrays.toString(wonBoards) + "\n" + currentPlayer + "\n" + currentBoard;
 	}
 }

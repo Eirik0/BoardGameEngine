@@ -11,7 +11,17 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<UT
 		} else if (UltimateTicTacToeUtilities.winsExist(position.wonBoards, TicTacToePosition.otherPlayer(player))) {
 			return Double.NEGATIVE_INFINITY;
 		} else {
-			return 0;
+			int wins = 0;
+			int losses = 0;
+			int otherPlayer = TicTacToePosition.otherPlayer(player);
+			for (int i = 0; i < position.wonBoards.length; ++i) {
+				if (position.wonBoards[i] == player) {
+					++wins;
+				} else if (position.wonBoards[i] == otherPlayer) {
+					++losses;
+				}
+			}
+			return wins - losses;
 		}
 	}
 }

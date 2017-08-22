@@ -26,9 +26,9 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 		}
 		for (M move : possibleMoves) {
 			position.makeMove(move);
-			double score = evaluate(position, player, plies - 1);
+			double score = searchCanceled ? 0 : evaluate(position, player, plies - 1);
 			position.unmakeMove(move);
-			if (searchCanceled) { // we need to check search cancelled after making the call to evaluate
+			if (searchCanceled) { // we need to check search canceled after making the call to evaluate
 				analysisResult.addUnanalyzedMove(move);
 			} else {
 				analysisResult.addMoveWithScore(move, score);

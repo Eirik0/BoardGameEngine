@@ -68,6 +68,7 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 		for (Pair<ForkJoinExampleNode, AnalysisResult<ForkJoinExampleNode>> movesWithResult : results) {
 			ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), movesWithResult.getFirst(), ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
 		}
+		ForkJoinExampleThreadTracker.setThreadName(position.getCurrentNode(), 0);
 		return new AnalysisResult<>();
 	}
 
