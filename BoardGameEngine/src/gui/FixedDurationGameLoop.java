@@ -1,7 +1,7 @@
 package gui;
 
 public class FixedDurationGameLoop {
-	private static final double TARGET_FPS = 30;
+	private static final double TARGET_FPS = 60;
 
 	public static final long NANOS_PER_SECOND = 1000000000; // in nanoseconds
 	public static final long NANOS_PER_MILLISECOND = 1000000;
@@ -20,7 +20,7 @@ public class FixedDurationGameLoop {
 		for (;;) {
 			loopStart = System.nanoTime();
 			GameGuiManager.getGameState().drawOn(gameImage.getGraphics());
-			component.repaint();
+			component.repaintAndWait();
 			double timeToSleep = NANOS_PER_SECOND / TARGET_FPS - (System.nanoTime() - loopStart);
 			if (timeToSleep > 0) {
 				try {
