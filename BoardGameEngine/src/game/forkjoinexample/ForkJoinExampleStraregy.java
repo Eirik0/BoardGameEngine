@@ -11,7 +11,7 @@ import analysis.MoveWithScore;
 public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> {
 	@Override
 	public void notifySearchStarted() {
-		ForkJoinExampleThreadTracker.clearInfo();
+		ForkJoinExampleThreadTracker.searchStarted();
 	}
 
 	@Override
@@ -19,7 +19,6 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 		if (parentMove == null) {
 			parentMove = ForkJoinExampleThreadTracker.getRoot();
 		}
-		ForkJoinExampleThreadTracker.setThreadName(parentMove, 0);
 		ForkJoinExampleThreadTracker.setForked(parentMove);
 		for (ForkJoinExampleNode move : unanalyzedMoves) {
 			ForkJoinExampleThreadTracker.branchVisited(parentMove, move, ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
@@ -28,7 +27,7 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 
 	@Override
 	public void notifySearchComplete() {
-		ForkJoinExampleThreadTracker.sleep(ForkJoinExampleThreadTracker.SLEEP_PER_EVAL * 16);
+		ForkJoinExampleThreadTracker.searchComplete();
 	}
 
 	@Override
@@ -45,7 +44,7 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 		ForkJoinExampleThreadTracker.branchVisited(currentNode.getParent(), currentNode, ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
 		List<ForkJoinExampleNode> possibleMoves = position.getPossibleMoves();
 		if (plies == 0 || possibleMoves.size() == 0) {
-			ForkJoinExampleThreadTracker.setThreadName(currentNode, ForkJoinExampleThreadTracker.SLEEP_PER_EVAL);
+			ForkJoinExampleThreadTracker.evaluateNode(currentNode);
 			return;
 		} else {
 			for (ForkJoinExampleNode move : possibleMoves) {
@@ -68,7 +67,7 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 		for (Pair<ForkJoinExampleNode, AnalysisResult<ForkJoinExampleNode>> movesWithResult : results) {
 			ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), movesWithResult.getFirst(), ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
 		}
-		ForkJoinExampleThreadTracker.setThreadName(position.getCurrentNode(), 0);
+		ForkJoinExampleThreadTracker.setJoined(position.getCurrentNode());
 		return new AnalysisResult<>();
 	}
 

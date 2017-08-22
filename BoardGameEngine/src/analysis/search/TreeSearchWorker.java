@@ -1,10 +1,10 @@
 package analysis.search;
 
+import game.IPosition;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
-
-import game.IPosition;
 
 public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 	private static int threadNum = 0;
@@ -51,7 +51,7 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 		try {
 			runnableQueue.put(() -> {
 				// We have to say do nothing if we are waiting to take from the queue
-			});
+				});
 			thread.join();
 			thread = null;
 		} catch (InterruptedException e) {

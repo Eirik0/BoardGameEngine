@@ -34,6 +34,12 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 	public void drawPosition(Graphics2D g, ForkJoinExampleTree position) {
 		int width = GameGuiManager.getComponentWidth();
 		int height = GameGuiManager.getComponentHeight();
+		int fontHeight = g.getFontMetrics().getHeight() + 2;
+		g.setColor(Color.BLACK);
+		ForkJoinExampleThreadTracker.maybeRecalculateTimeElapsed();
+		g.drawString("Nodes per evaluated second: " + String.format("%.2f", ForkJoinExampleThreadTracker.getNodesEvaluatedPerSecond()), 2, fontHeight);
+		g.drawString("Percent reevaluated: " + String.format("%.2f", ForkJoinExampleThreadTracker.getPercentReevaluated()), 0, fontHeight * 2);
+		g.drawString("Effective evaluations second: " + String.format("%.2f", ForkJoinExampleThreadTracker.getEffectiveNodesEvaluatedPerSecond()), 2, fontHeight * 3);
 		List<List<ForkJoinExampleNode>> nodesByDepth = ForkJoinExampleThreadTracker.nodesByDepth();
 		for (List<ForkJoinExampleNode> nodes : nodesByDepth) {
 			for (ForkJoinExampleNode node : nodes) {
@@ -56,11 +62,10 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 					g.setColor(color);
 					fillCircle(g, nodeX, nodeY, nodeRadius * 3);
 				} else {
-					g.setColor(Color.BLACK);
+					g.setColor(color);
 					drawCircle(g, nodeX, nodeY, nodeRadius);
 					// maybe fill in node
 					if (nodeInfo.getThreadName() != null) {
-						g.setColor(color);
 						fillCircle(g, nodeX, nodeY, nodeRadius);
 					}
 				}

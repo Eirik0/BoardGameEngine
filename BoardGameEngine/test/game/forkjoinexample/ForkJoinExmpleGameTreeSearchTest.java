@@ -15,7 +15,7 @@ import analysis.search.IterativeDeepeningTreeSearcher;
 public class ForkJoinExmpleGameTreeSearchTest {
 	@BeforeClass
 	public static void clear() {
-		ForkJoinExampleThreadTracker.clearInfo();
+		ForkJoinExampleThreadTracker.searchStarted();
 		ForkJoinExampleThreadTracker.setSleepTimes(0, 0, 0);
 	}
 

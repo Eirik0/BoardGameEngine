@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import util.Pair;
 import analysis.AnalysisResult;
@@ -27,8 +28,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private volatile boolean notForked = true;
 	private volatile boolean consumedResult = false;
 
-	public GameTreeSearch(M parentMove, P position, int player, int plies, IDepthBasedStrategy<M, P> strategy,
-			Consumer<Pair<M, AnalysisResult<M>>> resultConsumer) {
+	public GameTreeSearch(M parentMove, P position, int player, int plies, IDepthBasedStrategy<M, P> strategy, Consumer<Pair<M, AnalysisResult<M>>> resultConsumer) {
 		this.parentMove = parentMove;
 		this.position = position.createCopy();
 		numBranches = this.position.getPossibleMoves().size();
@@ -39,6 +39,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	}
 
 	public synchronized void search() {
+		consumedResult = false;
 		P positionCopy = position.createCopy();
 		if (plies == 0) {
 			result = new AnalysisResult<>(Collections.singletonList(new MoveWithScore<>(parentMove, strategy.evaluate(positionCopy, player, plies))));
@@ -46,8 +47,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			result = strategy.search(positionCopy, player, plies);
 		}
 		if (notForked) {
-			consumedResult = true;
-			resultConsumer.accept(Pair.valueOf(parentMove, result));
+			maybeConsumeResult(parentMove, () -> result);
 		}
 		notify();
 	}
@@ -100,21 +100,17 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		}
 
 		if (unanalyzedMoves.isEmpty()) {
-			if (!consumedResult) { // It seems unlikely that we have already forked, but let's be safe
-				resultConsumer.accept(Pair.valueOf(parentMove, strategy.join(position, player, movesWithScore, Collections.emptyList())));
-			}
+			maybeConsumeResult(parentMove, () -> strategy.join(position, player, movesWithScore, Collections.emptyList()));
 			return Collections.emptyList();
 		}
 
-		List<Pair<M, AnalysisResult<M>>> results = new ArrayList<>();
+		List<Pair<M, AnalysisResult<M>>> results = Collections.synchronizedList(new ArrayList<>());
 		int expectedResults = unanalyzedMoves.size();
 
 		Consumer<Pair<M, AnalysisResult<M>>> consumerWrapper = moveResult -> {
-			synchronized (results) {
-				results.add(moveResult);
-				if (results.size() == expectedResults) {
-					resultConsumer.accept(Pair.valueOf(parentMove, strategy.join(position, player, movesWithScore, results)));
-				}
+			results.add(moveResult);
+			if (results.size() == expectedResults) {
+				maybeConsumeResult(parentMove, () -> strategy.join(position, player, movesWithScore, results));
 			}
 		};
 
@@ -124,9 +120,16 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			gameTreeSearches.add(new GameTreeSearch<M, P>(move, position, player, plies - 1, strategy, consumerWrapper));
 			position.unmakeMove(move);
 		}
-
 		strategy.notifyForked(parentMove, unanalyzedMoves);
-
 		return gameTreeSearches;
+	}
+
+	private synchronized void maybeConsumeResult(M move, Supplier<AnalysisResult<M>> resultSupplier) {
+		if (consumedResult) {
+			return;
+		}
+		consumedResult = true;
+		resultConsumer.accept(Pair.valueOf(move, resultSupplier.get()));
+		notify();
 	}
 }
