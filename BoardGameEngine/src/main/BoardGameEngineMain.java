@@ -1,15 +1,5 @@
 package main;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
 import game.GameRunner;
 import game.IGame;
 import game.forkjoinexample.ForkJoinExampleGame;
@@ -27,6 +17,16 @@ import gui.GameRegistry;
 import gui.gamestate.GameRunningState;
 import gui.gamestate.MainMenuState;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
 public class BoardGameEngineMain {
 	private static final String TITLE = "Board Game Engine";
 
@@ -34,6 +34,7 @@ public class BoardGameEngineMain {
 	public static final int DEFAULT_HEIGHT = 768;
 
 	public static final Font DEFAULT_FONT = new Font("consolas", Font.PLAIN, 24);
+	public static final Font DEFAULT_FONT_SMALL = new Font(Font.DIALOG, Font.PLAIN, 12);
 
 	public static void main(String[] args) {
 		registerGames();

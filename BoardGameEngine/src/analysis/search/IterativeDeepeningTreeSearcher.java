@@ -137,8 +137,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		}
 		workingWorkers.remove(finishedWorker);
 		GameTreeSearch<M, P> toFork = null;
-		for (TreeSearchWorker<M, P> worker : workingWorkers) {
-			GameTreeSearch<M, P> treeSearch = worker.getTreeSearch();
+		for (int i = workingWorkers.size() - 1; i >= 0; --i) {
+			GameTreeSearch<M, P> treeSearch = workingWorkers.get(i).getTreeSearch();
 			if (toFork == null || treeSearch.getPlies() > toFork.getPlies()
 					|| (treeSearch.getPlies() == toFork.getPlies() && treeSearch.getRemainingBranches() > toFork.getRemainingBranches())) {
 				if (treeSearch.isForkable()) {

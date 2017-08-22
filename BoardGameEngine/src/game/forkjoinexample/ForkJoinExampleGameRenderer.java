@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import main.BoardGameEngineMain;
 import util.Pair;
 
 public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampleNode, ForkJoinExampleTree> {
@@ -34,6 +35,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 	public void drawPosition(Graphics2D g, ForkJoinExampleTree position) {
 		int width = GameGuiManager.getComponentWidth();
 		int height = GameGuiManager.getComponentHeight();
+		g.setFont(BoardGameEngineMain.DEFAULT_FONT_SMALL);
 		int fontHeight = g.getFontMetrics().getHeight() + 2;
 		g.setColor(Color.BLACK);
 		ForkJoinExampleThreadTracker.maybeRecalculateTimeElapsed();
