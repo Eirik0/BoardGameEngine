@@ -22,12 +22,14 @@ import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class PlayerControllerPanel extends JPanel {
+	private final JLabel gameLabel = new JLabel();
 	private final List<JComboBox<IPlayer>> playerComboBoxes;
 	private Runnable backAction;
 
 	public PlayerControllerPanel(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
 		setLayout(new BorderLayout());
 		setBackground(Color.WHITE);
+		gameLabel.setText(game.getName());
 		int numberOfPlayers = game.getNumberOfPlayers();
 		IPlayer[] avaliablePlayers = game.getAvailablePlayers();
 		IPlayer defaultPlayer = game.getDefaultPlayer();
@@ -36,6 +38,7 @@ public class PlayerControllerPanel extends JPanel {
 			playerComboBoxes.add(createPlayerComboBox(avaliablePlayers, defaultPlayer));
 		}
 		rebuildWith(game, gameRunner);
+		gameRunner.setEndGameAction(() -> gameLabel.setText(game.getName()));
 	}
 
 	public void setBackAction(Runnable backAction) { // this allows for easy self reference outside of this
@@ -60,6 +63,10 @@ public class PlayerControllerPanel extends JPanel {
 			}
 		}
 
+		JPanel buttonPanelWrapper = new JPanel(new BorderLayout());
+		buttonPanelWrapper.setBackground(Color.WHITE);
+		buttonPanelWrapper.add(buttonPanel, BorderLayout.EAST);
+
 		JButton newGameButton = new JButton("New Game");
 		JButton endGameButton = new JButton("End Game");
 		JButton backButton = new JButton("Back");
@@ -81,8 +88,8 @@ public class PlayerControllerPanel extends JPanel {
 		buttonPanel.add(Box.createHorizontalStrut(10));
 		buttonPanel.add(endGameButton);
 
-		add(new JLabel(game.getName()), BorderLayout.WEST);
-		add(buttonPanel, BorderLayout.CENTER);
+		add(gameLabel, BorderLayout.WEST);
+		add(buttonPanelWrapper, BorderLayout.CENTER);
 		add(backButton, BorderLayout.EAST);
 	}
 
@@ -109,5 +116,6 @@ public class PlayerControllerPanel extends JPanel {
 			players.add(jComboBox.getItemAt(jComboBox.getSelectedIndex()));
 		}
 		gameRunner.startNewGame(players);
+		gameLabel.setText(game.getName() + "...");
 	}
 }

@@ -6,6 +6,8 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private volatile boolean stopRequested = false;
 	private volatile boolean isRunning = false;
 
+	private Runnable endGameAction;
+
 	private final IGame<M, P> game;
 	private P position;
 
@@ -14,6 +16,10 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	public GameRunner(IGame<M, P> game) {
 		this.game = game;
 		position = game.newInitialPosition();
+	}
+
+	public void setEndGameAction(Runnable endGameAction) {
+		this.endGameAction = endGameAction;
 	}
 
 	public P getCurrentPosition() {
@@ -89,6 +95,9 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private synchronized void notifyGameEnded() {
 		isRunning = false;
 		currentPlayer = null;
+		if (endGameAction != null) {
+			endGameAction.run();
+		}
 		notify();
 	}
 }
