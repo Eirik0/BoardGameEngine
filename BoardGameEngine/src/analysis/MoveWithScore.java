@@ -26,4 +26,9 @@ public class MoveWithScore<M> {
 		MoveWithScore<?> other = (MoveWithScore<?>) obj;
 		return move.equals(other.move) && score == other.score;
 	}
+
+	@Override
+	public String toString() {
+		return move.toString() + ": " + score;
+	}
 }

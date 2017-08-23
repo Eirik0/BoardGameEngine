@@ -73,4 +73,25 @@ public class UltimateTicTacToeUtilities {
 		}
 		return false;
 	}
+
+	public static int countPossibleWins(int[] board, int otherPlayer) {
+		// in testing, this proved faster than first checking if the center is captured and then doing whatever
+		boolean has0 = board[0] != otherPlayer;
+		boolean has1 = board[1] != otherPlayer;
+		boolean has2 = board[2] != otherPlayer;
+		boolean has3 = board[3] != otherPlayer;
+		boolean has4 = board[4] != otherPlayer;
+		boolean has5 = board[5] != otherPlayer;
+		boolean has6 = board[6] != otherPlayer;
+		boolean has7 = board[7] != otherPlayer;
+		boolean has8 = board[8] != otherPlayer;
+		return (has0 && has1 && has2 ? 1 : 0) +
+				(has3 && has4 && has5 ? 1 : 0) +
+				(has6 && has7 && has8 ? 1 : 0) +
+				(has0 && has3 && has6 ? 1 : 0) +
+				(has1 && has4 && has7 ? 1 : 0) +
+				(has2 && has5 && has8 ? 1 : 0) +
+				(has0 && has4 && has8 ? 1 : 0) +
+				(has2 && has4 && has6 ? 1 : 0);
+	}
 }

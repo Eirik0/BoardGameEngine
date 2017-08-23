@@ -59,7 +59,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 				result = search;
 			}
 			strategy.notifySearchComplete();
-		} while (searchNotStopped && plies < maxPlies);
+		} while (searchNotStopped && plies < maxPlies && !Double.isInfinite(result.getMax()));// no need to keep looking if the game is decided
 	}
 
 	public void stopSearch() {

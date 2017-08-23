@@ -27,4 +27,9 @@ public class UTTTCoordinate {
 		UTTTCoordinate other = (UTTTCoordinate) obj;
 		return coordinate.equals(other.coordinate);
 	}
+
+	@Override
+	public String toString() {
+		return coordinate.toString();
+	}
 }
