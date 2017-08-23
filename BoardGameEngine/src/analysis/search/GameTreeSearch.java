@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import util.Pair;
 import analysis.AnalysisResult;
@@ -47,7 +46,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			result = strategy.search(positionCopy, player, plies);
 		}
 		if (notForked) {
-			maybeConsumeResult(parentMove, () -> result);
+			maybeConsumeResult(parentMove, result);
 		}
 		notify();
 	}
@@ -100,7 +99,8 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		}
 
 		if (unanalyzedMoves.isEmpty()) {
-			maybeConsumeResult(parentMove, () -> strategy.join(position, player, movesWithScore, Collections.emptyList()));
+			AnalysisResult<M> joinedResult = strategy.join(position, player, movesWithScore, Collections.emptyList());
+			maybeConsumeResult(parentMove, joinedResult);
 			return Collections.emptyList();
 		}
 
@@ -110,7 +110,8 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		Consumer<Pair<M, AnalysisResult<M>>> consumerWrapper = moveResult -> {
 			results.add(moveResult);
 			if (results.size() == expectedResults) {
-				maybeConsumeResult(parentMove, () -> strategy.join(position, player, movesWithScore, results));
+				AnalysisResult<M> joinedResult = strategy.join(position, player, movesWithScore, results);
+				maybeConsumeResult(parentMove, joinedResult);
 			}
 		};
 
@@ -124,12 +125,12 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		return gameTreeSearches;
 	}
 
-	private synchronized void maybeConsumeResult(M move, Supplier<AnalysisResult<M>> resultSupplier) {
+	private synchronized void maybeConsumeResult(M move, AnalysisResult<M> result) {
 		if (consumedResult) {
 			return;
 		}
 		consumedResult = true;
-		resultConsumer.accept(Pair.valueOf(move, resultSupplier.get()));
+		resultConsumer.accept(Pair.valueOf(move, result));
 		notify();
 	}
 }
