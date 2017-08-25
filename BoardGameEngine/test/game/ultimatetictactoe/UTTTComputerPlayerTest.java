@@ -25,6 +25,14 @@ public class UTTTComputerPlayerTest {
 		testStopOnTime(3, 2000);
 	}
 
+	@Test
+	public void testMakeTwoMoves() {
+		ComputerPlayer player = UltimateTicTacToeGame.newComputerPlayer(2, 50);
+		UltimateTicTacToePosition position = new UltimateTicTacToePosition();
+		player.getMove(position);
+		player.getMove(position);
+	}
+
 	private void testStopOnTime(int numWorkers, long toWait) {
 		ComputerPlayer player = UltimateTicTacToeGame.newComputerPlayer(numWorkers, toWait);
 		long start = System.currentTimeMillis();

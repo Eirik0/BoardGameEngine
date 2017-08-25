@@ -106,7 +106,7 @@ public class PlayerControllerPanel extends JPanel {
 						button.setEnabled(true);
 					}
 				}
-			}).start();
+			}, "Enabke_Disable_Button_Thread").start();
 		};
 	}
 

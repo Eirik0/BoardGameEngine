@@ -42,24 +42,24 @@ public class TreeSearchWorkerTest {
 	public void testRescheduleWorkOnComplete() throws InterruptedException {
 		List<AnalysisResult<TestGameNode>> resultList = new ArrayList<>();
 		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = new GameTreeSearch<>(null, TestGamePosition.createTestPosition(), 0, 0, new MinimaxStrategy<>(new TestGameEvaluator()), result -> {
-			resultList.add(result.getSecond());
-		});
-
-		TreeSearchWorker<TestGameNode, TestGamePosition> worker = new TreeSearchWorker<>("test", finishedWorker -> {
-			if (resultList.size() < 2) {
-				// add a new worker if there is more to be done
-				finishedWorker.workOn(treeSearch);
+			synchronized (this) {
+				resultList.add(result.getSecond());
+				notify();
 			}
 		});
-
+		TreeSearchWorker<TestGameNode, TestGamePosition> worker = new TreeSearchWorker<>("test", finishedWorker -> {
+			synchronized (this) {
+				if (resultList.size() < 2) {
+					finishedWorker.workOn(treeSearch);
+				}
+			}
+		});
 		worker.workOn(treeSearch);
-
 		synchronized (this) {
 			while (resultList.size() < 2) {
-				wait(10);
+				wait();
 			}
 		}
-
 		worker.joinThread();
 	}
 }

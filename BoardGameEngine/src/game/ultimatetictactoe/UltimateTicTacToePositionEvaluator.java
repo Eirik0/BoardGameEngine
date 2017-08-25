@@ -19,7 +19,7 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<UT
 			if (possibleWins == 0 && possibleLosses == 0) {
 				return 0;
 			}
-
+			// XXX this does not take in to account boards which are not in play
 			int[] possibleWinsByBoard = countPossibleWinsByBoard(position, opponent);
 			int[] possibleLossesByBoard = countPossibleWinsByBoard(position, player);
 
