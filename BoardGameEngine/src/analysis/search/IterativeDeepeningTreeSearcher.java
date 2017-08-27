@@ -1,7 +1,5 @@
 package analysis.search;
 
-import game.IPosition;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -9,6 +7,7 @@ import java.util.concurrent.SynchronousQueue;
 
 import analysis.AnalysisResult;
 import analysis.IDepthBasedStrategy;
+import game.IPosition;
 
 public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	private Thread treeSearchThread;
@@ -59,7 +58,10 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 				result = search;
 			}
 			strategy.notifySearchComplete();
-		} while (searchNotStopped && plies < maxPlies && !Double.isInfinite(result.getMax()));// no need to keep looking if the game is decided
+			if (result.getBestMove() != null && Double.isInfinite(result.getMax())) {
+				break;
+			}
+		} while (searchNotStopped && plies < maxPlies);// no need to keep looking if the game is decided
 	}
 
 	public void stopSearch() {
