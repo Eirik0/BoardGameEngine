@@ -1,8 +1,8 @@
 package analysis;
 
+import analysis.search.IterativeDeepeningTreeSearcher;
 import game.IPlayer;
 import game.IPosition;
-import analysis.search.IterativeDeepeningTreeSearcher;
 
 public class ComputerPlayer implements IPlayer {
 	private final IterativeDeepeningTreeSearcher<?, ?> treeSearcher;

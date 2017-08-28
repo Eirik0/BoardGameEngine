@@ -1,8 +1,8 @@
 package game.value;
 
-import game.IPosition;
-
 import java.util.List;
+
+import game.IPosition;
 
 public class TestGamePosition implements IPosition<TestGameNode, TestGamePosition> {
 	private TestGameNode previousNode;

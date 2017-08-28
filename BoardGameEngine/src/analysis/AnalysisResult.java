@@ -80,8 +80,8 @@ public class AnalysisResult<M> {
 		StringBuilder sb = new StringBuilder();
 		Iterator<MoveWithScore<M>> moveScoreIter = movesWithScore.iterator();
 		while (moveScoreIter.hasNext()) {
-			MoveWithScore<M> scoreMove = moveScoreIter.next();
-			sb.append(scoreMove.move).append(": ").append(scoreMove.score);
+			MoveWithScore<M> scoreMoved = moveScoreIter.next();
+			sb.append(scoreMoved.toString());
 			if (moveScoreIter.hasNext()) {
 				sb.append("\n");
 			}

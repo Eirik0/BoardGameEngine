@@ -1,7 +1,6 @@
 package game.tictactoe;
 
 import static org.junit.Assert.assertEquals;
-import game.Coordinate;
 
 import org.junit.Test;
 
@@ -9,6 +8,7 @@ import analysis.AnalysisResult;
 import analysis.MinimaxStrategy;
 import analysis.MoveWithScore;
 import analysis.search.IterativeDeepeningTreeSearcher;
+import game.Coordinate;
 
 public class TicTacToeTreeSearchTest {
 	private static IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> newTreeSearcher() {

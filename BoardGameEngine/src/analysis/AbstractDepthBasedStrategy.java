@@ -1,57 +1,15 @@
 package analysis;
 
-import game.IPosition;
-
 import java.util.List;
+
+import game.IPosition;
 
 public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> implements IDepthBasedStrategy<M, P> {
 	protected volatile boolean searchCanceled = false;
-	private volatile boolean isSearching = false;
-	private volatile int remainingBranches = 0;
-
-	@Override
-	public AnalysisResult<M> search(P position, int player, int plies) {
-		AnalysisResult<M> analysisResult;
-		List<M> possibleMoves;
-		synchronized (this) { // so we can't getRemainingBranches() after isSearching until we have counted how many
-			isSearching = true;
-			searchCanceled = false;
-			analysisResult = new AnalysisResult<>();
-			if (plies == 0) { // it doesn't really make sense to search 0 deep because this method expects to be able to return scores associated with moves
-				isSearching = false;
-				return analysisResult;
-			}
-			possibleMoves = position.getPossibleMoves();
-			remainingBranches = possibleMoves.size();
-		}
-		for (M move : possibleMoves) {
-			position.makeMove(move);
-			double score = searchCanceled ? 0 : evaluate(position, player, plies - 1);
-			position.unmakeMove(move);
-			if (searchCanceled) { // we need to check search canceled after making the call to evaluate
-				analysisResult.addUnanalyzedMove(move);
-			} else {
-				analysisResult.addMoveWithScore(move, score);
-			}
-			--remainingBranches;
-		}
-		isSearching = false;
-		return analysisResult;
-	}
-
-	@Override
-	public boolean isSearching() {
-		return isSearching;
-	}
 
 	@Override
 	public void stopSearch() {
 		searchCanceled = true;
-	}
-
-	@Override
-	public synchronized int getRemainingBranches() {
-		return remainingBranches;
 	}
 
 	@Override

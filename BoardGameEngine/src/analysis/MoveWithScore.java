@@ -1,5 +1,7 @@
 package analysis;
 
+import java.util.Objects;
+
 public class MoveWithScore<M> {
 	public final M move;
 	public final double score;
@@ -13,7 +15,7 @@ public class MoveWithScore<M> {
 	public int hashCode() {
 		final int prime = 31;
 		long doubleToLong = Double.doubleToLongBits(score);
-		return prime * (prime + move.hashCode()) + (int) (doubleToLong ^ (doubleToLong >>> 32));
+		return prime * (prime + ((move == null) ? 0 : move.hashCode())) + (int) (doubleToLong ^ (doubleToLong >>> 32));
 	}
 
 	@Override
@@ -24,11 +26,11 @@ public class MoveWithScore<M> {
 			return false;
 		}
 		MoveWithScore<?> other = (MoveWithScore<?>) obj;
-		return move.equals(other.move) && score == other.score;
+		return Objects.equals(move, other.move) && score == other.score;
 	}
 
 	@Override
 	public String toString() {
-		return move.toString() + ": " + score;
+		return (move == null ? "null move" : move.toString()) + ": " + score;
 	}
 }
