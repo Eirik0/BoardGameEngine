@@ -1,6 +1,5 @@
 package game.tictactoe;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 
 import game.Coordinate;
@@ -8,11 +7,12 @@ import gui.GameGuiManager;
 import gui.GuiPlayer;
 import gui.gamestate.GameState.UserInput;
 import gui.gamestate.IGameRenderer;
+import main.BoardGameEngineMain;
 
 public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacToePosition> {
 	@Override
 	public void initializeAndDrawBoard(Graphics2D g) {
-		g.setColor(Color.WHITE);
+		g.setColor(BoardGameEngineMain.BACKGROUND_COLOR);
 		g.fillRect(0, 0, GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
 	}
 
@@ -21,7 +21,7 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
 		int width = GameGuiManager.getComponentWidth();
 		int height = GameGuiManager.getComponentHeight();
 
-		g.setColor(Color.BLACK);
+		g.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
 		for (int i = 1; i < 3; ++i) {
 			int thirdOfWidth = round(i * width / 3.0);
 			int thirdOfHeight = round(i * height / 3.0);

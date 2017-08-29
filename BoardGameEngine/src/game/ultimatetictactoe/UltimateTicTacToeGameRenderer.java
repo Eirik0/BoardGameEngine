@@ -10,6 +10,7 @@ import gui.GameGuiManager;
 import gui.GuiPlayer;
 import gui.gamestate.GameState.UserInput;
 import gui.gamestate.IGameRenderer;
+import main.BoardGameEngineMain;
 
 public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordinate, UltimateTicTacToePosition> {
 	private static final Color WOOD_COLOR = new Color(166, 128, 100);
@@ -32,7 +33,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 		offsetY = (imageHeight - boardWidth) / 2;
 		cellWidth = boardWidth / 9;
 
-		g.setColor(Color.WHITE);
+		g.setColor(BoardGameEngineMain.BACKGROUND_COLOR);
 		g.fillRect(0, 0, imageWidth, imageHeight);
 
 		g.setColor(WOOD_COLOR);

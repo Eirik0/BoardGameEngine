@@ -11,6 +11,7 @@ import game.tictactoe.TicTacToeGame;
 import game.ultimatetictactoe.UltimateTicTacToeGame;
 import gui.Drawable;
 import gui.GameGuiManager;
+import main.BoardGameEngineMain;
 
 public class MainMenuState implements GameState {
 	List<MenuItem> menuItems = new ArrayList<>();
@@ -23,7 +24,7 @@ public class MainMenuState implements GameState {
 
 	@Override
 	public void drawOn(Graphics2D graphics) {
-		graphics.setColor(Color.WHITE);
+		graphics.setColor(BoardGameEngineMain.BACKGROUND_COLOR);
 		graphics.fillRect(0, 0, GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
 		for (MenuItem menuItem : menuItems) {
 			menuItem.drawOn(graphics);

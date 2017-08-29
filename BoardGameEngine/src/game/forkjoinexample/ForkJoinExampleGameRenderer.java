@@ -26,7 +26,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 	public void initializeAndDrawBoard(Graphics2D g) {
 		int padding = 20; // pixels on either side
 		nodeRadius = (((double) GameGuiManager.getComponentWidth() - 2 * padding) / BREDTH) / 4;
-		g.setColor(Color.WHITE);
+		g.setColor(BoardGameEngineMain.BACKGROUND_COLOR);
 		g.fillRect(0, 0, GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
 	}
 
@@ -36,7 +36,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 		int height = GameGuiManager.getComponentHeight();
 		g.setFont(BoardGameEngineMain.DEFAULT_FONT_SMALL);
 		int fontHeight = g.getFontMetrics().getHeight() + 2;
-		g.setColor(Color.BLACK);
+		g.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
 		ForkJoinExampleThreadTracker.maybeRecalculateTimeElapsed();
 		g.drawString("Nodes per evaluated second: " + String.format("%.2f", ForkJoinExampleThreadTracker.getNodesEvaluatedPerSecond()), 2, fontHeight);
 		g.drawString("Percent reevaluated: " + String.format("%.2f", ForkJoinExampleThreadTracker.getPercentReevaluated()), 0, fontHeight * 2);
@@ -48,7 +48,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 				if (nodeInfo == null) {
 					continue;
 				}
-				Color color = nodeInfo.getThreadName() != null ? getColorFromThreadName(nodeInfo.getThreadName()) : Color.BLACK;
+				Color color = nodeInfo.getThreadName() != null ? getColorFromThreadName(nodeInfo.getThreadName()) : BoardGameEngineMain.FOREGROUND_COLOR;
 				double nodeX = nodeInfo.fractionX * width;
 				double nodeY = nodeInfo.fractionY * height;
 				// draw lines to children

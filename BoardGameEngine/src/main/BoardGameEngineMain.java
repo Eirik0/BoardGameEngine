@@ -1,5 +1,17 @@
 package main;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
 import game.GameRunner;
 import game.IGame;
 import game.forkjoinexample.ForkJoinExampleGame;
@@ -17,24 +29,18 @@ import gui.GameRegistry;
 import gui.gamestate.GameRunningState;
 import gui.gamestate.MainMenuState;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
 public class BoardGameEngineMain {
 	private static final String TITLE = "Board Game Engine";
+	private static final boolean DARK_THEME = true;
 
 	public static final int DEFAULT_WIDTH = 1024;
 	public static final int DEFAULT_HEIGHT = 768;
 
 	public static final Font DEFAULT_FONT = new Font("consolas", Font.PLAIN, 24);
 	public static final Font DEFAULT_FONT_SMALL = new Font(Font.DIALOG, Font.PLAIN, 12);
+
+	public static final Color BACKGROUND_COLOR = DARK_THEME ? Color.BLACK : Color.WHITE;
+	public static final Color FOREGROUND_COLOR = DARK_THEME ? Color.WHITE : Color.BLACK;
 
 	public static void main(String[] args) {
 		registerGames();
@@ -115,5 +121,12 @@ public class BoardGameEngineMain {
 	private static void repackFrame(JFrame mainFrame, GamePanel gamePanel) {
 		gamePanel.setPreferredSize(gamePanel.getSize());
 		mainFrame.pack();
+	}
+
+	public static <T extends JComponent> T initComponent(T component) {
+		component.setBackground(BACKGROUND_COLOR);
+		component.setForeground(FOREGROUND_COLOR);
+		component.setFocusable(false);
+		return component;
 	}
 }

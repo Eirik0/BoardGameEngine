@@ -1,13 +1,6 @@
 package main;
 
-import game.GameRunner;
-import game.IGame;
-import game.IPlayer;
-import gui.GameGuiManager;
-import gui.gamestate.MainMenuState;
-
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -20,15 +13,21 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import game.GameRunner;
+import game.IGame;
+import game.IPlayer;
+import gui.GameGuiManager;
+import gui.gamestate.MainMenuState;
+
 @SuppressWarnings("serial")
 public class PlayerControllerPanel extends JPanel {
-	private final JLabel gameLabel = new JLabel();
+	private final JLabel gameLabel = BoardGameEngineMain.initComponent(new JLabel());
 	private final List<JComboBox<IPlayer>> playerComboBoxes;
 	private Runnable backAction;
 
 	public PlayerControllerPanel(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
 		setLayout(new BorderLayout());
-		setBackground(Color.WHITE);
+		BoardGameEngineMain.initComponent(this);
 		gameLabel.setText(game.getName());
 		int numberOfPlayers = game.getNumberOfPlayers();
 		IPlayer[] avaliablePlayers = game.getAvailablePlayers();
@@ -46,33 +45,28 @@ public class PlayerControllerPanel extends JPanel {
 	}
 
 	private JComboBox<IPlayer> createPlayerComboBox(IPlayer[] availablePlayers, IPlayer defaultPlayer) {
-		JComboBox<IPlayer> jComboBox = new JComboBox<>(availablePlayers);
+		JComboBox<IPlayer> jComboBox = BoardGameEngineMain.initComponent(new JComboBox<>(availablePlayers));
 		jComboBox.setSelectedItem(defaultPlayer);
-		jComboBox.setFocusable(false);
 		return jComboBox;
 	}
 
 	private void rebuildWith(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		buttonPanel.setBackground(Color.WHITE);
+		JPanel buttonPanel = BoardGameEngineMain.initComponent(new JPanel(new FlowLayout(FlowLayout.CENTER)));
 		buttonPanel.add(Box.createHorizontalStrut(30));
 		for (int i = 0; i < playerComboBoxes.size(); i++) {
 			buttonPanel.add(playerComboBoxes.get(i));
 			if (i < playerComboBoxes.size() - 1) {
-				buttonPanel.add(new JLabel(" v. "));
+				buttonPanel.add(BoardGameEngineMain.initComponent(new JLabel(" v. ")));
 			}
 		}
 
 		JPanel buttonPanelWrapper = new JPanel(new BorderLayout());
-		buttonPanelWrapper.setBackground(Color.WHITE);
+		BoardGameEngineMain.initComponent(buttonPanelWrapper);
 		buttonPanelWrapper.add(buttonPanel, BorderLayout.EAST);
 
-		JButton newGameButton = new JButton("New Game");
-		JButton endGameButton = new JButton("End Game");
-		JButton backButton = new JButton("Back");
-		newGameButton.setFocusable(false);
-		endGameButton.setFocusable(false);
-		backButton.setFocusable(false);
+		JButton newGameButton = BoardGameEngineMain.initComponent(new JButton("New Game"));
+		JButton endGameButton = BoardGameEngineMain.initComponent(new JButton("End Game"));
+		JButton backButton = BoardGameEngineMain.initComponent(new JButton("Back"));
 		List<JButton> buttons = Arrays.asList(newGameButton, endGameButton, backButton);
 
 		newGameButton.addActionListener(createEnableDisableRunnableWrapper(buttons, () -> startNewGame(game, gameRunner)));
