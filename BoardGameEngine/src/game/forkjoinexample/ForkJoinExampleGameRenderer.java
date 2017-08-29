@@ -1,10 +1,5 @@
 package game.forkjoinexample;
 
-import game.forkjoinexample.ForkJoinExampleThreadTracker.ForkJoinExampleNodeInfo;
-import gui.GameGuiManager;
-import gui.gamestate.GameState.UserInput;
-import gui.gamestate.IGameRenderer;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.HashMap;
@@ -12,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import game.forkjoinexample.ForkJoinExampleThreadTracker.ForkJoinExampleNodeInfo;
+import gui.GameGuiManager;
+import gui.gamestate.GameState.UserInput;
+import gui.gamestate.IGameRenderer;
 import main.BoardGameEngineMain;
 import util.Pair;
 
