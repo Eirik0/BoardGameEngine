@@ -88,12 +88,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 		Font largeFont = new Font(Font.SANS_SERIF, Font.PLAIN, getSquareWidthFraction(3));
 		for (int i = 0; i < UltimateTicTacToePosition.BOARD_WIDTH; ++i) {
 			if (position.wonBoards[i] != UltimateTicTacToePosition.UNPLAYED) {
-				String player;
-				if (position.wonBoards[i] == UltimateTicTacToePosition.BOTH_PLAYERS) {
-					player = "Z";
-				} else {
-					player = position.wonBoards[i] == UltimateTicTacToePosition.PLAYER_1 ? "X" : "O";
-				}
+				String player = position.wonBoards[i] == UltimateTicTacToePosition.PLAYER_1 ? "X" : "O";
 				Coordinate intersection = UltimateTicTacToeUtilities.getBoardXY(i, 4); // 4 = the center square of that board
 				drawCenteredString(g, largeFont, player, getCenterX(intersection.x), getCenterY(intersection.y));
 			}

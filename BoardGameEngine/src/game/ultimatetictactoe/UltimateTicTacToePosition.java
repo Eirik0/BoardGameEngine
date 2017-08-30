@@ -1,12 +1,12 @@
 package game.ultimatetictactoe;
 
-import game.Coordinate;
-import game.IPosition;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import game.Coordinate;
+import game.IPosition;
 
 public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, UltimateTicTacToePosition> {
 	static final int ANY_BOARD = -1;
@@ -79,19 +79,20 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 		boardInPlay[boardNM.y] = currentPlayer;
 		if (UltimateTicTacToeUtilities.winsExist(boardInPlay, currentPlayer)) {
 			wonBoards[boardNM.x] = currentPlayer;
+		}
+		if (wonBoards[boardNM.y] != UNPLAYED) {
+			currentBoard = ANY_BOARD;
 		} else {
 			boolean full = true;
 			for (int i = 0; i < BOARD_WIDTH; ++i) {
-				if (boardInPlay[i] == UNPLAYED) {
+				if (cells[boardNM.y][i] == UNPLAYED) {
 					full = false;
 					break;
 				}
 			}
-			if (full) {
-				wonBoards[boardNM.x] = BOTH_PLAYERS;
-			}
+			currentBoard = full ? ANY_BOARD : boardNM.y;
 		}
-		currentBoard = wonBoards[boardNM.y] == UNPLAYED ? boardNM.y : ANY_BOARD;
+
 		currentPlayer = currentPlayer == PLAYER_1 ? PLAYER_2 : PLAYER_1;
 	}
 
