@@ -1,10 +1,9 @@
 package analysis;
 
-import game.IPosition;
-
 import java.util.List;
 
-import util.Pair;
+import analysis.search.MoveWithResult;
+import game.IPosition;
 
 public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
 	private final IPositionEvaluator<M, P> positionEvaluator;
@@ -60,14 +59,14 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 	}
 
 	@Override
-	public AnalysisResult<M> join(P position, int player, List<MoveWithScore<M>> movesWithScore, List<Pair<M, AnalysisResult<M>>> results) {
+	public AnalysisResult<M> join(P position, int player, List<MoveWithScore<M>> movesWithScore, List<MoveWithResult<M>> movesWithResults) {
 		AnalysisResult<M> joinedResult = new AnalysisResult<>(movesWithScore);
 		boolean min = player == position.getCurrentPlayer();
-		for (Pair<M, AnalysisResult<M>> analysisResult : results) {
+		for (MoveWithResult<M> moveWithResult : movesWithResults) {
 			if (min) {
-				joinedResult.addMoveWithScore(analysisResult.getFirst(), analysisResult.getSecond().getMin());
+				joinedResult.addMoveWithScore(moveWithResult.move, moveWithResult.result.getMin());
 			} else {
-				joinedResult.addMoveWithScore(analysisResult.getFirst(), analysisResult.getSecond().getMax());
+				joinedResult.addMoveWithScore(moveWithResult.move, moveWithResult.result.getMax());
 			}
 		}
 		return joinedResult;

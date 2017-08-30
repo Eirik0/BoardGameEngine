@@ -25,7 +25,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	private final List<TreeSearchWorker<M, P>> availableWorkers = new ArrayList<>();
 	private final Map<TreeSearchWorker<M, P>, GameTreeSearch<M, P>> treeSearchesInProgress = new HashMap<>();
 
-	private volatile boolean searchNotStopped = false;
+	private volatile boolean searchStopped = true;
 
 	private volatile int plies = 0;
 	private volatile AnalysisResult<M> result;
@@ -49,22 +49,22 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 
 	public void startSearch(P position, int maxPlies) {
 		result = null;
-		searchNotStopped = true;
+		searchStopped = false;
 		plies = 0;
 		do {
 			++plies;
 			strategy.notifySearchStarted();
 			AnalysisResult<M> search = search(position, position.getCurrentPlayer(), plies);
-			if (!searchNotStopped && result != null) { // merge only when the search is stopped
+			if (searchStopped && result != null) { // merge only when the search is stopped
 				result.mergeWith(search);
 			} else {
 				result = search;
 			}
 			strategy.notifySearchComplete();
 			if (result.getBestMove() != null && Double.isInfinite(result.getMax())) {
-				break;
+				break; // no need to keep looking if the game is decided
 			}
-		} while (searchNotStopped && plies < maxPlies);// no need to keep looking if the game is decided
+		} while (!searchStopped && plies < maxPlies);
 	}
 
 	public void stopSearch() {
@@ -77,7 +77,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	}
 
 	private synchronized void stopWorkers() { // Stopping a worker will eventually remove it from workingWorkers
-		searchNotStopped = false;
+		searchStopped = true;
 		for (Entry<TreeSearchWorker<M, P>, GameTreeSearch<M, P>> searchInProgress : treeSearchesInProgress.entrySet()) {
 			searchInProgress.getKey().waitForSearchToStart();
 			searchInProgress.getValue().stopSearch();
@@ -97,7 +97,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 
 		treeSearchesToAnalyze.add(new GameTreeSearch<>(null, position, player, plies, strategy, moveResult -> {
 			try {
-				resultQueue.put(moveResult.getSecond());
+				resultQueue.put(moveResult.result);
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
@@ -139,7 +139,13 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 
 	public synchronized void workerComplete(TreeSearchWorker<M, P> finishedWorker) {
 		if (treeSearchesToAnalyze.size() > 0) {
-			startWork(finishedWorker, treeSearchesToAnalyze.remove(0));
+			GameTreeSearch<M, P> treeSearch = treeSearchesToAnalyze.remove(0);
+			startWork(finishedWorker, treeSearch);
+			if (searchStopped) {
+				// We cannot wait for the search to start because we are in the still executing the finished workers runnable from the last time we called workOn.
+				// This is fine however, because even if the worker hasn't started, the strategy will respect the fact that the search is stopped.
+				treeSearch.stopSearch();
+			}
 			return;
 		}
 
@@ -160,7 +166,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			}
 		}
 
-		if (searchNotStopped && toFork != null) {
+		if (!searchStopped && toFork != null) {
 			List<GameTreeSearch<M, P>> fork = toFork.fork(); // Forking this worker will cause it to enqueue a call to workerComplete(this)
 			if (fork.size() > 0) {
 				treeSearchesToAnalyze.addAll(fork);

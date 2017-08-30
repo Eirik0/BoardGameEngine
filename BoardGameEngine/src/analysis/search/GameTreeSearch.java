@@ -9,7 +9,6 @@ import analysis.AnalysisResult;
 import analysis.IDepthBasedStrategy;
 import analysis.MoveWithScore;
 import game.IPosition;
-import util.Pair;
 
 public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private final M parentMove;
@@ -20,7 +19,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private final int plies;
 
 	private final IDepthBasedStrategy<M, P> strategy;
-	private final Consumer<Pair<M, AnalysisResult<M>>> resultConsumer;
+	private Consumer<MoveWithResult<M>> resultConsumer;
 
 	private volatile AnalysisResult<M> result = null;
 
@@ -29,7 +28,12 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private volatile boolean forked = false;
 	private volatile boolean consumedResult = false;
 
-	public GameTreeSearch(M parentMove, P position, int player, int plies, IDepthBasedStrategy<M, P> strategy, Consumer<Pair<M, AnalysisResult<M>>> resultConsumer) {
+	public GameTreeSearch(M parentMove, P position, int player, int plies, IDepthBasedStrategy<M, P> strategy, Consumer<MoveWithResult<M>> resultConsumer) {
+		this(parentMove, position, player, plies, strategy);
+		setResultConsumer(resultConsumer);
+	}
+
+	private GameTreeSearch(M parentMove, P position, int player, int plies, IDepthBasedStrategy<M, P> strategy) {
 		this.parentMove = parentMove;
 		this.position = position.createCopy();
 		possibleMoves = this.position.getPossibleMoves();
@@ -37,6 +41,9 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		this.player = player;
 		this.plies = plies;
 		this.strategy = strategy.createCopy();
+	}
+
+	private void setResultConsumer(Consumer<MoveWithResult<M>> resultConsumer) {
 		this.resultConsumer = resultConsumer;
 	}
 
@@ -78,7 +85,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			return;
 		}
 		consumedResult = true;
-		resultConsumer.accept(Pair.valueOf(move, result));
+		resultConsumer.accept(new MoveWithResult<>(move, result));
 		notify();
 	}
 
@@ -125,21 +132,14 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			return Collections.emptyList();
 		}
 
-		List<Pair<M, AnalysisResult<M>>> results = Collections.synchronizedList(new ArrayList<>());
+		List<MoveWithResult<M>> movesWithResults = new ArrayList<>();
 		int expectedResults = unanalyzedMoves.size();
-
-		Consumer<Pair<M, AnalysisResult<M>>> consumerWrapper = moveResult -> {
-			results.add(moveResult);
-			if (results.size() == expectedResults) {
-				join(movesWithScore, results);
-			}
-		};
 
 		List<GameTreeSearch<M, P>> gameTreeSearches = new ArrayList<>();
 		synchronized (this) {
 			for (M move : unanalyzedMoves) {
 				position.makeMove(move);
-				gameTreeSearches.add(new GameTreeSearch<M, P>(move, position, player, plies - 1, strategy, consumerWrapper));
+				gameTreeSearches.add(createFork(move, movesWithScore, movesWithResults, expectedResults));
 				position.unmakeMove(move);
 			}
 		}
@@ -149,7 +149,23 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		return gameTreeSearches;
 	}
 
-	private synchronized void join(List<MoveWithScore<M>> movesWithScore, List<Pair<M, AnalysisResult<M>>> results) {
+	private GameTreeSearch<M, P> createFork(M move, List<MoveWithScore<M>> movesWithScore, List<MoveWithResult<M>> movesWithResults, int expectedResults) {
+		GameTreeSearch<M, P> treeSearch = new GameTreeSearch<M, P>(move, position, player, plies - 1, strategy);
+		treeSearch.setResultConsumer(moveWithResult -> {
+			synchronized (this) {
+				if (consumedResult) {
+					return;
+				}
+				movesWithResults.add(moveWithResult);
+				if (treeSearch.searchCanceled || movesWithResults.size() == expectedResults) {
+					join(movesWithScore, movesWithResults);
+				}
+			}
+		});
+		return treeSearch;
+	}
+
+	private synchronized void join(List<MoveWithScore<M>> movesWithScore, List<MoveWithResult<M>> results) {
 		AnalysisResult<M> joinedResult = strategy.join(position, player, movesWithScore, results);
 		maybeConsumeResult(parentMove, joinedResult);
 	}

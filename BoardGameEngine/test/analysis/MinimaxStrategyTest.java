@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.Test;
 
 import analysis.search.GameTreeSearch;
+import analysis.search.MoveWithResult;
 import game.IPosition;
 import game.lock.TestLockingEvaluator;
 import game.lock.TestLockingNode;
@@ -17,14 +18,13 @@ import game.lock.TestLockingPosition;
 import game.value.TestGameEvaluator;
 import game.value.TestGameNode;
 import game.value.TestGamePosition;
-import util.Pair;
 
 public class MinimaxStrategyTest {
 	private synchronized <M, P extends IPosition<M, P>> AnalysisResult<M> search(MinimaxStrategy<M, P> minimaxStrategy, P testGamePosition, int currentPlayer, int plies) {
 		List<AnalysisResult<M>> result = new ArrayList<>();
-		GameTreeSearch<M, P> gameTreeSearch = new GameTreeSearch<M, P>(null, testGamePosition, currentPlayer, plies, minimaxStrategy, moveResult -> {
+		GameTreeSearch<M, P> gameTreeSearch = new GameTreeSearch<M, P>(null, testGamePosition, currentPlayer, plies, minimaxStrategy, moveWithResult -> {
 			synchronized (this) {
-				result.add(moveResult.getSecond());
+				result.add(moveWithResult.result);
 				notify();
 			}
 		});
@@ -128,7 +128,8 @@ public class MinimaxStrategyTest {
 
 		MinimaxStrategy<TestLockingNode, TestLockingPosition> minimaxStrategy = new MinimaxStrategy<>(new TestLockingEvaluator());
 		List<AnalysisResult<TestLockingNode>> result = new ArrayList<>();
-		GameTreeSearch<TestLockingNode, TestLockingPosition> gameTreeSearch = new GameTreeSearch<>(null, testLockingPosition, 0, 1, minimaxStrategy, moveResult -> result.add(moveResult.getSecond()));
+		GameTreeSearch<TestLockingNode, TestLockingPosition> gameTreeSearch = new GameTreeSearch<>(null, testLockingPosition, 0, 1, minimaxStrategy,
+				moveWithResult -> result.add(moveWithResult.result));
 
 		Thread thread = new Thread(() -> gameTreeSearch.search());
 		thread.start();
@@ -156,10 +157,10 @@ public class MinimaxStrategyTest {
 	public void testJoin_Results() {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new TestGameEvaluator());
-		List<Pair<TestGameNode, AnalysisResult<TestGameNode>>> results = new ArrayList<>();
+		List<MoveWithResult<TestGameNode>> results = new ArrayList<>();
 		for (TestGameNode move : testGamePosition.getPossibleMoves()) {
 			testGamePosition.makeMove(move);
-			results.add(Pair.valueOf(move, search(minimaxStrategy, testGamePosition, 0, 3)));
+			results.add(new MoveWithResult<>(move, search(minimaxStrategy, testGamePosition, 0, 3)));
 			testGamePosition.unmakeMove(move);
 		}
 		AnalysisResult<TestGameNode> result = minimaxStrategy.join(testGamePosition, 0, Collections.emptyList(), results);
@@ -184,14 +185,14 @@ public class MinimaxStrategyTest {
 
 		List<MoveWithScore<TestGameNode>> firstMoveWithScore = Collections.singletonList(search(minimaxStrategy, testGamePosition, 0, 4).getMovesWithScore().get(0));
 
-		List<Pair<TestGameNode, AnalysisResult<TestGameNode>>> results = new ArrayList<>();
+		List<MoveWithResult<TestGameNode>> results = new ArrayList<>();
 		for (TestGameNode move : testGamePosition.getPossibleMoves()) {
 			testGamePosition.makeMove(move);
-			results.add(Pair.valueOf(move, search(minimaxStrategy, testGamePosition, 0, 3)));
+			results.add(new MoveWithResult<>(move, search(minimaxStrategy, testGamePosition, 0, 3)));
 			testGamePosition.unmakeMove(move);
 		}
 
-		List<Pair<TestGameNode, AnalysisResult<TestGameNode>>> secondResult = Collections.singletonList(results.get(1));
+		List<MoveWithResult<TestGameNode>> secondResult = Collections.singletonList(results.get(1));
 
 		AnalysisResult<TestGameNode> result = minimaxStrategy.join(testGamePosition, 0, firstMoveWithScore, secondResult);
 		assertEquals("1 -> [6, 5]: 25.0\n"

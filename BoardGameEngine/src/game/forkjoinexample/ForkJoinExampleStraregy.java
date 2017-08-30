@@ -2,11 +2,11 @@ package game.forkjoinexample;
 
 import java.util.List;
 
-import util.Pair;
 import analysis.AbstractDepthBasedStrategy;
 import analysis.AnalysisResult;
 import analysis.IDepthBasedStrategy;
 import analysis.MoveWithScore;
+import analysis.search.MoveWithResult;
 
 public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> {
 	@Override
@@ -44,6 +44,9 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 		ForkJoinExampleThreadTracker.branchVisited(currentNode.getParent(), currentNode, ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
 		List<ForkJoinExampleNode> possibleMoves = position.getPossibleMoves();
 		if (plies == 0 || possibleMoves.size() == 0) {
+			if (searchCanceled) {
+				return;
+			}
 			ForkJoinExampleThreadTracker.evaluateNode(currentNode);
 			return;
 		} else {
@@ -60,12 +63,12 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 
 	@Override
 	public AnalysisResult<ForkJoinExampleNode> join(ForkJoinExampleTree position, int player, List<MoveWithScore<ForkJoinExampleNode>> movesWithScore,
-			List<Pair<ForkJoinExampleNode, AnalysisResult<ForkJoinExampleNode>>> results) {
+			List<MoveWithResult<ForkJoinExampleNode>> movesWithResults) {
 		for (MoveWithScore<ForkJoinExampleNode> moveWithScore : movesWithScore) {
 			ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), moveWithScore.move, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
 		}
-		for (Pair<ForkJoinExampleNode, AnalysisResult<ForkJoinExampleNode>> movesWithResult : results) {
-			ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), movesWithResult.getFirst(), ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
+		for (MoveWithResult<ForkJoinExampleNode> movesWithResult : movesWithResults) {
+			ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), movesWithResult.move, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
 		}
 		ForkJoinExampleThreadTracker.setJoined(position.getCurrentNode());
 		return new AnalysisResult<>();

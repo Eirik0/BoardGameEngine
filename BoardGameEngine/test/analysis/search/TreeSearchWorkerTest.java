@@ -1,9 +1,5 @@
 package analysis.search;
 
-import game.value.TestGameEvaluator;
-import game.value.TestGameNode;
-import game.value.TestGamePosition;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -13,6 +9,9 @@ import org.junit.Test;
 
 import analysis.AnalysisResult;
 import analysis.MinimaxStrategy;
+import game.value.TestGameEvaluator;
+import game.value.TestGameNode;
+import game.value.TestGamePosition;
 
 public class TreeSearchWorkerTest {
 	@Test
@@ -29,7 +28,7 @@ public class TreeSearchWorkerTest {
 		});
 		worker.workOn(new GameTreeSearch<>(null, TestGamePosition.createTestPosition(), 0, 0, new MinimaxStrategy<>(new TestGameEvaluator()), result -> {
 			try {
-				resultQueue.put(result.getSecond());
+				resultQueue.put(result.result);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -43,7 +42,7 @@ public class TreeSearchWorkerTest {
 		List<AnalysisResult<TestGameNode>> resultList = new ArrayList<>();
 		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = new GameTreeSearch<>(null, TestGamePosition.createTestPosition(), 0, 0, new MinimaxStrategy<>(new TestGameEvaluator()), result -> {
 			synchronized (this) {
-				resultList.add(result.getSecond());
+				resultList.add(result.result);
 				notify();
 			}
 		});

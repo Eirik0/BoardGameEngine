@@ -1,13 +1,13 @@
 package game.ultimatetictactoe;
 
+import analysis.ComputerPlayer;
+import analysis.MinimaxStrategy;
 import game.IGame;
 import game.IPlayer;
 import gui.GuiPlayer;
-import analysis.ComputerPlayer;
-import analysis.MinimaxStrategy;
 
 public class UltimateTicTacToeGame implements IGame<UTTTCoordinate, UltimateTicTacToePosition> {
-	private final ComputerPlayer computer = newComputerPlayer(2, 2000);
+	private final ComputerPlayer computer = newComputerPlayer(2, 3000);
 
 	@Override
 	public String getName() {
