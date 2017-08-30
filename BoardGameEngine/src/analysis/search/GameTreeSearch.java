@@ -157,7 +157,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 					return;
 				}
 				movesWithResults.add(moveWithResult);
-				if (treeSearch.searchCanceled || movesWithResults.size() == expectedResults) {
+				if ((treeSearch.searchCanceled && !treeSearch.forked) || movesWithResults.size() == expectedResults) {
 					join(movesWithScore, movesWithResults);
 				}
 			}
