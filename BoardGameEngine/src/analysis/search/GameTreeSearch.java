@@ -95,10 +95,6 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		return remainingBranches;
 	}
 
-	public boolean isForkable() {
-		return plies > 0 && getRemainingBranches() > 0;
-	}
-
 	public List<GameTreeSearch<M, P>> fork() {
 		forked = true;
 		List<M> unanalyzedMoves;

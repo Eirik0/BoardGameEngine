@@ -1,12 +1,12 @@
 package game.forkjoinexample;
 
+import analysis.ComputerPlayer;
 import game.IGame;
 import game.IPlayer;
-import analysis.ComputerPlayer;
 
 public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinExampleTree> {
-	public static final int DEPTH = 13;
-	public static final int BRANCHING_FACTOR = 2;
+	public static final int DEPTH = 10;
+	public static final int BRANCHING_FACTOR = 3;
 
 	private final ComputerPlayer oneThreadPlayer = new ComputerPlayer(new ForkJoinExampleStraregy(), 1, "1 Worker", Long.MAX_VALUE);
 	private final ComputerPlayer twoThreadPlayer = new ComputerPlayer(new ForkJoinExampleStraregy(), 2, "2 Workers", Long.MAX_VALUE);

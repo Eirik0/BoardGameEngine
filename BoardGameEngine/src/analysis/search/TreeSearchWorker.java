@@ -1,10 +1,10 @@
 package analysis.search;
 
-import game.IPosition;
-
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
+
+import game.IPosition;
 
 public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 	private static int threadNum = 0;
@@ -15,10 +15,9 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 
 	private Thread thread;
 	private volatile boolean notShutdown = true;
-	private volatile boolean treeSearchNotSet = true;
+	private volatile boolean treeSearchSet = false;
 
 	private final BlockingQueue<Runnable> runnableQueue = new ArrayBlockingQueue<>(1);
-	private volatile GameTreeSearch<M, P> treeSearch;
 
 	public TreeSearchWorker(Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer) {
 		this("WorkerThread_" + threadNum++, completedWorkerConsumer);
@@ -51,7 +50,7 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 		try {
 			runnableQueue.put(() -> {
 				// We have to say do nothing if we are waiting to take from the queue
-				});
+			});
 			thread.join();
 			thread = null;
 		} catch (InterruptedException e) {
@@ -60,13 +59,12 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 	}
 
 	public void workOn(GameTreeSearch<M, P> treeSearch) {
-		treeSearchNotSet = true;
+		treeSearchSet = false;
 		maybeInitThread();
 		try {
 			runnableQueue.put(() -> {
 				synchronized (this) {
-					this.treeSearch = treeSearch;
-					treeSearchNotSet = false;
+					treeSearchSet = true;
 					notify();
 				}
 				treeSearch.search();
@@ -77,15 +75,30 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 		}
 	}
 
-	public synchronized GameTreeSearch<M, P> getTreeSearch() { // XXX is there a better way to do this?
-		while (treeSearchNotSet) {
+	public synchronized void waitForSearchToStart() {
+		while (!treeSearchSet) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
 		}
-		return treeSearch;
+	}
+
+	@Override
+	public int hashCode() {
+		return threadName.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		} else if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
+		TreeSearchWorker<?, ?> other = (TreeSearchWorker<?, ?>) obj;
+		return threadName.equals(other.threadName);
 	}
 
 	@Override

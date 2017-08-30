@@ -25,7 +25,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 	@Override
 	public void initializeAndDrawBoard(Graphics2D g) {
 		int padding = 20; // pixels on either side
-		nodeRadius = (((double) GameGuiManager.getComponentWidth() - 2 * padding) / BREDTH) / 4;
+		nodeRadius = (((double) GameGuiManager.getComponentWidth() - 2 * padding) / BREDTH) / 4 + 0.5;
 		g.setColor(BoardGameEngineMain.BACKGROUND_COLOR);
 		g.fillRect(0, 0, GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
 	}
