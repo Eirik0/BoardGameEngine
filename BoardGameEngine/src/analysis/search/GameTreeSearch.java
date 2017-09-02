@@ -52,12 +52,12 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		consumedResult = false;
 		if (plies == 0) {
 			result = new AnalysisResult<>(Collections.singletonList(new MoveWithScore<>(parentMove, strategy.evaluate(position, player, plies))));
-			maybeConsumeResult(parentMove, result);
+			maybeConsumeResult(new MoveWithResult<>(parentMove, result));
 		} else {
 			result = searchWithStrategy();
 			notify();
 			if (!forked) {
-				maybeConsumeResult(parentMove, result);
+				maybeConsumeResult(new MoveWithResult<>(parentMove, result));
 			}
 		}
 	}
@@ -81,12 +81,12 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		return analysisResult;
 	}
 
-	private synchronized void maybeConsumeResult(M move, AnalysisResult<M> result) {
+	private synchronized void maybeConsumeResult(MoveWithResult<M> moveWithResult) {
 		if (consumedResult) {
 			return;
 		}
 		consumedResult = true;
-		resultConsumer.accept(new MoveWithResult<>(move, result));
+		resultConsumer.accept(moveWithResult);
 		notify();
 	}
 
@@ -125,7 +125,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			movesWithScore = result.getMovesWithScore();
 
 			if (unanalyzedMoves.isEmpty()) {
-				maybeConsumeResult(parentMove, result);
+				maybeConsumeResult(new MoveWithResult<>(parentMove, result));
 				return Collections.emptyList();
 			}
 		} else {
@@ -158,8 +158,15 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 					return;
 				}
 				movesWithResults.add(moveWithResult);
-				if ((treeSearch.searchCanceled && !treeSearch.forked) || movesWithResults.size() == expectedResults) {
+				if (treeSearch.searchCanceled && !treeSearch.forked) {
+					moveWithResult.invalidate();
 					join(movesWithScore, movesWithResults);
+				} else if (!moveWithResult.isValid()) {
+					join(movesWithScore, movesWithResults);
+				} else {
+					if (movesWithResults.size() == expectedResults) {
+						join(movesWithScore, movesWithResults);
+					}
 				}
 			}
 		});
@@ -167,15 +174,17 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	}
 
 	private synchronized void join(List<MoveWithScore<M>> movesWithScore, List<MoveWithResult<M>> movesWithResults) {
-		maybeConsumeResult(parentMove, join(strategy, position, player, movesWithScore, movesWithResults));
+		maybeConsumeResult(join(strategy, parentMove, position, player, movesWithScore, movesWithResults));
 	}
 
-	public static <M, P extends IPosition<M, P>> AnalysisResult<M> join(IDepthBasedStrategy<M, P> strategy, P position, int player, List<MoveWithScore<M>> movesWithScore,
+	public static <M, P extends IPosition<M, P>> MoveWithResult<M> join(IDepthBasedStrategy<M, P> strategy, M parentMove, P position, int player, List<MoveWithScore<M>> movesWithScore,
 			List<MoveWithResult<M>> movesWithResults) {
+		boolean isValid = true;
 		AnalysisResult<M> joinedResult = new AnalysisResult<>(movesWithScore);
 		for (MoveWithResult<M> moveWithResult : movesWithResults) {
-			joinedResult.addMoveWithScore(moveWithResult.move, strategy.evaluateJoin(position, player, moveWithResult));
+			joinedResult.addMoveWithScore(moveWithResult.move, strategy.evaluateJoin(position, player, moveWithResult), moveWithResult.isValid());
+			isValid = isValid && moveWithResult.isValid();
 		}
-		return joinedResult;
+		return new MoveWithResult<M>(parentMove, joinedResult, isValid);
 	}
 }

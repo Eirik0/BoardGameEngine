@@ -6,9 +6,20 @@ public class MoveWithScore<M> {
 	public final M move;
 	public final double score;
 
+	private boolean isValid = true;
+
 	public MoveWithScore(M move, double score) {
+		this(move, score, true);
+	}
+
+	public MoveWithScore(M move, double score, boolean isValid) {
 		this.move = move;
 		this.score = score;
+		this.isValid = isValid;
+	}
+
+	public boolean isValid() {
+		return isValid;
 	}
 
 	@Override

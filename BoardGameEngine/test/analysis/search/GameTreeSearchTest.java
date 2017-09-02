@@ -1,6 +1,8 @@
 package analysis.search;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +25,7 @@ public class GameTreeSearchTest {
 		TestGamePosition position = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> strategy = new MinimaxStrategy<>(new TestGameEvaluator());
 		List<AnalysisResult<TestGameNode>> results = new ArrayList<>();
-		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = new GameTreeSearch<>(null, position, 0, 1, strategy,
-				moveWithResult -> results.add(moveWithResult.result));
+		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = new GameTreeSearch<>(null, position, 0, 1, strategy, moveWithResult -> results.add(moveWithResult.result));
 		treeSearch.search();
 		assertEquals(1, results.size());
 	}
@@ -189,7 +190,9 @@ public class GameTreeSearchTest {
 		pos3.stopSearch();
 		pos3.search(); // consumes the result
 		List<MoveWithScore<TestGameNode>> movesWithScore = results.get(0).getMovesWithScore();
-		assertEquals(1, movesWithScore.size());
+		assertEquals(2, movesWithScore.size());
+		assertTrue(movesWithScore.get(0).isValid());
+		assertFalse(movesWithScore.get(1).isValid());
 	}
 
 	@Test
@@ -215,6 +218,8 @@ public class GameTreeSearchTest {
 		pos10.stopSearch();
 		pos10.search(); // consumes the result
 		List<MoveWithScore<TestGameNode>> movesWithScore = results.get(0).getMovesWithScore();
-		assertEquals(1, movesWithScore.size());
+		assertEquals(2, movesWithScore.size());
+		assertTrue(movesWithScore.get(0).isValid());
+		assertFalse(movesWithScore.get(1).isValid());
 	}
 }

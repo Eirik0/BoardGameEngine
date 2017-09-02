@@ -25,14 +25,20 @@ public class AnalysisResult<M> {
 	}
 
 	public void addMoveWithScore(M move, double score) {
-		if (score < min) {
-			min = score;
+		addMoveWithScore(move, score, true);
+	}
+
+	public void addMoveWithScore(M move, double score, boolean isValid) {
+		movesWithScore.add(new MoveWithScore<>(move, score, isValid));
+		if (isValid) {
+			if (score < min) {
+				min = score;
+			}
+			if (score > max || bestMove == null) {
+				max = score;
+				bestMove = move;
+			}
 		}
-		if (score > max || bestMove == null) {
-			max = score;
-			bestMove = move;
-		}
-		movesWithScore.add(new MoveWithScore<>(move, score));
 	}
 
 	public AnalysisResult<M> mergeWith(AnalysisResult<M> resultToMerge) {
@@ -42,7 +48,9 @@ public class AnalysisResult<M> {
 			mergedMoveMap.put(moveWithScore.move, moveWithScore.score);
 		}
 		for (MoveWithScore<M> moveWithScore : resultToMerge.movesWithScore) {
-			mergedMoveMap.put(moveWithScore.move, moveWithScore.score);
+			if (moveWithScore.isValid()) {
+				mergedMoveMap.put(moveWithScore.move, moveWithScore.score);
+			}
 		}
 		for (Entry<M, Double> moveWithScore : mergedMoveMap.entrySet()) {
 			mergedResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue());
