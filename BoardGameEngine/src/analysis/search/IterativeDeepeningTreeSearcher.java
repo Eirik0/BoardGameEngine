@@ -142,8 +142,6 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			GameTreeSearch<M, P> treeSearch = treeSearchesToAnalyze.remove(0);
 			startWork(finishedWorker, treeSearch);
 			if (searchStopped) {
-				// We cannot wait for the search to start because we are in the still executing the finished workers runnable from the last time we called workOn.
-				// This is fine however, because even if the worker hasn't started, the strategy will respect the fact that the search is stopped.
 				treeSearch.stopSearch();
 			}
 			return;

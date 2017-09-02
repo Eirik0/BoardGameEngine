@@ -64,9 +64,6 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 	@Override
 	public AnalysisResult<ForkJoinExampleNode> join(ForkJoinExampleTree position, int player, List<MoveWithScore<ForkJoinExampleNode>> movesWithScore,
 			List<MoveWithResult<ForkJoinExampleNode>> movesWithResults) {
-		for (MoveWithScore<ForkJoinExampleNode> moveWithScore : movesWithScore) {
-			ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), moveWithScore.move, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
-		}
 		for (MoveWithResult<ForkJoinExampleNode> movesWithResult : movesWithResults) {
 			ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), movesWithResult.move, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
 		}

@@ -16,7 +16,6 @@ public class AnalysisResult<M> {
 	private volatile M bestMove;
 
 	public AnalysisResult() {
-
 	}
 
 	public AnalysisResult(List<MoveWithScore<M>> movesWithScore) {

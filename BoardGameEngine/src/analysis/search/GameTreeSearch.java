@@ -23,7 +23,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 
 	private volatile AnalysisResult<M> result = null;
 
-	private volatile boolean isSearching = false;
+	private volatile boolean searchStarted = false;
 	private volatile boolean searchCanceled = false;
 	private volatile boolean forked = false;
 	private volatile boolean consumedResult = false;
@@ -48,8 +48,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	}
 
 	public synchronized void search() {
-		isSearching = true;
-		searchCanceled = false;
+		searchStarted = true;
 		consumedResult = false;
 		if (plies == 0) {
 			result = new AnalysisResult<>(Collections.singletonList(new MoveWithScore<>(parentMove, strategy.evaluate(position, player, plies))));
@@ -66,6 +65,9 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private AnalysisResult<M> searchWithStrategy() {
 		AnalysisResult<M> analysisResult = new AnalysisResult<>();
 		for (M move : possibleMoves) {
+			if (searchCanceled && !forked) {
+				return analysisResult;
+			}
 			position.makeMove(move);
 			double score = searchCanceled ? 0 : strategy.evaluate(position, player, plies - 1);
 			position.unmakeMove(move);
@@ -76,7 +78,6 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			}
 			--remainingBranches;
 		}
-		isSearching = false;
 		return analysisResult;
 	}
 
@@ -107,7 +108,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		List<M> unanalyzedMoves;
 		List<MoveWithScore<M>> movesWithScore;
 
-		if (isSearching) {
+		if (searchStarted) {
 			stopSearch();
 
 			synchronized (this) {
@@ -122,14 +123,14 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 
 			unanalyzedMoves = result.getUnanalyzedMoves();
 			movesWithScore = result.getMovesWithScore();
+
+			if (unanalyzedMoves.isEmpty()) {
+				maybeConsumeResult(parentMove, result);
+				return Collections.emptyList();
+			}
 		} else {
 			unanalyzedMoves = possibleMoves;
 			movesWithScore = Collections.emptyList();
-		}
-
-		if (unanalyzedMoves.isEmpty()) {
-			join(movesWithScore, Collections.emptyList());
-			return Collections.emptyList();
 		}
 
 		List<MoveWithResult<M>> movesWithResults = new ArrayList<>();

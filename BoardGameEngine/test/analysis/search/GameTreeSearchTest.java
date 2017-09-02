@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import analysis.AnalysisResult;
 import analysis.MinimaxStrategy;
+import analysis.MoveWithScore;
 import game.lock.TestLockingEvaluator;
 import game.lock.TestLockingNode;
 import game.lock.TestLockingPosition;
@@ -22,7 +23,7 @@ public class GameTreeSearchTest {
 		TestGamePosition position = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> strategy = new MinimaxStrategy<>(new TestGameEvaluator());
 		List<AnalysisResult<TestGameNode>> results = new ArrayList<>();
-		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = new GameTreeSearch<TestGameNode, TestGamePosition>(null, position, 0, 1, strategy,
+		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = new GameTreeSearch<>(null, position, 0, 1, strategy,
 				moveWithResult -> results.add(moveWithResult.result));
 		treeSearch.search();
 		assertEquals(1, results.size());
@@ -106,12 +107,13 @@ public class GameTreeSearchTest {
 		TestGamePosition position = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> strategy = new MinimaxStrategy<>(new TestGameEvaluator());
 		List<AnalysisResult<TestGameNode>> results = new ArrayList<>();
-		GameTreeSearch<TestGameNode, TestGamePosition> tree = new GameTreeSearch<TestGameNode, TestGamePosition>(null, position, 0, 4, strategy, moveWithResult -> results.add(moveWithResult.result));
+		GameTreeSearch<TestGameNode, TestGamePosition> tree = new GameTreeSearch<>(null, position, 0, 4, strategy, moveWithResult -> results.add(moveWithResult.result));
 
 		List<GameTreeSearch<TestGameNode, TestGamePosition>> multiFork = new ArrayList<>();
 		for (GameTreeSearch<TestGameNode, TestGamePosition> subTree : tree.fork()) {
 			multiFork.addAll(subTree.fork());
 		}
+
 		for (GameTreeSearch<TestGameNode, TestGamePosition> gameTreeSearch : multiFork) {
 			gameTreeSearch.search();
 		}
@@ -161,5 +163,54 @@ public class GameTreeSearchTest {
 		Thread.sleep(50);
 
 		assertEquals(0, treeSearch.getRemainingBranches());
+	}
+
+	@Test
+	public void testDoNotIncludeUnfinishedForks() {
+		TestGamePosition position = TestGamePosition.createTestPosition();
+		MinimaxStrategy<TestGameNode, TestGamePosition> strategy = new MinimaxStrategy<>(new TestGameEvaluator());
+		List<AnalysisResult<TestGameNode>> results = new ArrayList<>();
+
+		GameTreeSearch<TestGameNode, TestGamePosition> tree = new GameTreeSearch<>(null, position, 0, 3, strategy, moveWithResult -> results.add(moveWithResult.result));
+		List<GameTreeSearch<TestGameNode, TestGamePosition>> fork = tree.fork();
+		List<GameTreeSearch<TestGameNode, TestGamePosition>> forkPos1 = fork.get(0).fork();
+		List<GameTreeSearch<TestGameNode, TestGamePosition>> forkPos2 = fork.get(1).fork();
+		GameTreeSearch<TestGameNode, TestGamePosition> pos6 = forkPos1.get(0);
+		GameTreeSearch<TestGameNode, TestGamePosition> pos5 = forkPos1.get(1);
+		GameTreeSearch<TestGameNode, TestGamePosition> pos4 = forkPos2.get(0);
+		GameTreeSearch<TestGameNode, TestGamePosition> pos3 = forkPos2.get(1);
+		pos6.search();
+		pos5.search();
+		pos4.search();
+		pos3.stopSearch();
+		pos3.search(); // consumes the result
+		List<MoveWithScore<TestGameNode>> movesWithScore = results.get(0).getMovesWithScore();
+		assertEquals(1, movesWithScore.size());
+	}
+
+	@Test
+	public void testRootIncludesFinishedForks() {
+		TestGamePosition position = TestGamePosition.createTestPosition();
+		MinimaxStrategy<TestGameNode, TestGamePosition> strategy = new MinimaxStrategy<>(new TestGameEvaluator());
+		List<AnalysisResult<TestGameNode>> results = new ArrayList<>();
+
+		GameTreeSearch<TestGameNode, TestGamePosition> tree = new GameTreeSearch<>(null, position, 0, 4, strategy, moveWithResult -> results.add(moveWithResult.result));
+		List<GameTreeSearch<TestGameNode, TestGamePosition>> fork = tree.fork();
+		List<GameTreeSearch<TestGameNode, TestGamePosition>> forkPos1 = fork.get(0).fork();
+		List<GameTreeSearch<TestGameNode, TestGamePosition>> forkPos2 = fork.get(1).fork();
+		GameTreeSearch<TestGameNode, TestGamePosition> pos6 = forkPos1.get(0);
+		GameTreeSearch<TestGameNode, TestGamePosition> pos4 = forkPos2.get(0);
+		GameTreeSearch<TestGameNode, TestGamePosition> pos3 = forkPos2.get(1);
+		List<GameTreeSearch<TestGameNode, TestGamePosition>> forkPos5 = forkPos1.get(1).fork();
+		GameTreeSearch<TestGameNode, TestGamePosition> pos9 = forkPos5.get(0);
+		GameTreeSearch<TestGameNode, TestGamePosition> pos10 = forkPos5.get(1);
+		pos6.search();
+		pos4.search();
+		pos3.search();
+		pos9.search();
+		pos10.stopSearch();
+		pos10.search(); // consumes the result
+		List<MoveWithScore<TestGameNode>> movesWithScore = results.get(0).getMovesWithScore();
+		assertEquals(1, movesWithScore.size());
 	}
 }

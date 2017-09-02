@@ -44,7 +44,6 @@ public class UltimateTicTacToeUtilitiesTest {
 		long fastTime = (System.nanoTime() - fastStart) / 1000000;
 
 		long slowTime = (System.nanoTime() - slowStart) / 1000000;
-		System.out.println("The following is hardly accurate:");
 		System.out.println("slower = " + slowTime + "ms, faster = " + fastTime + "ms, diff = " + (slowTime - fastTime));
 	}
 
