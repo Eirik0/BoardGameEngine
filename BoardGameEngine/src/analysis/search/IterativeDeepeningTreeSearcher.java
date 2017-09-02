@@ -14,7 +14,6 @@ import game.IPosition;
 
 public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	private Thread treeSearchThread;
-	private int theadNum = 0;
 
 	private final IDepthBasedStrategy<M, P> strategy;
 
@@ -25,6 +24,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	private final List<TreeSearchWorker<M, P>> availableWorkers = new ArrayList<>();
 	private final Map<TreeSearchWorker<M, P>, GameTreeSearch<M, P>> treeSearchesInProgress = new HashMap<>();
 
+	private final Object searchStartedLock = new Object();
 	private volatile boolean searchStopped = true;
 
 	private volatile int plies = 0;
@@ -42,22 +42,25 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		searchForever(position, Integer.MAX_VALUE);
 	}
 
-	public synchronized void searchForever(P position, int maxPlies) {
-		treeSearchThread = new Thread(() -> startSearch(position, maxPlies), "Tree_Search_Thread_" + theadNum++);
+	public void searchForever(P position, int maxPlies) {
+		searchStopped = true;
+		treeSearchThread = new Thread(() -> startSearch(position, maxPlies), "Tree_Search_Thread_" + ThreadNumber.getThreadNum(getClass()));
 		treeSearchThread.start();
-		while (searchStopped) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
+		synchronized (searchStartedLock) {
+			while (searchStopped) {
+				try {
+					searchStartedLock.wait();
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 	}
 
 	public void startSearch(P position, int maxPlies) {
-		synchronized (this) {
+		synchronized (searchStartedLock) {
 			searchStopped = false;
-			notify();
+			searchStartedLock.notify();
 		}
 		result = null;
 		plies = 0;

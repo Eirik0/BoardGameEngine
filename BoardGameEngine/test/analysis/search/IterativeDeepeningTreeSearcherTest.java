@@ -1,23 +1,32 @@
 package analysis.search;
 
-import game.value.TestGameEvaluator;
-import game.value.TestGameNode;
-import game.value.TestGamePosition;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import org.junit.Test;
 
+import analysis.AnalysisResult;
 import analysis.MinimaxStrategy;
+import analysis.MoveWithScore;
+import game.ultimatetictactoe.UTTTCoordinate;
+import game.ultimatetictactoe.UltimateTicTacToePosition;
+import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
 
 public class IterativeDeepeningTreeSearcherTest {
 	private void doTest(int numThreads) throws InterruptedException {
-		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<TestGameNode, TestGamePosition>(new TestGameEvaluator());
-		IterativeDeepeningTreeSearcher<TestGameNode, TestGamePosition> iterativeDeepeningStrategy = new IterativeDeepeningTreeSearcher<>(minimaxStrategy, numThreads);
-		iterativeDeepeningStrategy.searchForever(TestGamePosition.createTestPosition());
+		MinimaxStrategy<UTTTCoordinate, UltimateTicTacToePosition> minimaxStrategy = new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator());
+		IterativeDeepeningTreeSearcher<UTTTCoordinate, UltimateTicTacToePosition> iterativeDeepeningStrategy = new IterativeDeepeningTreeSearcher<>(minimaxStrategy, numThreads);
+		iterativeDeepeningStrategy.searchForever(new UltimateTicTacToePosition());
 		Thread.sleep(50);
-		System.out.println("Stopping " + numThreads + ": ");
+		System.out.println("Stopping " + numThreads + "... ");
 		iterativeDeepeningStrategy.stopSearch();
-		System.out.println(iterativeDeepeningStrategy.getResult().toString());
-		System.out.println(iterativeDeepeningStrategy.getPlies());
+		AnalysisResult<UTTTCoordinate> result = iterativeDeepeningStrategy.getResult();
+		ArrayList<MoveWithScore<UTTTCoordinate>> movesWithScore = new ArrayList<>(result.getMovesWithScore());
+		Collections.sort(movesWithScore, (a, b) -> -Double.compare(a.score, b.score));
+		for (int i = 0; i < 3; ++i) {
+			System.out.println(movesWithScore.get(i));
+		}
+		System.out.println("plies: " + iterativeDeepeningStrategy.getPlies());
 	}
 
 	@Test

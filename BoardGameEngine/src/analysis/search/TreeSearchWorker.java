@@ -7,9 +7,9 @@ import java.util.function.Consumer;
 import game.IPosition;
 
 public class TreeSearchWorker<M, P extends IPosition<M, P>> {
-	private static int threadNum = 0;
+	private static int workerNum = 0;
 
-	private final String threadName;
+	private final String name;
 
 	private final Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer;
 
@@ -20,11 +20,11 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 	private final BlockingQueue<Runnable> runnableQueue = new ArrayBlockingQueue<>(1);
 
 	public TreeSearchWorker(Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer) {
-		this("WorkerThread_" + threadNum++, completedWorkerConsumer);
+		this("Worker_" + workerNum++, completedWorkerConsumer);
 	}
 
-	public TreeSearchWorker(String threadName, Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer) {
-		this.threadName = threadName;
+	public TreeSearchWorker(String name, Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer) {
+		this.name = name;
 		this.completedWorkerConsumer = completedWorkerConsumer;
 	}
 
@@ -39,23 +39,24 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 						throw new RuntimeException(e);
 					}
 				}
-			}, threadName);
+			}, name + "_Thread_" + ThreadNumber.getThreadNum(TreeSearchWorker.class));
 
 			thread.start();
 		}
 	}
 
 	public void joinThread() {
-		maybeInitThread();
 		notShutdown = false;
-		try {
-			runnableQueue.put(() -> {
-				// We have to say do nothing if we are waiting to take from the queue
-			});
-			thread.join();
-			thread = null;
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
+		if (thread != null) {
+			try {
+				runnableQueue.put(() -> {
+					// We have to say do nothing if we are waiting to take from the queue
+				});
+				thread.join();
+				thread = null;
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -88,7 +89,7 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 
 	@Override
 	public int hashCode() {
-		return threadName.hashCode();
+		return name.hashCode();
 	}
 
 	@Override
@@ -99,11 +100,11 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 			return false;
 		}
 		TreeSearchWorker<?, ?> other = (TreeSearchWorker<?, ?>) obj;
-		return threadName.equals(other.threadName);
+		return name.equals(other.name);
 	}
 
 	@Override
 	public String toString() {
-		return threadName;
+		return name;
 	}
 }
