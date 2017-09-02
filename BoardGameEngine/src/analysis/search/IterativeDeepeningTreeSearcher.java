@@ -91,6 +91,9 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
+		for (TreeSearchWorker<M, P> worker : availableWorkers) {
+			worker.joinThread();
+		}
 	}
 
 	private synchronized void stopWorkers() { // Stopping a worker will eventually remove it from workingWorkers

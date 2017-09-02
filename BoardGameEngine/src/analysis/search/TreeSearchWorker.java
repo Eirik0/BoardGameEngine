@@ -30,6 +30,7 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 
 	private void maybeInitThread() {
 		if (thread == null) {
+			notShutdown = true;
 			thread = new Thread(() -> {
 				while (notShutdown) {
 					try {
@@ -44,7 +45,7 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 		}
 	}
 
-	public void joinThread() { // this is only called in tests
+	public void joinThread() {
 		maybeInitThread();
 		notShutdown = false;
 		try {
