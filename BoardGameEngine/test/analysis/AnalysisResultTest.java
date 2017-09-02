@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import util.Pair;
 
-public class AnalysisRestutTest {
+public class AnalysisResultTest {
 	@Test
 	public void testMerged() {
 		AnalysisResult<Integer> result1 = createResult(Arrays.asList(Pair.valueOf(1, 1.0), Pair.valueOf(2, 1.0), Pair.valueOf(3, 1.0), Pair.valueOf(4, 1.0)));

@@ -6,6 +6,8 @@ import analysis.search.MoveWithResult;
 import game.IPosition;
 
 public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
+	private boolean searchedAllPositions = true;
+
 	private final IPositionEvaluator<M, P> positionEvaluator;
 
 	public MinimaxStrategy(IPositionEvaluator<M, P> positionEvaluator) {
@@ -14,6 +16,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 
 	@Override
 	public double evaluate(P position, int player, int plies) {
+		searchedAllPositions = true;
 		return minimax(position, player, plies);
 	}
 
@@ -23,6 +26,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 		}
 
 		if (plies == 0) {
+			searchedAllPositions = false;
 			return positionEvaluator.evaluate(position, player);
 		}
 
@@ -61,6 +65,11 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 	@Override
 	public double evaluateJoin(P position, int player, MoveWithResult<M> moveWithResult) {
 		return player == position.getCurrentPlayer() ? moveWithResult.result.getMin() : moveWithResult.result.getMax();
+	}
+
+	@Override
+	public boolean searchedAllPositions() {
+		return searchedAllPositions;
 	}
 
 	@Override

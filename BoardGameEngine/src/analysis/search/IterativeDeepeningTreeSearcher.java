@@ -42,14 +42,24 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		searchForever(position, Integer.MAX_VALUE);
 	}
 
-	public void searchForever(P position, int maxPlies) {
+	public synchronized void searchForever(P position, int maxPlies) {
 		treeSearchThread = new Thread(() -> startSearch(position, maxPlies), "Tree_Search_Thread_" + theadNum++);
 		treeSearchThread.start();
+		while (searchStopped) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	public void startSearch(P position, int maxPlies) {
+		synchronized (this) {
+			searchStopped = false;
+			notify();
+		}
 		result = null;
-		searchStopped = false;
 		plies = 0;
 		do {
 			++plies;
@@ -63,8 +73,15 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			strategy.notifySearchComplete();
 			if (result.getBestMove() != null && Double.isInfinite(result.getMax())) {
 				break; // no need to keep looking if the game is decided
+			} else if (result.searchedAllPositions()) {
+				break; // stop searching if all positions have been evaluated
 			}
 		} while (!searchStopped && plies < maxPlies);
+		searchStopped = true;
+	}
+
+	public boolean isSearching() {
+		return !searchStopped;
 	}
 
 	public void stopSearch() {

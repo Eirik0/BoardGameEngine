@@ -24,7 +24,7 @@ public class ComputerPlayer implements IPlayer {
 		long start = System.currentTimeMillis();
 		((IterativeDeepeningTreeSearcher<M, P>) treeSearcher).searchForever(position);
 		keepSearching = true;
-		while (keepSearching && msPerMove > System.currentTimeMillis() - start) {
+		while (treeSearcher.isSearching() && keepSearching && msPerMove > System.currentTimeMillis() - start) {
 			try {
 				wait(50);
 			} catch (InterruptedException e) {

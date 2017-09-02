@@ -12,6 +12,8 @@ public interface IDepthBasedStrategy<M, P extends IPosition<M, P>> {
 
 	public double evaluateJoin(P position, int player, MoveWithResult<M> moveWithResult);
 
+	public boolean searchedAllPositions();
+
 	public IDepthBasedStrategy<M, P> createCopy();
 
 	public void notifySearchStarted();

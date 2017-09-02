@@ -15,6 +15,8 @@ public class AnalysisResult<M> {
 	private volatile double max = Double.NEGATIVE_INFINITY;
 	private volatile M bestMove;
 
+	private volatile boolean searchedAllPositions = false;
+
 	public AnalysisResult() {
 	}
 
@@ -80,6 +82,14 @@ public class AnalysisResult<M> {
 
 	public synchronized M getBestMove() {
 		return bestMove;
+	}
+
+	public boolean searchedAllPositions() {
+		return searchedAllPositions;
+	}
+
+	public void setSearchedAllPositions(boolean searchedAllPositions) {
+		this.searchedAllPositions = searchedAllPositions;
 	}
 
 	@Override

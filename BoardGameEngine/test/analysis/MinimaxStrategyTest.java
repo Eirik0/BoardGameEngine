@@ -1,7 +1,9 @@
 package analysis;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -163,7 +165,7 @@ public class MinimaxStrategyTest {
 			results.add(new MoveWithResult<>(move, search(minimaxStrategy, testGamePosition, 0, 3)));
 			testGamePosition.unmakeMove(move);
 		}
-		AnalysisResult<TestGameNode> result = GameTreeSearch.join(minimaxStrategy, null, testGamePosition, 0, Collections.emptyList(), results).result;
+		AnalysisResult<TestGameNode> result = GameTreeSearch.join(minimaxStrategy, null, testGamePosition, 0, new AnalysisResult<>(), results).result;
 		assertEquals("1 -> [6, 5]: 25.0\n"
 				+ "2 -> [4, 3]: 17.0", result.toString());
 	}
@@ -172,8 +174,8 @@ public class MinimaxStrategyTest {
 	public void testJoin_MovesWithScore() {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new TestGameEvaluator());
-		List<MoveWithScore<TestGameNode>> movesWithScore = search(minimaxStrategy, testGamePosition, 0, 4).getMovesWithScore();
-		AnalysisResult<TestGameNode> result = GameTreeSearch.join(minimaxStrategy, null, testGamePosition, 0, movesWithScore, Collections.emptyList()).result;
+		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(search(minimaxStrategy, testGamePosition, 0, 4).getMovesWithScore());
+		AnalysisResult<TestGameNode> result = GameTreeSearch.join(minimaxStrategy, null, testGamePosition, 0, partialResult, Collections.emptyList()).result;
 		assertEquals("1 -> [6, 5]: 25.0\n"
 				+ "2 -> [4, 3]: 17.0", result.toString());
 	}
@@ -183,7 +185,7 @@ public class MinimaxStrategyTest {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new TestGameEvaluator());
 
-		List<MoveWithScore<TestGameNode>> firstMoveWithScore = Collections.singletonList(search(minimaxStrategy, testGamePosition, 0, 4).getMovesWithScore().get(0));
+		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(Collections.singletonList(search(minimaxStrategy, testGamePosition, 0, 4).getMovesWithScore().get(0)));
 
 		List<MoveWithResult<TestGameNode>> results = new ArrayList<>();
 		for (TestGameNode move : testGamePosition.getPossibleMoves()) {
@@ -193,8 +195,24 @@ public class MinimaxStrategyTest {
 		}
 
 		List<MoveWithResult<TestGameNode>> secondResult = Collections.singletonList(results.get(1));
-		AnalysisResult<TestGameNode> result = GameTreeSearch.join(minimaxStrategy, null, testGamePosition, 0, firstMoveWithScore, secondResult).result;
+		AnalysisResult<TestGameNode> result = GameTreeSearch.join(minimaxStrategy, null, testGamePosition, 0, partialResult, secondResult).result;
 		assertEquals("1 -> [6, 5]: 25.0\n"
 				+ "2 -> [4, 3]: 17.0", result.toString());
+	}
+
+	@Test
+	public void testMaximumDepthReached() {
+		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
+		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new TestGameEvaluator());
+		minimaxStrategy.evaluate(testGamePosition, 0, 1);
+		assertFalse(minimaxStrategy.searchedAllPositions());
+		minimaxStrategy.evaluate(testGamePosition, 0, 2);
+		assertFalse(minimaxStrategy.searchedAllPositions());
+		minimaxStrategy.evaluate(testGamePosition, 0, 3);
+		assertFalse(minimaxStrategy.searchedAllPositions());
+		minimaxStrategy.evaluate(testGamePosition, 0, 4);
+		assertFalse(minimaxStrategy.searchedAllPositions());
+		minimaxStrategy.evaluate(testGamePosition, 0, 5);
+		assertTrue(minimaxStrategy.searchedAllPositions());
 	}
 }

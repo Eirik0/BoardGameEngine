@@ -67,6 +67,11 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 	}
 
 	@Override
+	public boolean searchedAllPositions() {
+		return false; // keep searching
+	}
+
+	@Override
 	public IDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> createCopy() {
 		return new ForkJoinExampleStraregy();
 	}

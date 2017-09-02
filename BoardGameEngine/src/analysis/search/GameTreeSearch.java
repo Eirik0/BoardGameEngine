@@ -64,6 +64,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 
 	private AnalysisResult<M> searchWithStrategy() {
 		AnalysisResult<M> analysisResult = new AnalysisResult<>();
+		boolean searchedAllPositions = true;
 		for (M move : possibleMoves) {
 			if (searchCanceled && !forked) {
 				return analysisResult;
@@ -75,9 +76,11 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 				analysisResult.addUnanalyzedMove(move);
 			} else {
 				analysisResult.addMoveWithScore(move, score);
+				searchedAllPositions = searchedAllPositions && strategy.searchedAllPositions();
 			}
 			--remainingBranches;
 		}
+		analysisResult.setSearchedAllPositions(searchedAllPositions);
 		return analysisResult;
 	}
 
@@ -106,7 +109,6 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	public List<GameTreeSearch<M, P>> fork() {
 		forked = true;
 		List<M> unanalyzedMoves;
-		List<MoveWithScore<M>> movesWithScore;
 
 		if (searchStarted) {
 			stopSearch();
@@ -122,15 +124,14 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			}
 
 			unanalyzedMoves = result.getUnanalyzedMoves();
-			movesWithScore = result.getMovesWithScore();
 
 			if (unanalyzedMoves.isEmpty()) {
 				maybeConsumeResult(new MoveWithResult<>(parentMove, result));
 				return Collections.emptyList();
 			}
 		} else {
+			result = new AnalysisResult<>();
 			unanalyzedMoves = possibleMoves;
-			movesWithScore = Collections.emptyList();
 		}
 
 		List<MoveWithResult<M>> movesWithResults = new ArrayList<>();
@@ -140,7 +141,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		synchronized (this) {
 			for (M move : unanalyzedMoves) {
 				position.makeMove(move);
-				gameTreeSearches.add(createFork(move, movesWithScore, movesWithResults, expectedResults));
+				gameTreeSearches.add(createFork(move, result, movesWithResults, expectedResults));
 				position.unmakeMove(move);
 			}
 		}
@@ -150,7 +151,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		return gameTreeSearches;
 	}
 
-	private GameTreeSearch<M, P> createFork(M move, List<MoveWithScore<M>> movesWithScore, List<MoveWithResult<M>> movesWithResults, int expectedResults) {
+	private GameTreeSearch<M, P> createFork(M move, AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults, int expectedResults) {
 		GameTreeSearch<M, P> treeSearch = new GameTreeSearch<M, P>(move, position, player, plies - 1, strategy);
 		treeSearch.setResultConsumer(moveWithResult -> {
 			synchronized (this) {
@@ -160,12 +161,12 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 				movesWithResults.add(moveWithResult);
 				if (treeSearch.searchCanceled && !treeSearch.forked) {
 					moveWithResult.invalidate();
-					join(movesWithScore, movesWithResults);
+					join(partialResult, movesWithResults);
 				} else if (!moveWithResult.isValid()) {
-					join(movesWithScore, movesWithResults);
+					join(partialResult, movesWithResults);
 				} else {
 					if (movesWithResults.size() == expectedResults) {
-						join(movesWithScore, movesWithResults);
+						join(partialResult, movesWithResults);
 					}
 				}
 			}
@@ -173,18 +174,20 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		return treeSearch;
 	}
 
-	private synchronized void join(List<MoveWithScore<M>> movesWithScore, List<MoveWithResult<M>> movesWithResults) {
-		maybeConsumeResult(join(strategy, parentMove, position, player, movesWithScore, movesWithResults));
+	private synchronized void join(AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults) {
+		maybeConsumeResult(join(strategy, parentMove, position, player, partialResult, movesWithResults));
 	}
 
-	public static <M, P extends IPosition<M, P>> MoveWithResult<M> join(IDepthBasedStrategy<M, P> strategy, M parentMove, P position, int player, List<MoveWithScore<M>> movesWithScore,
+	public static <M, P extends IPosition<M, P>> MoveWithResult<M> join(IDepthBasedStrategy<M, P> strategy, M parentMove, P position, int player, AnalysisResult<M> partialResult,
 			List<MoveWithResult<M>> movesWithResults) {
 		boolean isValid = true;
-		AnalysisResult<M> joinedResult = new AnalysisResult<>(movesWithScore);
+		boolean searchedAllPositions = partialResult.getMovesWithScore().isEmpty() || partialResult.searchedAllPositions();
 		for (MoveWithResult<M> moveWithResult : movesWithResults) {
-			joinedResult.addMoveWithScore(moveWithResult.move, strategy.evaluateJoin(position, player, moveWithResult), moveWithResult.isValid());
+			partialResult.addMoveWithScore(moveWithResult.move, strategy.evaluateJoin(position, player, moveWithResult), moveWithResult.isValid());
 			isValid = isValid && moveWithResult.isValid();
+			searchedAllPositions = searchedAllPositions && moveWithResult.result.searchedAllPositions();
 		}
-		return new MoveWithResult<M>(parentMove, joinedResult, isValid);
+		partialResult.setSearchedAllPositions(searchedAllPositions);
+		return new MoveWithResult<M>(parentMove, partialResult, isValid);
 	}
 }
