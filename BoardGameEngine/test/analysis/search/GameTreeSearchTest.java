@@ -51,9 +51,11 @@ public class GameTreeSearchTest {
 	}
 
 	@Test
-	public void testFork_EmptyTree() throws InterruptedException {
+	public void testFork() throws InterruptedException {
 		TestLockingPosition testUnlockedLockingPosition = new TestLockingPosition(
-				new TestLockingNode(false));
+				new TestLockingNode(false).setMoves(
+						new TestLockingNode(false),
+						new TestLockingNode(false)));
 
 		MinimaxStrategy<TestLockingNode, TestLockingPosition> strategy = new MinimaxStrategy<>(new TestLockingEvaluator());
 		List<AnalysisResult<TestLockingNode>> results = new ArrayList<>();
@@ -61,7 +63,9 @@ public class GameTreeSearchTest {
 
 		List<GameTreeSearch<TestLockingNode, TestLockingPosition>> treeSearches = treeSearch.fork();
 
-		assertEquals(0, treeSearches.size());
+		assertEquals(2, treeSearches.size());
+		treeSearches.get(0).search();
+		treeSearches.get(1).search();
 		assertEquals(1, results.size());
 	}
 

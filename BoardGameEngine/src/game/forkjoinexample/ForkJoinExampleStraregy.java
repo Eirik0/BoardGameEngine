@@ -3,9 +3,7 @@ package game.forkjoinexample;
 import java.util.List;
 
 import analysis.AbstractDepthBasedStrategy;
-import analysis.AnalysisResult;
 import analysis.IDepthBasedStrategy;
-import analysis.MoveWithScore;
 import analysis.search.MoveWithResult;
 
 public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> {
@@ -62,13 +60,10 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 	}
 
 	@Override
-	public AnalysisResult<ForkJoinExampleNode> join(ForkJoinExampleTree position, int player, List<MoveWithScore<ForkJoinExampleNode>> movesWithScore,
-			List<MoveWithResult<ForkJoinExampleNode>> movesWithResults) {
-		for (MoveWithResult<ForkJoinExampleNode> movesWithResult : movesWithResults) {
-			ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), movesWithResult.move, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
-		}
+	public double evaluateJoin(ForkJoinExampleTree position, int player, MoveWithResult<ForkJoinExampleNode> moveWithResult) {
+		ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), moveWithResult.move, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
 		ForkJoinExampleThreadTracker.setJoined(position.getCurrentNode());
-		return new AnalysisResult<>();
+		return 0;
 	}
 
 	@Override

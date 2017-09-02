@@ -166,8 +166,16 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		return treeSearch;
 	}
 
-	private synchronized void join(List<MoveWithScore<M>> movesWithScore, List<MoveWithResult<M>> results) {
-		AnalysisResult<M> joinedResult = strategy.join(position, player, movesWithScore, results);
-		maybeConsumeResult(parentMove, joinedResult);
+	private synchronized void join(List<MoveWithScore<M>> movesWithScore, List<MoveWithResult<M>> movesWithResults) {
+		maybeConsumeResult(parentMove, join(strategy, position, player, movesWithScore, movesWithResults));
+	}
+
+	public static <M, P extends IPosition<M, P>> AnalysisResult<M> join(IDepthBasedStrategy<M, P> strategy, P position, int player, List<MoveWithScore<M>> movesWithScore,
+			List<MoveWithResult<M>> movesWithResults) {
+		AnalysisResult<M> joinedResult = new AnalysisResult<>(movesWithScore);
+		for (MoveWithResult<M> moveWithResult : movesWithResults) {
+			joinedResult.addMoveWithScore(moveWithResult.move, strategy.evaluateJoin(position, player, moveWithResult));
+		}
+		return joinedResult;
 	}
 }

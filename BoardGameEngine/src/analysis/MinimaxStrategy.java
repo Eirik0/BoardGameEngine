@@ -59,17 +59,8 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 	}
 
 	@Override
-	public AnalysisResult<M> join(P position, int player, List<MoveWithScore<M>> movesWithScore, List<MoveWithResult<M>> movesWithResults) {
-		AnalysisResult<M> joinedResult = new AnalysisResult<>(movesWithScore);
-		boolean min = player == position.getCurrentPlayer();
-		for (MoveWithResult<M> moveWithResult : movesWithResults) {
-			if (min) {
-				joinedResult.addMoveWithScore(moveWithResult.move, moveWithResult.result.getMin());
-			} else {
-				joinedResult.addMoveWithScore(moveWithResult.move, moveWithResult.result.getMax());
-			}
-		}
-		return joinedResult;
+	public double evaluateJoin(P position, int player, MoveWithResult<M> moveWithResult) {
+		return player == position.getCurrentPlayer() ? moveWithResult.result.getMin() : moveWithResult.result.getMax();
 	}
 
 	@Override
