@@ -26,6 +26,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 
 	private final Object searchStartedLock = new Object();
 	private volatile boolean searchStopped = true;
+	private volatile boolean searchComplete = false;
 
 	private volatile int plies = 0;
 	private volatile AnalysisResult<M> result;
@@ -44,10 +45,11 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 
 	public void searchForever(P position, int maxPlies) {
 		searchStopped = true;
+		searchComplete = false;
 		treeSearchThread = new Thread(() -> startSearch(position, maxPlies), "Tree_Search_Thread_" + ThreadNumber.getThreadNum(getClass()));
 		treeSearchThread.start();
 		synchronized (searchStartedLock) {
-			while (searchStopped) {
+			while (searchStopped && !searchComplete) {
 				try {
 					searchStartedLock.wait();
 				} catch (InterruptedException e) {
@@ -62,6 +64,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			searchStopped = false;
 			searchStartedLock.notify();
 		}
+
 		result = null;
 		plies = 0;
 		do {
@@ -80,7 +83,12 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 				break; // stop searching if all positions have been evaluated
 			}
 		} while (!searchStopped && plies < maxPlies);
-		searchStopped = true;
+
+		synchronized (searchStartedLock) {
+			searchStopped = true;
+			searchComplete = true; // if we reset searchStopped we need to make sure the lock does not wait forever
+			searchStartedLock.notify();
+		}
 	}
 
 	public boolean isSearching() {

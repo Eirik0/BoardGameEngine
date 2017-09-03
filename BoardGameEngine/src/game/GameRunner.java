@@ -28,7 +28,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		return position;
 	}
 
-	public void startNewGame(List<IPlayer> players) {
+	public synchronized void startNewGame(List<IPlayer> players) {
 		if (players.isEmpty()) {
 			throw new UnsupportedOperationException("Running a game with no players is not supported.");
 		}
