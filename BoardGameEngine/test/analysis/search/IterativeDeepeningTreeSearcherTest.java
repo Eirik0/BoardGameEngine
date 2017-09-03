@@ -58,4 +58,23 @@ public class IterativeDeepeningTreeSearcherTest {
 	public void testStartStop_6() throws InterruptedException {
 		doTest(6);
 	}
+
+	@Test
+	public void testCompareSpeeds() throws InterruptedException {
+		doSpeedTest(1);
+		doSpeedTest(2);
+		doSpeedTest(3);
+		doSpeedTest(4);
+		doSpeedTest(5);
+		doSpeedTest(6);
+	}
+
+	private void doSpeedTest(int numThreads) {
+		int numPlies = 6;
+		MinimaxStrategy<UTTTCoordinate, UltimateTicTacToePosition> minimaxStrategy = new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator());
+		IterativeDeepeningTreeSearcher<UTTTCoordinate, UltimateTicTacToePosition> iterativeDeepeningStrategy = new IterativeDeepeningTreeSearcher<>(minimaxStrategy, numThreads);
+		long start = System.currentTimeMillis();
+		iterativeDeepeningStrategy.startSearch(new UltimateTicTacToePosition(), numPlies);
+		System.out.println(numThreads + " workers " + numPlies + " plies in " + (System.currentTimeMillis() - start) + "ms");
+	}
 }
