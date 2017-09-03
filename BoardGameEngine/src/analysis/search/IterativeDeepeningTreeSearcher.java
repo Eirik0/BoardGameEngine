@@ -66,14 +66,14 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		plies = 0;
 		do {
 			++plies;
-			strategy.notifySearchStarted();
+			strategy.notifyPlyStarted();
 			AnalysisResult<M> search = search(position, position.getCurrentPlayer(), plies);
 			if (searchStopped && result != null) { // merge only when the search is stopped
 				result.mergeWith(search);
 			} else {
 				result = search;
 			}
-			strategy.notifySearchComplete();
+			strategy.notifyPlyComplete(searchStopped);
 			if (result.getBestMove() != null && Double.isInfinite(result.getMax())) {
 				break; // no need to keep looking if the game is decided
 			} else if (result.searchedAllPositions()) {
@@ -87,15 +87,17 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		return !searchStopped;
 	}
 
-	public void stopSearch() {
+	public void stopSearch(boolean joinWorkerThreads) {
 		stopWorkers();
 		try {
 			treeSearchThread.join();
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-		for (TreeSearchWorker<M, P> worker : availableWorkers) {
-			worker.joinThread();
+		if (joinWorkerThreads) {
+			for (TreeSearchWorker<M, P> worker : availableWorkers) {
+				worker.joinThread();
+			}
 		}
 	}
 

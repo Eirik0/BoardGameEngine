@@ -31,13 +31,13 @@ public class ComputerPlayer implements IPlayer {
 				throw new RuntimeException(e);
 			}
 		}
-		treeSearcher.stopSearch();
+		treeSearcher.stopSearch(false);
 		return (M) treeSearcher.getResult().getBestMove();
 	}
 
 	@Override
 	public synchronized void notifyGameEnded() {
-		treeSearcher.stopSearch();
+		treeSearcher.stopSearch(true);
 		keepSearching = false;
 		notify();
 	}

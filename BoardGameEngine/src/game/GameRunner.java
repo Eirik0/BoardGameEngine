@@ -2,6 +2,8 @@ package game;
 
 import java.util.List;
 
+import analysis.search.ThreadNumber;
+
 public class GameRunner<M, P extends IPosition<M, P>> {
 	private volatile boolean stopRequested = false;
 	private volatile boolean isRunning = false;
@@ -57,7 +59,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 			} finally {
 				notifyGameEnded();
 			}
-		}, "Game_Runner_Thread").start();
+		}, "Game_Runner_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
 
 		waitForStart();
 	}
@@ -79,9 +81,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 	public synchronized void endGame() {
 		stopRequested = true;
-		if (currentPlayer != null) {
-			currentPlayer.notifyGameEnded();
-		}
+		maybeNotifyPlayerGameEnded();
 		while (isRunning) {
 			try {
 				wait();
@@ -92,8 +92,15 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		stopRequested = false;
 	}
 
+	private void maybeNotifyPlayerGameEnded() {
+		if (currentPlayer != null) {
+			currentPlayer.notifyGameEnded();
+		}
+	}
+
 	private synchronized void notifyGameEnded() {
 		isRunning = false;
+		maybeNotifyPlayerGameEnded();
 		currentPlayer = null;
 		if (endGameAction != null) {
 			endGameAction.run();

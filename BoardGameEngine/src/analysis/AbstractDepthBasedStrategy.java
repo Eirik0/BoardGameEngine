@@ -13,7 +13,7 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 	}
 
 	@Override
-	public void notifySearchStarted() {
+	public void notifyPlyStarted() {
 		// do nothing by default
 	}
 
@@ -23,7 +23,7 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 	}
 
 	@Override
-	public void notifySearchComplete() {
+	public void notifyPlyComplete(boolean searchStopped) {
 		// do nothing by default
 	}
 }

@@ -23,6 +23,7 @@ public class ForkJoinExampleThreadTracker {
 	private static long startTime = System.currentTimeMillis();
 	private static long timeElapsed = 0;
 	private static boolean searchComplete = false;
+	private static boolean stopSleep = false;
 
 	public static synchronized void init(ForkJoinExampleTree tree) {
 		List<List<ForkJoinExampleNode>> newNodesByDepth = new ArrayList<>();
@@ -47,12 +48,17 @@ public class ForkJoinExampleThreadTracker {
 		startTime = System.currentTimeMillis();
 		timeElapsed = 0;
 		searchComplete = false;
+		stopSleep = false;
 	}
 
-	public static void searchComplete() {
+	public static void searchComplete(boolean searchStopped) {
 		maybeRecalculateTimeElapsed();
 		searchComplete = true;
-		sleep(SLEEP_PER_EVAL * 16);
+		if (searchStopped) {
+			stopSleep = true;
+		} else {
+			sleep(SLEEP_PER_EVAL * 16);
+		}
 	}
 
 	public static void maybeRecalculateTimeElapsed() {
@@ -148,10 +154,13 @@ public class ForkJoinExampleThreadTracker {
 		if (sleep == 0) {
 			return;
 		}
-		try {
-			Thread.sleep(sleep);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
+		long start = System.currentTimeMillis();
+		while (!stopSleep && System.currentTimeMillis() - start < sleep) {
+			try {
+				Thread.sleep(sleep < 100 ? sleep : 64);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -182,7 +191,7 @@ public class ForkJoinExampleThreadTracker {
 		}
 
 		public void setThreadName() {
-			this.threadName = Thread.currentThread().getName();
+			threadName = Thread.currentThread().getName();
 		}
 
 		public synchronized void evaluate() {

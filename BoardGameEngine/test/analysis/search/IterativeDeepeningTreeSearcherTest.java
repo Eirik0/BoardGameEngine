@@ -19,7 +19,7 @@ public class IterativeDeepeningTreeSearcherTest {
 		iterativeDeepeningStrategy.searchForever(new UltimateTicTacToePosition());
 		Thread.sleep(50);
 		System.out.println("Stopping " + numThreads + "... ");
-		iterativeDeepeningStrategy.stopSearch();
+		iterativeDeepeningStrategy.stopSearch(true);
 		AnalysisResult<UTTTCoordinate> result = iterativeDeepeningStrategy.getResult();
 		ArrayList<MoveWithScore<UTTTCoordinate>> movesWithScore = new ArrayList<>(result.getMovesWithScore());
 		Collections.sort(movesWithScore, (a, b) -> -Double.compare(a.score, b.score));

@@ -16,9 +16,9 @@ public interface IDepthBasedStrategy<M, P extends IPosition<M, P>> {
 
 	public IDepthBasedStrategy<M, P> createCopy();
 
-	public void notifySearchStarted();
+	public void notifyPlyStarted();
 
 	public void notifyForked(M parentMove, List<M> unanalyzedMoves);
 
-	public void notifySearchComplete();
+	public void notifyPlyComplete(boolean searchStopped);
 }

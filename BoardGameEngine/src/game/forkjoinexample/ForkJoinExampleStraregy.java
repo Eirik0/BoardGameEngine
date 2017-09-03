@@ -8,7 +8,7 @@ import analysis.search.MoveWithResult;
 
 public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> {
 	@Override
-	public void notifySearchStarted() {
+	public void notifyPlyStarted() {
 		ForkJoinExampleThreadTracker.searchStarted();
 	}
 
@@ -24,8 +24,8 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 	}
 
 	@Override
-	public void notifySearchComplete() {
-		ForkJoinExampleThreadTracker.searchComplete();
+	public void notifyPlyComplete(boolean searchStopped) {
+		ForkJoinExampleThreadTracker.searchComplete(searchStopped);
 	}
 
 	@Override
