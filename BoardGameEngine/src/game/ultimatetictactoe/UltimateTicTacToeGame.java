@@ -7,11 +7,13 @@ import game.IPlayer;
 import gui.GuiPlayer;
 
 public class UltimateTicTacToeGame implements IGame<UTTTCoordinate, UltimateTicTacToePosition> {
+	public static final String NAME = "Ultimate Tic Tac Toe";
+
 	private final ComputerPlayer computer = newComputerPlayer(2, 3000);
 
 	@Override
 	public String getName() {
-		return "Ultimate Tic Tac Toe";
+		return NAME;
 	}
 
 	@Override

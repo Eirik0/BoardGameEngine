@@ -8,11 +8,13 @@ import game.IPlayer;
 import gui.GuiPlayer;
 
 public class TicTacToeGame implements IGame<Coordinate, TicTacToePosition> {
+	public static final String NAME = "Tic Tac Toe";
+
 	private final IPlayer computerPlayer = new ComputerPlayer(new MinimaxStrategy<>(new TicTacToePositionEvaluator()), 2, "Computer", 500);
 
 	@Override
 	public String getName() {
-		return "Tic Tac Toe";
+		return NAME;
 	}
 
 	@Override

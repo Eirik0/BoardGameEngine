@@ -53,10 +53,10 @@ public class BoardGameEngineMain {
 
 		contentPane.add(gamePanel, BorderLayout.CENTER);
 
-		GameGuiManager.setSetGameAction(gameClass -> {
-			IGame<?, ?> game = GameRegistry.newGame(gameClass);
+		GameGuiManager.setSetGameAction(gameName -> {
+			IGame<?, ?> game = GameRegistry.newGame(gameName);
 			GameRunner<?, ?> gameRunner = new GameRunner<>(game);
-			setGameState(gameClass, gameRunner);
+			setGameState(gameName, gameRunner);
 			PlayerControllerPanel playerControllerPanel = new PlayerControllerPanel(game, gameRunner);
 			playerControllerPanel.setBackAction(() -> {
 				contentPane.remove(playerControllerPanel);
@@ -88,14 +88,14 @@ public class BoardGameEngineMain {
 	}
 
 	private static void registerGames() {
-		GameRegistry.registerGame(TicTacToeGame.class, TicTacToeGameRenderer.class);
-		GameRegistry.registerGame(UltimateTicTacToeGame.class, UltimateTicTacToeGameRenderer.class);
-		GameRegistry.registerGame(ForkJoinExampleGame.class, ForkJoinExampleGameRenderer.class);
+		GameRegistry.registerGame(TicTacToeGame.NAME, TicTacToeGame.class, TicTacToeGameRenderer.class);
+		GameRegistry.registerGame(UltimateTicTacToeGame.NAME, UltimateTicTacToeGame.class, UltimateTicTacToeGameRenderer.class);
+		GameRegistry.registerGame(ForkJoinExampleGame.NAME, ForkJoinExampleGame.class, ForkJoinExampleGameRenderer.class);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void setGameState(Class<? extends IGame<?, ?>> gameClass, GameRunner<?, ?> gameRunner) {
-		GameGuiManager.setGameState(new GameRunningState(gameRunner, GameRegistry.newGameRenderer(gameClass)));
+	private static void setGameState(String gameName, GameRunner<?, ?> gameRunner) {
+		GameGuiManager.setGameState(new GameRunningState(gameRunner, GameRegistry.newGameRenderer(gameName)));
 	}
 
 	private static GamePanel createGamePanel(GameImage gameImage) {

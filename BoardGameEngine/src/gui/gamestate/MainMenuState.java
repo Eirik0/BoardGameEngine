@@ -4,22 +4,29 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import game.IGame;
-import game.forkjoinexample.ForkJoinExampleGame;
-import game.tictactoe.TicTacToeGame;
-import game.ultimatetictactoe.UltimateTicTacToeGame;
 import gui.Drawable;
 import gui.GameGuiManager;
+import gui.GameRegistry;
 import main.BoardGameEngineMain;
 
 public class MainMenuState implements GameState {
 	List<MenuItem> menuItems = new ArrayList<>();
 
 	public MainMenuState() {
-		menuItems.add(new MenuItem("Tic Tac Toe", TicTacToeGame.class, .25, .15, .75, .30));
-		menuItems.add(new MenuItem("Ultimate Tic Tac Toe", UltimateTicTacToeGame.class, .20, .35, .80, .50));
-		menuItems.add(new MenuItem("Fork Join Example", ForkJoinExampleGame.class, .20, .55, .80, .70));
+		Set<String> gameNames = GameRegistry.getGameNames();
+
+		double widthPercentStart = 0.25;
+		double widthPercentEnd = 0.75;
+		double gap = 0.1;
+		double height = 1.0 / gameNames.size() - gap * (gameNames.size() + 1) / gameNames.size();
+
+		double currentHeight = gap;
+		for (String gameName : gameNames) {
+			menuItems.add(new MenuItem(gameName, widthPercentStart, currentHeight, widthPercentEnd, currentHeight + height));
+			currentHeight += height + gap;
+		}
 	}
 
 	@Override
@@ -41,26 +48,23 @@ public class MainMenuState implements GameState {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			for (MenuItem menuItem : menuItems) {
 				if (menuItem.checkContainsCursor()) {
-					GameGuiManager.setGame(menuItem.gameClass);
+					GameGuiManager.setGame(menuItem.gameName);
 					break;
 				}
 			}
 		}
 	}
 
-	private static class MenuItem implements Drawable {
-		final String title;
-
-		final Class<? extends IGame<?, ?>> gameClass;
+	static class MenuItem implements Drawable {
+		final String gameName;
 
 		final double widthPercentStart;
 		final double heightPercentStart;
 		final double widthPercentEnd;
 		final double heightPercentEnd;
 
-		public MenuItem(String title, Class<? extends IGame<?, ?>> gameClass, double widthPercentStart, double heightPercentStart, double widthPercentEnd, double heightPercentEnd) {
-			this.title = title;
-			this.gameClass = gameClass;
+		public MenuItem(String gameName, double widthPercentStart, double heightPercentStart, double widthPercentEnd, double heightPercentEnd) {
+			this.gameName = gameName;
 			this.widthPercentStart = widthPercentStart;
 			this.widthPercentEnd = widthPercentEnd;
 			this.heightPercentStart = heightPercentStart;
@@ -71,7 +75,7 @@ public class MainMenuState implements GameState {
 		public void drawOn(Graphics2D graphics) {
 			graphics.setColor(checkContainsCursor() ? Color.BLUE : Color.RED);
 			graphics.drawRect(getX0(), getY0(), getX1() - getX0(), getY1() - getY0());
-			drawCenteredString(graphics, title, getCenterX(), getCenterY());
+			drawCenteredString(graphics, gameName, getCenterX(), getCenterY());
 		}
 
 		private boolean checkContainsCursor() {

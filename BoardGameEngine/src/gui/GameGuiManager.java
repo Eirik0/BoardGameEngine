@@ -2,7 +2,6 @@ package gui;
 
 import java.util.function.Consumer;
 
-import game.IGame;
 import gui.gamestate.GameState;
 import gui.gamestate.GameState.UserInput;
 
@@ -17,7 +16,7 @@ public class GameGuiManager {
 
 	private static GameState currentState;
 
-	private static Consumer<Class<? extends IGame<?, ?>>> startGameAction;
+	private static Consumer<String> startGameAction;
 
 	public static int getMouseX() {
 		return mouseX;
@@ -64,12 +63,12 @@ public class GameGuiManager {
 		return currentState;
 	}
 
-	public static void setSetGameAction(Consumer<Class<? extends IGame<?, ?>>> startGameAction) {
+	public static void setSetGameAction(Consumer<String> startGameAction) {
 		GameGuiManager.startGameAction = startGameAction;
 	}
 
-	public static void setGame(Class<? extends IGame<?, ?>> gameClass) {
-		startGameAction.accept(gameClass);
+	public static void setGame(String gameName) {
+		startGameAction.accept(gameName);
 	}
 
 	public static void setGameState(GameState gameState) {

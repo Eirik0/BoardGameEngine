@@ -5,6 +5,8 @@ import game.IGame;
 import game.IPlayer;
 
 public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinExampleTree> {
+	public static final String NAME = "Fork Join Example";
+
 	public static final int DEPTH = 10;
 	public static final int BRANCHING_FACTOR = 3;
 
@@ -18,7 +20,7 @@ public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinE
 
 	@Override
 	public String getName() {
-		return "Fork Join Example";
+		return NAME;
 	}
 
 	@Override
