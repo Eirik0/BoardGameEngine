@@ -7,13 +7,14 @@ import java.util.List;
 
 import game.Coordinate;
 import game.IPosition;
+import game.TwoPlayers;
 
 public class TicTacToePosition implements IPosition<Coordinate, TicTacToePosition> {
 	int currentPlayer;
 	final int[][] board;
 
 	public TicTacToePosition() {
-		this(new int[][] { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } }, 1);
+		this(new int[3][3], TwoPlayers.PLAYER_1);
 	}
 
 	private TicTacToePosition(int[][] board, int currentPlayer) {
@@ -23,15 +24,15 @@ public class TicTacToePosition implements IPosition<Coordinate, TicTacToePositio
 
 	@Override
 	public List<Coordinate> getPossibleMoves() {
-		if (winsExist(board, 1) || winsExist(board, 2)) {
+		if (winsExist(board, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
 			return Collections.emptyList();
 		}
 		List<Coordinate> moves = new ArrayList<>();
 		for (int y = 0; y < board.length; y++) {
 			int[] row = board[y];
 			for (int x = 0; x < row.length; x++) {
-				if (row[x] == 0) {
-					moves.add(new Coordinate(x, y));
+				if (row[x] == TwoPlayers.UNPLAYED) {
+					moves.add(Coordinate.valueOf(x, y));
 				}
 			}
 		}
@@ -84,13 +85,13 @@ public class TicTacToePosition implements IPosition<Coordinate, TicTacToePositio
 	@Override
 	public void makeMove(Coordinate move) {
 		board[move.y][move.x] = currentPlayer;
-		switchPlayer();
+		currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
 	}
 
 	@Override
 	public void unmakeMove(Coordinate move) {
-		board[move.y][move.x] = 0;
-		switchPlayer();
+		board[move.y][move.x] = TwoPlayers.UNPLAYED;
+		currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
 	}
 
 	@Override
@@ -100,14 +101,6 @@ public class TicTacToePosition implements IPosition<Coordinate, TicTacToePositio
 			System.arraycopy(board[y], 0, boardCopy[y], 0, 3);
 		}
 		return new TicTacToePosition(boardCopy, currentPlayer);
-	}
-
-	private void switchPlayer() {
-		currentPlayer = otherPlayer(currentPlayer);
-	}
-
-	public static int otherPlayer(int player) {
-		return player == 1 ? 2 : 1;
 	}
 
 	@Override

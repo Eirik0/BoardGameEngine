@@ -5,6 +5,7 @@ import analysis.MinimaxStrategy;
 import game.Coordinate;
 import game.IGame;
 import game.IPlayer;
+import game.TwoPlayers;
 import gui.GuiPlayer;
 
 public class TicTacToeGame implements IGame<Coordinate, TicTacToePosition> {
@@ -19,7 +20,7 @@ public class TicTacToeGame implements IGame<Coordinate, TicTacToePosition> {
 
 	@Override
 	public int getNumberOfPlayers() {
-		return 2;
+		return TwoPlayers.NUMBER_OF_PLAYERS;
 	}
 
 	@Override

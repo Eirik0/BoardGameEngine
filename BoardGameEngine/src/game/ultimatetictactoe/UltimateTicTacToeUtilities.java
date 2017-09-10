@@ -25,12 +25,12 @@ public class UltimateTicTacToeUtilities {
 			nm(6, 6), nm(6, 7), nm(6, 8), nm(7, 6), nm(7, 7), nm(7, 8), nm(8, 6), nm(8, 7), nm(8, 8) };
 
 	private static Coordinate nm(int n, int m) {
-		return new Coordinate(n, m);
+		return Coordinate.valueOf(n, m);
 	}
 
 	public static Coordinate getBoardXY(int n, int m) {
 		Coordinate intersection = BOARD_NM[n * UltimateTicTacToePosition.BOARD_WIDTH + m];
-		return new Coordinate(intersection.y, intersection.x);
+		return Coordinate.valueOf(intersection.y, intersection.x);
 	}
 
 	public static Coordinate getBoardNM(int x, int y) {

@@ -1,6 +1,7 @@
 package game.ultimatetictactoe;
 
 import analysis.IPositionEvaluator;
+import game.TwoPlayers;
 
 public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<UTTTCoordinate, UltimateTicTacToePosition> {
 	private static final double SCORE_PER_BOARD = 8.0; // The number of three-in-a-rows
@@ -8,7 +9,7 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<UT
 
 	@Override
 	public double evaluate(UltimateTicTacToePosition position, int player) {
-		int opponent = player == UltimateTicTacToePosition.PLAYER_1 ? UltimateTicTacToePosition.PLAYER_2 : UltimateTicTacToePosition.PLAYER_1;
+		int opponent = TwoPlayers.otherPlayer(player);
 		if (UltimateTicTacToeUtilities.winsExist(position.wonBoards, player)) {
 			return Double.POSITIVE_INFINITY;
 		} else if (UltimateTicTacToeUtilities.winsExist(position.wonBoards, opponent)) {

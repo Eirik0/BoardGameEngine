@@ -3,6 +3,7 @@ package game.tictactoe;
 import java.awt.Graphics2D;
 
 import game.Coordinate;
+import game.TwoPlayers;
 import gui.GameGuiManager;
 import gui.GuiPlayer;
 import gui.gamestate.GameState.UserInput;
@@ -32,7 +33,7 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
 			int[] row = position.board[y];
 			for (int x = 0; x < row.length; x++) {
 				if (row[x] != 0) {
-					String player = row[x] == 1 ? "X" : "O";
+					String player = row[x] == TwoPlayers.PLAYER_1 ? "X" : "O";
 					int xCoord = round(width * (2 * x + 1) / 6.0);
 					int yCoord = round(height * (2 * y + 1) / 6.0);
 					drawCenteredString(g, player, xCoord, yCoord);
@@ -55,6 +56,6 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
 	public static Coordinate getCoordinate(double boardSize) {
 		int x = (int) (boardSize * GameGuiManager.getMouseX() / GameGuiManager.getComponentWidth());
 		int y = (int) (boardSize * GameGuiManager.getMouseY() / GameGuiManager.getComponentHeight());
-		return new Coordinate(x, y);
+		return Coordinate.valueOf(x, y);
 	}
 }

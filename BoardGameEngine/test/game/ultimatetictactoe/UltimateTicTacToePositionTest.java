@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.Test;
 
 import game.Coordinate;
+import game.TwoPlayers;
 
 public class UltimateTicTacToePositionTest {
 	@Test
@@ -37,7 +38,7 @@ public class UltimateTicTacToePositionTest {
 	private static void checkContainsWonBoard(UltimateTicTacToePosition position) {
 		boolean containsWonBoard = false;
 		for (int i = 0; i < position.wonBoards.length; i++) {
-			if (position.wonBoards[i] != UltimateTicTacToePosition.UNPLAYED) {
+			if (position.wonBoards[i] != TwoPlayers.UNPLAYED) {
 				containsWonBoard = true;
 			}
 		}
@@ -54,25 +55,25 @@ public class UltimateTicTacToePositionTest {
 	@Test
 	public void testCannotMoveIntoFullBoard() {
 		UltimateTicTacToePosition position = new UltimateTicTacToePosition();
-		position.makeMove(new UTTTCoordinate(new Coordinate(0, 0), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(1, 0), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(3, 0), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(2, 0), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(6, 0), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(0, 1), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(0, 3), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(1, 1), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(4, 4), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(3, 3), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(2, 1), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(6, 3), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(0, 2), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(0, 6), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(1, 2), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(4, 8), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(3, 6), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(2, 2), position.currentBoard));
-		position.makeMove(new UTTTCoordinate(new Coordinate(6, 6), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(0, 0), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(1, 0), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(3, 0), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(2, 0), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(6, 0), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(0, 1), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(0, 3), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(1, 1), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(4, 4), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(3, 3), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(2, 1), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(6, 3), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(0, 2), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(0, 6), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(1, 2), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(4, 8), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(3, 6), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(2, 2), position.currentBoard));
+		position.makeMove(new UTTTCoordinate(Coordinate.valueOf(6, 6), position.currentBoard));
 		assertEquals(UltimateTicTacToePosition.ANY_BOARD, position.currentBoard);
 	}
 }

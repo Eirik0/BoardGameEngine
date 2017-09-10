@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import game.Coordinate;
+import game.TwoPlayers;
 import gui.GameGuiManager;
 import gui.GuiPlayer;
 import gui.gamestate.GameState.UserInput;
@@ -78,17 +79,17 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 		Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, getSquareWidthFraction(.33));
 		for (int n = 0; n < UltimateTicTacToePosition.BOARD_WIDTH; ++n) {
 			for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
-				if (position.cells[n][m] != UltimateTicTacToePosition.UNPLAYED) {
+				if (position.cells[n][m] != TwoPlayers.UNPLAYED) {
 					Coordinate intersection = UltimateTicTacToeUtilities.getBoardNM(m, n);
-					String player = position.cells[n][m] == UltimateTicTacToePosition.PLAYER_1 ? "X" : "O";
+					String player = position.cells[n][m] == TwoPlayers.PLAYER_1 ? "X" : "O";
 					drawCenteredString(g, smallFont, player, getCenterX(intersection.y), getCenterY(intersection.x));
 				}
 			}
 		}
 		Font largeFont = new Font(Font.SANS_SERIF, Font.PLAIN, getSquareWidthFraction(3));
 		for (int i = 0; i < UltimateTicTacToePosition.BOARD_WIDTH; ++i) {
-			if (position.wonBoards[i] != UltimateTicTacToePosition.UNPLAYED) {
-				String player = position.wonBoards[i] == UltimateTicTacToePosition.PLAYER_1 ? "X" : "O";
+			if (position.wonBoards[i] != TwoPlayers.UNPLAYED) {
+				String player = position.wonBoards[i] == TwoPlayers.PLAYER_1 ? "X" : "O";
 				Coordinate intersection = UltimateTicTacToeUtilities.getBoardXY(i, 4); // 4 = the center square of that board
 				drawCenteredString(g, largeFont, player, getCenterX(intersection.x), getCenterY(intersection.y));
 			}
@@ -145,7 +146,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 	}
 
 	public Coordinate getCoordinate(int mouseX, int mouseY) {
-		return new Coordinate(getIntersectionX(mouseX), getIntersectionY(mouseY));
+		return Coordinate.valueOf(getIntersectionX(mouseX), getIntersectionY(mouseY));
 	}
 
 	public int getIntersectionX(int x) {

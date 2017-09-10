@@ -12,14 +12,14 @@ import gui.GameRegistry;
 import main.BoardGameEngineMain;
 
 public class MainMenuState implements GameState {
-	List<MenuItem> menuItems = new ArrayList<>();
+	private final List<MenuItem> menuItems = new ArrayList<>();
 
 	public MainMenuState() {
 		Set<String> gameNames = GameRegistry.getGameNames();
 
-		double widthPercentStart = 0.25;
-		double widthPercentEnd = 0.75;
-		double gap = 0.1;
+		double widthPercentStart = 0.15;
+		double widthPercentEnd = 0.85;
+		double gap = 0.05;
 		double height = 1.0 / gameNames.size() - gap * (gameNames.size() + 1) / gameNames.size();
 
 		double currentHeight = gap;

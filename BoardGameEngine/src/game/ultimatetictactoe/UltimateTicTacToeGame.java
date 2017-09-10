@@ -4,6 +4,7 @@ import analysis.ComputerPlayer;
 import analysis.MinimaxStrategy;
 import game.IGame;
 import game.IPlayer;
+import game.TwoPlayers;
 import gui.GuiPlayer;
 
 public class UltimateTicTacToeGame implements IGame<UTTTCoordinate, UltimateTicTacToePosition> {
@@ -18,7 +19,7 @@ public class UltimateTicTacToeGame implements IGame<UTTTCoordinate, UltimateTicT
 
 	@Override
 	public int getNumberOfPlayers() {
-		return 2;
+		return TwoPlayers.NUMBER_OF_PLAYERS;
 	}
 
 	@Override

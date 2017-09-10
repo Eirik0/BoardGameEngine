@@ -7,15 +7,12 @@ import java.util.List;
 
 import game.Coordinate;
 import game.IPosition;
+import game.TwoPlayers;
 
 public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, UltimateTicTacToePosition> {
 	static final int ANY_BOARD = -1;
 
 	static final int BOARD_WIDTH = 9;
-	static final int UNPLAYED = 0;
-	static final int PLAYER_1 = 1;
-	static final int PLAYER_2 = 2;
-	static final int BOTH_PLAYERS = PLAYER_1 & PLAYER_2;
 
 	/**
 	 * 9 copies of:<br>
@@ -30,7 +27,7 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 	int currentPlayer;
 
 	public UltimateTicTacToePosition() {
-		this(new int[BOARD_WIDTH][BOARD_WIDTH], new int[BOARD_WIDTH], ANY_BOARD, PLAYER_1);
+		this(new int[BOARD_WIDTH][BOARD_WIDTH], new int[BOARD_WIDTH], ANY_BOARD, TwoPlayers.PLAYER_1);
 	}
 
 	public UltimateTicTacToePosition(int[][] cells, int[] wonBoards, int currentBoard, int currentPlayer) {
@@ -42,16 +39,16 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 
 	@Override
 	public List<UTTTCoordinate> getPossibleMoves() {
-		if (UltimateTicTacToeUtilities.winsExist(wonBoards, PLAYER_1) || UltimateTicTacToeUtilities.winsExist(wonBoards, PLAYER_2)) {
+		if (UltimateTicTacToeUtilities.winsExist(wonBoards, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
 			return Collections.emptyList();
 		}
 		List<UTTTCoordinate> possibleMoves = new ArrayList<>();
 		if (currentBoard == ANY_BOARD) {
 			for (int n = 0; n < BOARD_WIDTH; ++n) {
-				if (wonBoards[n] == UNPLAYED) {
+				if (wonBoards[n] == TwoPlayers.UNPLAYED) {
 					int[] board = cells[n];
 					for (int m = 0; m < BOARD_WIDTH; ++m) {
-						if (board[m] == UNPLAYED) {
+						if (board[m] == TwoPlayers.UNPLAYED) {
 							possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(n, m), currentBoard));
 						}
 					}
@@ -59,7 +56,7 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 			}
 		} else {
 			for (int m = 0; m < BOARD_WIDTH; ++m) {
-				if (cells[currentBoard][m] == UNPLAYED) {
+				if (cells[currentBoard][m] == TwoPlayers.UNPLAYED) {
 					possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(currentBoard, m), currentBoard));
 				}
 			}
@@ -80,12 +77,12 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 		if (UltimateTicTacToeUtilities.winsExist(boardInPlay, currentPlayer)) {
 			wonBoards[boardNM.x] = currentPlayer;
 		}
-		if (wonBoards[boardNM.y] != UNPLAYED) {
+		if (wonBoards[boardNM.y] != TwoPlayers.UNPLAYED) {
 			currentBoard = ANY_BOARD;
 		} else {
 			boolean full = true;
 			for (int i = 0; i < BOARD_WIDTH; ++i) {
-				if (cells[boardNM.y][i] == UNPLAYED) {
+				if (cells[boardNM.y][i] == TwoPlayers.UNPLAYED) {
 					full = false;
 					break;
 				}
@@ -93,17 +90,17 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 			currentBoard = full ? ANY_BOARD : boardNM.y;
 		}
 
-		currentPlayer = currentPlayer == PLAYER_1 ? PLAYER_2 : PLAYER_1;
+		currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
 	}
 
 	@Override
 	public void unmakeMove(UTTTCoordinate move) {
 		Coordinate boardNM = UltimateTicTacToeUtilities.getBoardNM(move.coordinate.x, move.coordinate.y);
 		int[] boardInPlay = cells[boardNM.x];
-		wonBoards[boardNM.x] = UNPLAYED;
-		boardInPlay[boardNM.y] = UNPLAYED;
+		wonBoards[boardNM.x] = TwoPlayers.UNPLAYED;
+		boardInPlay[boardNM.y] = TwoPlayers.UNPLAYED;
 		currentBoard = move.currentBoard;
-		currentPlayer = currentPlayer == PLAYER_1 ? PLAYER_2 : PLAYER_1;
+		currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
 	}
 
 	@Override

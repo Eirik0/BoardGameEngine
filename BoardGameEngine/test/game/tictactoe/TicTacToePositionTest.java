@@ -14,7 +14,7 @@ public class TicTacToePositionTest {
 	@Test
 	public void testMakeMove() {
 		TicTacToePosition position = new TicTacToePosition();
-		position.makeMove(new Coordinate(1, 1));
+		position.makeMove(Coordinate.valueOf(1, 1));
 		assertEquals("[[0,0,0],[0,1,0],[0,0,0]]", position.toString().replaceAll("\\s+", ""));
 		assertEquals(2, position.getCurrentPlayer());
 	}
@@ -22,8 +22,8 @@ public class TicTacToePositionTest {
 	@Test
 	public void testMakeTwoMoves() {
 		TicTacToePosition position = new TicTacToePosition();
-		position.makeMove(new Coordinate(1, 1));
-		position.makeMove(new Coordinate(0, 2));
+		position.makeMove(Coordinate.valueOf(1, 1));
+		position.makeMove(Coordinate.valueOf(0, 2));
 		assertEquals("[[0,0,0],[0,1,0],[2,0,0]]", position.toString().replaceAll("\\s+", ""));
 		assertEquals(1, position.getCurrentPlayer());
 	}
@@ -31,9 +31,9 @@ public class TicTacToePositionTest {
 	@Test
 	public void testMakeTwoMoves_UnmakeSecond() {
 		TicTacToePosition position = new TicTacToePosition();
-		position.makeMove(new Coordinate(1, 1));
-		position.makeMove(new Coordinate(0, 2));
-		position.unmakeMove(new Coordinate(0, 2));
+		position.makeMove(Coordinate.valueOf(1, 1));
+		position.makeMove(Coordinate.valueOf(0, 2));
+		position.unmakeMove(Coordinate.valueOf(0, 2));
 		assertEquals("[[0,0,0],[0,1,0],[0,0,0]]", position.toString().replaceAll("\\s+", ""));
 		assertEquals(2, position.getCurrentPlayer());
 	}
@@ -48,31 +48,31 @@ public class TicTacToePositionTest {
 	@Test
 	public void testGetPossibleMoves_AfterTwoMade() {
 		TicTacToePosition position = new TicTacToePosition();
-		position.makeMove(new Coordinate(1, 1));
-		position.makeMove(new Coordinate(0, 2));
+		position.makeMove(Coordinate.valueOf(1, 1));
+		position.makeMove(Coordinate.valueOf(0, 2));
 		List<Coordinate> moves = position.getPossibleMoves();
 		assertEquals(7, moves.size());
-		assertFalse(moves.contains(new Coordinate(1, 1)));
-		assertFalse(moves.contains(new Coordinate(0, 2)));
+		assertFalse(moves.contains(Coordinate.valueOf(1, 1)));
+		assertFalse(moves.contains(Coordinate.valueOf(0, 2)));
 	}
 
 	@Test
 	public void testCopyBoard() {
 		TicTacToePosition position = new TicTacToePosition();
-		position.makeMove(new Coordinate(1, 1));
-		position.makeMove(new Coordinate(0, 2));
-		position.makeMove(new Coordinate(2, 2));
+		position.makeMove(Coordinate.valueOf(1, 1));
+		position.makeMove(Coordinate.valueOf(0, 2));
+		position.makeMove(Coordinate.valueOf(2, 2));
 		assertEquals(position.toString(), position.createCopy().toString());
 	}
 
 	@Test
 	public void testGameEnds() {
 		TicTacToePosition position = new TicTacToePosition();
-		position.makeMove(new Coordinate(1, 0));
-		position.makeMove(new Coordinate(2, 0));
-		position.makeMove(new Coordinate(1, 1));
-		position.makeMove(new Coordinate(2, 1));
-		position.makeMove(new Coordinate(1, 2));
+		position.makeMove(Coordinate.valueOf(1, 0));
+		position.makeMove(Coordinate.valueOf(2, 0));
+		position.makeMove(Coordinate.valueOf(1, 1));
+		position.makeMove(Coordinate.valueOf(2, 1));
+		position.makeMove(Coordinate.valueOf(1, 2));
 		assertEquals(0, position.getPossibleMoves().size());
 	}
 
