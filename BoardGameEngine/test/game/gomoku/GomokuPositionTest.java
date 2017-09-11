@@ -53,13 +53,13 @@ public class GomokuPositionTest {
 	public void testWinsDiagonalLeft() {
 		GomokuPosition position = new GomokuPosition();
 		int numMoves = 361;
-		for (int x = 0; x < 4; ++x) {
+		for (int x = 14; x < 18; ++x) {
 			assertEquals(numMoves--, position.getPossibleMoves().size());
 			position.makeMove(Coordinate.valueOf(x, 18 - x));
 			assertEquals(numMoves--, position.getPossibleMoves().size());
 			position.makeMove(Coordinate.valueOf(x + 1, 18 - x));
 		}
-		position.makeMove(Coordinate.valueOf(4, 14));
+		position.makeMove(Coordinate.valueOf(18, 0));
 		assertEquals(0, position.getPossibleMoves().size());
 	}
 }

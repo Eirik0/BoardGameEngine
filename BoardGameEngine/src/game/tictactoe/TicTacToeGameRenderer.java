@@ -1,6 +1,7 @@
 package game.tictactoe;
 
 import java.awt.Graphics2D;
+import java.util.List;
 
 import game.Coordinate;
 import game.TwoPlayers;
@@ -13,14 +14,10 @@ import main.BoardGameEngineMain;
 public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacToePosition> {
 	@Override
 	public void initializeAndDrawBoard(Graphics2D g) {
-		g.setColor(BoardGameEngineMain.BACKGROUND_COLOR);
-		g.fillRect(0, 0, GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
-	}
-
-	@Override
-	public void drawPosition(Graphics2D g, TicTacToePosition position) {
 		int width = GameGuiManager.getComponentWidth();
 		int height = GameGuiManager.getComponentHeight();
+
+		fillRect(g, 0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
 
 		g.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
 		for (int i = 1; i < 3; ++i) {
@@ -29,10 +26,17 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
 			g.drawLine(thirdOfWidth, 0, thirdOfWidth, height);
 			g.drawLine(0, thirdOfHeight, width, thirdOfHeight);
 		}
+	}
+
+	@Override
+	public void drawPosition(Graphics2D g, TicTacToePosition position, List<Coordinate> possibleMoves) {
+		int width = GameGuiManager.getComponentWidth();
+		int height = GameGuiManager.getComponentHeight();
+		g.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
 		for (int y = 0; y < position.board.length; y++) {
 			int[] row = position.board[y];
 			for (int x = 0; x < row.length; x++) {
-				if (row[x] != 0) {
+				if (row[x] != TwoPlayers.UNPLAYED) {
 					String player = row[x] == TwoPlayers.PLAYER_1 ? "X" : "O";
 					int xCoord = round(width * (2 * x + 1) / 6.0);
 					int yCoord = round(height * (2 * y + 1) / 6.0);
@@ -40,7 +44,6 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
 				}
 			}
 		}
-
 	}
 
 	@Override

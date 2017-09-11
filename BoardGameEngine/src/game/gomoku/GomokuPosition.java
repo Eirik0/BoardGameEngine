@@ -9,10 +9,10 @@ import game.IPosition;
 import game.TwoPlayers;
 
 public class GomokuPosition implements IPosition<Coordinate, GomokuPosition> {
-	private static final int BOARD_WIDTH = 19;
+	static final int BOARD_WIDTH = 19;
 
-	private int currentPlayer;
-	private final int[][] board;
+	int currentPlayer;
+	final int[][] board;
 
 	public GomokuPosition() {
 		this(new int[BOARD_WIDTH][BOARD_WIDTH], TwoPlayers.PLAYER_1);
@@ -33,7 +33,7 @@ public class GomokuPosition implements IPosition<Coordinate, GomokuPosition> {
 			int[] column = board[y];
 			for (int x = 0; x < BOARD_WIDTH; ++x) {
 				if (column[x] == TwoPlayers.UNPLAYED) {
-					possibleMoves.add(Coordinate.valueOf(y, x));
+					possibleMoves.add(Coordinate.valueOf(x, y));
 				}
 			}
 		}
@@ -41,19 +41,20 @@ public class GomokuPosition implements IPosition<Coordinate, GomokuPosition> {
 	}
 
 	private static boolean winsExist(int[][] board, int player) {
-		for (int y = 0; y < BOARD_WIDTH - 4; ++y) {
-			for (int x = 0; x < BOARD_WIDTH - 4; ++x) {
+		for (int y = 0; y < BOARD_WIDTH; ++y) {
+			for (int x = 0; x < BOARD_WIDTH; ++x) {
 				if (board[y][x] == player) {
-					if (board[y][x + 1] == player && board[y][x + 2] == player && board[y][x + 3] == player && board[y][x + 4] == player) {
+					if (x < BOARD_WIDTH - 4 && board[y][x + 1] == player && board[y][x + 2] == player && board[y][x + 3] == player && board[y][x + 4] == player) {
 						return true;
 					}
-					if (board[y + 1][x] == player && board[y + 2][x] == player && board[y + 3][x] == player && board[y + 4][x] == player) {
+					if (y < BOARD_WIDTH - 4 && board[y + 1][x] == player && board[y + 2][x] == player && board[y + 3][x] == player && board[y + 4][x] == player) {
 						return true;
 					}
-					if (board[y + 1][x + 1] == player && board[y + 2][x + 2] == player && board[y + 3][x + 3] == player && board[y + 4][x + 4] == player) {
+					if (x < BOARD_WIDTH - 4 && y < BOARD_WIDTH - 4 && board[y + 1][x + 1] == player && board[y + 2][x + 2] == player && board[y + 3][x + 3] == player
+							&& board[y + 4][x + 4] == player) {
 						return true;
 					}
-					if (x >= 4 && board[y + 1][x - 1] == player && board[y + 2][x - 2] == player && board[y + 3][x - 3] == player && board[y + 4][x - 4] == player) {
+					if (x > 3 && board[y + 1][x - 1] == player && board[y + 2][x - 2] == player && board[y + 3][x - 3] == player && board[y + 4][x - 4] == player) {
 						return true;
 					}
 				}

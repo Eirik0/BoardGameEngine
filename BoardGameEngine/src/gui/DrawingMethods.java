@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -9,6 +10,11 @@ import main.BoardGameEngineMain;
 public interface DrawingMethods {
 	public default int round(Double d) {
 		return (int) Math.round(d);
+	}
+
+	public default void fillRect(Graphics2D g, double x, double y, double width, double height, Color color) {
+		g.setColor(color);
+		g.fillRect(round(x), round(y), round(width), round(height));
 	}
 
 	public default void drawCenteredString(Graphics2D g, String text, double x, double y) {
@@ -32,5 +38,4 @@ public interface DrawingMethods {
 		double height = 2 * radius;
 		g.fillOval(round(x - radius), round(y - radius), round(height), round(height));
 	}
-
 }

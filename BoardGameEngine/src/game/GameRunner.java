@@ -13,19 +13,32 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private final IGame<M, P> game;
 	private P position;
 
+	private P positionCopy;
+	private List<M> possibleMovesCopy;
+
 	private IPlayer currentPlayer;
 
 	public GameRunner(IGame<M, P> game) {
 		this.game = game;
 		position = game.newInitialPosition();
+		setPositionCopy();
 	}
 
 	public void setEndGameAction(Runnable endGameAction) {
 		this.endGameAction = endGameAction;
 	}
 
-	public P getCurrentPosition() {
-		return position;
+	public P getCurrentPositionCopy() {
+		return positionCopy;
+	}
+
+	public List<M> getPossibleMovesCopy() {
+		return possibleMovesCopy;
+	}
+
+	private void setPositionCopy() {
+		positionCopy = position.createCopy();
+		possibleMovesCopy = positionCopy.getPossibleMoves();
 	}
 
 	public synchronized void startNewGame(List<IPlayer> players) {
@@ -53,6 +66,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 					M move = currentPlayer.getMove(position);
 					if (!stopRequested) {
 						position.makeMove(move);
+						setPositionCopy();
 						playerNum = (playerNum + 1) % players.size();
 					}
 				}

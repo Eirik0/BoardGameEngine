@@ -22,7 +22,7 @@ public class GameRunningState<M, P extends IPosition<M, P>> implements GameState
 	@Override
 	public void drawOn(Graphics2D graphics) {
 		graphics.drawImage(boardImage.getImage(), 0, 0, null);
-		gameRenderer.drawPosition(graphics, gameRunner.getCurrentPosition());
+		gameRenderer.drawPosition(graphics, gameRunner.getCurrentPositionCopy(), gameRunner.getPossibleMovesCopy());
 	}
 
 	@Override
@@ -33,9 +33,9 @@ public class GameRunningState<M, P extends IPosition<M, P>> implements GameState
 
 	@Override
 	public void handleUserInput(UserInput input) {
-		M move = gameRenderer.maybeGetUserMove(input, gameRunner.getCurrentPosition());
+		M move = gameRenderer.maybeGetUserMove(input, gameRunner.getCurrentPositionCopy());
 		if (move != null) {
-			if (gameRunner.getCurrentPosition().getPossibleMoves().contains(move)) {
+			if (gameRunner.getPossibleMovesCopy().contains(move)) {
 				GuiPlayer.HUMAN.setMove(move);
 			}
 		}
