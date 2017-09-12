@@ -51,6 +51,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		}
 
 		position = game.newInitialPosition();
+		setPositionCopy();
 		if (position.getPossibleMoves().isEmpty()) {
 			notifyGameStarted();
 		}
