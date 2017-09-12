@@ -31,7 +31,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 	}
 
 	@Override
-	public void drawPosition(Graphics2D g, ForkJoinExampleTree position, List<ForkJoinExampleNode> possibleMoves) {
+	public void drawPosition(Graphics2D g, ForkJoinExampleTree position, List<ForkJoinExampleNode> possibleMoves, ForkJoinExampleNode lastMove) {
 		int width = GameGuiManager.getComponentWidth();
 		int height = GameGuiManager.getComponentHeight();
 		g.setFont(BoardGameEngineMain.DEFAULT_FONT_SMALL);

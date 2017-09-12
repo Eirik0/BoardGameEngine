@@ -15,6 +15,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 	private P positionCopy;
 	private List<M> possibleMovesCopy;
+	private M lastMove;
 
 	private IPlayer currentPlayer;
 
@@ -34,6 +35,10 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 	public List<M> getPossibleMovesCopy() {
 		return possibleMovesCopy;
+	}
+
+	public M getLastMove() {
+		return lastMove;
 	}
 
 	private void setPositionCopy() {
@@ -66,6 +71,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 					}
 					M move = currentPlayer.getMove(position);
 					if (!stopRequested) {
+						lastMove = move;
 						position.makeMove(move);
 						setPositionCopy();
 						playerNum = (playerNum + 1) % players.size();

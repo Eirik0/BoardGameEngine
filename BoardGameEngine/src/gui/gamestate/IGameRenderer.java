@@ -10,7 +10,7 @@ import gui.gamestate.GameState.UserInput;
 public interface IGameRenderer<M, P extends IPosition<M, P>> extends DrawingMethods {
 	public void initializeAndDrawBoard(Graphics2D g);
 
-	public void drawPosition(Graphics2D g, P position, List<M> possibleMoves);
+	public void drawPosition(Graphics2D g, P position, List<M> possibleMoves, M lastMove);
 
 	public M maybeGetUserMove(UserInput input, P position);
 }

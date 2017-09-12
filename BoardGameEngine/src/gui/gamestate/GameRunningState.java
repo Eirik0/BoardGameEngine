@@ -22,7 +22,7 @@ public class GameRunningState<M, P extends IPosition<M, P>> implements GameState
 	@Override
 	public void drawOn(Graphics2D graphics) {
 		graphics.drawImage(boardImage.getImage(), 0, 0, null);
-		gameRenderer.drawPosition(graphics, gameRunner.getCurrentPositionCopy(), gameRunner.getPossibleMovesCopy());
+		gameRenderer.drawPosition(graphics, gameRunner.getCurrentPositionCopy(), gameRunner.getPossibleMovesCopy(), gameRunner.getLastMove());
 	}
 
 	@Override

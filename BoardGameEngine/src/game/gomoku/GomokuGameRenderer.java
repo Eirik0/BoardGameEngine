@@ -59,12 +59,12 @@ public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosit
 	}
 
 	@Override
-	public void drawPosition(Graphics2D g, GomokuPosition position, List<Coordinate> possibleMoves) {
-		drawMoves(g, position);
+	public void drawPosition(Graphics2D g, GomokuPosition position, List<Coordinate> possibleMoves, Coordinate lastMove) {
+		drawMoves(g, position, lastMove);
 		drawMouseOn(g, possibleMoves);
 	}
 
-	private void drawMoves(Graphics2D g, GomokuPosition position) {
+	private void drawMoves(Graphics2D g, GomokuPosition position, Coordinate lastMove) {
 		for (int y = 0; y < GomokuPosition.BOARD_WIDTH; y++) {
 			int[] row = position.board[y];
 			for (int x = 0; x < GomokuPosition.BOARD_WIDTH; x++) {
@@ -74,6 +74,10 @@ public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosit
 					fillCircle(g, sizer.getCenterX(x), sizer.getCenterY(y), sizer.cellWidth * 0.45);
 				}
 			}
+		}
+		if (lastMove != null) {
+			g.setColor(Color.RED);
+			drawCircle(g, sizer.getCenterX(lastMove.x), sizer.getCenterY(lastMove.y), sizer.cellWidth * 0.225);
 		}
 	}
 

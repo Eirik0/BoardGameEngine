@@ -60,18 +60,18 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 	}
 
 	@Override
-	public void drawPosition(Graphics2D g, UltimateTicTacToePosition position, List<UTTTCoordinate> possibleMoves) {
-		drawMoves(g, position);
+	public void drawPosition(Graphics2D g, UltimateTicTacToePosition position, List<UTTTCoordinate> possibleMoves, UTTTCoordinate lastMove) {
+		drawMoves(g, position, lastMove);
 		highlightBoardInPlay(g, position);
 		drawMouseOn(g, position, possibleMoves);
 	}
 
-	private void drawMoves(Graphics2D g, UltimateTicTacToePosition position) {
-		g.setColor(Color.BLACK);
+	private void drawMoves(Graphics2D g, UltimateTicTacToePosition position, UTTTCoordinate lastMove) {
 		Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, round(sizer.cellWidth * 0.33));
 		for (int n = 0; n < UltimateTicTacToePosition.BOARD_WIDTH; ++n) {
 			for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
 				if (position.cells[n][m] != TwoPlayers.UNPLAYED) {
+					g.setColor(lastMove != null && UltimateTicTacToeUtilities.getBoardXY(n, m).equals(lastMove.coordinate) ? Color.WHITE : Color.BLACK);
 					Coordinate intersection = UltimateTicTacToeUtilities.getBoardNM(m, n);
 					String player = position.cells[n][m] == TwoPlayers.PLAYER_1 ? "X" : "O";
 					drawCenteredString(g, smallFont, player, sizer.getCenterX(intersection.y), sizer.getCenterY(intersection.x));
