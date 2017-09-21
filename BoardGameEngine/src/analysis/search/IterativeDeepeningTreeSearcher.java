@@ -28,7 +28,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	private volatile boolean searchStopped = true;
 	private volatile boolean searchComplete = false;
 
-	private volatile int plies = 0;
+	private int plies = 0;
 	private volatile AnalysisResult<M> result;
 
 	public IterativeDeepeningTreeSearcher(IDepthBasedStrategy<M, P> strategy, int numWorkers) {

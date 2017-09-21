@@ -25,7 +25,8 @@ public class GomokuPosition implements IPosition<Coordinate, GomokuPosition> {
 
 	@Override
 	public List<Coordinate> getPossibleMoves() {
-		if (winsExist(board, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
+		int otherPlayer = TwoPlayers.otherPlayer(currentPlayer);
+		if (GomokuPositionEvaluator.winExist(board, otherPlayer)) { // We only need to check the last player who played
 			return Collections.emptyList();
 		}
 		List<Coordinate> possibleMoves = new ArrayList<>();
@@ -38,29 +39,6 @@ public class GomokuPosition implements IPosition<Coordinate, GomokuPosition> {
 			}
 		}
 		return possibleMoves;
-	}
-
-	private static boolean winsExist(int[][] board, int player) {
-		for (int y = 0; y < BOARD_WIDTH; ++y) {
-			for (int x = 0; x < BOARD_WIDTH; ++x) {
-				if (board[y][x] == player) {
-					if (x < BOARD_WIDTH - 4 && board[y][x + 1] == player && board[y][x + 2] == player && board[y][x + 3] == player && board[y][x + 4] == player) {
-						return true;
-					}
-					if (y < BOARD_WIDTH - 4 && board[y + 1][x] == player && board[y + 2][x] == player && board[y + 3][x] == player && board[y + 4][x] == player) {
-						return true;
-					}
-					if (x < BOARD_WIDTH - 4 && y < BOARD_WIDTH - 4 && board[y + 1][x + 1] == player && board[y + 2][x + 2] == player && board[y + 3][x + 3] == player
-							&& board[y + 4][x + 4] == player) {
-						return true;
-					}
-					if (x > 3 && board[y + 1][x - 1] == player && board[y + 2][x - 2] == player && board[y + 3][x - 3] == player && board[y + 4][x - 4] == player) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
 	}
 
 	@Override
