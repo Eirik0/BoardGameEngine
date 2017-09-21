@@ -28,7 +28,6 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, G
 					int upLeft = x > 0 && y > 0 ? board[y - 1][x - 1] : otherPlayer;
 					int up = y > 0 ? board[y - 1][x] : otherPlayer;
 					int upRight = x < BOARD_WIDTH - 1 && y > 0 ? board[y - 1][x + 1] : otherPlayer;
-					// Skip if we have already seen this chain
 					int rightCount = 0;
 					while (x < BOARD_WIDTH - (rightCount + 1) && board[y][x + (rightCount + 1)] == player) {
 						++rightCount;
