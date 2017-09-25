@@ -56,6 +56,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		}
 
 		position = game.newInitialPosition();
+		lastMove = null;
 		setPositionCopy();
 		if (position.getPossibleMoves().isEmpty()) {
 			notifyGameStarted();
@@ -78,6 +79,9 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 					}
 				}
 			} finally {
+				for (IPlayer player : players) {
+					player.notifyGameEnded();
+				}
 				notifyGameEnded();
 			}
 		}, "Game_Runner_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
@@ -121,7 +125,6 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 	private synchronized void notifyGameEnded() {
 		isRunning = false;
-		maybeNotifyPlayerGameEnded();
 		currentPlayer = null;
 		if (endGameAction != null) {
 			endGameAction.run();

@@ -1,26 +1,27 @@
-package analysis;
+package analysis.strategy;
 
 import java.util.List;
 
-import analysis.search.MoveWithResult;
+import analysis.AnalysisResult;
+import analysis.IPositionEvaluator;
 import game.IPosition;
 
-public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
+public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
 	private boolean searchedAllPositions = true;
 
 	private final IPositionEvaluator<M, P> positionEvaluator;
 
-	public MinimaxStrategy(IPositionEvaluator<M, P> positionEvaluator) {
+	public AlphaBetaStrategy(IPositionEvaluator<M, P> positionEvaluator) {
 		this.positionEvaluator = positionEvaluator;
 	}
 
 	@Override
 	public double evaluate(P position, int player, int plies) {
 		searchedAllPositions = true;
-		return minimax(position, player, plies);
+		return alphaBeta(position, player, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 
-	private double minimax(P position, int player, int plies) {
+	private double alphaBeta(P position, int player, int plies, double alpha, double beta) {
 		if (searchCanceled) {
 			return 0;
 		}
@@ -45,16 +46,28 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 				return 0;
 			}
 			position.makeMove(move);
-			double score = minimax(position, player, plies - 1);
+			double score = alphaBeta(position, player, plies - 1, alpha, beta);
 			position.unmakeMove(move);
 
 			if (max) {
 				if (score > bestScore) {
 					bestScore = score;
+					if (bestScore > alpha) {
+						alpha = bestScore;
+						if (beta <= alpha) {
+							break;
+						}
+					}
 				}
 			} else {
 				if (score < bestScore) {
 					bestScore = score;
+					if (bestScore < beta) {
+						beta = bestScore;
+						if (beta <= alpha) {
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -63,17 +76,17 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 	}
 
 	@Override
-	public double evaluateJoin(P position, int player, MoveWithResult<M> moveWithResult) {
-		return player == position.getCurrentPlayer() ? moveWithResult.result.getMin() : moveWithResult.result.getMax();
-	}
-
-	@Override
 	public boolean searchedAllPositions() {
 		return searchedAllPositions;
 	}
 
 	@Override
+	public void notifyPlyStarted(AnalysisResult<M> lastResult) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
 	public IDepthBasedStrategy<M, P> createCopy() {
-		return new MinimaxStrategy<>(positionEvaluator);
+		return new AlphaBetaStrategy<>(positionEvaluator);
 	}
 }

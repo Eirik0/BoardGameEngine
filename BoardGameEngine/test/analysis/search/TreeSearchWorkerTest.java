@@ -8,7 +8,7 @@ import java.util.concurrent.SynchronousQueue;
 import org.junit.Test;
 
 import analysis.AnalysisResult;
-import analysis.MinimaxStrategy;
+import analysis.strategy.MinimaxStrategy;
 import game.value.TestGameEvaluator;
 import game.value.TestGameNode;
 import game.value.TestGamePosition;

@@ -1,6 +1,7 @@
 package analysis;
 
 import analysis.search.IterativeDeepeningTreeSearcher;
+import analysis.strategy.IDepthBasedStrategy;
 import game.IPlayer;
 import game.IPosition;
 

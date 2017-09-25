@@ -4,6 +4,8 @@ import game.IPlayer;
 import game.IPosition;
 
 public class GuiPlayer implements IPlayer {
+	public static final String NAME = "Human";
+
 	public static final GuiPlayer HUMAN = new GuiPlayer();
 
 	private volatile boolean isRequestingMove = false;
@@ -51,6 +53,6 @@ public class GuiPlayer implements IPlayer {
 
 	@Override
 	public String toString() {
-		return "Human";
+		return NAME;
 	}
 }

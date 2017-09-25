@@ -2,32 +2,11 @@ package game.forkjoinexample;
 
 import java.util.List;
 
-import analysis.AbstractDepthBasedStrategy;
-import analysis.IDepthBasedStrategy;
-import analysis.search.MoveWithResult;
+import analysis.AnalysisResult;
+import analysis.strategy.AbstractDepthBasedStrategy;
+import analysis.strategy.IDepthBasedStrategy;
 
 public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> {
-	@Override
-	public void notifyPlyStarted() {
-		ForkJoinExampleThreadTracker.searchStarted();
-	}
-
-	@Override
-	public void notifyForked(ForkJoinExampleNode parentMove, List<ForkJoinExampleNode> unanalyzedMoves) {
-		if (parentMove == null) {
-			parentMove = ForkJoinExampleThreadTracker.getRoot();
-		}
-		ForkJoinExampleThreadTracker.setForked(parentMove);
-		for (ForkJoinExampleNode move : unanalyzedMoves) {
-			ForkJoinExampleThreadTracker.branchVisited(parentMove, move, ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
-		}
-	}
-
-	@Override
-	public void notifyPlyComplete(boolean searchStopped) {
-		ForkJoinExampleThreadTracker.searchComplete(searchStopped);
-	}
-
 	@Override
 	public double evaluate(ForkJoinExampleTree position, int player, int plies) {
 		visitNodes(position, player, plies);
@@ -60,15 +39,35 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 	}
 
 	@Override
-	public double evaluateJoin(ForkJoinExampleTree position, int player, MoveWithResult<ForkJoinExampleNode> moveWithResult) {
-		ForkJoinExampleThreadTracker.branchVisited(position.getCurrentNode(), moveWithResult.move, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
-		ForkJoinExampleThreadTracker.setJoined(position.getCurrentNode());
-		return 0;
+	public boolean searchedAllPositions() {
+		return false; // keep searching
 	}
 
 	@Override
-	public boolean searchedAllPositions() {
-		return false; // keep searching
+	public void notifyPlyStarted(AnalysisResult<ForkJoinExampleNode> lastResult) {
+		ForkJoinExampleThreadTracker.searchStarted();
+	}
+
+	@Override
+	public void notifyForked(ForkJoinExampleNode parentMove, List<ForkJoinExampleNode> unanalyzedMoves) {
+		if (parentMove == null) {
+			parentMove = ForkJoinExampleThreadTracker.getRoot();
+		}
+		ForkJoinExampleThreadTracker.setForked(parentMove);
+		for (ForkJoinExampleNode move : unanalyzedMoves) {
+			ForkJoinExampleThreadTracker.branchVisited(parentMove, move, ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
+		}
+	}
+
+	@Override
+	public void notifyJoined(ForkJoinExampleTree parentPosition, ForkJoinExampleNode move) {
+		ForkJoinExampleThreadTracker.branchVisited(parentPosition.getCurrentNode(), move, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
+		ForkJoinExampleThreadTracker.setJoined(parentPosition.getCurrentNode());
+	}
+
+	@Override
+	public void notifyPlyComplete(boolean searchStopped) {
+		ForkJoinExampleThreadTracker.searchComplete(searchStopped);
 	}
 
 	@Override

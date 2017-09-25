@@ -16,18 +16,23 @@ import game.GameRunner;
 import game.IGame;
 import game.forkjoinexample.ForkJoinExampleGame;
 import game.forkjoinexample.ForkJoinExampleGameRenderer;
+import game.forkjoinexample.ForkJoinExampleStraregy;
 import game.gomoku.GomokuGame;
 import game.gomoku.GomokuGameRenderer;
+import game.gomoku.GomokuPositionEvaluator;
 import game.tictactoe.TicTacToeGame;
 import game.tictactoe.TicTacToeGameRenderer;
+import game.tictactoe.TicTacToePositionEvaluator;
 import game.ultimatetictactoe.UltimateTicTacToeGame;
 import game.ultimatetictactoe.UltimateTicTacToeGameRenderer;
+import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
 import gui.FixedDurationGameLoop;
 import gui.GameGuiManager;
 import gui.GameImage;
 import gui.GameMouseAdapter;
 import gui.GamePanel;
 import gui.GameRegistry;
+import gui.GuiPlayer;
 import gui.gamestate.GameRunningState;
 import gui.gamestate.MainMenuState;
 
@@ -90,10 +95,27 @@ public class BoardGameEngineMain {
 	}
 
 	private static void registerGames() {
-		GameRegistry.registerGame(TicTacToeGame.NAME, TicTacToeGame.class, TicTacToeGameRenderer.class);
-		GameRegistry.registerGame(UltimateTicTacToeGame.NAME, UltimateTicTacToeGame.class, UltimateTicTacToeGameRenderer.class);
-		GameRegistry.registerGame(GomokuGame.NAME, GomokuGame.class, GomokuGameRenderer.class);
-		GameRegistry.registerGame(ForkJoinExampleGame.NAME, ForkJoinExampleGame.class, ForkJoinExampleGameRenderer.class);
+		GameRegistry.registerGame(TicTacToeGame.NAME, TicTacToeGame.class, TicTacToeGameRenderer.class)
+				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
+				.registerPositionEvaluator("Computer", new TicTacToePositionEvaluator(), 2, 500);
+
+		GameRegistry.registerGame(UltimateTicTacToeGame.NAME, UltimateTicTacToeGame.class, UltimateTicTacToeGameRenderer.class)
+				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
+				.registerPositionEvaluator("Computer 1", new UltimateTicTacToePositionEvaluator(), 2, 3000)
+				.registerPositionEvaluator("Computer 2", new UltimateTicTacToePositionEvaluator(), 6, 12000);
+
+		GameRegistry.registerGame(GomokuGame.NAME, GomokuGame.class, GomokuGameRenderer.class)
+				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
+				.registerPositionEvaluator("Computer", new GomokuPositionEvaluator(), 4, 5000);
+
+		GameRegistry.registerGame(ForkJoinExampleGame.NAME, ForkJoinExampleGame.class, ForkJoinExampleGameRenderer.class)
+				.registerStrategy("1 Worker", new ForkJoinExampleStraregy(), 1, Long.MAX_VALUE)
+				.registerStrategy("2 Workers", new ForkJoinExampleStraregy(), 2, Long.MAX_VALUE)
+				.registerStrategy("3 Workers", new ForkJoinExampleStraregy(), 3, Long.MAX_VALUE)
+				.registerStrategy("4 Workers", new ForkJoinExampleStraregy(), 4, Long.MAX_VALUE)
+				.registerStrategy("5 Workers", new ForkJoinExampleStraregy(), 5, Long.MAX_VALUE)
+				.registerStrategy("10 Workers", new ForkJoinExampleStraregy(), 10, Long.MAX_VALUE)
+				.registerStrategy("37 Workers", new ForkJoinExampleStraregy(), 37, Long.MAX_VALUE);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

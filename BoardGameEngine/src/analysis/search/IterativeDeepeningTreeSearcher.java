@@ -9,7 +9,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 import analysis.AnalysisResult;
-import analysis.IDepthBasedStrategy;
+import analysis.strategy.IDepthBasedStrategy;
 import game.IPosition;
 
 public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
@@ -59,7 +59,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		}
 	}
 
-	public void startSearch(P position, int maxPlies) {
+	public AnalysisResult<M> startSearch(P position, int maxPlies) {
 		synchronized (searchStartedLock) {
 			searchStopped = false;
 			searchStartedLock.notify();
@@ -69,7 +69,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		plies = 0;
 		do {
 			++plies;
-			strategy.notifyPlyStarted();
+			strategy.notifyPlyStarted(result);
 			AnalysisResult<M> search = search(position, position.getCurrentPlayer(), plies);
 			if (searchStopped && result != null) { // merge only when the search is stopped
 				result.mergeWith(search);
@@ -89,6 +89,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			searchComplete = true; // if we reset searchStopped we need to make sure the lock does not wait forever
 			searchStartedLock.notify();
 		}
+		return result;
 	}
 
 	public boolean isSearching() {
@@ -98,7 +99,9 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	public void stopSearch(boolean joinWorkerThreads) {
 		stopWorkers();
 		try {
-			treeSearchThread.join();
+			if (treeSearchThread != null) {
+				treeSearchThread.join();
+			}
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
@@ -125,7 +128,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		return result;
 	}
 
-	public AnalysisResult<M> search(P position, int player, int plies) {
+	private AnalysisResult<M> search(P position, int player, int plies) {
 		BlockingQueue<AnalysisResult<M>> resultQueue = new SynchronousQueue<>();
 
 		treeSearchesToAnalyze.add(new GameTreeSearch<>(null, position, player, plies, strategy, moveResult -> {

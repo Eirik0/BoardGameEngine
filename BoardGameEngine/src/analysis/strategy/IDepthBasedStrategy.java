@@ -1,8 +1,8 @@
-package analysis;
+package analysis.strategy;
 
 import java.util.List;
 
-import analysis.search.MoveWithResult;
+import analysis.AnalysisResult;
 import game.IPosition;
 
 public interface IDepthBasedStrategy<M, P extends IPosition<M, P>> {
@@ -10,15 +10,15 @@ public interface IDepthBasedStrategy<M, P extends IPosition<M, P>> {
 
 	public void stopSearch();
 
-	public double evaluateJoin(P position, int player, MoveWithResult<M> moveWithResult);
-
 	public boolean searchedAllPositions();
 
-	public IDepthBasedStrategy<M, P> createCopy();
-
-	public void notifyPlyStarted();
+	public void notifyPlyStarted(AnalysisResult<M> lastResult);
 
 	public void notifyForked(M parentMove, List<M> unanalyzedMoves);
 
+	public void notifyJoined(P parentPosition, M moves);
+
 	public void notifyPlyComplete(boolean searchStopped);
+
+	public IDepthBasedStrategy<M, P> createCopy();
 }

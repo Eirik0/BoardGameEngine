@@ -10,8 +10,8 @@ import java.util.List;
 import org.junit.Test;
 
 import analysis.AnalysisResult;
-import analysis.MinimaxStrategy;
 import analysis.MoveWithScore;
+import analysis.strategy.MinimaxStrategy;
 import game.lock.TestLockingEvaluator;
 import game.lock.TestLockingNode;
 import game.lock.TestLockingPosition;

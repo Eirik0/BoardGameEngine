@@ -1,4 +1,4 @@
-package analysis;
+package analysis.strategy;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -11,8 +11,10 @@ import java.util.List;
 
 import org.junit.Test;
 
+import analysis.AnalysisResult;
 import analysis.search.GameTreeSearch;
 import analysis.search.MoveWithResult;
+import analysis.strategy.MinimaxStrategy;
 import game.IPosition;
 import game.lock.TestLockingEvaluator;
 import game.lock.TestLockingNode;

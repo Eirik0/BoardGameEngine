@@ -98,16 +98,6 @@ public class GameRunnerTest {
 		}
 
 		@Override
-		public IPlayer[] getAvailablePlayers() {
-			return new IPlayer[] { player };
-		}
-
-		@Override
-		public IPlayer getDefaultPlayer() {
-			return new AddToListTestPlayer();
-		}
-
-		@Override
 		public AddToListPosition newInitialPosition() {
 			numNewPositions++;
 			list.clear();

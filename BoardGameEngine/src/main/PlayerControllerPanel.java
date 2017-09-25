@@ -17,12 +17,13 @@ import game.GameRunner;
 import game.IGame;
 import game.IPlayer;
 import gui.GameGuiManager;
+import gui.GameRegistry;
 import gui.gamestate.MainMenuState;
 
 @SuppressWarnings("serial")
 public class PlayerControllerPanel extends JPanel {
 	private final JLabel gameLabel = BoardGameEngineMain.initComponent(new JLabel());
-	private final List<JComboBox<IPlayer>> playerComboBoxes;
+	private final List<JComboBox<String>> playerComboBoxes;
 	private Runnable backAction;
 
 	public PlayerControllerPanel(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
@@ -30,8 +31,9 @@ public class PlayerControllerPanel extends JPanel {
 		BoardGameEngineMain.initComponent(this);
 		gameLabel.setText(game.getName());
 		int numberOfPlayers = game.getNumberOfPlayers();
-		IPlayer[] avaliablePlayers = game.getAvailablePlayers();
-		IPlayer defaultPlayer = game.getDefaultPlayer();
+		String[] playerNames = GameRegistry.getPlayerNames(game.getName()).toArray(new String[0]);
+		String[] avaliablePlayers = playerNames;
+		String defaultPlayer = playerNames[0];
 		playerComboBoxes = new ArrayList<>();
 		for (int i = 0; i < numberOfPlayers; i++) {
 			playerComboBoxes.add(createPlayerComboBox(avaliablePlayers, defaultPlayer));
@@ -44,8 +46,8 @@ public class PlayerControllerPanel extends JPanel {
 		this.backAction = backAction;
 	}
 
-	private JComboBox<IPlayer> createPlayerComboBox(IPlayer[] availablePlayers, IPlayer defaultPlayer) {
-		JComboBox<IPlayer> jComboBox = BoardGameEngineMain.initComponent(new JComboBox<>(availablePlayers));
+	private JComboBox<String> createPlayerComboBox(String[] availablePlayers, String defaultPlayer) {
+		JComboBox<String> jComboBox = BoardGameEngineMain.initComponent(new JComboBox<>(availablePlayers));
 		jComboBox.setSelectedItem(defaultPlayer);
 		return jComboBox;
 	}
@@ -106,8 +108,9 @@ public class PlayerControllerPanel extends JPanel {
 
 	private void startNewGame(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
 		List<IPlayer> players = new ArrayList<>();
-		for (JComboBox<IPlayer> jComboBox : playerComboBoxes) {
-			players.add(jComboBox.getItemAt(jComboBox.getSelectedIndex()));
+		for (JComboBox<String> jComboBox : playerComboBoxes) {
+			String playerName = jComboBox.getItemAt(jComboBox.getSelectedIndex());
+			players.add(GameRegistry.getPlayer(game.getName(), playerName));
 		}
 		gameRunner.startNewGame(players);
 		gameLabel.setText(game.getName() + "...");

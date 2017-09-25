@@ -6,8 +6,8 @@ import java.util.Collections;
 import org.junit.Test;
 
 import analysis.AnalysisResult;
-import analysis.MinimaxStrategy;
 import analysis.MoveWithScore;
+import analysis.strategy.MinimaxStrategy;
 import game.ultimatetictactoe.UTTTCoordinate;
 import game.ultimatetictactoe.UltimateTicTacToePosition;
 import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;

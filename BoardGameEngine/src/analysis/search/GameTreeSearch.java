@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import analysis.AnalysisResult;
-import analysis.IDepthBasedStrategy;
 import analysis.MoveWithScore;
+import analysis.strategy.IDepthBasedStrategy;
 import game.IPosition;
 
 public class GameTreeSearch<M, P extends IPosition<M, P>> {
@@ -183,7 +183,10 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		boolean isValid = true;
 		boolean searchedAllPositions = partialResult.getMovesWithScore().isEmpty() || partialResult.searchedAllPositions();
 		for (MoveWithResult<M> moveWithResult : movesWithResults) {
-			partialResult.addMoveWithScore(moveWithResult.move, strategy.evaluateJoin(position, player, moveWithResult), moveWithResult.isValid());
+			strategy.notifyJoined(position, moveWithResult.move);
+			// Player and position come from the parent game tree search, so we are looking for the min for the current player
+			double score = player == position.getCurrentPlayer() ? moveWithResult.result.getMin() : moveWithResult.result.getMax();
+			partialResult.addMoveWithScore(moveWithResult.move, score, moveWithResult.isValid());
 			isValid = isValid && moveWithResult.isValid();
 			searchedAllPositions = searchedAllPositions && moveWithResult.result.searchedAllPositions();
 		}
