@@ -85,7 +85,7 @@ public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosit
 		if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, GomokuPosition.BOARD_WIDTH);
 			if (coordinate != null && possibleMoves.contains(coordinate)) {
-				GuiPlayerHelper.highlightCoordinate(g, sizer);
+				GuiPlayerHelper.highlightCoordinate(g, sizer, 0.1);
 			}
 		}
 	}

@@ -21,23 +21,22 @@ public class ForkJoinExmpleGameTreeSearchTest {
 
 	@Test
 	public void testSearch_TwoNodesOneWorkers() {
-		assertSearch(2, 1, 1, 2, 1);
+		assertSearch(2, 2, 1, 1, 2, 1);
 	}
 
 	@Test
 	public void testSearch_TwoNodesTwoWorkers() {
-		assertSearch(2, 1, 2, 2, 2);
+		assertSearch(2, 2, 1, 2, 2, 2);
 	}
 
 	@Test
 	public void testSearch_FourNodesThreeWorkers() {
-		assertSearch(3, 2, 3, 4, 3);
+		assertSearch(3, 3, 2, 3, 9, 3);
 	}
 
-	private void assertSearch(int treeDepth, int searchDepth, int numWorkers, int expectedNodes, int expectedWorkers) {
-		IterativeDeepeningTreeSearcher<ForkJoinExampleNode, ForkJoinExampleTree> treeSearcher =
-				new IterativeDeepeningTreeSearcher<>(new ForkJoinExampleStraregy(), numWorkers);
-		ForkJoinExampleTree position = new ForkJoinExampleTree(treeDepth, 2);
+	private void assertSearch(int treeDepth, int branchingFactor, int searchDepth, int numWorkers, int expectedNodes, int expectedWorkers) {
+		IterativeDeepeningTreeSearcher<ForkJoinExampleNode, ForkJoinExampleTree> treeSearcher = new IterativeDeepeningTreeSearcher<>(new ForkJoinExampleStraregy(), numWorkers);
+		ForkJoinExampleTree position = new ForkJoinExampleTree(treeDepth, branchingFactor);
 		ForkJoinExampleThreadTracker.init(position);
 		treeSearcher.startSearch(position, searchDepth);
 		List<ForkJoinExampleNode> nodesByDepth = ForkJoinExampleThreadTracker.nodesByDepth().get(searchDepth);

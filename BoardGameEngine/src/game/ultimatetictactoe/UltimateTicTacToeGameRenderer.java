@@ -107,7 +107,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 		if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
 			if (coordinate != null && possibleMoves.contains(new UTTTCoordinate(coordinate, position.currentBoard))) {
-				GuiPlayerHelper.highlightCoordinate(g, sizer);
+				GuiPlayerHelper.highlightCoordinate(g, sizer, 0.1);
 			}
 		}
 	}

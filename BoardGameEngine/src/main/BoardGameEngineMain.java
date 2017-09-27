@@ -14,6 +14,8 @@ import javax.swing.SwingUtilities;
 
 import game.GameRunner;
 import game.IGame;
+import game.chess.ChessGame;
+import game.chess.ChessGameRenderer;
 import game.forkjoinexample.ForkJoinExampleGame;
 import game.forkjoinexample.ForkJoinExampleGameRenderer;
 import game.forkjoinexample.ForkJoinExampleStraregy;
@@ -95,6 +97,9 @@ public class BoardGameEngineMain {
 	}
 
 	private static void registerGames() {
+		GameRegistry.registerGame(ChessGame.NAME, ChessGame.class, ChessGameRenderer.class)
+				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN);
+
 		GameRegistry.registerGame(TicTacToeGame.NAME, TicTacToeGame.class, TicTacToeGameRenderer.class)
 				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
 				.registerPositionEvaluator("Computer", new TicTacToePositionEvaluator(), 2, 500);

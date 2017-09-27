@@ -19,7 +19,7 @@ public class GuiPlayerHelper {
 		return null;
 	}
 
-	public static void highlightCoordinate(Graphics g, BoardSizer sizer) {
+	public static void highlightCoordinate(Graphics g, BoardSizer sizer, double paddingFraction) {
 		g.setColor(Color.BLUE);
 		int intersectionX = sizer.getCoordinateX(GameGuiManager.getMouseX());
 		int intersectionY = sizer.getCoordinateY(GameGuiManager.getMouseY());
@@ -27,7 +27,7 @@ public class GuiPlayerHelper {
 		int snapX = sizer.getSquareCornerX(intersectionX);
 		int snapY = sizer.getSquareCornerY(intersectionY);
 
-		double padding = sizer.cellWidth * 0.1;
+		double padding = sizer.cellWidth * paddingFraction;
 		g.drawRect(round(snapX + padding), round(snapY + padding), round(sizer.cellWidth - 2 * padding), round(sizer.cellWidth - 2 * padding));
 	}
 

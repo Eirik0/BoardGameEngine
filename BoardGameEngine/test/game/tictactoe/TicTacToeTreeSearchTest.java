@@ -92,4 +92,21 @@ public class TicTacToeTreeSearchTest {
 		treeSearcher.startSearch(position, 11);
 		assertEquals(10, treeSearcher.getPlies());
 	}
+
+	@Test
+	public void testDefendAgainstLoss() {
+		TicTacToePosition position = new TicTacToePosition();
+		position.makeMove(Coordinate.valueOf(0, 0));
+		position.makeMove(Coordinate.valueOf(1, 1));
+		position.makeMove(Coordinate.valueOf(2, 0));
+		position.makeMove(Coordinate.valueOf(1, 0));
+		position.makeMove(Coordinate.valueOf(1, 2));
+		position.makeMove(Coordinate.valueOf(0, 1));
+		position.makeMove(Coordinate.valueOf(2, 1));
+		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher(2);
+		for (int i = 0; i < 1000; ++i) {
+			AnalysisResult<Coordinate> result = treeSearcher.startSearch(position, 11);
+			assertEquals("search " + String.valueOf(i), 0.0, result.getMax(), 0.00001);
+		}
+	}
 }
