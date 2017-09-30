@@ -84,7 +84,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 	}
 
 	@Override
-	public ForkJoinExampleNode maybeGetUserMove(UserInput input, ForkJoinExampleTree position) {
+	public ForkJoinExampleNode maybeGetUserMove(UserInput input, ForkJoinExampleTree position, List<ForkJoinExampleNode> possibleMoves) {
 		return null; // only the computer plays this game
 	}
 }

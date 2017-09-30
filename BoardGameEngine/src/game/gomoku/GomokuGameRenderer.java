@@ -91,7 +91,7 @@ public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosit
 	}
 
 	@Override
-	public Coordinate maybeGetUserMove(UserInput input, GomokuPosition position) {
+	public Coordinate maybeGetUserMove(UserInput input, GomokuPosition position, List<Coordinate> possibleMoves) {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			return GuiPlayerHelper.maybeGetCoordinate(sizer, GomokuPosition.BOARD_WIDTH);
 		}

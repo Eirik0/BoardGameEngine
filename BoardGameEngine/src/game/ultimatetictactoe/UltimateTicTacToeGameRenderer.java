@@ -113,7 +113,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 	}
 
 	@Override
-	public UTTTCoordinate maybeGetUserMove(UserInput input, UltimateTicTacToePosition position) {
+	public UTTTCoordinate maybeGetUserMove(UserInput input, UltimateTicTacToePosition position, List<UTTTCoordinate> possibleMoves) {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
 			if (coordinate != null) {

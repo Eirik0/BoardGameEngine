@@ -33,7 +33,7 @@ public class GameRunningState<M, P extends IPosition<M, P>> implements GameState
 
 	@Override
 	public void handleUserInput(UserInput input) {
-		M move = gameRenderer.maybeGetUserMove(input, gameRunner.getCurrentPositionCopy());
+		M move = gameRenderer.maybeGetUserMove(input, gameRunner.getCurrentPositionCopy(), gameRunner.getPossibleMovesCopy());
 		if (move != null) {
 			if (gameRunner.getPossibleMovesCopy().contains(move)) {
 				GuiPlayer.HUMAN.setMove(move);

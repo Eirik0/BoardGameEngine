@@ -48,7 +48,7 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
 	}
 
 	@Override
-	public Coordinate maybeGetUserMove(UserInput input, TicTacToePosition position) {
+	public Coordinate maybeGetUserMove(UserInput input, TicTacToePosition position, List<Coordinate> possibleMoves) {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			if (GuiPlayer.HUMAN.isRequestingMove()) {
 				return getCoordinate(3);
