@@ -42,15 +42,15 @@ public class TicTacToeTreeSearchTest {
 		TicTacToePosition position = new TicTacToePosition();
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
 		searchAndMove(treeSearcher, position, 2);
-		assertEquals("[[1, 0, 0], [0, 0, 0], [0, 0, 0]]", position.toString());
+		assertEquals("[X  ],[   ],[   ]", position.toString());
 		searchAndMove(treeSearcher, position, 2);
-		assertEquals("[[1, 2, 0], [0, 0, 0], [0, 0, 0]]", position.toString());
+		assertEquals("[XO ],[   ],[   ]", position.toString());
 		searchAndMove(treeSearcher, position, 2);
-		assertEquals("[[1, 2, 1], [0, 0, 0], [0, 0, 0]]", position.toString());
+		assertEquals("[XOX],[   ],[   ]", position.toString());
 		searchAndMove(treeSearcher, position, 2);
-		assertEquals("[[1, 2, 1], [2, 0, 0], [0, 0, 0]]", position.toString());
+		assertEquals("[XOX],[O  ],[   ]", position.toString());
 		searchAndMove(treeSearcher, position, 2);
-		assertEquals("[[1, 2, 1], [2, 1, 0], [0, 0, 0]]", position.toString());
+		assertEquals("[XOX],[OX ],[   ]", position.toString());
 	}
 
 	private static void searchAndMove(IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher, TicTacToePosition position, int plies) {

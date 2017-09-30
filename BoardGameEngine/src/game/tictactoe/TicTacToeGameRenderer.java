@@ -33,18 +33,23 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
 	public void drawPosition(Graphics2D g, TicTacToePosition position, List<Coordinate> possibleMoves, Coordinate lastMove) {
 		int width = GameGuiManager.getComponentWidth();
 		int height = GameGuiManager.getComponentHeight();
-		for (int y = 0; y < position.board.length; y++) {
-			int[] row = position.board[y];
-			for (int x = 0; x < row.length; x++) {
-				if (row[x] != TwoPlayers.UNPLAYED) {
+		for (int y = 0; y < TicTacToePosition.BOARD_WIDTH; ++y) {
+			for (int x = 0; x < TicTacToePosition.BOARD_WIDTH; ++x) {
+				int playerInt = getPlayer(position.board, x, y);
+				if (playerInt != TwoPlayers.UNPLAYED) {
 					g.setColor(lastMove != null && Coordinate.valueOf(x, y).equals(lastMove) ? Color.RED : BoardGameEngineMain.FOREGROUND_COLOR);
-					String player = row[x] == TwoPlayers.PLAYER_1 ? "X" : "O";
+					String player = playerInt == TwoPlayers.PLAYER_1 ? "X" : "O";
 					int xCoord = round(width * (2 * x + 1) / 6.0);
 					int yCoord = round(height * (2 * y + 1) / 6.0);
 					drawCenteredString(g, player, xCoord, yCoord);
 				}
 			}
 		}
+	}
+
+	private int getPlayer(int board, int x, int y) {
+		int shift = (y * TicTacToePosition.BOARD_WIDTH + x) * 2;
+		return (board >> shift) & TwoPlayers.BOTH_PLAYERS;
 	}
 
 	@Override

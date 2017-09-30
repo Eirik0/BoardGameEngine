@@ -1,11 +1,22 @@
 package game;
 
 public class Coordinate {
+	private static final int BOARD_SHIFT = 5;
+	private static final int MAX_BOARD_WIDTH = 1 << BOARD_SHIFT; // = 2 ^ BOARD_SHIFT
+
+	private static Coordinate[] coordinates = new Coordinate[MAX_BOARD_WIDTH * MAX_BOARD_WIDTH];
+
 	public final int x;
 	public final int y;
 
 	public static Coordinate valueOf(int x, int y) {
-		return CoordinateCache.getCoordinate(x, y);
+		int index = (y << BOARD_SHIFT) + x;
+		Coordinate coordinate = coordinates[index];
+		if (coordinate == null) {
+			coordinate = new Coordinate(x, y);
+			coordinates[index] = coordinate;
+		}
+		return coordinate;
 	}
 
 	Coordinate(int x, int y) {
@@ -33,18 +44,5 @@ public class Coordinate {
 	@Override
 	public String toString() {
 		return "(" + x + ", " + y + ")";
-	}
-
-	static class CoordinateCache {
-		static Coordinate[][] coordinates = new Coordinate[19][19];
-
-		static Coordinate getCoordinate(int x, int y) {
-			Coordinate coordinate = coordinates[x][y];
-			if (coordinate == null) {
-				coordinate = new Coordinate(x, y);
-				coordinates[x][y] = coordinate;
-			}
-			return coordinate;
-		}
 	}
 }
