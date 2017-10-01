@@ -78,14 +78,14 @@ public class TicTacToePositionTest {
 
 	@Test
 	public void testWinsExist() {
-		assertTrue(TicTacToePosition.winsExist(boardToInt(new int[][] { { 1, 1, 1 }, { 0, 0, 0 }, { 0, 0, 0 } }), 1));
-		assertTrue(TicTacToePosition.winsExist(boardToInt(new int[][] { { 0, 0, 0 }, { 1, 1, 1 }, { 0, 0, 0 } }), 1));
-		assertTrue(TicTacToePosition.winsExist(boardToInt(new int[][] { { 0, 0, 0 }, { 0, 0, 0 }, { 1, 1, 1 } }), 1));
-		assertTrue(TicTacToePosition.winsExist(boardToInt(new int[][] { { 1, 0, 0 }, { 1, 0, 0 }, { 1, 0, 0 } }), 1));
-		assertTrue(TicTacToePosition.winsExist(boardToInt(new int[][] { { 0, 1, 0 }, { 0, 1, 0 }, { 0, 1, 0 } }), 1));
-		assertTrue(TicTacToePosition.winsExist(boardToInt(new int[][] { { 0, 0, 1 }, { 0, 0, 1 }, { 0, 0, 1 } }), 1));
-		assertTrue(TicTacToePosition.winsExist(boardToInt(new int[][] { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } }), 1));
-		assertTrue(TicTacToePosition.winsExist(boardToInt(new int[][] { { 0, 0, 1 }, { 0, 1, 0 }, { 1, 0, 0 } }), 1));
+		assertTrue(TicTacToeUtilities.winsExist(boardToInt(new int[][] { { 1, 1, 1 }, { 0, 0, 0 }, { 0, 0, 0 } }), 1));
+		assertTrue(TicTacToeUtilities.winsExist(boardToInt(new int[][] { { 0, 0, 0 }, { 1, 1, 1 }, { 0, 0, 0 } }), 1));
+		assertTrue(TicTacToeUtilities.winsExist(boardToInt(new int[][] { { 0, 0, 0 }, { 0, 0, 0 }, { 1, 1, 1 } }), 1));
+		assertTrue(TicTacToeUtilities.winsExist(boardToInt(new int[][] { { 1, 0, 0 }, { 1, 0, 0 }, { 1, 0, 0 } }), 1));
+		assertTrue(TicTacToeUtilities.winsExist(boardToInt(new int[][] { { 0, 1, 0 }, { 0, 1, 0 }, { 0, 1, 0 } }), 1));
+		assertTrue(TicTacToeUtilities.winsExist(boardToInt(new int[][] { { 0, 0, 1 }, { 0, 0, 1 }, { 0, 0, 1 } }), 1));
+		assertTrue(TicTacToeUtilities.winsExist(boardToInt(new int[][] { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } }), 1));
+		assertTrue(TicTacToeUtilities.winsExist(boardToInt(new int[][] { { 0, 0, 1 }, { 0, 1, 0 }, { 1, 0, 0 } }), 1));
 	}
 
 	private static int boardToInt(int[][] board) {

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,6 +11,7 @@ import org.junit.Test;
 
 import game.Coordinate;
 import game.TwoPlayers;
+import game.tictactoe.TicTacToeUtilities;
 
 public class UltimateTicTacToePositionTest {
 	@Test
@@ -37,18 +37,18 @@ public class UltimateTicTacToePositionTest {
 
 	private static void checkContainsWonBoard(UltimateTicTacToePosition position) {
 		boolean containsWonBoard = false;
-		for (int i = 0; i < position.wonBoards.length; i++) {
-			if (position.wonBoards[i] != TwoPlayers.UNPLAYED) {
+		for (int i = 0; i < UltimateTicTacToePosition.BOARD_WIDTH; ++i) {
+			if ((position.wonBoards & (TwoPlayers.BOTH_PLAYERS << (i << 2))) != TwoPlayers.UNPLAYED) {
 				containsWonBoard = true;
 			}
 		}
-		assertTrue(containsWonBoard);
+		assertTrue(TicTacToeUtilities.boardToString(position.wonBoards), containsWonBoard);
 	}
 
 	private static void checkEqual(UltimateTicTacToePosition expected, UltimateTicTacToePosition actual, int moveNum) {
 		assertEquals("Move " + moveNum, expected.currentPlayer, actual.currentPlayer);
 		assertEquals("Move " + moveNum, expected.currentBoard, actual.currentBoard);
-		assertEquals("Move " + moveNum, Arrays.toString(expected.wonBoards), Arrays.toString(actual.wonBoards));
+		assertEquals("Move " + moveNum, TicTacToeUtilities.boardToString(expected.wonBoards), TicTacToeUtilities.boardToString(actual.wonBoards));
 		assertEquals("Move " + moveNum, expected.toString(), actual.toString());
 	}
 

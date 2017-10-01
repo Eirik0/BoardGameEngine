@@ -70,20 +70,22 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 		Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, round(sizer.cellWidth * 0.33));
 		for (int n = 0; n < UltimateTicTacToePosition.BOARD_WIDTH; ++n) {
 			for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
-				if (position.cells[n][m] != TwoPlayers.UNPLAYED) {
+				int playerInt = (position.boards[n] >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
+				if (playerInt != TwoPlayers.UNPLAYED) {
 					g.setColor(lastMove != null && UltimateTicTacToeUtilities.getBoardXY(n, m).equals(lastMove.coordinate) ? Color.WHITE : Color.BLACK);
 					Coordinate intersection = UltimateTicTacToeUtilities.getBoardNM(m, n);
-					String player = position.cells[n][m] == TwoPlayers.PLAYER_1 ? "X" : "O";
+					String player = playerInt == TwoPlayers.PLAYER_1 ? "X" : "O";
 					drawCenteredString(g, smallFont, player, sizer.getCenterX(intersection.y), sizer.getCenterY(intersection.x));
 				}
 			}
 		}
 		Font largeFont = new Font(Font.SANS_SERIF, Font.PLAIN, round(sizer.cellWidth * 3));
-		for (int i = 0; i < UltimateTicTacToePosition.BOARD_WIDTH; ++i) {
-			if (position.wonBoards[i] != TwoPlayers.UNPLAYED) {
-				g.setColor(lastMove != null && lastMove.currentBoard == i ? Color.WHITE : Color.BLACK);
-				String player = position.wonBoards[i] == TwoPlayers.PLAYER_1 ? "X" : "O";
-				Coordinate intersection = UltimateTicTacToeUtilities.getBoardXY(i, 4); // 4 = the center square of that board
+		for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
+			int wonBoardsInt = (position.wonBoards >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
+			if (wonBoardsInt != TwoPlayers.UNPLAYED) {
+				g.setColor(lastMove != null && lastMove.currentBoard == m ? Color.WHITE : Color.BLACK);
+				String player = wonBoardsInt == TwoPlayers.PLAYER_1 ? "X" : "O";
+				Coordinate intersection = UltimateTicTacToeUtilities.getBoardXY(m, 4); // 4 = the center square of that board
 				drawCenteredString(g, largeFont, player, sizer.getCenterX(intersection.x), sizer.getCenterY(intersection.y));
 			}
 		}

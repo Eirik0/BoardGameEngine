@@ -2,6 +2,7 @@ package game.ultimatetictactoe;
 
 import analysis.IPositionEvaluator;
 import game.TwoPlayers;
+import game.tictactoe.TicTacToeUtilities;
 
 public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<UTTTCoordinate, UltimateTicTacToePosition> {
 	private static final double SCORE_PER_BOARD = 8.0; // The number of three-in-a-rows
@@ -10,9 +11,9 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<UT
 	@Override
 	public double evaluate(UltimateTicTacToePosition position, int player) {
 		int opponent = TwoPlayers.otherPlayer(player);
-		if (UltimateTicTacToeUtilities.winsExist(position.wonBoards, player)) {
+		if (TicTacToeUtilities.winsExist(position.wonBoards, player)) {
 			return Double.POSITIVE_INFINITY;
-		} else if (UltimateTicTacToeUtilities.winsExist(position.wonBoards, opponent)) {
+		} else if (TicTacToeUtilities.winsExist(position.wonBoards, opponent)) {
 			return Double.NEGATIVE_INFINITY;
 		} else {
 			int possibleWins = UltimateTicTacToeUtilities.countPossibleWins(position.wonBoards, opponent);
@@ -43,12 +44,12 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<UT
 		int totalPossibleWins = 0;
 		for (int i = 0; i < UltimateTicTacToePosition.BOARD_WIDTH; ++i) {
 			int countPossibleWins;
-			if (position.wonBoards[i] == otherPlayer) {
+			if (((position.wonBoards >> (i << 1)) & otherPlayer) == otherPlayer) {
 				countPossibleWins = 0;
-			} else if (position.wonBoards[i] == otherPlayer) {
+			} else if (((position.wonBoards >> (i << 1)) & currentPlayer) == currentPlayer) {
 				countPossibleWins = 8;
 			} else {
-				countPossibleWins = UltimateTicTacToeUtilities.countPossibleWins(position.cells[i], otherPlayer);
+				countPossibleWins = UltimateTicTacToeUtilities.countPossibleWins(position.boards[i], otherPlayer);
 			}
 			totalPossibleWins += countPossibleWins;
 			possibleWinsByBoard[i] = countPossibleWins;
@@ -58,10 +59,16 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<UT
 	}
 
 	private int countActualPossibleWins(int[] possibleWinsByBoard, int player, int opponent) {
-		int[] wonBoards = new int[UltimateTicTacToePosition.BOARD_WIDTH];
-		for (int i = 0; i < UltimateTicTacToePosition.BOARD_WIDTH; ++i) {
-			wonBoards[i] = possibleWinsByBoard[i] > 0 ? player : opponent;
-		}
+		int wonBoards0 = (possibleWinsByBoard[0] > 0 ? player : opponent) << 0;
+		int wonBoards1 = (possibleWinsByBoard[1] > 0 ? player : opponent) << 2;
+		int wonBoards2 = (possibleWinsByBoard[2] > 0 ? player : opponent) << 4;
+		int wonBoards3 = (possibleWinsByBoard[3] > 0 ? player : opponent) << 6;
+		int wonBoards4 = (possibleWinsByBoard[4] > 0 ? player : opponent) << 8;
+		int wonBoards5 = (possibleWinsByBoard[5] > 0 ? player : opponent) << 10;
+		int wonBoards6 = (possibleWinsByBoard[6] > 0 ? player : opponent) << 12;
+		int wonBoards7 = (possibleWinsByBoard[7] > 0 ? player : opponent) << 14;
+		int wonBoards8 = (possibleWinsByBoard[8] > 0 ? player : opponent) << 16;
+		int wonBoards = wonBoards0 | wonBoards1 | wonBoards2 | wonBoards3 | wonBoards4 | wonBoards5 | wonBoards6 | wonBoards7 | wonBoards8;
 		return UltimateTicTacToeUtilities.countPossibleWins(wonBoards, opponent);
 	}
 }

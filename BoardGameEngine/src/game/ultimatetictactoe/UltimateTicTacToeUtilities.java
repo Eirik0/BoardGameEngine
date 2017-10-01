@@ -37,54 +37,16 @@ public class UltimateTicTacToeUtilities {
 		return BOARD_NM[y * UltimateTicTacToePosition.BOARD_WIDTH + x];
 	}
 
-	public static boolean winsExist(int[] cells, int player) {
-		// win with middle
-		if (cells[4] == player) {
-			if (cells[0] == player && cells[8] == player) {
-				return true;
-			}
-			if (cells[2] == player && cells[6] == player) {
-				return true;
-			}
-			if (cells[1] == player && cells[7] == player) {
-				return true;
-			}
-			if (cells[3] == player && cells[5] == player) {
-				return true;
-			}
-		}
-		// win with upper left but not middle
-		if (cells[0] == player) {
-			if (cells[1] == player && cells[2] == player) {
-				return true;
-			}
-			if (cells[3] == player && cells[6] == player) {
-				return true;
-			}
-		}
-		// win with bottom right but not middle (or upper left)
-		if (cells[8] == player) {
-			if (cells[2] == player && cells[5] == player) {
-				return true;
-			}
-			if (cells[6] == player && cells[7] == player) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public static int countPossibleWins(int[] board, int otherPlayer) {
-		// in testing, this proved faster than first checking if the center is captured and then doing whatever
-		boolean has0 = board[0] != otherPlayer;
-		boolean has1 = board[1] != otherPlayer;
-		boolean has2 = board[2] != otherPlayer;
-		boolean has3 = board[3] != otherPlayer;
-		boolean has4 = board[4] != otherPlayer;
-		boolean has5 = board[5] != otherPlayer;
-		boolean has6 = board[6] != otherPlayer;
-		boolean has7 = board[7] != otherPlayer;
-		boolean has8 = board[8] != otherPlayer;
+	public static int countPossibleWins(int board, int otherPlayer) {
+		boolean has0 = ((board >> 0) & otherPlayer) != otherPlayer;
+		boolean has1 = ((board >> 2) & otherPlayer) != otherPlayer;
+		boolean has2 = ((board >> 4) & otherPlayer) != otherPlayer;
+		boolean has3 = ((board >> 6) & otherPlayer) != otherPlayer;
+		boolean has4 = ((board >> 8) & otherPlayer) != otherPlayer;
+		boolean has5 = ((board >> 10) & otherPlayer) != otherPlayer;
+		boolean has6 = ((board >> 12) & otherPlayer) != otherPlayer;
+		boolean has7 = ((board >> 14) & otherPlayer) != otherPlayer;
+		boolean has8 = ((board >> 16) & otherPlayer) != otherPlayer;
 		return (has0 && has1 && has2 ? 1 : 0) +
 				(has3 && has4 && has5 ? 1 : 0) +
 				(has6 && has7 && has8 ? 1 : 0) +

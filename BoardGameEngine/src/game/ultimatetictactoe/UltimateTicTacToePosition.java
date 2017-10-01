@@ -4,64 +4,80 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import game.Coordinate;
 import game.IPosition;
 import game.TwoPlayers;
+import game.tictactoe.TicTacToeUtilities;
 
 public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, UltimateTicTacToePosition> {
 	static final int ANY_BOARD = -1;
 
 	static final int BOARD_WIDTH = 9;
 
-	/**
-	 * 9 copies of:<br>
-	 * <br>
-	 * 0 1 2<br>
-	 * 3 4 5<br>
-	 * 6 7 8<br>
-	 */
-	final int[][] cells;
-	final int[] wonBoards;
+	final int[] boards;
+	int wonBoards;
 	int currentBoard;
 	int currentPlayer;
 
 	public UltimateTicTacToePosition() {
-		this(new int[BOARD_WIDTH][BOARD_WIDTH], new int[BOARD_WIDTH], ANY_BOARD, TwoPlayers.PLAYER_1);
+		this(new int[BOARD_WIDTH], 0, ANY_BOARD, TwoPlayers.PLAYER_1);
 	}
 
-	public UltimateTicTacToePosition(int[][] cells, int[] wonBoards, int currentBoard, int currentPlayer) {
+	public UltimateTicTacToePosition(int[] boards, int wonBoards, int currentBoard, int currentPlayer) {
 		this.wonBoards = wonBoards;
-		this.cells = cells;
+		this.boards = boards;
 		this.currentBoard = currentBoard;
 		this.currentPlayer = currentPlayer;
 	}
 
 	@Override
 	public List<UTTTCoordinate> getPossibleMoves() {
-		if (UltimateTicTacToeUtilities.winsExist(wonBoards, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
+		if (TicTacToeUtilities.winsExist(wonBoards, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
 			return Collections.emptyList();
 		}
 		List<UTTTCoordinate> possibleMoves = new ArrayList<>();
 		if (currentBoard == ANY_BOARD) {
 			for (int n = 0; n < BOARD_WIDTH; ++n) {
-				if (wonBoards[n] == TwoPlayers.UNPLAYED) {
-					int[] board = cells[n];
-					for (int m = 0; m < BOARD_WIDTH; ++m) {
-						if (board[m] == TwoPlayers.UNPLAYED) {
-							possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(n, m), currentBoard));
-						}
-					}
+				if ((wonBoards & (TwoPlayers.BOTH_PLAYERS << (n << 1))) == TwoPlayers.UNPLAYED) {
+					addMovesFromBoard(possibleMoves, n);
 				}
 			}
 		} else {
-			for (int m = 0; m < BOARD_WIDTH; ++m) {
-				if (cells[currentBoard][m] == TwoPlayers.UNPLAYED) {
-					possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(currentBoard, m), currentBoard));
-				}
-			}
+			addMovesFromBoard(possibleMoves, currentBoard);
 		}
 		return possibleMoves;
+	}
+
+	private void addMovesFromBoard(List<UTTTCoordinate> possibleMoves, int board) {
+		if ((boards[board] & TicTacToeUtilities.POS_0) == TwoPlayers.UNPLAYED) {
+			possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(board, 0), currentBoard));
+		}
+		if ((boards[board] & TicTacToeUtilities.POS_1) == TwoPlayers.UNPLAYED) {
+			possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(board, 1), currentBoard));
+		}
+		if ((boards[board] & TicTacToeUtilities.POS_2) == TwoPlayers.UNPLAYED) {
+			possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(board, 2), currentBoard));
+		}
+		if ((boards[board] & TicTacToeUtilities.POS_3) == TwoPlayers.UNPLAYED) {
+			possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(board, 3), currentBoard));
+		}
+		if ((boards[board] & TicTacToeUtilities.POS_4) == TwoPlayers.UNPLAYED) {
+			possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(board, 4), currentBoard));
+		}
+		if ((boards[board] & TicTacToeUtilities.POS_5) == TwoPlayers.UNPLAYED) {
+			possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(board, 5), currentBoard));
+		}
+		if ((boards[board] & TicTacToeUtilities.POS_6) == TwoPlayers.UNPLAYED) {
+			possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(board, 6), currentBoard));
+		}
+		if ((boards[board] & TicTacToeUtilities.POS_7) == TwoPlayers.UNPLAYED) {
+			possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(board, 7), currentBoard));
+		}
+		if ((boards[board] & TicTacToeUtilities.POS_8) == TwoPlayers.UNPLAYED) {
+			possibleMoves.add(new UTTTCoordinate(UltimateTicTacToeUtilities.getBoardXY(board, 8), currentBoard));
+		}
 	}
 
 	@Override
@@ -72,22 +88,28 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 	@Override
 	public void makeMove(UTTTCoordinate move) {
 		Coordinate boardNM = UltimateTicTacToeUtilities.getBoardNM(move.coordinate.x, move.coordinate.y);
-		int[] boardInPlay = cells[boardNM.x];
-		boardInPlay[boardNM.y] = currentPlayer;
-		if (UltimateTicTacToeUtilities.winsExist(boardInPlay, currentPlayer)) {
-			wonBoards[boardNM.x] = currentPlayer;
+		int shift = boardNM.y << 1;
+		boards[boardNM.x] |= (currentPlayer << shift);
+		if (TicTacToeUtilities.winsExist(boards[boardNM.x], currentPlayer)) {
+			int winShift = boardNM.x << 1;
+			wonBoards |= (currentPlayer << winShift);
 		}
-		if (wonBoards[boardNM.y] != TwoPlayers.UNPLAYED) {
+
+		// Check if the new board is won
+		if ((wonBoards & (TwoPlayers.BOTH_PLAYERS << shift)) != TwoPlayers.UNPLAYED) {
 			currentBoard = ANY_BOARD;
-		} else {
-			boolean full = true;
-			for (int i = 0; i < BOARD_WIDTH; ++i) {
-				if (cells[boardNM.y][i] == TwoPlayers.UNPLAYED) {
-					full = false;
-					break;
-				}
-			}
-			currentBoard = full ? ANY_BOARD : boardNM.y;
+		} else { // or full
+			int boardToCheck = boards[boardNM.y];
+			boolean notFull = (boardToCheck & TwoPlayers.BOTH_PLAYERS) == TwoPlayers.UNPLAYED ||
+					(boardToCheck & TwoPlayers.BOTH_PLAYERS << 2) == TwoPlayers.UNPLAYED ||
+					(boardToCheck & TwoPlayers.BOTH_PLAYERS << 4) == TwoPlayers.UNPLAYED ||
+					(boardToCheck & TwoPlayers.BOTH_PLAYERS << 6) == TwoPlayers.UNPLAYED ||
+					(boardToCheck & TwoPlayers.BOTH_PLAYERS << 8) == TwoPlayers.UNPLAYED ||
+					(boardToCheck & TwoPlayers.BOTH_PLAYERS << 10) == TwoPlayers.UNPLAYED ||
+					(boardToCheck & TwoPlayers.BOTH_PLAYERS << 12) == TwoPlayers.UNPLAYED ||
+					(boardToCheck & TwoPlayers.BOTH_PLAYERS << 14) == TwoPlayers.UNPLAYED ||
+					(boardToCheck & TwoPlayers.BOTH_PLAYERS << 16) == TwoPlayers.UNPLAYED;
+			currentBoard = notFull ? boardNM.y : ANY_BOARD;
 		}
 
 		currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
@@ -96,26 +118,26 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 	@Override
 	public void unmakeMove(UTTTCoordinate move) {
 		Coordinate boardNM = UltimateTicTacToeUtilities.getBoardNM(move.coordinate.x, move.coordinate.y);
-		int[] boardInPlay = cells[boardNM.x];
-		wonBoards[boardNM.x] = TwoPlayers.UNPLAYED;
-		boardInPlay[boardNM.y] = TwoPlayers.UNPLAYED;
+		int winShift = boardNM.x << 1;
+		int winBoardClear = ~(TwoPlayers.BOTH_PLAYERS << winShift);
+		wonBoards &= winBoardClear;
+		int shift = boardNM.y << 1;
+		int boardClear = ~(TwoPlayers.BOTH_PLAYERS << shift);
+		boards[boardNM.x] &= boardClear;
 		currentBoard = move.currentBoard;
 		currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
 	}
 
 	@Override
 	public UltimateTicTacToePosition createCopy() {
-		int[][] newCells = new int[BOARD_WIDTH][BOARD_WIDTH];
-		for (int i = 0; i < BOARD_WIDTH; ++i) {
-			System.arraycopy(cells[i], 0, newCells[i], 0, BOARD_WIDTH);
-		}
-		int[] newWonBoards = new int[BOARD_WIDTH];
-		System.arraycopy(wonBoards, 0, newWonBoards, 0, BOARD_WIDTH);
-		return new UltimateTicTacToePosition(newCells, newWonBoards, currentBoard, currentPlayer);
+		int[] newCells = new int[BOARD_WIDTH];
+		System.arraycopy(boards, 0, newCells, 0, BOARD_WIDTH);
+		return new UltimateTicTacToePosition(newCells, wonBoards, currentBoard, currentPlayer);
 	}
 
 	@Override
 	public String toString() {
-		return Arrays.deepToString(cells) + "\n" + Arrays.toString(wonBoards) + "\n" + currentPlayer + "\n" + currentBoard;
+		String boardsString = Arrays.stream(boards).mapToObj(TicTacToeUtilities::boardToString).collect(Collectors.joining(",", "[", "]"));
+		return boardsString + "\n" + TicTacToeUtilities.boardToString(wonBoards) + "\n" + currentPlayer + "\n" + currentBoard;
 	}
 }
