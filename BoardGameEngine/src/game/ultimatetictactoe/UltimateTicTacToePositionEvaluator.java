@@ -10,12 +10,16 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<UT
 
 	@Override
 	public double evaluate(UltimateTicTacToePosition position, int player) {
-		int opponent = TwoPlayers.otherPlayer(player);
-		if (TicTacToeUtilities.winsExist(position.wonBoards, player)) {
-			return Double.POSITIVE_INFINITY;
-		} else if (TicTacToeUtilities.winsExist(position.wonBoards, opponent)) {
-			return Double.NEGATIVE_INFINITY;
+		int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
+		boolean winsExist = TicTacToeUtilities.winExists(position.wonBoards, lastPlayer);
+		if (winsExist) {
+			if (player == lastPlayer) {
+				return Double.POSITIVE_INFINITY;
+			} else {
+				return Double.NEGATIVE_INFINITY;
+			}
 		} else {
+			int opponent = TwoPlayers.otherPlayer(player);
 			int possibleWins = UltimateTicTacToeUtilities.countPossibleWins(position.wonBoards, opponent);
 			int possibleLosses = UltimateTicTacToeUtilities.countPossibleWins(position.wonBoards, player);
 			if (possibleWins == 0 && possibleLosses == 0) {
@@ -44,9 +48,10 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<UT
 		int totalPossibleWins = 0;
 		for (int i = 0; i < UltimateTicTacToePosition.BOARD_WIDTH; ++i) {
 			int countPossibleWins;
-			if (((position.wonBoards >> (i << 1)) & otherPlayer) == otherPlayer) {
+			int wonBoardInt = (position.wonBoards >> (i << 1)) & TwoPlayers.BOTH_PLAYERS;
+			if (wonBoardInt == otherPlayer) {
 				countPossibleWins = 0;
-			} else if (((position.wonBoards >> (i << 1)) & currentPlayer) == currentPlayer) {
+			} else if (wonBoardInt == currentPlayer) {
 				countPossibleWins = 8;
 			} else {
 				countPossibleWins = UltimateTicTacToeUtilities.countPossibleWins(position.boards[i], otherPlayer);

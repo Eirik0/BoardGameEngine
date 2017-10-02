@@ -16,7 +16,7 @@ public class TicTacToeUtilities {
 	public static final int POS_7 = TwoPlayers.BOTH_PLAYERS << 14;
 	public static final int POS_8 = TwoPlayers.BOTH_PLAYERS << 16;
 
-	public static boolean winsExist(int board, int player) {
+	public static boolean winExists(int board, int player) {
 		boolean has0 = ((board >> 0) & player) == player;
 		boolean has1 = ((board >> 2) & player) == player;
 		boolean has2 = ((board >> 4) & player) == player;

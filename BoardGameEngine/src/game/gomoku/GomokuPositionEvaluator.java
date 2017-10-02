@@ -9,12 +9,15 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, G
 
 	@Override
 	public double evaluate(GomokuPosition position, int player) {
-		int otherPlayer = TwoPlayers.otherPlayer(player);
-		if (winExist(position.board, player)) {
-			return Double.POSITIVE_INFINITY;
-		} else if (winExist(position.board, otherPlayer)) {
-			return Double.NEGATIVE_INFINITY;
+		int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
+		if (winExists(position.board, lastPlayer)) {
+			if (player == lastPlayer) {
+				return Double.POSITIVE_INFINITY;
+			} else {
+				return Double.NEGATIVE_INFINITY;
+			}
 		}
+		int otherPlayer = TwoPlayers.otherPlayer(player);
 		return score(position.board, player, otherPlayer) - score(position.board, otherPlayer, player);
 	}
 
@@ -92,7 +95,7 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, G
 		return 16 * open[3] + 8 * (closed[3] + open[2]) + 4 * (closed[3] + open[2]) + 2 * (closed[1] + open[0]) + closed[0];
 	}
 
-	static boolean winExist(int[][] board, int player) {
+	static boolean winExists(int[][] board, int player) {
 		for (int y = 0; y < BOARD_WIDTH; ++y) {
 			for (int x = 0; x < BOARD_WIDTH; ++x) {
 				if (board[y][x] == player) {

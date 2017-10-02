@@ -26,7 +26,7 @@ public class GomokuPosition implements IPosition<Coordinate, GomokuPosition> {
 	@Override
 	public List<Coordinate> getPossibleMoves() {
 		int otherPlayer = TwoPlayers.otherPlayer(currentPlayer);
-		if (GomokuPositionEvaluator.winExist(board, otherPlayer)) { // We only need to check the last player who played
+		if (GomokuPositionEvaluator.winExists(board, otherPlayer)) { // We only need to check the last player who played
 			return Collections.emptyList();
 		}
 		List<Coordinate> possibleMoves = new ArrayList<>();

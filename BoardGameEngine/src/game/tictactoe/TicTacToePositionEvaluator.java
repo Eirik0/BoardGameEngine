@@ -7,10 +7,13 @@ import game.TwoPlayers;
 public class TicTacToePositionEvaluator implements IPositionEvaluator<Coordinate, TicTacToePosition> {
 	@Override
 	public double evaluate(TicTacToePosition position, int player) {
-		if (TicTacToeUtilities.winsExist(position.board, player)) {
-			return Double.POSITIVE_INFINITY;
-		} else if (TicTacToeUtilities.winsExist(position.board, TwoPlayers.otherPlayer(player))) {
-			return Double.NEGATIVE_INFINITY;
+		int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
+		if (TicTacToeUtilities.winExists(position.board, lastPlayer)) {
+			if (player == lastPlayer) {
+				return Double.POSITIVE_INFINITY;
+			} else {
+				return Double.NEGATIVE_INFINITY;
+			}
 		} else {
 			return 0;
 		}

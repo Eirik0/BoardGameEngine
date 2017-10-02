@@ -25,7 +25,7 @@ public class TicTacToePosition implements IPosition<Coordinate, TicTacToePositio
 
 	@Override
 	public List<Coordinate> getPossibleMoves() {
-		if (TicTacToeUtilities.winsExist(board, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
+		if (TicTacToeUtilities.winExists(board, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
 			return Collections.emptyList();
 		}
 		List<Coordinate> moves = new ArrayList<>();

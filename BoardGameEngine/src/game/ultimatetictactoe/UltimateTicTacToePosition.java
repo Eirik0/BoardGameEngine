@@ -34,13 +34,13 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 
 	@Override
 	public List<UTTTCoordinate> getPossibleMoves() {
-		if (TicTacToeUtilities.winsExist(wonBoards, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
+		if (TicTacToeUtilities.winExists(wonBoards, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
 			return Collections.emptyList();
 		}
 		List<UTTTCoordinate> possibleMoves = new ArrayList<>();
 		if (currentBoard == ANY_BOARD) {
 			for (int n = 0; n < BOARD_WIDTH; ++n) {
-				if ((wonBoards & (TwoPlayers.BOTH_PLAYERS << (n << 1))) == TwoPlayers.UNPLAYED) {
+				if (((wonBoards >> (n << 1)) & TwoPlayers.BOTH_PLAYERS) == TwoPlayers.UNPLAYED) {
 					addMovesFromBoard(possibleMoves, n);
 				}
 			}
@@ -90,7 +90,7 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 		Coordinate boardNM = UltimateTicTacToeUtilities.getBoardNM(move.coordinate.x, move.coordinate.y);
 		int shift = boardNM.y << 1;
 		boards[boardNM.x] |= (currentPlayer << shift);
-		if (TicTacToeUtilities.winsExist(boards[boardNM.x], currentPlayer)) {
+		if (TicTacToeUtilities.winExists(boards[boardNM.x], currentPlayer)) {
 			int winShift = boardNM.x << 1;
 			wonBoards |= (currentPlayer << winShift);
 		}
