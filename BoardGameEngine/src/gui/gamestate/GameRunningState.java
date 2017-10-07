@@ -13,9 +13,13 @@ public class GameRunningState<M, P extends IPosition<M, P>> implements GameState
 	private final IGameRenderer<M, P> gameRenderer;
 	private final GameImage boardImage = new GameImage();
 
+	@SuppressWarnings("unchecked")
 	public GameRunningState(GameRunner<M, P> gameRunner, IGameRenderer<M, P> gameRenderer) {
 		this.gameRunner = gameRunner;
 		this.gameRenderer = gameRenderer;
+		if (gameRenderer instanceof IPositionObserver<?, ?>) {
+			gameRunner.setPositionObserver((IPositionObserver<M, P>) gameRenderer);
+		}
 		componentResized();
 	}
 

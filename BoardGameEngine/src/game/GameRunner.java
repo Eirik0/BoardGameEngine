@@ -3,12 +3,14 @@ package game;
 import java.util.List;
 
 import analysis.search.ThreadNumber;
+import gui.gamestate.IPositionObserver;
 
 public class GameRunner<M, P extends IPosition<M, P>> {
 	private volatile boolean stopRequested = false;
 	private volatile boolean isRunning = false;
 
 	private Runnable endGameAction;
+	private IPositionObserver<M, P> positionObserver;
 
 	private final IGame<M, P> game;
 	private P position;
@@ -29,6 +31,10 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		this.endGameAction = endGameAction;
 	}
 
+	public void setPositionObserver(IPositionObserver<M, P> positionObserver) {
+		this.positionObserver = positionObserver;
+	}
+
 	public P getCurrentPositionCopy() {
 		return positionCopy;
 	}
@@ -44,6 +50,9 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private void setPositionCopy() {
 		positionCopy = position.createCopy();
 		possibleMovesCopy = positionCopy.getPossibleMoves();
+		if (positionObserver != null) {
+			positionObserver.notifyPositionChanged(positionCopy, possibleMovesCopy);
+		}
 	}
 
 	public synchronized void startNewGame(List<IPlayer> players) {

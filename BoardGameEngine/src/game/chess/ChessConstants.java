@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import game.TwoPlayers;
 
-interface ChessConstants {
+public interface ChessConstants {
 	static final int BOARD_WIDTH = 8;
 
 	static final int PAWN = 1 << 2;
@@ -27,6 +27,12 @@ interface ChessConstants {
 	static final int BLACK_ROOK = TwoPlayers.PLAYER_2 | ROOK;
 	static final int BLACK_QUEEN = TwoPlayers.PLAYER_2 | QUEEN;
 	static final int BLACK_KING = TwoPlayers.PLAYER_2 | KING;
+
+	static final int WHITE_KING_CASTLE = 1 << 0;
+	static final int WHITE_QUEEN_CASTLE = 1 << 1;
+	static final int BLACK_KING_CASTLE = 1 << 2;
+	static final int BLACK_QUEEN_CASTLE = 1 << 3;
+	static final int INITIAL_CASTLE_STATE = WHITE_KING_CASTLE | WHITE_QUEEN_CASTLE | BLACK_QUEEN_CASTLE | BLACK_KING_CASTLE;
 
 	static int[][] newInitialPosition() {
 		return new int[][] {

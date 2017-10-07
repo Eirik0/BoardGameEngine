@@ -4,24 +4,28 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import game.Coordinate;
+import game.chess.move.IChessMove;
 import gui.GameGuiManager;
 import gui.gamestate.BoardSizer;
 import gui.gamestate.GameState.UserInput;
 import gui.gamestate.GuiPlayerHelper;
 import gui.gamestate.IGameRenderer;
+import gui.gamestate.IPositionObserver;
 import main.BoardGameEngineMain;
 
-public class ChessGameRenderer implements IGameRenderer<ChessMove, ChessPosition>, ChessConstants {
+public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPosition>, IPositionObserver<IChessMove, ChessPosition>, ChessConstants {
 	private final ChessPieceImages pieceImages;
 
 	private BoardSizer sizer;
 
+	private Map<Coordinate, Map<Coordinate, List<IChessMove>>> moveMap = new HashMap<>();
 	private Coordinate movingPieceStart;
 
 	public ChessGameRenderer() {
@@ -49,7 +53,13 @@ public class ChessGameRenderer implements IGameRenderer<ChessMove, ChessPosition
 	}
 
 	@Override
-	public void drawPosition(Graphics2D g, ChessPosition position, List<ChessMove> possibleMoves, ChessMove lastMove) {
+	public void notifyPositionChanged(ChessPosition position, List<IChessMove> possibleMoves) {
+		movingPieceStart = null;
+		moveMap = createMoveMap(possibleMoves);
+	}
+
+	@Override
+	public void drawPosition(Graphics2D g, ChessPosition position, List<IChessMove> possibleMoves, IChessMove lastMove) {
 		drawBoard(g, position);
 		drawMouseOn(g, position, possibleMoves);
 	}
@@ -60,7 +70,7 @@ public class ChessGameRenderer implements IGameRenderer<ChessMove, ChessPosition
 				if (movingPieceStart != null && movingPieceStart.x == x && movingPieceStart.y == y) {
 					continue;
 				}
-				int piece = position.cells[y][x];
+				int piece = position.squares[y][x];
 				BufferedImage pieceImage = pieceImages.getPieceImage(piece);
 				if (pieceImage != null) {
 					int x0 = round(sizer.offsetX + sizer.cellWidth * x);
@@ -72,13 +82,12 @@ public class ChessGameRenderer implements IGameRenderer<ChessMove, ChessPosition
 		}
 	}
 
-	private void drawMouseOn(Graphics g, ChessPosition position, List<ChessMove> possibleMoves) {
+	private void drawMouseOn(Graphics g, ChessPosition position, List<IChessMove> possibleMoves) {
 		if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
-			Map<Coordinate, Set<Coordinate>> moveMap = createMoveMap(possibleMoves);
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, BOARD_WIDTH);
 			if (movingPieceStart != null) {
-				Set<Coordinate> possibleTos = moveMap.get(movingPieceStart); // If we are drawing while maybe getting the user move, start can become null
-				BufferedImage pieceImage = pieceImages.getPieceImage(position.cells[movingPieceStart.y][movingPieceStart.x]);
+				Set<Coordinate> possibleTos = moveMap.get(movingPieceStart).keySet(); // If we are drawing while maybe getting the user move, start can become null
+				BufferedImage pieceImage = pieceImages.getPieceImage(position.squares[movingPieceStart.y][movingPieceStart.x]);
 				double width = sizer.cellWidth + 1;
 				int x0 = round(GameGuiManager.getMouseX() - width / 2);
 				int y0 = round(GameGuiManager.getMouseY() - width / 2);
@@ -92,25 +101,27 @@ public class ChessGameRenderer implements IGameRenderer<ChessMove, ChessPosition
 		}
 	}
 
-	private static Map<Coordinate, Set<Coordinate>> createMoveMap(List<ChessMove> possibleMoves) {
-		return possibleMoves.stream().collect(Collectors.groupingBy(move -> move.from, Collectors.mapping(move -> move.to, Collectors.toSet())));
+	private static Map<Coordinate, Map<Coordinate, List<IChessMove>>> createMoveMap(List<IChessMove> possibleMoves) {
+		return possibleMoves.stream().collect(Collectors.groupingBy(move -> move.getFrom(), Collectors.groupingBy(move -> move.getTo())));
 	}
 
 	@Override
-	public ChessMove maybeGetUserMove(UserInput input, ChessPosition position, List<ChessMove> possibleMoves) {
+	public IChessMove maybeGetUserMove(UserInput input, ChessPosition position, List<IChessMove> possibleMoves) {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			if (movingPieceStart != null) {
-				Coordinate from = movingPieceStart;
-				movingPieceStart = null;
 				Coordinate to = GuiPlayerHelper.maybeGetCoordinate(sizer, BOARD_WIDTH);
 				if (to != null) {
-					return new ChessMove(from, to, position);
+					List<IChessMove> moveList = moveMap.get(movingPieceStart).get(to);
+					if (moveList != null) {
+						return moveList.get(0);
+					} // XXX dialog for queening
 				}
+				movingPieceStart = null;
 			}
 		} else if (input == UserInput.LEFT_BUTTON_PRESSED) {
 			Coordinate from = GuiPlayerHelper.maybeGetCoordinate(sizer, BOARD_WIDTH);
-			if (from != null && position.cells[from.y][from.x] != UNPLAYED) {
-				if (createMoveMap(possibleMoves).containsKey(from)) { // XXX consider allowing picking up pieces that can't be moved ?
+			if (from != null && position.squares[from.y][from.x] != UNPLAYED) {
+				if (moveMap.containsKey(from)) { // XXX consider allowing picking up pieces that can't be moved ?
 					movingPieceStart = from;
 				}
 			}

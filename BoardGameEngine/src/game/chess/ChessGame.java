@@ -2,8 +2,9 @@ package game.chess;
 
 import game.IGame;
 import game.TwoPlayers;
+import game.chess.move.IChessMove;
 
-public class ChessGame implements IGame<ChessMove, ChessPosition> {
+public class ChessGame implements IGame<IChessMove, ChessPosition> {
 	public static final String NAME = "Chess";
 
 	@Override
