@@ -14,13 +14,15 @@ public class EnPassantCaptureMove implements IChessMove {
 	public void applyMove(ChessPosition position) {
 		position.squares[basicMove.currentEnPassantSquare.y][basicMove.currentEnPassantSquare.x] = position.squares[basicMove.from.y][basicMove.from.x];
 		position.squares[basicMove.from.y][basicMove.from.x] = UNPLAYED;
+		position.squares[basicMove.to.y][basicMove.to.x] = UNPLAYED;
 		position.enPassantSquare = null;
 	}
 
 	@Override
 	public void unapplyMove(ChessPosition position) {
 		position.squares[basicMove.from.y][basicMove.from.x] = position.squares[basicMove.currentEnPassantSquare.y][basicMove.currentEnPassantSquare.x];
-		position.squares[basicMove.currentEnPassantSquare.y][basicMove.currentEnPassantSquare.x] = basicMove.pieceCaptured;
+		position.squares[basicMove.to.y][basicMove.to.x] = basicMove.pieceCaptured;
+		position.squares[basicMove.currentEnPassantSquare.y][basicMove.currentEnPassantSquare.x] = UNPLAYED;
 		position.enPassantSquare = basicMove.currentEnPassantSquare;
 	}
 

@@ -7,6 +7,7 @@ import game.Coordinate;
 import game.IPosition;
 import game.TwoPlayers;
 import game.chess.move.BasicChessMove;
+import game.chess.move.EnPassantCaptureMove;
 import game.chess.move.EnPassantMove;
 import game.chess.move.IChessMove;
 
@@ -34,6 +35,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 	@Override
 	public List<IChessMove> getPossibleMoves() {
 		int otherPlayer = TwoPlayers.otherPlayer(currentPlayer);
+		int pawnDirection = currentPlayer == TwoPlayers.PLAYER_1 ? 1 : -1;
 		List<IChessMove> possibleMoves = new ArrayList<>();
 		for (int y = 0; y < BOARD_WIDTH; ++y) {
 			for (int x = 0; x < BOARD_WIDTH; ++x) {
@@ -42,7 +44,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 					Coordinate from = Coordinate.valueOf(x, y);
 					// XXX pins
 					if ((piece & PAWN) == PAWN) {
-						addPawnMoves(possibleMoves, from, x, y, otherPlayer);
+						addPawnMoves(possibleMoves, from, x, y, otherPlayer, pawnDirection);
 					} else if ((piece & KNIGHT) == KNIGHT) {
 						addKnightMoves(possibleMoves, from, x, y);
 					} else if ((piece & BISHOP) == BISHOP) {
@@ -58,11 +60,23 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 				}
 			}
 		}
+		// En passant capture
+		if (enPassantSquare != null) {
+			int playerPawn = currentPlayer & PAWN;
+			if (enPassantSquare.x < BOARD_WIDTH - 1 && (squares[enPassantSquare.y - pawnDirection][enPassantSquare.x + 1] & playerPawn) == playerPawn) {
+				Coordinate from = Coordinate.valueOf(enPassantSquare.x + 1, enPassantSquare.y - pawnDirection);
+				Coordinate capturedPawnSquare = Coordinate.valueOf(enPassantSquare.x, enPassantSquare.y - pawnDirection);
+				possibleMoves.add(new EnPassantCaptureMove(new BasicChessMove(from, capturedPawnSquare, squares[enPassantSquare.y - pawnDirection][enPassantSquare.x], enPassantSquare)));
+			}
+			if (enPassantSquare.x > 0 && (squares[enPassantSquare.y - pawnDirection][enPassantSquare.x - 1] & playerPawn) == playerPawn) {
+				Coordinate from = Coordinate.valueOf(enPassantSquare.x - 1, enPassantSquare.y - pawnDirection);
+				possibleMoves.add(new EnPassantCaptureMove(new BasicChessMove(from, enPassantSquare, squares[enPassantSquare.y - pawnDirection][enPassantSquare.x], enPassantSquare)));
+			}
+		}
 		return possibleMoves;
 	}
 
-	private void addPawnMoves(List<IChessMove> possibleMoves, Coordinate from, int x, int y, int otherPlayer) {
-		int direction = currentPlayer == TwoPlayers.PLAYER_1 ? 1 : -1;
+	private void addPawnMoves(List<IChessMove> possibleMoves, Coordinate from, int x, int y, int otherPlayer, int direction) {
 		int startingPawnRank = currentPlayer == TwoPlayers.PLAYER_1 ? 1 : 6;
 		if (squares[y + direction][x] == UNPLAYED) { // up 1
 			possibleMoves.add(new BasicChessMove(from, Coordinate.valueOf(x, y + direction), UNPLAYED, enPassantSquare));
@@ -77,7 +91,6 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		if (x > 0 && (squares[y + direction][x - 1] & otherPlayer) == otherPlayer) { // capture left
 			possibleMoves.add(new BasicChessMove(from, Coordinate.valueOf(x - 1, y + direction), squares[y + direction][x - 1], enPassantSquare));
 		}
-		// XXX en passant capture
 		// XXX queening
 	}
 
