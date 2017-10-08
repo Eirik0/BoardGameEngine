@@ -7,6 +7,11 @@ import game.TwoPlayers;
 public interface ChessConstants {
 	static final int BOARD_WIDTH = 8;
 
+	static int RANK_1 = 0;
+	static int RANK_2 = 1;
+	static int RANK_7 = 6;
+	static int RANK_8 = 7;
+
 	static final int PAWN = 1 << 2;
 	static final int KNIGHT = 2 << 2;
 	static final int BISHOP = 4 << 2;
