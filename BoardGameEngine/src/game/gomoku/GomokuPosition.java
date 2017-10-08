@@ -61,7 +61,7 @@ public class GomokuPosition implements IPosition<Coordinate, GomokuPosition> {
 	@Override
 	public GomokuPosition createCopy() {
 		int[][] boardCopy = new int[BOARD_WIDTH][BOARD_WIDTH];
-		for (int y = 0; y < board.length; y++) {
+		for (int y = 0; y < BOARD_WIDTH; y++) {
 			System.arraycopy(board[y], 0, boardCopy[y], 0, BOARD_WIDTH);
 		}
 		return new GomokuPosition(boardCopy, currentPlayer);

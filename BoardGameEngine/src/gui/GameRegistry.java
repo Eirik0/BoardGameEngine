@@ -75,8 +75,8 @@ public class GameRegistry {
 		}
 
 		public <M, P extends IPosition<M, P>> GameRegistryItem registerPositionEvaluator(String playerName, IPositionEvaluator<M, P> positionEvaluator, int numWorkers, long msPerMove) {
-			playerMap.put(playerName + "_MM", () -> new ComputerPlayer(new MinimaxStrategy<M, P>(positionEvaluator), numWorkers, playerName + "_MM", msPerMove));
 			playerMap.put(playerName + "_AB", () -> new ComputerPlayer(new AlphaBetaStrategy<M, P>(positionEvaluator), numWorkers, playerName + "_AB", msPerMove));
+			playerMap.put(playerName + "_MM", () -> new ComputerPlayer(new MinimaxStrategy<M, P>(positionEvaluator), numWorkers, playerName + "_MM", msPerMove));
 			return this;
 		}
 	}

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import game.Coordinate;
+import gui.DrawingMethods;
 import gui.GameGuiManager;
 import gui.GuiPlayer;
 
@@ -32,6 +33,6 @@ public class GuiPlayerHelper {
 	}
 
 	private static int round(double d) {
-		return (int) Math.round(d);
+		return DrawingMethods.roundS(d);
 	}
 }

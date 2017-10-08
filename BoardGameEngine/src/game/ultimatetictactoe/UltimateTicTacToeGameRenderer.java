@@ -8,6 +8,7 @@ import java.util.List;
 
 import game.Coordinate;
 import game.TwoPlayers;
+import gui.DrawingMethods;
 import gui.GameGuiManager;
 import gui.gamestate.BoardSizer;
 import gui.gamestate.GameState.UserInput;
@@ -44,19 +45,19 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 		}
 	}
 
-	private void drawBoard(Graphics g, double x0, double y0, double width, double padding, int lineThickness) {
+	public static void drawBoard(Graphics g, double x0, double y0, double width, double padding, int lineThickness) {
 		drawThickVLike(g, x0 + width / 3, y0 + padding, y0 + width - padding, lineThickness);
 		drawThickVLike(g, x0 + 2 * width / 3, y0 + padding, y0 + width - padding, lineThickness);
 		drawThickHLike(g, y0 + width / 3, x0 + padding, x0 + width - padding, lineThickness);
 		drawThickHLike(g, y0 + 2 * width / 3, x0 + padding, x0 + width - padding, lineThickness);
 	}
 
-	private void drawThickHLike(Graphics g, double y, double x0, double x1, double thickness) {
-		g.fillRect(round(x0), round(y - thickness / 2), round(x1 - x0), round(thickness));
+	private static void drawThickHLike(Graphics g, double y, double x0, double x1, double thickness) {
+		g.fillRect(DrawingMethods.roundS(x0), DrawingMethods.roundS(y - thickness / 2), DrawingMethods.roundS(x1 - x0), DrawingMethods.roundS(thickness));
 	}
 
-	private void drawThickVLike(Graphics g, double x, double y0, double y1, double thickness) {
-		g.fillRect(round(x - thickness / 2), round(y0), round(thickness), round(y1 - y0));
+	private static void drawThickVLike(Graphics g, double x, double y0, double y1, double thickness) {
+		g.fillRect(DrawingMethods.roundS(x - thickness / 2), DrawingMethods.roundS(y0), DrawingMethods.roundS(thickness), DrawingMethods.roundS(y1 - y0));
 	}
 
 	@Override
@@ -72,10 +73,10 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 			for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
 				int playerInt = (position.boards[n] >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
 				if (playerInt != TwoPlayers.UNPLAYED) {
-					g.setColor(lastMove != null && UltimateTicTacToeUtilities.getBoardXY(n, m).equals(lastMove.coordinate) ? Color.WHITE : Color.BLACK);
-					Coordinate intersection = UltimateTicTacToeUtilities.getBoardNM(m, n);
+					Coordinate boardXY = UltimateTicTacToeUtilities.getBoardXY(n, m);
+					g.setColor(lastMove != null && boardXY.equals(lastMove.coordinate) ? Color.WHITE : Color.BLACK);
 					String player = playerInt == TwoPlayers.PLAYER_1 ? "X" : "O";
-					drawCenteredString(g, smallFont, player, sizer.getCenterX(intersection.y), sizer.getCenterY(intersection.x));
+					drawCenteredString(g, smallFont, player, sizer.getCenterX(boardXY.x), sizer.getCenterY(boardXY.y));
 				}
 			}
 		}

@@ -8,8 +8,13 @@ import java.awt.Graphics2D;
 import main.BoardGameEngineMain;
 
 public interface DrawingMethods {
-	public default int round(Double d) {
+	public default int round(double d) {
 		return (int) Math.round(d);
+	}
+
+	public default void drawRect(Graphics2D g, double x, double y, double width, double height, Color color) {
+		g.setColor(color);
+		g.drawRect(round(x), round(y), round(width), round(height));
 	}
 
 	public default void fillRect(Graphics2D g, double x, double y, double width, double height, Color color) {
@@ -37,5 +42,9 @@ public interface DrawingMethods {
 	public default void fillCircle(Graphics2D g, double x, double y, double radius) {
 		double height = 2 * radius;
 		g.fillOval(round(x - radius), round(y - radius), round(height), round(height));
+	}
+
+	public static int roundS(double d) {
+		return (int) Math.round(d);
 	}
 }

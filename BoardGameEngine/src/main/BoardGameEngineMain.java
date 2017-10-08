@@ -22,6 +22,9 @@ import game.forkjoinexample.ForkJoinExampleStraregy;
 import game.gomoku.GomokuGame;
 import game.gomoku.GomokuGameRenderer;
 import game.gomoku.GomokuPositionEvaluator;
+import game.sudoku.SudokuGame;
+import game.sudoku.SudokuGameRenderer;
+import game.sudoku.SudokuPositionEvaluator;
 import game.tictactoe.TicTacToeGame;
 import game.tictactoe.TicTacToeGameRenderer;
 import game.tictactoe.TicTacToePositionEvaluator;
@@ -112,6 +115,9 @@ public class BoardGameEngineMain {
 		GameRegistry.registerGame(GomokuGame.NAME, GomokuGame.class, GomokuGameRenderer.class)
 				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
 				.registerPositionEvaluator("Computer", new GomokuPositionEvaluator(), 4, 5000);
+
+		GameRegistry.registerGame(SudokuGame.NAME, SudokuGame.class, SudokuGameRenderer.class)
+				.registerPositionEvaluator("Computer", new SudokuPositionEvaluator(), 4, 8000);
 
 		GameRegistry.registerGame(ForkJoinExampleGame.NAME, ForkJoinExampleGame.class, ForkJoinExampleGameRenderer.class)
 				.registerStrategy("1 Worker", new ForkJoinExampleStraregy(), 1, Long.MAX_VALUE)
