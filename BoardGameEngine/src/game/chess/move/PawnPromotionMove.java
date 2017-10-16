@@ -54,4 +54,9 @@ public class PawnPromotionMove implements IChessMove {
 		PawnPromotionMove other = (PawnPromotionMove) obj;
 		return basicMove.equals(other.basicMove) && promotion == other.promotion;
 	}
+
+	@Override
+	public String toString() {
+		return basicMove.toString();
+	}
 }

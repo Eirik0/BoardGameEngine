@@ -48,4 +48,9 @@ public class EnPassantMove implements IChessMove {
 		EnPassantMove other = (EnPassantMove) obj;
 		return basicMove.equals(other.basicMove);
 	}
+
+	@Override
+	public String toString() {
+		return basicMove.toString();
+	}
 }

@@ -3,26 +3,38 @@ package game.chess.move;
 import game.Coordinate;
 import game.chess.ChessPosition;
 
-public class CastleBreakingMove implements IChessMove {
+public class KingMove implements IChessMove {
 	private final BasicChessMove basicMove;
-	private final int castlesBroken;
+	private final int currentCastleState;;
+	private final boolean white;
 
-	public CastleBreakingMove(BasicChessMove basicMove, int castlesBroken) {
+	public KingMove(BasicChessMove basicMove, int currentCastleState, boolean white) {
 		this.basicMove = basicMove;
-		this.castlesBroken = castlesBroken;
+		this.currentCastleState = currentCastleState;
+		this.white = white;
 	}
 
 	@Override
 	public void applyMove(ChessPosition position) {
 		basicMove.applyMove(position);
-		int castlesBrokenReverse = (castlesBroken ^ INITIAL_CASTLE_STATE) & INITIAL_CASTLE_STATE;
-		position.castleState &= castlesBrokenReverse;
+		if (white) {
+			position.castleState &= (BLACK_KING_CASTLE | BLACK_QUEEN_CASTLE);
+			position.whiteKingSquare = basicMove.to;
+		} else {
+			position.castleState &= (WHITE_KING_CASTLE | WHITE_QUEEN_CASTLE);
+			position.blackKingSquare = basicMove.to;
+		}
 	}
 
 	@Override
 	public void unapplyMove(ChessPosition position) {
 		basicMove.applyMove(position);
-		position.castleState = position.castleState | castlesBroken;
+		if (white) {
+			position.whiteKingSquare = basicMove.from;
+		} else {
+			position.blackKingSquare = basicMove.from;
+		}
+		position.castleState = currentCastleState;
 	}
 
 	@Override
@@ -47,7 +59,7 @@ public class CastleBreakingMove implements IChessMove {
 		} else if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		CastleBreakingMove other = (CastleBreakingMove) obj;
+		KingMove other = (KingMove) obj;
 		return basicMove.equals(other.basicMove);
 	}
 

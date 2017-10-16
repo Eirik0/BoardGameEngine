@@ -4,8 +4,8 @@ import game.Coordinate;
 import game.chess.ChessPosition;
 
 public class BasicChessMove implements IChessMove {
-	final Coordinate from;
-	final Coordinate to;
+	public final Coordinate from;
+	public final Coordinate to;
 	final int pieceCaptured;
 	final Coordinate currentEnPassantSquare;
 
@@ -55,5 +55,37 @@ public class BasicChessMove implements IChessMove {
 		}
 		BasicChessMove other = (BasicChessMove) obj;
 		return from.equals(other.from) && to.equals(other.to);
+	}
+
+	@Override
+	public String toString() {
+		return algebraicCoordinate(from) + (pieceCaptured == UNPLAYED ? "-" : "x") + algebraicCoordinate(to);
+	}
+
+	private String algebraicCoordinate(Coordinate coordinate) {
+		return getFile(coordinate.x) + (coordinate.y + 1);
+	}
+
+	private String getFile(int x) {
+		switch (x) {
+		case H_FILE:
+			return "h";
+		case G_FILE:
+			return "g";
+		case F_FILE:
+			return "f";
+		case E_FILE:
+			return "e";
+		case D_FILE:
+			return "d";
+		case C_FILE:
+			return "c";
+		case B_FILE:
+			return "b";
+		case A_FILE:
+			return "a";
+		default:
+			throw new UnsupportedOperationException("Unknown file " + x);
+		}
 	}
 }

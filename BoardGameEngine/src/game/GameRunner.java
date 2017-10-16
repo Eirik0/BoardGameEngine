@@ -67,14 +67,14 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		position = game.newInitialPosition();
 		lastMove = null;
 		setPositionCopy();
-		if (position.getPossibleMoves().isEmpty()) {
+		if (possibleMovesCopy.isEmpty()) {
 			notifyGameStarted();
 		}
 
 		new Thread(() -> {
 			try {
 				int playerNum = 0;
-				while (!stopRequested && position.getPossibleMoves().size() > 0) {
+				while (!stopRequested && possibleMovesCopy.size() > 0) {
 					currentPlayer = players.get(playerNum);
 					if (!isRunning) {
 						notifyGameStarted();

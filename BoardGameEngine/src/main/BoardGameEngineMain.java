@@ -136,7 +136,7 @@ public class BoardGameEngineMain {
 
 	private static GamePanel createGamePanel(GameImage gameImage) {
 		GamePanel gamePanel = new GamePanel(gameImage);
-		gamePanel.setPreferredSize(new Dimension(DEFAULT_HEIGHT, DEFAULT_HEIGHT));
+		gamePanel.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
 		GameMouseAdapter mouseAdapter = new GameMouseAdapter();
 

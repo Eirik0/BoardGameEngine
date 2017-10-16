@@ -51,4 +51,9 @@ public class EnPassantCaptureMove implements IChessMove {
 		EnPassantCaptureMove other = (EnPassantCaptureMove) obj;
 		return basicMove.equals(other.basicMove);
 	}
+
+	@Override
+	public String toString() {
+		return basicMove.toString();
+	}
 }

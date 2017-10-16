@@ -8,19 +8,19 @@ public class CastleMove implements IChessMove {
 	private final Coordinate kingCoordinate;
 	private final Coordinate rookCoordinate;
 	private final int castle;
-	final int previousCastleState;
+	private final int currentCastleState;
 
-	public CastleMove(BasicChessMove basicMove, int castle, int previousCastleState) {
+	public CastleMove(BasicChessMove basicMove, int castle, int currentCastleState) {
 		this.basicMove = basicMove;
-		this.previousCastleState = castle;
-		this.castle = previousCastleState;
+		this.currentCastleState = currentCastleState;
+		this.castle = castle;
 		int rank = basicMove.from.y;
 		if ((castle & (WHITE_KING_CASTLE | BLACK_KING_CASTLE)) != 0) {
-			kingCoordinate = Coordinate.valueOf(basicMove.from.x + 2, rank);
-			rookCoordinate = Coordinate.valueOf(kingCoordinate.x - 1, rank);
-		} else {
 			kingCoordinate = Coordinate.valueOf(basicMove.from.x - 2, rank);
 			rookCoordinate = Coordinate.valueOf(kingCoordinate.x + 1, rank);
+		} else {
+			kingCoordinate = Coordinate.valueOf(basicMove.from.x + 2, rank);
+			rookCoordinate = Coordinate.valueOf(kingCoordinate.x - 1, rank);
 		}
 	}
 
@@ -48,7 +48,7 @@ public class CastleMove implements IChessMove {
 		position.squares[rookCoordinate.y][rookCoordinate.x] = UNPLAYED;
 		position.squares[basicMove.from.y][basicMove.from.x] = king;
 		position.squares[basicMove.to.y][basicMove.to.x] = rook;
-		position.castleState = previousCastleState;
+		position.castleState = currentCastleState;
 		position.enPassantSquare = basicMove.currentEnPassantSquare;
 	}
 
@@ -76,5 +76,10 @@ public class CastleMove implements IChessMove {
 		}
 		CastleMove other = (CastleMove) obj;
 		return basicMove.equals(other.basicMove);
+	}
+
+	@Override
+	public String toString() {
+		return ((castle & (BLACK_KING_CASTLE | WHITE_KING_CASTLE)) != 0) ? "O-O" : "O-O-O";
 	}
 }
