@@ -23,19 +23,24 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 	public Coordinate enPassantSquare;
 	public Coordinate whiteKingSquare;
 	public Coordinate blackKingSquare;
+
+	public int halfMoveClock;
+	public int plyCount;
 	// XXX 50 move counter
 	// XXX 3 fold repetition
 	// XXX check
 
 	public ChessPosition() {
-		this(ChessConstants.newInitialPosition(), TwoPlayers.PLAYER_1, INITIAL_CASTLE_STATE, null, E1, E8);
+		this(ChessConstants.newInitialPosition(), TwoPlayers.PLAYER_1, INITIAL_CASTLE_STATE, null, E1, E8, 0, 0);
 	}
 
-	public ChessPosition(int[][] squares, int currentPlayer, int castleState, Coordinate enPassantSquare, Coordinate whiteKingSquare, Coordinate blackKingSquare) {
+	public ChessPosition(int[][] squares, int currentPlayer, int castleState, Coordinate enPassantSquare, Coordinate whiteKingSquare, Coordinate blackKingSquare, int halfMoveClock, int plyCount) {
 		this.squares = squares;
 		this.currentPlayer = currentPlayer;
 		this.castleState = castleState;
 		this.enPassantSquare = enPassantSquare;
+		this.halfMoveClock = halfMoveClock;
+		this.plyCount = plyCount;
 	}
 
 	@Override
@@ -420,12 +425,14 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 	public void makeMove(IChessMove move) {
 		move.applyMove(this);
 		currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
+		++plyCount;
 	}
 
 	@Override
 	public void unmakeMove(IChessMove move) {
 		move.unapplyMove(this);
 		currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
+		--plyCount;
 	}
 
 	@Override
@@ -434,6 +441,6 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		for (int y = 0; y < squares.length; ++y) {
 			System.arraycopy(squares[y], 0, squaresCopy[y], 0, BOARD_WIDTH);
 		}
-		return new ChessPosition(squaresCopy, currentPlayer, castleState, enPassantSquare, whiteKingSquare, blackKingSquare);
+		return new ChessPosition(squaresCopy, currentPlayer, castleState, enPassantSquare, whiteKingSquare, blackKingSquare, halfMoveClock, plyCount);
 	}
 }

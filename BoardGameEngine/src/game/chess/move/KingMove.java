@@ -5,7 +5,7 @@ import game.chess.ChessPosition;
 
 public class KingMove implements IChessMove {
 	private final BasicChessMove basicMove;
-	private final int currentCastleState;;
+	private final int currentCastleState;
 	private final boolean white;
 
 	public KingMove(BasicChessMove basicMove, int currentCastleState, boolean white) {

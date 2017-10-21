@@ -2,6 +2,7 @@ package game.chess.move;
 
 import game.Coordinate;
 import game.chess.ChessPosition;
+import game.chess.fen.ForsythEdwardsNotation;
 
 public class BasicChessMove implements IChessMove {
 	public final Coordinate from;
@@ -59,33 +60,7 @@ public class BasicChessMove implements IChessMove {
 
 	@Override
 	public String toString() {
-		return algebraicCoordinate(from) + (pieceCaptured == UNPLAYED ? "-" : "x") + algebraicCoordinate(to);
+		return ForsythEdwardsNotation.algebraicCoordinate(from) + (pieceCaptured == UNPLAYED ? "-" : "x") + ForsythEdwardsNotation.algebraicCoordinate(to);
 	}
 
-	private String algebraicCoordinate(Coordinate coordinate) {
-		return getFile(coordinate.x) + (coordinate.y + 1);
-	}
-
-	private String getFile(int x) {
-		switch (x) {
-		case H_FILE:
-			return "h";
-		case G_FILE:
-			return "g";
-		case F_FILE:
-			return "f";
-		case E_FILE:
-			return "e";
-		case D_FILE:
-			return "d";
-		case C_FILE:
-			return "c";
-		case B_FILE:
-			return "b";
-		case A_FILE:
-			return "a";
-		default:
-			throw new UnsupportedOperationException("Unknown file " + x);
-		}
-	}
 }
