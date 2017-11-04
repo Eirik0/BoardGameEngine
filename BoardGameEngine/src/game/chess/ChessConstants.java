@@ -8,26 +8,26 @@ import game.TwoPlayers;
 public interface ChessConstants {
 	static final int BOARD_WIDTH = 8;
 
-	static int RANK_1 = 0;
-	static int RANK_2 = 1;
-	static int RANK_7 = 6;
-	static int RANK_8 = 7;
+	static final int RANK_1 = 0;
+	static final int RANK_2 = 1;
+	static final int RANK_7 = 6;
+	static final int RANK_8 = 7;
 
-	static int A_FILE = 7;
-	static int B_FILE = 6;
-	static int C_FILE = 5;
-	static int D_FILE = 4;
-	static int E_FILE = 3;
-	static int F_FILE = 2;
-	static int G_FILE = 1;
-	static int H_FILE = 0;
+	static final int A_FILE = 7;
+	static final int B_FILE = 6;
+	static final int C_FILE = 5;
+	static final int D_FILE = 4;
+	static final int E_FILE = 3;
+	static final int F_FILE = 2;
+	static final int G_FILE = 1;
+	static final int H_FILE = 0;
 
-	static Coordinate A1 = Coordinate.valueOf(A_FILE, RANK_1);
-	static Coordinate A8 = Coordinate.valueOf(A_FILE, RANK_8);
-	static Coordinate E1 = Coordinate.valueOf(E_FILE, RANK_1);
-	static Coordinate E8 = Coordinate.valueOf(E_FILE, RANK_8);
-	static Coordinate H1 = Coordinate.valueOf(H_FILE, RANK_1);
-	static Coordinate H8 = Coordinate.valueOf(H_FILE, RANK_8);
+	static final Coordinate A1 = Coordinate.valueOf(A_FILE, RANK_1);
+	static final Coordinate A8 = Coordinate.valueOf(A_FILE, RANK_8);
+	static final Coordinate E1 = Coordinate.valueOf(E_FILE, RANK_1);
+	static final Coordinate E8 = Coordinate.valueOf(E_FILE, RANK_8);
+	static final Coordinate H1 = Coordinate.valueOf(H_FILE, RANK_1);
+	static final Coordinate H8 = Coordinate.valueOf(H_FILE, RANK_8);
 
 	static final int PAWN = 1 << 2;
 	static final int KNIGHT = 2 << 2;

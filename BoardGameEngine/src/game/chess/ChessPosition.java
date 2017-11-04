@@ -24,7 +24,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 	public Coordinate whiteKingSquare;
 	public Coordinate blackKingSquare;
 
-	public int halfMoveClock;
+	public int halfMoveClock; // The number of half moves since the last capture or pawn advance
 	public int plyCount;
 	// XXX 50 move counter
 	// XXX 3 fold repetition
@@ -252,35 +252,35 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 
 	private void addKingMoves(List<IChessMove> possibleMoves, Coordinate from, int x, int y, int otherPlayer, boolean white) {
 		// clockwise starting upper left
-		if (x > 0 && y > 0 && (squares[y - 1][x - 1] & currentPlayer) != currentPlayer && !isSquareAttacked(x - 1, y - 1, otherPlayer, white)) {
+		if (x > 0 && y > 0 && (squares[y - 1][x - 1] & currentPlayer) != currentPlayer && !ChessFunctions.isSquareAttacked(this, x - 1, y - 1, otherPlayer, white)) {
 			BasicChessMove basicMove = new BasicChessMove(from, Coordinate.valueOf(x - 1, y - 1), squares[y - 1][x - 1], enPassantSquare);
 			possibleMoves.add(new KingMove(basicMove, castleState, white));
 		}
-		if (y > 0 && (squares[y - 1][x] & currentPlayer) != currentPlayer && !isSquareAttacked(x, y - 1, otherPlayer, white)) {
+		if (y > 0 && (squares[y - 1][x] & currentPlayer) != currentPlayer && !ChessFunctions.isSquareAttacked(this, x, y - 1, otherPlayer, white)) {
 			BasicChessMove basicMove = new BasicChessMove(from, Coordinate.valueOf(x, y - 1), squares[y - 1][x], enPassantSquare);
 			possibleMoves.add(new KingMove(basicMove, castleState, white));
 		}
-		if (x < BOARD_WIDTH - 1 && y > 0 && (squares[y - 1][x + 1] & currentPlayer) != currentPlayer && !isSquareAttacked(x + 1, y - 1, otherPlayer, white)) {
+		if (x < BOARD_WIDTH - 1 && y > 0 && (squares[y - 1][x + 1] & currentPlayer) != currentPlayer && !ChessFunctions.isSquareAttacked(this, x + 1, y - 1, otherPlayer, white)) {
 			BasicChessMove basicMove = new BasicChessMove(from, Coordinate.valueOf(x + 1, y - 1), squares[y - 1][x + 1], enPassantSquare);
 			possibleMoves.add(new KingMove(basicMove, castleState, white));
 		}
-		if (x < BOARD_WIDTH - 1 && (squares[y][x + 1] & currentPlayer) != currentPlayer && !isSquareAttacked(x + 1, y, otherPlayer, white)) {
+		if (x < BOARD_WIDTH - 1 && (squares[y][x + 1] & currentPlayer) != currentPlayer && !ChessFunctions.isSquareAttacked(this, x + 1, y, otherPlayer, white)) {
 			BasicChessMove basicMove = new BasicChessMove(from, Coordinate.valueOf(x + 1, y), squares[y][x + 1], enPassantSquare);
 			possibleMoves.add(new KingMove(basicMove, castleState, white));
 		}
-		if (x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 1 && (squares[y + 1][x + 1] & currentPlayer) != currentPlayer && !isSquareAttacked(x + 1, y + 1, otherPlayer, white)) {
+		if (x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 1 && (squares[y + 1][x + 1] & currentPlayer) != currentPlayer && !ChessFunctions.isSquareAttacked(this, x + 1, y + 1, otherPlayer, white)) {
 			BasicChessMove basicMove = new BasicChessMove(from, Coordinate.valueOf(x + 1, y + 1), squares[y + 1][x + 1], enPassantSquare);
 			possibleMoves.add(new KingMove(basicMove, castleState, white));
 		}
-		if (y < BOARD_WIDTH - 1 && (squares[y + 1][x] & currentPlayer) != currentPlayer && !isSquareAttacked(x, y + 1, otherPlayer, white)) {
+		if (y < BOARD_WIDTH - 1 && (squares[y + 1][x] & currentPlayer) != currentPlayer && !ChessFunctions.isSquareAttacked(this, x, y + 1, otherPlayer, white)) {
 			BasicChessMove basicMove = new BasicChessMove(from, Coordinate.valueOf(x, y + 1), squares[y + 1][x], enPassantSquare);
 			possibleMoves.add(new KingMove(basicMove, castleState, white));
 		}
-		if (x > 0 && y < BOARD_WIDTH - 1 && (squares[y + 1][x - 1] & currentPlayer) != currentPlayer && !isSquareAttacked(x - 1, y + 1, otherPlayer, white)) {
+		if (x > 0 && y < BOARD_WIDTH - 1 && (squares[y + 1][x - 1] & currentPlayer) != currentPlayer && !ChessFunctions.isSquareAttacked(this, x - 1, y + 1, otherPlayer, white)) {
 			BasicChessMove basicMove = new BasicChessMove(from, Coordinate.valueOf(x - 1, y + 1), squares[y + 1][x - 1], enPassantSquare);
 			possibleMoves.add(new KingMove(basicMove, castleState, white));
 		}
-		if (x > 0 && (squares[y][x - 1] & currentPlayer) != currentPlayer && !isSquareAttacked(x - 1, y, otherPlayer, white)) {
+		if (x > 0 && (squares[y][x - 1] & currentPlayer) != currentPlayer && !ChessFunctions.isSquareAttacked(this, x - 1, y, otherPlayer, white)) {
 			BasicChessMove basicMove = new BasicChessMove(from, Coordinate.valueOf(x - 1, y), squares[y][x - 1], enPassantSquare);
 			possibleMoves.add(new KingMove(basicMove, castleState, white));
 		}
@@ -296,124 +296,18 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 
 	private void addCastingMoves(List<IChessMove> possibleMoves, int otherPlayer, boolean white, int rank, int kingCastle, int queenCastle) {
 		if ((castleState & kingCastle) == kingCastle &&
-				squares[rank][F_FILE] == UNPLAYED && !isSquareAttacked(F_FILE, rank, otherPlayer, white) &&
-				squares[rank][G_FILE] == UNPLAYED && !isSquareAttacked(G_FILE, rank, otherPlayer, white)) {
+				squares[rank][F_FILE] == UNPLAYED && !ChessFunctions.isSquareAttacked(this, F_FILE, rank, otherPlayer, white) &&
+				squares[rank][G_FILE] == UNPLAYED && !ChessFunctions.isSquareAttacked(this, G_FILE, rank, otherPlayer, white)) {
 			BasicChessMove basicMove = new BasicChessMove(Coordinate.valueOf(E_FILE, rank), Coordinate.valueOf(H_FILE, rank), 0, enPassantSquare);
 			possibleMoves.add(new CastleMove(basicMove, kingCastle, castleState));
 		}
 		if ((castleState & queenCastle) == queenCastle &&
-				squares[rank][D_FILE] == UNPLAYED && !isSquareAttacked(D_FILE, rank, otherPlayer, white) &&
-				squares[rank][C_FILE] == UNPLAYED && !isSquareAttacked(C_FILE, rank, otherPlayer, white) &&
-				squares[rank][B_FILE] == UNPLAYED && !isSquareAttacked(B_FILE, rank, otherPlayer, white)) {
+				squares[rank][D_FILE] == UNPLAYED && !ChessFunctions.isSquareAttacked(this, D_FILE, rank, otherPlayer, white) &&
+				squares[rank][C_FILE] == UNPLAYED && !ChessFunctions.isSquareAttacked(this, C_FILE, rank, otherPlayer, white) &&
+				squares[rank][B_FILE] == UNPLAYED && !ChessFunctions.isSquareAttacked(this, B_FILE, rank, otherPlayer, white)) {
 			BasicChessMove basicMove = new BasicChessMove(Coordinate.valueOf(E_FILE, rank), Coordinate.valueOf(A_FILE, rank), 0, enPassantSquare);
 			possibleMoves.add(new CastleMove(basicMove, queenCastle, castleState));
 		}
-	}
-
-	private boolean isSquareAttacked(int x, int y, int otherPlayer, boolean white) {
-		int otherPawn = otherPlayer | PAWN;
-		int otherKnight = otherPlayer | KNIGHT;
-		int otherBishop = otherPlayer | BISHOP;
-		int otherRook = otherPlayer | ROOK;
-		int otherQueen = otherPlayer | QUEEN;
-		int otherKing = otherPlayer | KING;
-		return isAttackedByPawn(x, y, otherPawn, white) ||
-				isAttackedByKnight(x, y, otherKnight) ||
-				isAttackedByQueenOrBishop(x, y, otherQueen, otherBishop) ||
-				isAttackedByQueenOrRook(x, y, otherQueen, otherRook) ||
-				isAttackedByKing(x, y, otherKing);
-	}
-
-	private boolean isAttackedByPawn(int x, int y, int otherPawn, boolean white) {
-		if (white) {
-			return (x < BOARD_WIDTH - 1 && y > 0 && squares[y - 1][x + 1] == otherPawn) || // capture right
-					(x > 0 && y > 0 && squares[y - 1][x - 1] == otherPawn);// capture left
-		} else {
-			return (x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 1 && squares[y + 1][x + 1] == otherPawn) || // capture right
-					(x > 0 && y < BOARD_WIDTH - 1 && squares[y + 1][x - 1] == otherPawn);// capture left
-		}
-	}
-
-	private boolean isAttackedByKnight(int x, int y, int otherKnight) {
-		// clockwise starting upper left
-		return (x > 0 && y > 1 && squares[y - 2][x - 1] == otherKnight) ||
-				(x < BOARD_WIDTH - 1 && y > 1 && squares[y - 2][x + 1] == otherKnight) ||
-				(x < BOARD_WIDTH - 2 && y > 1 && squares[y - 1][x + 2] == otherKnight) ||
-				(x < BOARD_WIDTH - 2 && y < BOARD_WIDTH - 1 && squares[y + 1][x + 2] == otherKnight) ||
-				(x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 2 && squares[y + 2][x + 1] == otherKnight) ||
-				(x > 0 && y < BOARD_WIDTH - 2 && squares[y + 2][x - 1] == otherKnight) ||
-				(x > 1 && y < BOARD_WIDTH - 1 && squares[y + 1][x - 2] == otherKnight) ||
-				(x > 1 && y > 0 && squares[y - 1][x - 2] == otherKnight);
-	}
-
-	private boolean isAttackedByQueenOrBishop(int x, int y, int otherQueen, int otherBishop) {
-		int bx = x;
-		int by = y;
-		while (bx > 0 && by > 0 && squares[--by][--bx] == UNPLAYED) {
-		}
-		if (squares[by][bx] == otherQueen || squares[by][bx] == otherBishop) {
-			return true;
-		}
-		bx = x;
-		by = y;
-		while (bx < BOARD_WIDTH - 1 && by > 0 && squares[--by][++bx] == UNPLAYED) {
-		}
-		if (squares[by][bx] == otherQueen || squares[by][bx] == otherBishop) {
-			return true;
-		}
-		bx = x;
-		by = y;
-		while (bx < BOARD_WIDTH - 1 && by < BOARD_WIDTH - 1 && squares[++by][++bx] == UNPLAYED) {
-		}
-		if (squares[by][bx] == otherQueen || squares[by][bx] == otherBishop) {
-			return true;
-		}
-		bx = x;
-		by = y;
-		while (bx > 0 && by < BOARD_WIDTH - 1 && squares[++by][--bx] == UNPLAYED) {
-		}
-		return squares[by][bx] == otherQueen || squares[by][bx] == otherBishop;
-	}
-
-	private boolean isAttackedByQueenOrRook(int x, int y, int otherQueen, int otherRook) {
-		int bx = x;
-		int by = y;
-		while (by > 0 && squares[--by][bx] == UNPLAYED) {
-		}
-		if (squares[by][bx] == otherQueen || squares[by][bx] == otherRook) {
-			return true;
-		}
-		bx = x;
-		by = y;
-		while (bx < BOARD_WIDTH - 1 && squares[by][++bx] == UNPLAYED) {
-		}
-		if (squares[by][bx] == otherQueen || squares[by][bx] == otherRook) {
-			return true;
-		}
-		bx = x;
-		by = y;
-		while (by < BOARD_WIDTH - 1 && squares[++by][bx] == UNPLAYED) {
-		}
-		if (squares[by][bx] == otherQueen || squares[by][bx] == otherRook) {
-			return true;
-		}
-		bx = x;
-		by = y;
-		while (bx > 0 && squares[by][--bx] == UNPLAYED) {
-		}
-		return squares[by][bx] == otherQueen || squares[by][bx] == otherRook;
-	}
-
-	private boolean isAttackedByKing(int x, int y, int otherKing) {
-		// clockwise starting upper left
-		return (x > 0 && y > 0 && squares[y - 1][x - 1] == otherKing) ||
-				(y > 0 && squares[y - 1][x] == otherKing) ||
-				(x < BOARD_WIDTH - 1 && y > 0 && squares[y - 1][x + 1] == otherKing) ||
-				(x < BOARD_WIDTH - 1 && squares[y][x + 1] == otherKing) ||
-				(x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 1 && squares[y + 1][x + 1] == otherKing) ||
-				(y < BOARD_WIDTH - 1 && squares[y + 1][x] == otherKing) ||
-				(x > 0 && y < BOARD_WIDTH - 1 && squares[y + 1][x - 1] == otherKing) ||
-				(x > 0 && squares[y][x - 1] == otherKing);
 	}
 
 	@Override
