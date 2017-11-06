@@ -6,6 +6,7 @@ import java.util.List;
 import game.Coordinate;
 import game.TwoPlayers;
 import game.chess.ChessConstants;
+import game.chess.ChessFunctions;
 import game.chess.ChessPosition;
 import game.chess.ChessPositionHistory;
 
@@ -24,7 +25,8 @@ public class ForsythEdwardsNotation implements ChessConstants {
 		Coordinate blackKingSquare = findPiece(squares, BLACK_KING);
 		Coordinate[] kingSquares = new Coordinate[] { null, whiteKingSquare, blackKingSquare };
 		ChessPositionHistory positionHistory = new ChessPositionHistory(plyCount);
-		return new ChessPosition(squares, positionHistory, kingSquares, currentPlayer, otherPlayer, white, castleState, enPassantSquare, halfMoveClock);
+		double[] materialScore = getMaterialScore(squares);
+		return new ChessPosition(squares, positionHistory, kingSquares, currentPlayer, otherPlayer, white, castleState, enPassantSquare, halfMoveClock, materialScore);
 	}
 
 	private static int[][] getSquares(String piecePlacement) {
@@ -253,6 +255,24 @@ public class ForsythEdwardsNotation implements ChessConstants {
 			return "a";
 		default:
 			throw new UnsupportedOperationException("Unknown file: " + x);
+		}
+	}
+
+	private static double[] getMaterialScore(int[][] squares) {
+		double[] materialScore = new double[3];
+		for (int y = 0; y < BOARD_WIDTH; ++y) {
+			for (int x = 0; x < BOARD_WIDTH; ++x) {
+				int piece = squares[y][x];
+				addScore(materialScore, piece, TwoPlayers.PLAYER_1);
+				addScore(materialScore, piece, TwoPlayers.PLAYER_2);
+			}
+		}
+		return materialScore;
+	}
+
+	private static void addScore(double[] materialScore, int piece, int player) {
+		if ((piece & player) == player) {
+			materialScore[player] = materialScore[player] + ChessFunctions.getPieceScore(piece);
 		}
 	}
 }

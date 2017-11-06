@@ -17,11 +17,11 @@ public class ChessFunctions implements ChessConstants {
 
 	private static boolean isAttackedByPawn(ChessPosition position, int x, int y, int otherPawn) {
 		if (position.white) {
-			return (x < BOARD_WIDTH - 1 && y > 0 && position.squares[y - 1][x + 1] == otherPawn) || // capture right
-					(x > 0 && y > 0 && position.squares[y - 1][x - 1] == otherPawn);// capture left
-		} else {
 			return (x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 1 && position.squares[y + 1][x + 1] == otherPawn) || // capture right
 					(x > 0 && y < BOARD_WIDTH - 1 && position.squares[y + 1][x - 1] == otherPawn);// capture left
+		} else {
+			return (x < BOARD_WIDTH - 1 && y > 0 && position.squares[y - 1][x + 1] == otherPawn) || // capture right
+					(x > 0 && y > 0 && position.squares[y - 1][x - 1] == otherPawn);// capture left
 		}
 	}
 
@@ -105,5 +105,24 @@ public class ChessFunctions implements ChessConstants {
 				(y < BOARD_WIDTH - 1 && position.squares[y + 1][x] == otherKing) ||
 				(x > 0 && y < BOARD_WIDTH - 1 && position.squares[y + 1][x - 1] == otherKing) ||
 				(x > 0 && position.squares[y][x - 1] == otherKing);
+	}
+
+	public static double getPieceScore(int piece) {
+		switch (piece & ALL_PIECES) {
+		case 0:
+			return 0;
+		case PAWN:
+			return PAWN_SCORE;
+		case KNIGHT:
+			return KNIGHT_SCORE;
+		case BISHOP:
+			return BISHOP_SCORE;
+		case ROOK:
+			return ROOK_SCORE;
+		case QUEEN:
+			return QUEEN_SCORE;
+		default:
+			return 0;
+		}
 	}
 }

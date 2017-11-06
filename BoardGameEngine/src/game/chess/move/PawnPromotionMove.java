@@ -5,7 +5,7 @@ import game.chess.ChessPosition;
 
 public class PawnPromotionMove implements IChessMove {
 	private final BasicChessMove basicMove;
-	private final int promotion;
+	public final int promotion;
 	private final int pawn;
 
 	public PawnPromotionMove(BasicChessMove basicMove, int promotion, int pawn) {

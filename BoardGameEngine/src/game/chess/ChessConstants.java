@@ -37,6 +37,7 @@ public interface ChessConstants {
 	static final int ROOK = 8 << 2;
 	static final int QUEEN = 16 << 2;
 	static final int KING = 32 << 2;
+	static final int ALL_PIECES = PAWN | KNIGHT | BISHOP | ROOK | QUEEN;
 
 	static final int UNPLAYED = TwoPlayers.UNPLAYED;
 	static final int WHITE_PAWN = TwoPlayers.PLAYER_1 | PAWN;
@@ -58,6 +59,13 @@ public interface ChessConstants {
 	static final int BLACK_QUEEN_CASTLE = 1 << 3;
 	static final int INITIAL_CASTLE_STATE = WHITE_KING_CASTLE | WHITE_QUEEN_CASTLE | BLACK_QUEEN_CASTLE | BLACK_KING_CASTLE;
 
+	static final double PAWN_SCORE = 1;
+	static final double KNIGHT_SCORE = 3;
+	static final double BISHOP_SCORE = 3;
+	static final double ROOK_SCORE = 5;
+	static final double QUEEN_SCORE = 9;
+	static final double INITIAL_MATERIAL_SCORE = 8 * PAWN_SCORE + 2 * KNIGHT_SCORE + 2 * BISHOP_SCORE + 2 * ROOK_SCORE + QUEEN_SCORE;
+
 	static int[][] newInitialPosition() {
 		return new int[][] {
 				{ WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK },
@@ -73,6 +81,10 @@ public interface ChessConstants {
 
 	static Coordinate[] newInitialKingSquares() {
 		return new Coordinate[] { null, E1, E8 };
+	}
+
+	static double[] newInitialMaterialScore() {
+		return new double[] { 0, INITIAL_MATERIAL_SCORE, INITIAL_MATERIAL_SCORE };
 	}
 
 	static final Color DARK_SQUARE_COLOR = new Color(60, 179, 113);

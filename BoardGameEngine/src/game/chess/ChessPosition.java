@@ -33,12 +33,15 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 	public int halfMoveClock; // The number of half moves since the last capture or pawn advance
 	// XXX 3 fold repetition
 
+	double[] materialScore;
+
 	public ChessPosition() {
-		this(ChessConstants.newInitialPosition(), new ChessPositionHistory(), ChessConstants.newInitialKingSquares(), TwoPlayers.PLAYER_1, TwoPlayers.PLAYER_2, true, INITIAL_CASTLE_STATE, null, 0);
+		this(ChessConstants.newInitialPosition(), new ChessPositionHistory(), ChessConstants.newInitialKingSquares(), TwoPlayers.PLAYER_1, TwoPlayers.PLAYER_2, true, INITIAL_CASTLE_STATE, null, 0,
+				ChessConstants.newInitialMaterialScore());
 	}
 
 	public ChessPosition(int[][] squares, ChessPositionHistory positionHistory, Coordinate[] kingSquares, int currentPlayer, int otherPlayer, boolean white, int castleState,
-			Coordinate enPassantSquare, int halfMoveClock) {
+			Coordinate enPassantSquare, int halfMoveClock, double[] materialScore) {
 		this.squares = squares;
 		this.positionHistory = positionHistory;
 		this.currentPlayer = currentPlayer;
@@ -48,6 +51,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		this.enPassantSquare = enPassantSquare;
 		this.kingSquares = kingSquares;
 		this.halfMoveClock = halfMoveClock;
+		this.materialScore = materialScore;
 	}
 
 	@Override
@@ -339,7 +343,13 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		Coordinate to = move.getTo();
 		boolean notPawn = (squares[from.y][from.x] & PAWN) == 0;
 		int pieceCaptured = squares[to.y][to.x];
+
 		halfMoveClock = notPawn && pieceCaptured == 0 ? halfMoveClock + 1 : 0;
+		materialScore[otherPlayer] = materialScore[otherPlayer] - ChessFunctions.getPieceScore(pieceCaptured);
+		if (move.getClass().equals(PawnPromotionMove.class)) {
+			PawnPromotionMove pawnPromotionMove = (PawnPromotionMove) move;
+			materialScore[currentPlayer] = materialScore[currentPlayer] + ChessFunctions.getPieceScore(pawnPromotionMove.promotion) - PAWN_SCORE;
+		}
 
 		move.applyMove(this, true);
 
@@ -353,7 +363,18 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		white = !white;
 		otherPlayer = currentPlayer;
 		currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
+
 		move.unapplyMove(this);
+
+		Coordinate to = move.getTo();
+		int pieceCaptured = squares[to.y][to.x];
+
+		materialScore[otherPlayer] = materialScore[otherPlayer] + ChessFunctions.getPieceScore(pieceCaptured);
+		if (move.getClass().equals(PawnPromotionMove.class)) {
+			PawnPromotionMove pawnPromotionMove = (PawnPromotionMove) move;
+			materialScore[currentPlayer] = materialScore[currentPlayer] - ChessFunctions.getPieceScore(pawnPromotionMove.promotion) + PAWN_SCORE;
+		}
+
 		positionHistory.unmakeMove(this);
 	}
 
@@ -363,8 +384,13 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		for (int y = 0; y < squares.length; ++y) {
 			System.arraycopy(squares[y], 0, squaresCopy[y], 0, BOARD_WIDTH);
 		}
+
 		Coordinate[] kingSquaresCopy = new Coordinate[3];
 		System.arraycopy(kingSquares, 1, kingSquaresCopy, 1, 2);
-		return new ChessPosition(squaresCopy, positionHistory.createCopy(), kingSquaresCopy, currentPlayer, otherPlayer, white, castleState, enPassantSquare, halfMoveClock);
+
+		double[] materialScoreCopy = new double[3];
+		System.arraycopy(materialScore, 1, materialScoreCopy, 1, 2);
+
+		return new ChessPosition(squaresCopy, positionHistory.createCopy(), kingSquaresCopy, currentPlayer, otherPlayer, white, castleState, enPassantSquare, halfMoveClock, materialScoreCopy);
 	}
 }
