@@ -5,36 +5,28 @@ import game.chess.ChessPosition;
 
 public class KingMove implements IChessMove {
 	private final BasicChessMove basicMove;
-	private final int currentCastleState;
-	private final boolean white;
 
-	public KingMove(BasicChessMove basicMove, int currentCastleState, boolean white) {
+	public KingMove(BasicChessMove basicMove) {
 		this.basicMove = basicMove;
-		this.currentCastleState = currentCastleState;
-		this.white = white;
 	}
 
 	@Override
-	public void applyMove(ChessPosition position) {
-		basicMove.applyMove(position);
-		if (white) {
-			position.castleState &= (BLACK_KING_CASTLE | BLACK_QUEEN_CASTLE);
-			position.whiteKingSquare = basicMove.to;
-		} else {
-			position.castleState &= (WHITE_KING_CASTLE | WHITE_QUEEN_CASTLE);
-			position.blackKingSquare = basicMove.to;
+	public void applyMove(ChessPosition position, boolean changeState) {
+		basicMove.applyMove(position, changeState);
+		position.kingSquares[position.currentPlayer] = basicMove.to;
+		if (changeState) {
+			if (position.white) { // mask out the opposite player
+				position.castleState &= (BLACK_KING_CASTLE | BLACK_QUEEN_CASTLE);
+			} else {
+				position.castleState &= (WHITE_KING_CASTLE | WHITE_QUEEN_CASTLE);
+			}
 		}
 	}
 
 	@Override
 	public void unapplyMove(ChessPosition position) {
-		basicMove.applyMove(position);
-		if (white) {
-			position.whiteKingSquare = basicMove.from;
-		} else {
-			position.blackKingSquare = basicMove.from;
-		}
-		position.castleState = currentCastleState;
+		basicMove.unapplyMove(position);
+		position.kingSquares[position.currentPlayer] = basicMove.from;
 	}
 
 	@Override

@@ -5,51 +5,43 @@ import game.chess.ChessPosition;
 
 public class CastleMove implements IChessMove {
 	private final BasicChessMove basicMove; // from king to rook
-	private final Coordinate kingCoordinate;
-	private final Coordinate rookCoordinate;
+	private final Coordinate rookFrom;
+	private final Coordinate rookTo;
 	private final int castle;
-	private final int currentCastleState;
 
-	public CastleMove(BasicChessMove basicMove, int castle, int currentCastleState) {
+	public CastleMove(BasicChessMove basicMove, int castle, Coordinate rookFrom, Coordinate rookTo) {
 		this.basicMove = basicMove;
-		this.currentCastleState = currentCastleState;
 		this.castle = castle;
-		int rank = basicMove.from.y;
-		if ((castle & (WHITE_KING_CASTLE | BLACK_KING_CASTLE)) != 0) {
-			kingCoordinate = Coordinate.valueOf(basicMove.from.x - 2, rank);
-			rookCoordinate = Coordinate.valueOf(kingCoordinate.x + 1, rank);
-		} else {
-			kingCoordinate = Coordinate.valueOf(basicMove.from.x + 2, rank);
-			rookCoordinate = Coordinate.valueOf(kingCoordinate.x - 1, rank);
-		}
+		this.rookFrom = rookFrom;
+		this.rookTo = rookTo;
 	}
 
 	@Override
-	public void applyMove(ChessPosition position) {
+	public void applyMove(ChessPosition position, boolean changeState) {
 		int king = position.squares[basicMove.from.y][basicMove.from.x];
-		int rook = position.squares[basicMove.to.y][basicMove.to.x];
+		int rook = position.squares[rookFrom.y][rookFrom.x];
 		position.squares[basicMove.from.y][basicMove.from.x] = UNPLAYED;
-		position.squares[basicMove.to.y][basicMove.to.x] = UNPLAYED;
-		position.squares[kingCoordinate.y][kingCoordinate.x] = king;
-		position.squares[rookCoordinate.y][rookCoordinate.x] = rook;
-		if ((castle & (WHITE_KING_CASTLE | WHITE_QUEEN_CASTLE)) != 0) {
-			position.castleState = position.castleState & (BLACK_KING_CASTLE | BLACK_QUEEN_CASTLE);
-		} else {
-			position.castleState = position.castleState & (WHITE_KING_CASTLE | WHITE_QUEEN_CASTLE);
+		position.squares[rookFrom.y][rookFrom.x] = UNPLAYED;
+		position.squares[basicMove.to.y][basicMove.to.x] = king;
+		position.squares[rookTo.y][rookTo.x] = rook;
+		if (changeState) {
+			if ((castle & (WHITE_KING_CASTLE | WHITE_QUEEN_CASTLE)) != 0) {
+				position.castleState = position.castleState & (BLACK_KING_CASTLE | BLACK_QUEEN_CASTLE);
+			} else {
+				position.castleState = position.castleState & (WHITE_KING_CASTLE | WHITE_QUEEN_CASTLE);
+			}
+			position.enPassantSquare = null;
 		}
-		position.enPassantSquare = null;
 	}
 
 	@Override
 	public void unapplyMove(ChessPosition position) {
-		int king = position.squares[kingCoordinate.y][kingCoordinate.x];
-		int rook = position.squares[rookCoordinate.y][rookCoordinate.x];
-		position.squares[kingCoordinate.y][kingCoordinate.x] = UNPLAYED;
-		position.squares[rookCoordinate.y][rookCoordinate.x] = UNPLAYED;
+		int king = position.squares[basicMove.to.y][basicMove.to.x];
+		int rook = position.squares[rookTo.y][rookTo.x];
+		position.squares[basicMove.to.y][basicMove.to.x] = UNPLAYED;
+		position.squares[rookTo.y][rookTo.x] = UNPLAYED;
 		position.squares[basicMove.from.y][basicMove.from.x] = king;
-		position.squares[basicMove.to.y][basicMove.to.x] = rook;
-		position.castleState = currentCastleState;
-		position.enPassantSquare = basicMove.currentEnPassantSquare;
+		position.squares[rookFrom.y][rookFrom.x] = rook;
 	}
 
 	@Override
@@ -59,7 +51,7 @@ public class CastleMove implements IChessMove {
 
 	@Override
 	public Coordinate getTo() {
-		return kingCoordinate;
+		return basicMove.to;
 	}
 
 	@Override

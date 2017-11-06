@@ -5,25 +5,24 @@ import game.chess.ChessPosition;
 
 public class EnPassantCaptureMove implements IChessMove {
 	private final BasicChessMove basicMove;
+	private final int pawnDirection;
 
-	public EnPassantCaptureMove(BasicChessMove basicMove) {
+	public EnPassantCaptureMove(BasicChessMove basicMove, int pawnDirection) {
 		this.basicMove = basicMove;
+		this.pawnDirection = pawnDirection;
 	}
 
 	@Override
-	public void applyMove(ChessPosition position) {
-		position.squares[basicMove.currentEnPassantSquare.y][basicMove.currentEnPassantSquare.x] = position.squares[basicMove.from.y][basicMove.from.x];
-		position.squares[basicMove.from.y][basicMove.from.x] = UNPLAYED;
-		position.squares[basicMove.to.y][basicMove.to.x] = UNPLAYED;
-		position.enPassantSquare = null;
+	public void applyMove(ChessPosition position, boolean changeState) {
+		basicMove.applyMove(position, changeState);
+		position.squares[basicMove.to.y - pawnDirection][basicMove.to.x] = UNPLAYED;
 	}
 
 	@Override
 	public void unapplyMove(ChessPosition position) {
-		position.squares[basicMove.from.y][basicMove.from.x] = position.squares[basicMove.currentEnPassantSquare.y][basicMove.currentEnPassantSquare.x];
-		position.squares[basicMove.to.y][basicMove.to.x] = basicMove.pieceCaptured;
-		position.squares[basicMove.currentEnPassantSquare.y][basicMove.currentEnPassantSquare.x] = UNPLAYED;
-		position.enPassantSquare = basicMove.currentEnPassantSquare;
+		position.squares[basicMove.to.y - pawnDirection][basicMove.to.x] = basicMove.pieceCaptured;
+		position.squares[basicMove.from.y][basicMove.from.x] = position.squares[basicMove.to.y][basicMove.to.x];
+		position.squares[basicMove.to.y][basicMove.to.x] = UNPLAYED;
 	}
 
 	@Override
@@ -33,7 +32,7 @@ public class EnPassantCaptureMove implements IChessMove {
 
 	@Override
 	public Coordinate getTo() {
-		return basicMove.currentEnPassantSquare;
+		return basicMove.to;
 	}
 
 	@Override

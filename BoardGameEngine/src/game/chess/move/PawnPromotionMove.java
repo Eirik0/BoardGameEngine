@@ -15,17 +15,18 @@ public class PawnPromotionMove implements IChessMove {
 	}
 
 	@Override
-	public void applyMove(ChessPosition position) {
+	public void applyMove(ChessPosition position, boolean changeState) {
 		position.squares[basicMove.to.y][basicMove.to.x] = promotion;
 		position.squares[basicMove.from.y][basicMove.from.x] = UNPLAYED;
-		position.enPassantSquare = null;
+		if (changeState) {
+			position.enPassantSquare = null;
+		}
 	}
 
 	@Override
 	public void unapplyMove(ChessPosition position) {
 		position.squares[basicMove.from.y][basicMove.from.x] = pawn;
 		position.squares[basicMove.to.y][basicMove.to.x] = basicMove.pieceCaptured;
-		position.enPassantSquare = basicMove.currentEnPassantSquare;
 	}
 
 	@Override

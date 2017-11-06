@@ -13,16 +13,17 @@ public class CastleBreakingMove implements IChessMove {
 	}
 
 	@Override
-	public void applyMove(ChessPosition position) {
-		basicMove.applyMove(position);
-		int castlesBrokenReverse = (castlesBroken ^ INITIAL_CASTLE_STATE) & INITIAL_CASTLE_STATE;
-		position.castleState &= castlesBrokenReverse;
+	public void applyMove(ChessPosition position, boolean changeState) {
+		basicMove.applyMove(position, changeState);
+		if (changeState) {
+			int castlesBrokenReverse = (castlesBroken ^ INITIAL_CASTLE_STATE) & INITIAL_CASTLE_STATE;
+			position.castleState &= castlesBrokenReverse;
+		}
 	}
 
 	@Override
 	public void unapplyMove(ChessPosition position) {
-		basicMove.applyMove(position);
-		position.castleState = position.castleState | castlesBroken;
+		basicMove.unapplyMove(position);
 	}
 
 	@Override

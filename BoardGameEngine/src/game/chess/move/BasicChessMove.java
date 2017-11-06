@@ -8,27 +8,28 @@ public class BasicChessMove implements IChessMove {
 	public final Coordinate from;
 	public final Coordinate to;
 	final int pieceCaptured;
-	final Coordinate currentEnPassantSquare;
+	final Coordinate enPassantSquare;
 
-	public BasicChessMove(Coordinate from, Coordinate to, int pieceCaptured, Coordinate currentEnPassantSquare) {
+	public BasicChessMove(Coordinate from, Coordinate to, int pieceCaptured, Coordinate enPassantSquare) {
 		this.from = from;
 		this.to = to;
 		this.pieceCaptured = pieceCaptured;
-		this.currentEnPassantSquare = currentEnPassantSquare;
+		this.enPassantSquare = enPassantSquare;
 	}
 
 	@Override
-	public void applyMove(ChessPosition position) {
+	public void applyMove(ChessPosition position, boolean changeState) {
 		position.squares[to.y][to.x] = position.squares[from.y][from.x];
 		position.squares[from.y][from.x] = UNPLAYED;
-		position.enPassantSquare = null;
+		if (changeState) {
+			position.enPassantSquare = enPassantSquare;
+		}
 	}
 
 	@Override
 	public void unapplyMove(ChessPosition position) {
 		position.squares[from.y][from.x] = position.squares[to.y][to.x];
 		position.squares[to.y][to.x] = pieceCaptured;
-		position.enPassantSquare = currentEnPassantSquare;
 	}
 
 	@Override
@@ -62,5 +63,4 @@ public class BasicChessMove implements IChessMove {
 	public String toString() {
 		return ForsythEdwardsNotation.algebraicCoordinate(from) + (pieceCaptured == UNPLAYED ? "-" : "x") + ForsythEdwardsNotation.algebraicCoordinate(to);
 	}
-
 }

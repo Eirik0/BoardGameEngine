@@ -5,7 +5,7 @@ import game.chess.ChessConstants;
 import game.chess.ChessPosition;
 
 public interface IChessMove extends ChessConstants {
-	public void applyMove(ChessPosition position);
+	public void applyMove(ChessPosition position, boolean changeState);
 
 	public void unapplyMove(ChessPosition position);
 

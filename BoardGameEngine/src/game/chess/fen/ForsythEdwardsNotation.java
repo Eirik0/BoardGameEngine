@@ -7,19 +7,24 @@ import game.Coordinate;
 import game.TwoPlayers;
 import game.chess.ChessConstants;
 import game.chess.ChessPosition;
+import game.chess.ChessPositionHistory;
 
 public class ForsythEdwardsNotation implements ChessConstants {
 	public static ChessPosition stringToPosition(String string) {
 		String[] split = string.split(" ");
 		int[][] squares = getSquares(split[0]);
 		int currentPlayer = getCurrentPlayer(split[1]);
+		int otherPlayer = TwoPlayers.otherPlayer(currentPlayer);
+		boolean white = currentPlayer == TwoPlayers.PLAYER_1;
 		int castleState = getCastleState(split[2]);
 		Coordinate enPassantSquare = getEnpassantSquare(split[3]);
 		int halfMoveClock = Integer.valueOf(split[4]);
 		int plyCount = Integer.valueOf(split[5]) * 2 - (currentPlayer == TwoPlayers.PLAYER_1 ? 2 : 1);
 		Coordinate whiteKingSquare = findPiece(squares, WHITE_KING);
 		Coordinate blackKingSquare = findPiece(squares, BLACK_KING);
-		return new ChessPosition(squares, currentPlayer, castleState, enPassantSquare, whiteKingSquare, blackKingSquare, halfMoveClock, plyCount);
+		Coordinate[] kingSquares = new Coordinate[] { null, whiteKingSquare, blackKingSquare };
+		ChessPositionHistory positionHistory = new ChessPositionHistory(plyCount);
+		return new ChessPosition(squares, positionHistory, kingSquares, currentPlayer, otherPlayer, white, castleState, enPassantSquare, halfMoveClock);
 	}
 
 	private static int[][] getSquares(String piecePlacement) {
@@ -142,7 +147,7 @@ public class ForsythEdwardsNotation implements ChessConstants {
 		String castlingAvailability = getCastlingAvailability(position.castleState);
 		String enPassantTargetSquare = getEnPassantTargetSquare(position.enPassantSquare);
 		String halfMoveClock = Integer.toString(position.halfMoveClock);
-		String fullMoveNumber = Integer.toString(position.plyCount / 2 + 1);
+		String fullMoveNumber = Integer.toString(position.positionHistory.plyCount / 2 + 1);
 		return piecePlacement + " " + activeColor + " " + castlingAvailability + " " + enPassantTargetSquare + " " + halfMoveClock + " " + fullMoveNumber;
 	}
 

@@ -23,10 +23,10 @@ public class ChessPositionTest implements ChessConstants {
 		assertEquals("Current player", expected.currentPlayer, actual.currentPlayer);
 		assertEquals("Castle state", expected.castleState, actual.castleState);
 		assertEquals("En passant square", expected.enPassantSquare, actual.enPassantSquare);
-		assertEquals("White king square", expected.whiteKingSquare, actual.whiteKingSquare);
-		assertEquals("Black king square", expected.blackKingSquare, actual.blackKingSquare);
+		assertEquals("White king square", expected.kingSquares[1], actual.kingSquares[1]);
+		assertEquals("Black king square", expected.kingSquares[2], actual.kingSquares[2]);
 		assertEquals("Half move clock", expected.halfMoveClock, actual.halfMoveClock);
-		assertEquals("Ply count", expected.plyCount, actual.plyCount);
+		assertEquals("Ply count", expected.positionHistory.plyCount, actual.positionHistory.plyCount);
 	}
 
 	private static String getBoardStr(ChessPosition expected) {

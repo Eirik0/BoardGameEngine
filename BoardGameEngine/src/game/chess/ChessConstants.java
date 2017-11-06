@@ -8,6 +8,8 @@ import game.TwoPlayers;
 public interface ChessConstants {
 	static final int BOARD_WIDTH = 8;
 
+	static final int MAX_MOVES = 2048;
+
 	static final int RANK_1 = 0;
 	static final int RANK_2 = 1;
 	static final int RANK_7 = 6;
@@ -67,6 +69,10 @@ public interface ChessConstants {
 				{ BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN },
 				{ BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK }
 		};
+	}
+
+	static Coordinate[] newInitialKingSquares() {
+		return new Coordinate[] { null, E1, E8 };
 	}
 
 	static final Color DARK_SQUARE_COLOR = new Color(60, 179, 113);
