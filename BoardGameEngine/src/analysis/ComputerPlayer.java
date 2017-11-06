@@ -38,7 +38,6 @@ public class ComputerPlayer implements IPlayer {
 		}
 		treeSearcher.stopSearch(false);
 		AnalysisResult<M> result = (AnalysisResult<M>) treeSearcher.getResult();
-		System.out.println(treeSearcher.getPlies());
 		List<MoveWithScore<M>> bestMoves = result.getMovesWithScore().stream().filter(moveWithScore -> moveWithScore.score == result.getMax()).collect(Collectors.toList());
 		return bestMoves.get(new Random().nextInt(bestMoves.size())).move;
 	}

@@ -61,6 +61,7 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
 	@Override
 	public void drawPosition(Graphics2D g, ChessPosition position, List<IChessMove> possibleMoves, IChessMove lastMove) {
 		drawBoard(g, position);
+		drawLastMove(g, position, lastMove);
 		drawMouseOn(g, position, possibleMoves);
 	}
 
@@ -80,6 +81,18 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
 				}
 			}
 		}
+	}
+
+	private void drawLastMove(Graphics2D g, ChessPosition positon, IChessMove lastMove) {
+		if (lastMove == null) {
+			return;
+		}
+		g.setColor(LAST_MOVE_COLOR);
+		Coordinate from = lastMove.getFrom();
+		GuiPlayerHelper.highlightCoordinate(g, sizer, from.x, from.y, 1.0 / 2.125);
+		Coordinate to = lastMove.getTo();
+		g.setColor(positon.white ? LIGHT_PIECE_COLOR : DARK_PIECE_COLOR);
+		GuiPlayerHelper.highlightCoordinate(g, sizer, to.x, to.y, 1.0 / 2.125);
 	}
 
 	private void drawMouseOn(Graphics g, ChessPosition position, List<IChessMove> possibleMoves) {

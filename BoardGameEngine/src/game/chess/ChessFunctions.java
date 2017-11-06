@@ -1,22 +1,25 @@
 package game.chess;
 
+import game.TwoPlayers;
+
 public class ChessFunctions implements ChessConstants {
 	public static boolean isSquareAttacked(ChessPosition position, int x, int y, int otherPlayer) {
+		boolean white = otherPlayer == TwoPlayers.PLAYER_2;
 		int otherPawn = otherPlayer | PAWN;
 		int otherKnight = otherPlayer | KNIGHT;
 		int otherBishop = otherPlayer | BISHOP;
 		int otherRook = otherPlayer | ROOK;
 		int otherQueen = otherPlayer | QUEEN;
 		int otherKing = otherPlayer | KING;
-		return isAttackedByPawn(position, x, y, otherPawn) ||
+		return isAttackedByPawn(position, x, y, otherPawn, white) ||
 				isAttackedByKnight(position, x, y, otherKnight) ||
 				isAttackedByQueenOrBishop(position, x, y, otherQueen, otherBishop) ||
 				isAttackedByQueenOrRook(position, x, y, otherQueen, otherRook) ||
 				isAttackedByKing(position, x, y, otherKing);
 	}
 
-	private static boolean isAttackedByPawn(ChessPosition position, int x, int y, int otherPawn) {
-		if (position.white) {
+	private static boolean isAttackedByPawn(ChessPosition position, int x, int y, int otherPawn, boolean white) {
+		if (white) {
 			return (x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 1 && position.squares[y + 1][x + 1] == otherPawn) || // capture right
 					(x > 0 && y < BOARD_WIDTH - 1 && position.squares[y + 1][x - 1] == otherPawn);// capture left
 		} else {

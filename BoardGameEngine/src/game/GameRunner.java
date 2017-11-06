@@ -48,8 +48,10 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	}
 
 	private void setPositionCopy() {
-		positionCopy = position.createCopy();
-		possibleMovesCopy = positionCopy.getPossibleMoves();
+		P newPositionCopy = position.createCopy();
+		List<M> newPossibleMoves = newPositionCopy.getPossibleMoves();
+		positionCopy = newPositionCopy;
+		possibleMovesCopy = newPossibleMoves;
 		if (positionObserver != null) {
 			positionObserver.notifyPositionChanged(positionCopy, possibleMovesCopy);
 		}

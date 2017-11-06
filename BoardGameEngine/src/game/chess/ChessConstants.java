@@ -92,4 +92,6 @@ public interface ChessConstants {
 
 	static final Color DARK_PIECE_COLOR = Color.BLACK;
 	static final Color LIGHT_PIECE_COLOR = Color.WHITE;
+
+	static final Color LAST_MOVE_COLOR = Color.RED;
 }

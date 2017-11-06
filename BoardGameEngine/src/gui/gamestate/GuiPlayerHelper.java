@@ -22,11 +22,15 @@ public class GuiPlayerHelper {
 
 	public static void highlightCoordinate(Graphics g, BoardSizer sizer, double paddingFraction) {
 		g.setColor(Color.BLUE);
-		int intersectionX = sizer.getCoordinateX(GameGuiManager.getMouseX());
-		int intersectionY = sizer.getCoordinateY(GameGuiManager.getMouseY());
+		int coordinateX = sizer.getCoordinateX(GameGuiManager.getMouseX());
+		int coordinateY = sizer.getCoordinateY(GameGuiManager.getMouseY());
 
-		int snapX = sizer.getSquareCornerX(intersectionX);
-		int snapY = sizer.getSquareCornerY(intersectionY);
+		highlightCoordinate(g, sizer, coordinateX, coordinateY, paddingFraction);
+	}
+
+	public static void highlightCoordinate(Graphics g, BoardSizer sizer, int coordinateX, int coordinateY, double paddingFraction) {
+		int snapX = sizer.getSquareCornerX(coordinateX);
+		int snapY = sizer.getSquareCornerY(coordinateY);
 
 		double padding = sizer.cellWidth * paddingFraction;
 		g.drawRect(round(snapX + padding), round(snapY + padding), round(sizer.cellWidth - 2 * padding), round(sizer.cellWidth - 2 * padding));
