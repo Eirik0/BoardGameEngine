@@ -1,6 +1,7 @@
 package game.chess;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import game.Coordinate;
@@ -30,7 +31,6 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 	public Coordinate enPassantSquare;
 
 	public int halfMoveClock; // The number of half moves since the last capture or pawn advance
-	// XXX 50 move counter
 	// XXX 3 fold repetition
 
 	public ChessPosition() {
@@ -52,6 +52,9 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 
 	@Override
 	public List<IChessMove> getPossibleMoves() {
+		if (halfMoveClock == 100) {
+			return Collections.emptyList();
+		}
 		int pawnDirection = white ? 1 : -1;
 		List<IChessMove> possibleMoves = new ArrayList<>();
 		for (int y = 0; y < BOARD_WIDTH; ++y) {
@@ -331,7 +334,15 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 	@Override
 	public void makeMove(IChessMove move) {
 		positionHistory.makeMove(this);
+
+		Coordinate from = move.getFrom();
+		Coordinate to = move.getTo();
+		boolean notPawn = (squares[from.y][from.x] & PAWN) == 0;
+		int pieceCaptured = squares[to.y][to.x];
+		halfMoveClock = notPawn && pieceCaptured == 0 ? halfMoveClock + 1 : 0;
+
 		move.applyMove(this, true);
+
 		otherPlayer = currentPlayer;
 		currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
 		white = !white;
