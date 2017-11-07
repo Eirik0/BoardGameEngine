@@ -10,30 +10,35 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<UT
 
 	@Override
 	public double evaluate(UltimateTicTacToePosition position, int player) {
-		int opponent = TwoPlayers.otherPlayer(player);
-		if (TicTacToeUtilities.winExists(position.wonBoards, opponent)) {
-			return Double.NEGATIVE_INFINITY;
+		int lastPlayer = TwoPlayers.otherPlayer(player);
+		if (TicTacToeUtilities.winExists(position.wonBoards, lastPlayer)) {
+			if (player == lastPlayer) {
+				return Double.POSITIVE_INFINITY;
+			} else {
+				return Double.NEGATIVE_INFINITY;
+			}
+		} else {
+			int possibleWins = UltimateTicTacToeUtilities.countPossibleWins(position.wonBoards, lastPlayer);
+			int possibleLosses = UltimateTicTacToeUtilities.countPossibleWins(position.wonBoards, player);
+			if (possibleWins == 0 && possibleLosses == 0) {
+				return 0;
+			}
+
+			int[] possibleWinsByBoard = countPossibleWinsByBoard(position, player, lastPlayer);
+			int[] possibleLossesByBoard = countPossibleWinsByBoard(position, lastPlayer, player);
+
+			int actualPossibleWins = countActualPossibleWins(possibleWinsByBoard, player, lastPlayer);
+			int actualPossibleLosses = countActualPossibleWins(possibleLossesByBoard, lastPlayer, player);
+
+			if (actualPossibleWins == 0 && actualPossibleLosses == 0) {
+				return 0;
+			}
+
+			double playerRatio = possibleWinsByBoard[UltimateTicTacToePosition.BOARD_WIDTH] / TOTAL_SCORE;
+			double opponentRatio = possibleLossesByBoard[UltimateTicTacToePosition.BOARD_WIDTH] / TOTAL_SCORE;
+
+			return playerRatio * actualPossibleWins - opponentRatio * actualPossibleLosses;
 		}
-		int possibleWins = UltimateTicTacToeUtilities.countPossibleWins(position.wonBoards, opponent);
-		int possibleLosses = UltimateTicTacToeUtilities.countPossibleWins(position.wonBoards, player);
-		if (possibleWins == 0 && possibleLosses == 0) {
-			return 0;
-		}
-
-		int[] possibleWinsByBoard = countPossibleWinsByBoard(position, player, opponent);
-		int[] possibleLossesByBoard = countPossibleWinsByBoard(position, opponent, player);
-
-		int actualPossibleWins = countActualPossibleWins(possibleWinsByBoard, player, opponent);
-		int actualPossibleLosses = countActualPossibleWins(possibleLossesByBoard, opponent, player);
-
-		if (actualPossibleWins == 0 && actualPossibleLosses == 0) {
-			return 0;
-		}
-
-		double playerRatio = possibleWinsByBoard[UltimateTicTacToePosition.BOARD_WIDTH] / TOTAL_SCORE;
-		double opponentRatio = possibleLossesByBoard[UltimateTicTacToePosition.BOARD_WIDTH] / TOTAL_SCORE;
-
-		return playerRatio * actualPossibleWins - opponentRatio * actualPossibleLosses;
 	}
 
 	private int[] countPossibleWinsByBoard(UltimateTicTacToePosition position, int currentPlayer, int otherPlayer) {
