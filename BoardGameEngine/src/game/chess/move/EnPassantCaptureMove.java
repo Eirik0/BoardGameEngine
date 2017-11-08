@@ -5,7 +5,7 @@ import game.chess.ChessPosition;
 
 public class EnPassantCaptureMove implements IChessMove {
 	private final BasicChessMove basicMove;
-	private final int pawnDirection;
+	public final int pawnDirection;
 
 	public EnPassantCaptureMove(BasicChessMove basicMove, int pawnDirection) {
 		this.basicMove = basicMove;

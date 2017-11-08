@@ -29,7 +29,7 @@ public class ChessPositionTest implements ChessConstants {
 		assertEquals("Ply count", expected.positionHistory.plyCount, actual.positionHistory.plyCount);
 	}
 
-	private static String getBoardStr(ChessPosition expected) {
+	public static String getBoardStr(ChessPosition expected) {
 		return Arrays.stream(expected.squares)
 				.map(row -> Arrays.stream(row).mapToObj(piece -> ForsythEdwardsNotation.getPieceString(piece)).collect(Collectors.joining(" ")))
 				.collect(Collectors.joining("\n"));

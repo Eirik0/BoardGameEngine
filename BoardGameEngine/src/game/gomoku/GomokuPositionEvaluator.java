@@ -11,26 +11,22 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, G
 	public double evaluate(GomokuPosition position, int player) {
 		int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
 		if (winExists(position.board, lastPlayer)) {
-			if (player == lastPlayer) {
-				return Double.POSITIVE_INFINITY;
-			} else {
-				return Double.NEGATIVE_INFINITY;
-			}
+			return player == lastPlayer ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
 		}
-		int otherPlayer = TwoPlayers.otherPlayer(player);
-		return score(position.board, player, otherPlayer) - score(position.board, otherPlayer, player);
+		int opponent = TwoPlayers.otherPlayer(player);
+		return score(position.board, player, opponent) - score(position.board, opponent, player);
 	}
 
-	private int score(int[][] board, int player, int otherPlayer) {
+	private int score(int[][] board, int player, int opponent) {
 		int[] open = new int[4];
 		int[] closed = new int[4];
 		for (int y = 0; y < BOARD_WIDTH; ++y) {
 			for (int x = 0; x < BOARD_WIDTH; ++x) {
 				if (board[y][x] == player) {
-					int left = x > 0 ? board[y][x - 1] : otherPlayer;
-					int upLeft = x > 0 && y > 0 ? board[y - 1][x - 1] : otherPlayer;
-					int up = y > 0 ? board[y - 1][x] : otherPlayer;
-					int upRight = x < BOARD_WIDTH - 1 && y > 0 ? board[y - 1][x + 1] : otherPlayer;
+					int left = x > 0 ? board[y][x - 1] : opponent;
+					int upLeft = x > 0 && y > 0 ? board[y - 1][x - 1] : opponent;
+					int up = y > 0 ? board[y - 1][x] : opponent;
+					int upRight = x < BOARD_WIDTH - 1 && y > 0 ? board[y - 1][x + 1] : opponent;
 					int rightCount = 0;
 					while (x < BOARD_WIDTH - (rightCount + 1) && board[y][x + (rightCount + 1)] == player) {
 						++rightCount;
@@ -47,10 +43,10 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, G
 					while (x > downLeftCount && y < BOARD_WIDTH - (downLeftCount + 1) && board[y + (downLeftCount + 1)][x - (downLeftCount + 1)] == player) {
 						++downLeftCount;
 					}
-					int nextRight = x < BOARD_WIDTH - 1 ? board[y][x + 1] : otherPlayer;
-					int nextDownRight = x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 1 ? board[y + 1][x + 1] : otherPlayer;
-					int nextDown = y < BOARD_WIDTH - 1 ? board[y + 1][x] : otherPlayer;
-					int nextDownLeft = x > 0 && y < BOARD_WIDTH - 1 ? board[y + 1][x - 1] : otherPlayer;
+					int nextRight = x < BOARD_WIDTH - 1 ? board[y][x + 1] : opponent;
+					int nextDownRight = x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 1 ? board[y + 1][x + 1] : opponent;
+					int nextDown = y < BOARD_WIDTH - 1 ? board[y + 1][x] : opponent;
+					int nextDownLeft = x > 0 && y < BOARD_WIDTH - 1 ? board[y + 1][x - 1] : opponent;
 					if (rightCount == 0 && downRightCount == 0 && downCount == 0 && downLeftCount == 0) {
 						if (left == TwoPlayers.UNPLAYED && upLeft == TwoPlayers.UNPLAYED && up == TwoPlayers.UNPLAYED && upRight == TwoPlayers.UNPLAYED &&
 								nextRight == TwoPlayers.UNPLAYED && nextDownRight == TwoPlayers.UNPLAYED && nextDown == TwoPlayers.UNPLAYED && nextDownLeft == TwoPlayers.UNPLAYED) {

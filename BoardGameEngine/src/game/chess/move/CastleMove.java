@@ -24,6 +24,7 @@ public class CastleMove implements IChessMove {
 		position.squares[rookFrom.y][rookFrom.x] = UNPLAYED;
 		position.squares[basicMove.to.y][basicMove.to.x] = king;
 		position.squares[rookTo.y][rookTo.x] = rook;
+		position.kingSquares[position.currentPlayer] = basicMove.to;
 		if (changeState) {
 			if ((castle & (WHITE_KING_CASTLE | WHITE_QUEEN_CASTLE)) != 0) {
 				position.castleState = position.castleState & (BLACK_KING_CASTLE | BLACK_QUEEN_CASTLE);
@@ -42,6 +43,7 @@ public class CastleMove implements IChessMove {
 		position.squares[rookTo.y][rookTo.x] = UNPLAYED;
 		position.squares[basicMove.from.y][basicMove.from.x] = king;
 		position.squares[rookFrom.y][rookFrom.x] = rook;
+		position.kingSquares[position.currentPlayer] = basicMove.from;
 	}
 
 	@Override

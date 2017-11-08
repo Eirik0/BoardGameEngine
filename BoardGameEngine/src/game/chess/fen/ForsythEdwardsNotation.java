@@ -258,7 +258,7 @@ public class ForsythEdwardsNotation implements ChessConstants {
 		}
 	}
 
-	private static double[] getMaterialScore(int[][] squares) {
+	public static double[] getMaterialScore(int[][] squares) {
 		double[] materialScore = new double[3];
 		for (int y = 0; y < BOARD_WIDTH; ++y) {
 			for (int x = 0; x < BOARD_WIDTH; ++x) {

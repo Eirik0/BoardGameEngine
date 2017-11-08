@@ -342,8 +342,13 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		Coordinate from = move.getFrom();
 		Coordinate to = move.getTo();
 		boolean notPawn = (squares[from.y][from.x] & PAWN) == 0;
-		int pieceCaptured = squares[to.y][to.x];
-
+		int pieceCaptured;
+		if (move.getClass().equals(EnPassantCaptureMove.class)) {
+			EnPassantCaptureMove enPassantCaptureMove = (EnPassantCaptureMove) move;
+			pieceCaptured = squares[to.y - enPassantCaptureMove.pawnDirection][to.x];
+		} else {
+			pieceCaptured = squares[to.y][to.x];
+		}
 		halfMoveClock = notPawn && pieceCaptured == 0 ? halfMoveClock + 1 : 0;
 		materialScore[otherPlayer] = materialScore[otherPlayer] - ChessFunctions.getPieceScore(pieceCaptured);
 		if (move.getClass().equals(PawnPromotionMove.class)) {
@@ -367,7 +372,13 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		move.unapplyMove(this);
 
 		Coordinate to = move.getTo();
-		int pieceCaptured = squares[to.y][to.x];
+		int pieceCaptured;
+		if (move.getClass().equals(EnPassantCaptureMove.class)) {
+			EnPassantCaptureMove enPassantCaptureMove = (EnPassantCaptureMove) move;
+			pieceCaptured = squares[to.y - enPassantCaptureMove.pawnDirection][to.x];
+		} else {
+			pieceCaptured = squares[to.y][to.x];
+		}
 
 		materialScore[otherPlayer] = materialScore[otherPlayer] + ChessFunctions.getPieceScore(pieceCaptured);
 		if (move.getClass().equals(PawnPromotionMove.class)) {
