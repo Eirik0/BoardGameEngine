@@ -27,7 +27,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		setPositionCopy();
 	}
 
-	public void setEndGameAction(Runnable endGameAction) {
+	public synchronized void setEndGameAction(Runnable endGameAction) {
 		this.endGameAction = endGameAction;
 	}
 
@@ -39,7 +39,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		return positionCopy;
 	}
 
-	public List<M> getPossibleMovesCopy() {
+	public synchronized List<M> getPossibleMovesCopy() {
 		return possibleMovesCopy;
 	}
 
@@ -76,17 +76,21 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		new Thread(() -> {
 			try {
 				int playerNum = 0;
-				while (!stopRequested && possibleMovesCopy.size() > 0) {
-					currentPlayer = players.get(playerNum);
+				while (!stopRequested && getPossibleMovesCopy().size() > 0) {
+					synchronized (this) {
+						currentPlayer = players.get(playerNum);
+					}
 					if (!isRunning) {
 						notifyGameStarted();
 					}
-					M move = currentPlayer.getMove(position);
+					M move = currentPlayer.getMove(positionCopy);
 					if (!stopRequested) {
-						lastMove = move;
-						position.makeMove(move);
-						setPositionCopy();
-						playerNum = (playerNum + 1) % players.size();
+						synchronized (this) {
+							lastMove = move;
+							position.makeMove(move);
+							setPositionCopy();
+							playerNum = (playerNum + 1) % players.size();
+						}
 					}
 				}
 			} finally {
@@ -128,7 +132,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		stopRequested = false;
 	}
 
-	private void maybeNotifyPlayerGameEnded() {
+	private synchronized void maybeNotifyPlayerGameEnded() {
 		if (currentPlayer != null) {
 			currentPlayer.notifyGameEnded();
 		}

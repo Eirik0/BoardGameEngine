@@ -7,8 +7,6 @@ import java.util.function.Consumer;
 import game.IPosition;
 
 public class TreeSearchWorker<M, P extends IPosition<M, P>> {
-	private static int workerNum = 0;
-
 	private final String name;
 
 	private final Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer;
@@ -20,7 +18,7 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 	private final BlockingQueue<Runnable> runnableQueue = new ArrayBlockingQueue<>(1);
 
 	public TreeSearchWorker(Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer) {
-		this("Worker_" + workerNum++, completedWorkerConsumer);
+		this("Worker_" + ThreadNumber.getThreadNum("Worker"), completedWorkerConsumer);
 	}
 
 	public TreeSearchWorker(String name, Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer) {

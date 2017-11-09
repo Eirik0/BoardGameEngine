@@ -106,8 +106,6 @@ public class GameRunnerTest {
 	}
 
 	static class AddToListTestPlayer implements IPlayer {
-		boolean notified;
-
 		@Override
 		public <M, P extends IPosition<M, P>> M getMove(P position) {
 			return position.getPossibleMoves().get(0);
@@ -115,7 +113,6 @@ public class GameRunnerTest {
 
 		@Override
 		public void notifyGameEnded() {
-			notified = true;
 		}
 	}
 

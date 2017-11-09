@@ -3,6 +3,7 @@ package analysis.search;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import analysis.AnalysisResult;
@@ -14,7 +15,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private final M parentMove;
 	private final P position;
 	private final List<M> possibleMoves;
-	private volatile int remainingBranches;
+	private AtomicInteger remainingBranches;
 	private final int player;
 	private final int plies;
 
@@ -37,7 +38,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		this.parentMove = parentMove;
 		this.position = position.createCopy();
 		possibleMoves = this.position.getPossibleMoves();
-		remainingBranches = possibleMoves.size();
+		remainingBranches = new AtomicInteger(possibleMoves.size());
 		this.player = player;
 		this.plies = plies;
 		this.strategy = strategy.createCopy();
@@ -78,7 +79,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 				analysisResult.addMoveWithScore(move, score);
 				searchedAllPositions = searchedAllPositions && strategy.searchedAllPositions();
 			}
-			--remainingBranches;
+			remainingBranches.decrementAndGet();
 		}
 		analysisResult.setSearchedAllPositions(searchedAllPositions);
 		return analysisResult;
@@ -103,7 +104,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	}
 
 	public int getRemainingBranches() {
-		return remainingBranches;
+		return remainingBranches.get();
 	}
 
 	public List<GameTreeSearch<M, P>> fork() {

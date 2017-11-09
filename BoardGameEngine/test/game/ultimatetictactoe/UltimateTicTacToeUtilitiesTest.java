@@ -19,6 +19,7 @@ public class UltimateTicTacToeUtilitiesTest {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@Test
 	public void testCountPossibleWinsSpeed() {
 		List<int[]> allPossibleBoardsList = getAllPossibleBoards(new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0);
@@ -29,8 +30,8 @@ public class UltimateTicTacToeUtilitiesTest {
 		for (int j = 0; j < allBoards.length; ++j) {
 			int[] boardj = allBoards[j];
 			for (int i = 0; i < timesToTest; ++i) {
-				countPossibleWinsSlower(boardj, 1);
-				countPossibleWinsSlower(boardj, 2);
+				int one = countPossibleWinsSlower(boardj, 1);
+				int two = countPossibleWinsSlower(boardj, 2);
 			}
 		}
 
@@ -42,8 +43,8 @@ public class UltimateTicTacToeUtilitiesTest {
 		for (int j = 0; j < allBoardsInt.length; ++j) {
 			int boardj = allBoardsInt[j];
 			for (int i = 0; i < timesToTest; ++i) {
-				UltimateTicTacToeUtilities.countPossibleWins(boardj, 1);
-				UltimateTicTacToeUtilities.countPossibleWins(boardj, 2);
+				int one = UltimateTicTacToeUtilities.countPossibleWins(boardj, 1);
+				int two = UltimateTicTacToeUtilities.countPossibleWins(boardj, 2);
 			}
 		}
 		long fastTime = (System.nanoTime() - fastStart) / 1000000;

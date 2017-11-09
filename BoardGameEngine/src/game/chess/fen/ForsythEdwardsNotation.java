@@ -19,8 +19,8 @@ public class ForsythEdwardsNotation implements ChessConstants {
 		boolean white = currentPlayer == TwoPlayers.PLAYER_1;
 		int castleState = getCastleState(split[2]);
 		Coordinate enPassantSquare = getEnpassantSquare(split[3]);
-		int halfMoveClock = Integer.valueOf(split[4]);
-		int plyCount = Integer.valueOf(split[5]) * 2 - (currentPlayer == TwoPlayers.PLAYER_1 ? 2 : 1);
+		int halfMoveClock = Integer.parseInt(split[4]);
+		int plyCount = Integer.parseInt(split[5]) * 2 - (currentPlayer == TwoPlayers.PLAYER_1 ? 2 : 1);
 		Coordinate whiteKingSquare = findPiece(squares, WHITE_KING);
 		Coordinate blackKingSquare = findPiece(squares, BLACK_KING);
 		Coordinate[] kingSquares = new Coordinate[] { null, whiteKingSquare, blackKingSquare };
@@ -44,7 +44,7 @@ public class ForsythEdwardsNotation implements ChessConstants {
 		int pos = 0;
 		for (int i = chars.length - 1; i >= 0; --i) {
 			if (Character.isDigit(chars[i])) {
-				for (int j = 0; j < Integer.valueOf(Character.toString(chars[i])); ++j) {
+				for (int j = 0; j < Character.getNumericValue(chars[i]); ++j) {
 					row[pos++] = UNPLAYED;
 				}
 			} else {
@@ -117,7 +117,7 @@ public class ForsythEdwardsNotation implements ChessConstants {
 
 	private static Coordinate getCoordinate(String algebraicCoordinate) {
 		char[] chars = algebraicCoordinate.toCharArray();
-		return Coordinate.valueOf(getFile(chars[0]), Integer.valueOf(Character.toString(chars[0])) - 1);
+		return Coordinate.valueOf(getFile(chars[0]), Character.getNumericValue(chars[0]) - 1);
 	}
 
 	private static int getFile(char c) {
@@ -162,7 +162,7 @@ public class ForsythEdwardsNotation implements ChessConstants {
 	}
 
 	private static String getRowString(int[] row) {
-		String rowString = "";
+		StringBuffer rowSb = new StringBuffer();
 		int i = BOARD_WIDTH - 1;
 		do {
 			if (row[i] == UNPLAYED) {
@@ -171,12 +171,12 @@ public class ForsythEdwardsNotation implements ChessConstants {
 					++numUnplayed;
 					--i;
 				}
-				rowString += numUnplayed;
+				rowSb.append(numUnplayed);
 			} else {
-				rowString += getPieceString(row[i--]);
+				rowSb.append(getPieceString(row[i--]));
 			}
 		} while (i >= 0);
-		return rowString;
+		return rowSb.toString();
 	}
 
 	public static String getPieceString(int piece) {
