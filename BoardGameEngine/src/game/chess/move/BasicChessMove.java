@@ -1,6 +1,7 @@
 package game.chess.move;
 
 import game.Coordinate;
+import game.chess.ChessFunctions;
 import game.chess.ChessPosition;
 import game.chess.fen.ForsythEdwardsNotation;
 
@@ -22,14 +23,27 @@ public class BasicChessMove implements IChessMove {
 		position.squares[to.y][to.x] = position.squares[from.y][from.x];
 		position.squares[from.y][from.x] = UNPLAYED;
 		if (changeState) {
-			position.enPassantSquare = enPassantSquare;
+			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] - ChessFunctions.getPieceScore(pieceCaptured);
 		}
 	}
 
 	@Override
-	public void unapplyMove(ChessPosition position) {
+	public void unapplyMove(ChessPosition position, boolean changeState) {
 		position.squares[from.y][from.x] = position.squares[to.y][to.x];
 		position.squares[to.y][to.x] = pieceCaptured;
+		if (changeState) {
+			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] + ChessFunctions.getPieceScore(pieceCaptured);
+		}
+	}
+
+	@Override
+	public Coordinate getEnPassantSquare() {
+		return enPassantSquare;
+	}
+
+	@Override
+	public int getPieceCaptured() {
+		return pieceCaptured;
 	}
 
 	@Override

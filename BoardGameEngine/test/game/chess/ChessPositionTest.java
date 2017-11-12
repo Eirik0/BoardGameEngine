@@ -1,6 +1,7 @@
 package game.chess;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +9,9 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 
+import game.Coordinate;
+import game.TwoPlayers;
+import game.chess.ChessPositionHistory.UndoChessMove;
 import game.chess.fen.ForsythEdwardsNotation;
 import game.chess.move.IChessMove;
 
@@ -18,6 +22,26 @@ public class ChessPositionTest implements ChessConstants {
 		assertEquals(20, position.getPossibleMoves().size());
 	}
 
+	@Test
+	public void testGetKnightMoves() {
+		List<IChessMove> possibleMoves = ForsythEdwardsNotation.stringToPosition("8/1n4N1/2k5/8/8/5K2/1N4n1/8 b - - 0 1").getPossibleMoves();
+		assertEquals(15, possibleMoves.size());
+		List<String> expectedMoves = Arrays.asList("g2-e1", "g2-e3", "g2-f4", "g2-h4", "c6-d5", "c6-c5", "c6-b5", "c6-b6", "c6-c7", "c6-d7", "c6-d6", "b7-c5", "b7-a5", "b7-d8", "b7-d6");
+		List<String> moveStrings = possibleMoves.stream().map(move -> move.toString()).collect(Collectors.toList());
+		moveStrings.retainAll(expectedMoves);
+		assertEquals(15, moveStrings.size());
+	}
+
+	public static void assertPositionIntegrity(ChessPosition position) {
+		Coordinate whiteKingSquare = position.kingSquares[TwoPlayers.PLAYER_1];
+		Coordinate blackKingSquare = position.kingSquares[TwoPlayers.PLAYER_2];
+		assertEquals("White king square", WHITE_KING, position.squares[whiteKingSquare.y][whiteKingSquare.x]);
+		assertEquals("Black king square", BLACK_KING, position.squares[blackKingSquare.y][blackKingSquare.x]);
+		double[] expectedMaterialScore = ForsythEdwardsNotation.getMaterialScore(position.squares);
+		assertEquals("White material score", expectedMaterialScore[1], position.materialScore[1], 0.01);
+		assertEquals("Black material score", expectedMaterialScore[2], position.materialScore[2], 0.01);
+	}
+
 	public static void assertPositionsEqual(ChessPosition expected, ChessPosition actual) {
 		assertEquals(getBoardStr(expected), getBoardStr(actual));
 		assertEquals("Current player", expected.currentPlayer, actual.currentPlayer);
@@ -25,8 +49,21 @@ public class ChessPositionTest implements ChessConstants {
 		assertEquals("En passant square", expected.enPassantSquare, actual.enPassantSquare);
 		assertEquals("White king square", expected.kingSquares[1], actual.kingSquares[1]);
 		assertEquals("Black king square", expected.kingSquares[2], actual.kingSquares[2]);
+		assertEquals("White material score", expected.materialScore[1], actual.materialScore[1], 0.01);
+		assertEquals("Black material score", expected.materialScore[2], actual.materialScore[2], 0.01);
 		assertEquals("Half move clock", expected.halfMoveClock, actual.halfMoveClock);
 		assertEquals("Ply count", expected.positionHistory.plyCount, actual.positionHistory.plyCount);
+		for (int i = 0; i < expected.positionHistory.plyCount; ++i) {
+			UndoChessMove expectedUndoMove = expected.positionHistory.undoChessMoves[i];
+			UndoChessMove actualUndoMove = actual.positionHistory.undoChessMoves[i];
+			if (expectedUndoMove == null) {
+				assertNull(actualUndoMove);
+				continue;
+			}
+			assertEquals("Castle state " + i, expectedUndoMove.priorCastleState, actualUndoMove.priorCastleState);
+			assertEquals("En passant Square " + i, expectedUndoMove.priorEnPassantSquare, actualUndoMove.priorEnPassantSquare);
+			assertEquals("Half move clock " + i, expectedUndoMove.priorHalfMoveClock, actualUndoMove.priorHalfMoveClock);
+		}
 	}
 
 	public static String getBoardStr(ChessPosition expected) {

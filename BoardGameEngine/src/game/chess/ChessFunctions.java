@@ -32,7 +32,7 @@ public class ChessFunctions implements ChessConstants {
 		// clockwise starting upper left
 		return (x > 0 && y > 1 && position.squares[y - 2][x - 1] == opponentKnight) ||
 				(x < BOARD_WIDTH - 1 && y > 1 && position.squares[y - 2][x + 1] == opponentKnight) ||
-				(x < BOARD_WIDTH - 2 && y > 1 && position.squares[y - 1][x + 2] == opponentKnight) ||
+				(x < BOARD_WIDTH - 2 && y > 0 && position.squares[y - 1][x + 2] == opponentKnight) ||
 				(x < BOARD_WIDTH - 2 && y < BOARD_WIDTH - 1 && position.squares[y + 1][x + 2] == opponentKnight) ||
 				(x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 2 && position.squares[y + 2][x + 1] == opponentKnight) ||
 				(x > 0 && y < BOARD_WIDTH - 2 && position.squares[y + 2][x - 1] == opponentKnight) ||
@@ -112,7 +112,7 @@ public class ChessFunctions implements ChessConstants {
 
 	public static double getPieceScore(int piece) {
 		switch (piece & ALL_PIECES) {
-		case 0:
+		case UNPLAYED:
 			return 0;
 		case PAWN:
 			return PAWN_SCORE;
@@ -125,7 +125,7 @@ public class ChessFunctions implements ChessConstants {
 		case QUEEN:
 			return QUEEN_SCORE;
 		default:
-			return 0;
+			throw new IllegalStateException("Unknown piece: " + piece);
 		}
 	}
 }

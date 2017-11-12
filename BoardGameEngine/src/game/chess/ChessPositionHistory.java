@@ -3,7 +3,7 @@ package game.chess;
 import game.Coordinate;
 
 public class ChessPositionHistory implements ChessConstants {
-	private final UndoChessMove[] undoChessMoves;
+	public final UndoChessMove[] undoChessMoves;
 	public int plyCount;
 
 	public ChessPositionHistory() {
@@ -19,7 +19,7 @@ public class ChessPositionHistory implements ChessConstants {
 		this.plyCount = plyCount;
 	}
 
-	public void makeMove(ChessPosition position) {
+	public void saveState(ChessPosition position) {
 		undoChessMoves[plyCount++] = new UndoChessMove(position.castleState, position.enPassantSquare, position.halfMoveClock);
 	}
 

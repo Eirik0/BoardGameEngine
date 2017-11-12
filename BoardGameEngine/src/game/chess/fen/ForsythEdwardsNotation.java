@@ -182,7 +182,7 @@ public class ForsythEdwardsNotation implements ChessConstants {
 	public static String getPieceString(int piece) {
 		switch (piece) {
 		case UNPLAYED:
-			return " ";
+			return "."; // Not used by FEN
 		case WHITE_PAWN:
 			return "P";
 		case BLACK_PAWN:

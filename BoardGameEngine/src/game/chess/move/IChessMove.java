@@ -7,7 +7,11 @@ import game.chess.ChessPosition;
 public interface IChessMove extends ChessConstants {
 	public void applyMove(ChessPosition position, boolean changeState);
 
-	public void unapplyMove(ChessPosition position);
+	public void unapplyMove(ChessPosition position, boolean changeState);
+
+	public Coordinate getEnPassantSquare();
+
+	public int getPieceCaptured();
 
 	public Coordinate getFrom();
 

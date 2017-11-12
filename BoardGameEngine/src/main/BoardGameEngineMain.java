@@ -103,8 +103,9 @@ public class BoardGameEngineMain {
 	private static void registerGames() {
 		GameRegistry.registerGame(ChessGame.NAME, ChessGame.class, ChessGameRenderer.class)
 				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
-				.registerPositionEvaluator("Computer 1", new ChessPositionEvaluator(), 2, 4000)
-				.registerPositionEvaluator("Computer 2", new ChessPositionEvaluator(), 4, 15000);
+				.registerPositionEvaluator("Computer 1", new ChessPositionEvaluator(), 2, 1000)
+				.registerPositionEvaluator("Computer 2", new ChessPositionEvaluator(), 2, 4000)
+				.registerPositionEvaluator("Computer 3", new ChessPositionEvaluator(), 4, 15000);
 
 		GameRegistry.registerGame(TicTacToeGame.NAME, TicTacToeGame.class, TicTacToeGameRenderer.class)
 				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)

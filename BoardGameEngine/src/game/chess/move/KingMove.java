@@ -14,19 +14,22 @@ public class KingMove implements IChessMove {
 	public void applyMove(ChessPosition position, boolean changeState) {
 		basicMove.applyMove(position, changeState);
 		position.kingSquares[position.currentPlayer] = basicMove.to;
-		if (changeState) {
-			if (position.white) { // mask out the opposite player
-				position.castleState &= (BLACK_KING_CASTLE | BLACK_QUEEN_CASTLE);
-			} else {
-				position.castleState &= (WHITE_KING_CASTLE | WHITE_QUEEN_CASTLE);
-			}
-		}
 	}
 
 	@Override
-	public void unapplyMove(ChessPosition position) {
-		basicMove.unapplyMove(position);
+	public void unapplyMove(ChessPosition position, boolean changeState) {
+		basicMove.unapplyMove(position, changeState);
 		position.kingSquares[position.currentPlayer] = basicMove.from;
+	}
+
+	@Override
+	public Coordinate getEnPassantSquare() {
+		return basicMove.enPassantSquare;
+	}
+
+	@Override
+	public int getPieceCaptured() {
+		return basicMove.pieceCaptured;
 	}
 
 	@Override
