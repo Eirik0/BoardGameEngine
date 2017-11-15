@@ -56,4 +56,24 @@ public class UltimateTicTacToeUtilities {
 				(has0 && has4 && has8 ? 1 : 0) +
 				(has2 && has4 && has6 ? 1 : 0);
 	}
+
+	public static boolean hasPossibleWins(int board, int otherPlayer) {
+		boolean has0 = ((board >> 0) & otherPlayer) != otherPlayer;
+		boolean has1 = ((board >> 2) & otherPlayer) != otherPlayer;
+		boolean has2 = ((board >> 4) & otherPlayer) != otherPlayer;
+		boolean has3 = ((board >> 6) & otherPlayer) != otherPlayer;
+		boolean has4 = ((board >> 8) & otherPlayer) != otherPlayer;
+		boolean has5 = ((board >> 10) & otherPlayer) != otherPlayer;
+		boolean has6 = ((board >> 12) & otherPlayer) != otherPlayer;
+		boolean has7 = ((board >> 14) & otherPlayer) != otherPlayer;
+		boolean has8 = ((board >> 16) & otherPlayer) != otherPlayer;
+		return (has0 && has1 && has2) ||
+				(has3 && has4 && has5) ||
+				(has6 && has7 && has8) ||
+				(has0 && has3 && has6) ||
+				(has1 && has4 && has7) ||
+				(has2 && has5 && has8) ||
+				(has0 && has4 && has8) ||
+				(has2 && has4 && has6);
+	}
 }

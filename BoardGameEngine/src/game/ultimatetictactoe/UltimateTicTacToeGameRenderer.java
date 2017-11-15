@@ -74,7 +74,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 				int playerInt = (position.boards[n] >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
 				if (playerInt != TwoPlayers.UNPLAYED) {
 					Coordinate boardXY = UltimateTicTacToeUtilities.getBoardXY(n, m);
-					g.setColor(lastMove != null && boardXY.equals(lastMove.coordinate) ? Color.WHITE : Color.BLACK);
+					g.setColor(lastMove != null && n == lastMove.boardNum && m == lastMove.position ? Color.WHITE : Color.BLACK);
 					String player = playerInt == TwoPlayers.PLAYER_1 ? "X" : "O";
 					drawCenteredString(g, smallFont, player, sizer.getCenterX(boardXY.x), sizer.getCenterY(boardXY.y));
 				}
@@ -109,8 +109,11 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 	private void drawMouseOn(Graphics g, UltimateTicTacToePosition position, List<UTTTCoordinate> possibleMoves) {
 		if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
-			if (coordinate != null && possibleMoves.contains(new UTTTCoordinate(coordinate, position.currentBoard))) {
-				GuiPlayerHelper.highlightCoordinate(g, sizer, 0.1);
+			if (coordinate != null) {
+				Coordinate boardNM = UltimateTicTacToeUtilities.getBoardNM(coordinate.x, coordinate.y);
+				if (possibleMoves.contains(new UTTTCoordinate(boardNM.x, boardNM.y, position.currentBoard))) {
+					GuiPlayerHelper.highlightCoordinate(g, sizer, 0.1);
+				}
 			}
 		}
 	}
@@ -120,7 +123,8 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
 			if (coordinate != null) {
-				return new UTTTCoordinate(coordinate, position.currentBoard);
+				Coordinate boardNM = UltimateTicTacToeUtilities.getBoardNM(coordinate.x, coordinate.y);
+				return new UTTTCoordinate(boardNM.x, boardNM.y, position.currentBoard);
 			}
 		}
 		return null;

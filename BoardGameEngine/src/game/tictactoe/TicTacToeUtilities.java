@@ -16,6 +16,37 @@ public class TicTacToeUtilities {
 	public static final int POS_7 = TwoPlayers.BOTH_PLAYERS << 14;
 	public static final int POS_8 = TwoPlayers.BOTH_PLAYERS << 16;
 
+	public static final int[] POS = new int[] { POS_0, POS_1, POS_2, POS_3, POS_4, POS_5, POS_6, POS_7, POS_8 };
+
+	public static final int PLAYER_1_ALL_POS = 0x15555; // 010101010101010101
+	public static final int PLAYER_2_ALL_POS = 0x2AAAA; // 101010101010101010
+
+	public static final int PLAYER_1_POS_0 = PLAYER_1_ALL_POS & POS_0;
+	public static final int PLAYER_1_POS_1 = PLAYER_1_ALL_POS & POS_1;
+	public static final int PLAYER_1_POS_2 = PLAYER_1_ALL_POS & POS_2;
+	public static final int PLAYER_1_POS_3 = PLAYER_1_ALL_POS & POS_3;
+	public static final int PLAYER_1_POS_4 = PLAYER_1_ALL_POS & POS_4;
+	public static final int PLAYER_1_POS_5 = PLAYER_1_ALL_POS & POS_5;
+	public static final int PLAYER_1_POS_6 = PLAYER_1_ALL_POS & POS_6;
+	public static final int PLAYER_1_POS_7 = PLAYER_1_ALL_POS & POS_7;
+	public static final int PLAYER_1_POS_8 = PLAYER_1_ALL_POS & POS_8;
+
+	public static final int PLAYER_2_POS_0 = PLAYER_2_ALL_POS & POS_0;
+	public static final int PLAYER_2_POS_1 = PLAYER_2_ALL_POS & POS_1;
+	public static final int PLAYER_2_POS_2 = PLAYER_2_ALL_POS & POS_2;
+	public static final int PLAYER_2_POS_3 = PLAYER_2_ALL_POS & POS_3;
+	public static final int PLAYER_2_POS_4 = PLAYER_2_ALL_POS & POS_4;
+	public static final int PLAYER_2_POS_5 = PLAYER_2_ALL_POS & POS_5;
+	public static final int PLAYER_2_POS_6 = PLAYER_2_ALL_POS & POS_6;
+	public static final int PLAYER_2_POS_7 = PLAYER_2_ALL_POS & POS_7;
+	public static final int PLAYER_2_POS_8 = PLAYER_2_ALL_POS & POS_8;
+
+	public static final int[][] PLAYER_POS = new int[][] {
+			{},
+			{ PLAYER_1_POS_0, PLAYER_1_POS_1, PLAYER_1_POS_2, PLAYER_1_POS_3, PLAYER_1_POS_4, PLAYER_1_POS_5, PLAYER_1_POS_6, PLAYER_1_POS_7, PLAYER_1_POS_8 },
+			{ PLAYER_2_POS_0, PLAYER_2_POS_1, PLAYER_2_POS_2, PLAYER_2_POS_3, PLAYER_2_POS_4, PLAYER_2_POS_5, PLAYER_2_POS_6, PLAYER_2_POS_7, PLAYER_2_POS_8 }
+	};
+
 	public static boolean winExists(int board, int player) {
 		boolean has0 = ((board >> 0) & player) == player;
 		boolean has1 = ((board >> 2) & player) == player;

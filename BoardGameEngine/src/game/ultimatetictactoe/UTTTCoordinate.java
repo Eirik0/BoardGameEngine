@@ -1,20 +1,20 @@
 package game.ultimatetictactoe;
 
-import game.Coordinate;
-
 public class UTTTCoordinate {
-	public final Coordinate coordinate;
-
+	public final int boardNum;
+	public final int position;
 	public final int currentBoard;
 
-	public UTTTCoordinate(Coordinate coordinate, int currentBoard) {
-		this.coordinate = coordinate;
+	public UTTTCoordinate(int boardNum, int position, int currentBoard) {
+		this.boardNum = boardNum;
+		this.position = position;
 		this.currentBoard = currentBoard;
 	}
 
 	@Override
 	public int hashCode() {
-		return coordinate.hashCode();
+		final int prime = 31;
+		return prime * (prime + boardNum) + position;
 	}
 
 	@Override
@@ -25,11 +25,11 @@ public class UTTTCoordinate {
 			return false;
 		}
 		UTTTCoordinate other = (UTTTCoordinate) obj;
-		return coordinate.equals(other.coordinate);
+		return boardNum == other.boardNum && position == other.position;
 	}
 
 	@Override
 	public String toString() {
-		return coordinate.toString();
+		return "(" + boardNum + ", " + position + ")";
 	}
 }
