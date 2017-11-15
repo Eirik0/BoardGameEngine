@@ -1,17 +1,16 @@
 package game.chess.move;
 
-import game.Coordinate;
 import game.chess.ChessFunctions;
 import game.chess.ChessPosition;
 import game.chess.fen.ForsythEdwardsNotation;
 
 public class BasicChessMove implements IChessMove {
-	public final Coordinate from;
-	public final Coordinate to;
+	public final int from;
+	public final int to;
 	final int pieceCaptured;
-	final Coordinate enPassantSquare;
+	final int enPassantSquare;
 
-	public BasicChessMove(Coordinate from, Coordinate to, int pieceCaptured, Coordinate enPassantSquare) {
+	public BasicChessMove(int from, int to, int pieceCaptured, int enPassantSquare) {
 		this.from = from;
 		this.to = to;
 		this.pieceCaptured = pieceCaptured;
@@ -20,8 +19,8 @@ public class BasicChessMove implements IChessMove {
 
 	@Override
 	public void applyMove(ChessPosition position, boolean changeState) {
-		position.squares[to.y][to.x] = position.squares[from.y][from.x];
-		position.squares[from.y][from.x] = UNPLAYED;
+		position.squares[to] = position.squares[from];
+		position.squares[from] = UNPLAYED;
 		if (changeState) {
 			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] - ChessFunctions.getPieceScore(pieceCaptured);
 		}
@@ -29,15 +28,15 @@ public class BasicChessMove implements IChessMove {
 
 	@Override
 	public void unapplyMove(ChessPosition position, boolean changeState) {
-		position.squares[from.y][from.x] = position.squares[to.y][to.x];
-		position.squares[to.y][to.x] = pieceCaptured;
+		position.squares[from] = position.squares[to];
+		position.squares[to] = pieceCaptured;
 		if (changeState) {
 			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] + ChessFunctions.getPieceScore(pieceCaptured);
 		}
 	}
 
 	@Override
-	public Coordinate getEnPassantSquare() {
+	public int getEnPassantSquare() {
 		return enPassantSquare;
 	}
 
@@ -47,19 +46,19 @@ public class BasicChessMove implements IChessMove {
 	}
 
 	@Override
-	public Coordinate getFrom() {
+	public int getFrom() {
 		return from;
 	}
 
 	@Override
-	public Coordinate getTo() {
+	public int getTo() {
 		return to;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		return prime * (prime + from.hashCode()) + to.hashCode();
+		return prime * (prime + from) + to;
 	}
 
 	@Override
@@ -70,7 +69,7 @@ public class BasicChessMove implements IChessMove {
 			return false;
 		}
 		BasicChessMove other = (BasicChessMove) obj;
-		return from.equals(other.from) && to.equals(other.to);
+		return from == other.from && to == other.to;
 	}
 
 	@Override

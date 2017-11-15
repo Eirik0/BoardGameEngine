@@ -1,6 +1,5 @@
 package game.chess.move;
 
-import game.Coordinate;
 import game.chess.ChessFunctions;
 import game.chess.ChessPosition;
 
@@ -17,8 +16,8 @@ public class PawnPromotionMove implements IChessMove {
 
 	@Override
 	public void applyMove(ChessPosition position, boolean changeState) {
-		position.squares[basicMove.to.y][basicMove.to.x] = promotion;
-		position.squares[basicMove.from.y][basicMove.from.x] = UNPLAYED;
+		position.squares[basicMove.to] = promotion;
+		position.squares[basicMove.from] = UNPLAYED;
 		if (changeState) {
 			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] - ChessFunctions.getPieceScore(basicMove.pieceCaptured);
 			position.materialScore[position.currentPlayer] = position.materialScore[position.currentPlayer] + ChessFunctions.getPieceScore(promotion) - PAWN_SCORE;
@@ -27,8 +26,8 @@ public class PawnPromotionMove implements IChessMove {
 
 	@Override
 	public void unapplyMove(ChessPosition position, boolean changeState) {
-		position.squares[basicMove.from.y][basicMove.from.x] = pawn;
-		position.squares[basicMove.to.y][basicMove.to.x] = basicMove.pieceCaptured;
+		position.squares[basicMove.from] = pawn;
+		position.squares[basicMove.to] = basicMove.pieceCaptured;
 		if (changeState) {
 			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] + ChessFunctions.getPieceScore(basicMove.pieceCaptured);
 			position.materialScore[position.currentPlayer] = position.materialScore[position.currentPlayer] - ChessFunctions.getPieceScore(promotion) + PAWN_SCORE;
@@ -36,7 +35,7 @@ public class PawnPromotionMove implements IChessMove {
 	}
 
 	@Override
-	public Coordinate getEnPassantSquare() {
+	public int getEnPassantSquare() {
 		return basicMove.enPassantSquare;
 	}
 
@@ -46,12 +45,12 @@ public class PawnPromotionMove implements IChessMove {
 	}
 
 	@Override
-	public Coordinate getFrom() {
+	public int getFrom() {
 		return basicMove.from;
 	}
 
 	@Override
-	public Coordinate getTo() {
+	public int getTo() {
 		return basicMove.to;
 	}
 

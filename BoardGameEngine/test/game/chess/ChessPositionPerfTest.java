@@ -59,7 +59,11 @@ public class ChessPositionPerfTest {
 		long start = System.currentTimeMillis();
 		long totalPositions = 0;
 		for (PerfTest perfTest : perfTests) {
+			//long startPos = System.currentTimeMillis();
 			long countPositions = countPositions(perfTest.position, depth);
+			//long posTime = System.currentTimeMillis() - startPos;
+			//long posPerSec = (long) (((double) countPositions / posTime) * 1000);
+			//System.out.println(perfTest.fen + "; D" + (depth + 1) + " " + countPositions + ", " + (posTime / 1000) + "s, pps= " + posPerSec);
 			if (perfTest.expectedPositions[depth] != countPositions) {
 				System.out.println(depth + ": " + countPositions + " != " + perfTest.expectedPositions[depth] + " " + perfTest.fen);
 				System.out.println(ChessPositionTest.getBoardStr(perfTest.position));
@@ -68,7 +72,8 @@ public class ChessPositionPerfTest {
 			totalPositions += countPositions;
 		}
 		long time = System.currentTimeMillis() - start;
-		System.out.println("Count Positions: depth= " + depth + ", totalPositions= " + totalPositions + ", time= " + time + "ms");
+		long posPerSec = (long) (((double) totalPositions / time) * 1000);
+		System.out.println("Count Positions: depth= " + depth + ", totalPositions= " + totalPositions + ", time= " + time + "ms, pps= " + posPerSec);
 	}
 
 	private static long countPositions(ChessPosition position, int depth) {

@@ -1,6 +1,5 @@
 package game.chess.move;
 
-import game.Coordinate;
 import game.chess.ChessConstants;
 import game.chess.ChessPosition;
 
@@ -9,11 +8,11 @@ public interface IChessMove extends ChessConstants {
 
 	public void unapplyMove(ChessPosition position, boolean changeState);
 
-	public Coordinate getEnPassantSquare();
+	public int getEnPassantSquare();
 
 	public int getPieceCaptured();
 
-	public Coordinate getFrom();
+	public int getFrom();
 
-	public Coordinate getTo();
+	public int getTo();
 }

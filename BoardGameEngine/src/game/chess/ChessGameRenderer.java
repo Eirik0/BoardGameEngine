@@ -71,7 +71,7 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
 				if (movingPieceStart != null && movingPieceStart.x == x && movingPieceStart.y == y) {
 					continue;
 				}
-				int piece = position.squares[y][x];
+				int piece = position.squares[SQUARE_64_TO_SQUARE[y][x]];
 				BufferedImage pieceImage = pieceImages.getPieceImage(piece);
 				if (pieceImage != null) {
 					int x0 = round(sizer.offsetX + sizer.cellWidth * x);
@@ -88,9 +88,9 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
 			return;
 		}
 		g.setColor(LAST_MOVE_COLOR);
-		Coordinate from = lastMove.getFrom();
+		Coordinate from = SQUARE_TO_COORDINATE[lastMove.getFrom()];
 		GuiPlayerHelper.highlightCoordinate(g, sizer, from.x, from.y, 1.0 / 2.125);
-		Coordinate to = lastMove.getTo();
+		Coordinate to = SQUARE_TO_COORDINATE[lastMove.getTo()];
 		g.setColor(positon.white ? LIGHT_PIECE_COLOR : DARK_PIECE_COLOR);
 		GuiPlayerHelper.highlightCoordinate(g, sizer, to.x, to.y, 1.0 / 2.125);
 	}
@@ -100,7 +100,7 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, BOARD_WIDTH);
 			if (movingPieceStart != null) {
 				Set<Coordinate> possibleTos = moveMap.get(movingPieceStart).keySet(); // If we are drawing while maybe getting the user move, start can become null
-				BufferedImage pieceImage = pieceImages.getPieceImage(position.squares[movingPieceStart.y][movingPieceStart.x]);
+				BufferedImage pieceImage = pieceImages.getPieceImage(position.squares[SQUARE_64_TO_SQUARE[movingPieceStart.y][movingPieceStart.x]]);
 				double width = sizer.cellWidth + 1;
 				int x0 = round(GameGuiManager.getMouseX() - width / 2);
 				int y0 = round(GameGuiManager.getMouseY() - width / 2);
@@ -115,7 +115,7 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
 	}
 
 	private static Map<Coordinate, Map<Coordinate, List<IChessMove>>> createMoveMap(List<IChessMove> possibleMoves) {
-		return possibleMoves.stream().collect(Collectors.groupingBy(move -> move.getFrom(), Collectors.groupingBy(move -> move.getTo())));
+		return possibleMoves.stream().collect(Collectors.groupingBy(move -> SQUARE_TO_COORDINATE[move.getFrom()], Collectors.groupingBy(move -> SQUARE_TO_COORDINATE[move.getTo()])));
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
 			}
 		} else if (input == UserInput.LEFT_BUTTON_PRESSED) {
 			Coordinate from = GuiPlayerHelper.maybeGetCoordinate(sizer, BOARD_WIDTH);
-			if (from != null && position.squares[from.y][from.x] != UNPLAYED) {
+			if (from != null && position.squares[SQUARE_64_TO_SQUARE[from.y][from.x]] != UNPLAYED) {
 				if (moveMap.containsKey(from)) { // XXX consider allowing picking up pieces that can't be moved ?
 					movingPieceStart = from;
 				}

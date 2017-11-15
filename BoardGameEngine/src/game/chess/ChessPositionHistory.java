@@ -1,7 +1,5 @@
 package game.chess;
 
-import game.Coordinate;
-
 public class ChessPositionHistory implements ChessConstants {
 	public final UndoChessMove[] undoChessMoves;
 	public int plyCount;
@@ -38,11 +36,11 @@ public class ChessPositionHistory implements ChessConstants {
 
 	static class UndoChessMove {
 		final int priorCastleState;
-		final Coordinate priorEnPassantSquare;
+		final int priorEnPassantSquare;
 		final int priorHalfMoveClock;
 
 		// XXX hash of position for 3 fold repetition check
-		public UndoChessMove(int priorCastleState, Coordinate priorEnPassantSquare, int priorHalfMoveClock) {
+		public UndoChessMove(int priorCastleState, int priorEnPassantSquare, int priorHalfMoveClock) {
 			this.priorCastleState = priorCastleState;
 			this.priorEnPassantSquare = priorEnPassantSquare;
 			this.priorHalfMoveClock = priorHalfMoveClock;

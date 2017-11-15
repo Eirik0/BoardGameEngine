@@ -1,6 +1,5 @@
 package game.chess.move;
 
-import game.Coordinate;
 import game.chess.ChessFunctions;
 import game.chess.ChessPosition;
 
@@ -16,21 +15,21 @@ public class EnPassantCaptureMove implements IChessMove {
 	@Override
 	public void applyMove(ChessPosition position, boolean changeState) {
 		basicMove.applyMove(position, changeState);
-		position.squares[basicMove.to.y - pawnDirection][basicMove.to.x] = UNPLAYED;
+		position.squares[basicMove.to - pawnDirection] = UNPLAYED;
 	}
 
 	@Override
 	public void unapplyMove(ChessPosition position, boolean changeState) {
-		position.squares[basicMove.to.y - pawnDirection][basicMove.to.x] = basicMove.pieceCaptured;
-		position.squares[basicMove.from.y][basicMove.from.x] = position.squares[basicMove.to.y][basicMove.to.x];
-		position.squares[basicMove.to.y][basicMove.to.x] = UNPLAYED;
+		position.squares[basicMove.to - pawnDirection] = basicMove.pieceCaptured;
+		position.squares[basicMove.from] = position.squares[basicMove.to];
+		position.squares[basicMove.to] = UNPLAYED;
 		if (changeState) {
 			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] + ChessFunctions.getPieceScore(basicMove.pieceCaptured);
 		}
 	}
 
 	@Override
-	public Coordinate getEnPassantSquare() {
+	public int getEnPassantSquare() {
 		return basicMove.enPassantSquare;
 	}
 
@@ -40,12 +39,12 @@ public class EnPassantCaptureMove implements IChessMove {
 	}
 
 	@Override
-	public Coordinate getFrom() {
+	public int getFrom() {
 		return basicMove.from;
 	}
 
 	@Override
-	public Coordinate getTo() {
+	public int getTo() {
 		return basicMove.to;
 	}
 

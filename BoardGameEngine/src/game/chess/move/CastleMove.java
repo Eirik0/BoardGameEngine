@@ -1,14 +1,13 @@
 package game.chess.move;
 
-import game.Coordinate;
 import game.chess.ChessPosition;
 
 public class CastleMove implements IChessMove {
-	private final BasicChessMove basicMove; // from king to rook
-	private final Coordinate rookFrom;
-	private final Coordinate rookTo;
+	private final BasicChessMove basicMove;
+	private final int rookFrom;
+	private final int rookTo;
 
-	public CastleMove(BasicChessMove basicMove, Coordinate rookFrom, Coordinate rookTo) {
+	public CastleMove(BasicChessMove basicMove, int rookFrom, int rookTo) {
 		this.basicMove = basicMove;
 		this.rookFrom = rookFrom;
 		this.rookTo = rookTo;
@@ -16,28 +15,28 @@ public class CastleMove implements IChessMove {
 
 	@Override
 	public void applyMove(ChessPosition position, boolean changeState) {
-		int king = position.squares[basicMove.from.y][basicMove.from.x];
-		int rook = position.squares[rookFrom.y][rookFrom.x];
-		position.squares[basicMove.from.y][basicMove.from.x] = UNPLAYED;
-		position.squares[rookFrom.y][rookFrom.x] = UNPLAYED;
-		position.squares[basicMove.to.y][basicMove.to.x] = king;
-		position.squares[rookTo.y][rookTo.x] = rook;
+		int king = position.squares[basicMove.from];
+		int rook = position.squares[rookFrom];
+		position.squares[basicMove.from] = UNPLAYED;
+		position.squares[rookFrom] = UNPLAYED;
+		position.squares[basicMove.to] = king;
+		position.squares[rookTo] = rook;
 		position.kingSquares[position.currentPlayer] = basicMove.to;
 	}
 
 	@Override
 	public void unapplyMove(ChessPosition position, boolean changeState) {
-		int king = position.squares[basicMove.to.y][basicMove.to.x];
-		int rook = position.squares[rookTo.y][rookTo.x];
-		position.squares[basicMove.to.y][basicMove.to.x] = UNPLAYED;
-		position.squares[rookTo.y][rookTo.x] = UNPLAYED;
-		position.squares[basicMove.from.y][basicMove.from.x] = king;
-		position.squares[rookFrom.y][rookFrom.x] = rook;
+		int king = position.squares[basicMove.to];
+		int rook = position.squares[rookTo];
+		position.squares[basicMove.to] = UNPLAYED;
+		position.squares[rookTo] = UNPLAYED;
+		position.squares[basicMove.from] = king;
+		position.squares[rookFrom] = rook;
 		position.kingSquares[position.currentPlayer] = basicMove.from;
 	}
 
 	@Override
-	public Coordinate getEnPassantSquare() {
+	public int getEnPassantSquare() {
 		return basicMove.enPassantSquare;
 	}
 
@@ -47,12 +46,12 @@ public class CastleMove implements IChessMove {
 	}
 
 	@Override
-	public Coordinate getFrom() {
+	public int getFrom() {
 		return basicMove.from;
 	}
 
 	@Override
-	public Coordinate getTo() {
+	public int getTo() {
 		return basicMove.to;
 	}
 
@@ -74,6 +73,6 @@ public class CastleMove implements IChessMove {
 
 	@Override
 	public String toString() {
-		return rookFrom.x == H_FILE ? "O-O" : "O-O-O";
+		return rookFrom == H1 || rookFrom == H8 ? "O-O" : "O-O-O";
 	}
 }

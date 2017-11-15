@@ -13,17 +13,18 @@ import game.chess.ChessPositionHistory;
 public class ForsythEdwardsNotation implements ChessConstants {
 	public static ChessPosition stringToPosition(String string) {
 		String[] split = string.split(" ");
-		int[][] squares = getSquares(split[0]);
-		int currentPlayer = getCurrentPlayer(split[1]);
+		int[][] squares2d = getSquares(split[0]);
+		int[] squares = translateSquares(squares2d);
+		int currentPlayer = "w".equals(split[1]) ? TwoPlayers.PLAYER_1 : TwoPlayers.PLAYER_2;
 		int otherPlayer = TwoPlayers.otherPlayer(currentPlayer);
 		boolean white = currentPlayer == TwoPlayers.PLAYER_1;
 		int castleState = getCastleState(split[2]);
-		Coordinate enPassantSquare = getEnpassantSquare(split[3]);
+		int enPassantSquare = getEnpassantSquare(split[3]);
 		int halfMoveClock = Integer.parseInt(split[4]);
 		int plyCount = Integer.parseInt(split[5]) * 2 - (currentPlayer == TwoPlayers.PLAYER_1 ? 2 : 1);
-		Coordinate whiteKingSquare = findPiece(squares, WHITE_KING);
-		Coordinate blackKingSquare = findPiece(squares, BLACK_KING);
-		Coordinate[] kingSquares = new Coordinate[] { null, whiteKingSquare, blackKingSquare };
+		int whiteKingSquare = findPiece(squares2d, WHITE_KING);
+		int blackKingSquare = findPiece(squares2d, BLACK_KING);
+		int[] kingSquares = new int[] { NO_SQUARE, whiteKingSquare, blackKingSquare };
 		ChessPositionHistory positionHistory = new ChessPositionHistory(plyCount);
 		double[] materialScore = getMaterialScore(squares);
 		return new ChessPosition(squares, positionHistory, kingSquares, currentPlayer, otherPlayer, white, castleState, enPassantSquare, halfMoveClock, materialScore);
@@ -85,8 +86,17 @@ public class ForsythEdwardsNotation implements ChessConstants {
 		}
 	}
 
-	private static int getCurrentPlayer(String activeColor) {
-		return "w".equals(activeColor) ? TwoPlayers.PLAYER_1 : TwoPlayers.PLAYER_2;
+	private static int[] translateSquares(int[][] squares2d) {
+		int[] squares = new int[BOARD_ARRAY_SIZE];
+		for (int i = 0; i < BOARD_ARRAY_SIZE; ++i) {
+			squares[i] = SENTINEL;
+		}
+		for (int y = 0; y < BOARD_WIDTH; ++y) {
+			for (int x = 0; x < BOARD_WIDTH; ++x) {
+				squares[SQUARE_64_TO_SQUARE[y][x]] = squares2d[y][x];
+			}
+		}
+		return squares;
 	}
 
 	private static int getCastleState(String castlingAvailability) {
@@ -97,22 +107,23 @@ public class ForsythEdwardsNotation implements ChessConstants {
 		return whiteKingCastle | whiteQueenCastle | blackKingCastle | blackQueenCastle;
 	}
 
-	private static Coordinate findPiece(int[][] squares, int pieceToFind) {
+	private static int findPiece(int[][] squares, int pieceToFind) {
 		for (int y = 0; y < BOARD_WIDTH; ++y) {
 			for (int x = 0; x < BOARD_WIDTH; ++x) {
 				if (squares[y][x] == pieceToFind) {
-					return Coordinate.valueOf(x, y);
+					return SQUARE_64_TO_SQUARE[y][x];
 				}
 			}
 		}
-		return null;
+		return NO_SQUARE;
 	}
 
-	private static Coordinate getEnpassantSquare(String enPassantTargetSquare) {
+	private static int getEnpassantSquare(String enPassantTargetSquare) {
 		if (enPassantTargetSquare.equals("-")) {
-			return null;
+			return NO_SQUARE;
 		}
-		return getCoordinate(enPassantTargetSquare);
+		Coordinate coordinate = getCoordinate(enPassantTargetSquare);
+		return SQUARE_64_TO_SQUARE[coordinate.y][coordinate.x];
 	}
 
 	private static Coordinate getCoordinate(String algebraicCoordinate) {
@@ -153,27 +164,27 @@ public class ForsythEdwardsNotation implements ChessConstants {
 		return piecePlacement + " " + activeColor + " " + castlingAvailability + " " + enPassantTargetSquare + " " + halfMoveClock + " " + fullMoveNumber;
 	}
 
-	private static String getPiecePlacement(int[][] squares) {
+	private static String getPiecePlacement(int[] squares) {
 		List<String> piecePlacements = new ArrayList<>();
-		for (int i = BOARD_WIDTH - 1; i >= 0; --i) {
-			piecePlacements.add(getRowString(squares[i]));
+		for (int i = H8; i >= H1; i -= 10) {
+			piecePlacements.add(getRowString(squares, i));
 		}
 		return String.join("/", piecePlacements);
 	}
 
-	private static String getRowString(int[] row) {
+	private static String getRowString(int[] squares, int start) {
 		StringBuffer rowSb = new StringBuffer();
 		int i = BOARD_WIDTH - 1;
 		do {
-			if (row[i] == UNPLAYED) {
+			if (squares[start + i] == UNPLAYED) {
 				int numUnplayed = 0;
-				while (i >= 0 && row[i] == UNPLAYED) {
+				while (i >= 0 && squares[start + i] == UNPLAYED) {
 					++numUnplayed;
 					--i;
 				}
 				rowSb.append(numUnplayed);
 			} else {
-				rowSb.append(getPieceString(row[i--]));
+				rowSb.append(getPieceString(squares[start + i--]));
 			}
 		} while (i >= 0);
 		return rowSb.toString();
@@ -227,11 +238,12 @@ public class ForsythEdwardsNotation implements ChessConstants {
 		return whiteKingCastle + whiteQueenCastle + blackKingCastle + blackQueenCastle;
 	}
 
-	private static String getEnPassantTargetSquare(Coordinate enPassantSquare) {
-		return enPassantSquare == null ? "-" : algebraicCoordinate(enPassantSquare);
+	private static String getEnPassantTargetSquare(int enPassantSquare) {
+		return enPassantSquare == NO_SQUARE ? "-" : algebraicCoordinate(enPassantSquare);
 	}
 
-	public static String algebraicCoordinate(Coordinate coordinate) {
+	public static String algebraicCoordinate(int square) {
+		Coordinate coordinate = SQUARE_TO_COORDINATE[square];
 		return getFile(coordinate.x) + (coordinate.y + 1);
 	}
 
@@ -258,11 +270,11 @@ public class ForsythEdwardsNotation implements ChessConstants {
 		}
 	}
 
-	public static double[] getMaterialScore(int[][] squares) {
+	public static double[] getMaterialScore(int[] squares) {
 		double[] materialScore = new double[3];
 		for (int y = 0; y < BOARD_WIDTH; ++y) {
 			for (int x = 0; x < BOARD_WIDTH; ++x) {
-				int piece = squares[y][x];
+				int piece = squares[SQUARE_64_TO_SQUARE[y][x]];
 				addScore(materialScore, piece, TwoPlayers.PLAYER_1);
 				addScore(materialScore, piece, TwoPlayers.PLAYER_2);
 			}

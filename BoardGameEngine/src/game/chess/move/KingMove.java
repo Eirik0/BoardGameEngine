@@ -1,6 +1,5 @@
 package game.chess.move;
 
-import game.Coordinate;
 import game.chess.ChessPosition;
 
 public class KingMove implements IChessMove {
@@ -23,7 +22,7 @@ public class KingMove implements IChessMove {
 	}
 
 	@Override
-	public Coordinate getEnPassantSquare() {
+	public int getEnPassantSquare() {
 		return basicMove.enPassantSquare;
 	}
 
@@ -33,12 +32,12 @@ public class KingMove implements IChessMove {
 	}
 
 	@Override
-	public Coordinate getFrom() {
+	public int getFrom() {
 		return basicMove.from;
 	}
 
 	@Override
-	public Coordinate getTo() {
+	public int getTo() {
 		return basicMove.to;
 	}
 

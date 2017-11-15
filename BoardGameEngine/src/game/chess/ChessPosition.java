@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import game.Coordinate;
 import game.IPosition;
 import game.TwoPlayers;
 import game.chess.move.BasicChessMove;
@@ -15,11 +14,11 @@ import game.chess.move.KingMove;
 import game.chess.move.PawnPromotionMove;
 
 public class ChessPosition implements IPosition<IChessMove, ChessPosition>, ChessConstants {
-	public final int[][] squares;
+	public final int[] squares;
 
 	public final ChessPositionHistory positionHistory;
 
-	public Coordinate[] kingSquares; // 0 = null, 1 = whiteKing, 2 = blackKing
+	public int[] kingSquares; // 0 = null, 1 = whiteKing, 2 = blackKing
 
 	public boolean white;
 
@@ -27,7 +26,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 	public int otherPlayer;
 
 	public int castleState;
-	public Coordinate enPassantSquare;
+	public int enPassantSquare;
 
 	public int halfMoveClock; // The number of half moves since the last capture or pawn advance
 	// XXX 3 fold repetition
@@ -35,12 +34,12 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 	public double[] materialScore;
 
 	public ChessPosition() {
-		this(ChessConstants.newInitialPosition(), new ChessPositionHistory(), ChessConstants.newInitialKingSquares(), TwoPlayers.PLAYER_1, TwoPlayers.PLAYER_2, true, ALL_CASTLES, null, 0,
+		this(ChessConstants.newInitialPosition(), new ChessPositionHistory(), ChessConstants.newInitialKingSquares(), TwoPlayers.PLAYER_1, TwoPlayers.PLAYER_2, true, ALL_CASTLES, NO_SQUARE, 0,
 				ChessConstants.newInitialMaterialScore());
 	}
 
-	public ChessPosition(int[][] squares, ChessPositionHistory positionHistory, Coordinate[] kingSquares, int currentPlayer, int otherPlayer, boolean white, int castleState,
-			Coordinate enPassantSquare, int halfMoveClock, double[] materialScore) {
+	public ChessPosition(int[] squares, ChessPositionHistory positionHistory, int[] kingSquares, int currentPlayer, int otherPlayer, boolean white, int castleState,
+			int enPassantSquare, int halfMoveClock, double[] materialScore) {
 		this.squares = squares;
 		this.positionHistory = positionHistory;
 		this.currentPlayer = currentPlayer;
@@ -58,33 +57,36 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		if (halfMoveClock == 100) {
 			return Collections.emptyList();
 		}
-		int pawnDirection = white ? 1 : -1;
 		List<IChessMove> possibleMoves = new ArrayList<>();
-		for (int y = 0; y < BOARD_WIDTH; ++y) {
-			boolean pawnPromotes = white ? y == RANK_7 : y == RANK_2;
-			boolean isStartingPawnRank = white ? y == RANK_2 : y == RANK_7;
-			for (int x = 0; x < BOARD_WIDTH; ++x) {
-				int piece = squares[y][x];
+		int pawnOffset = white ? PAWN_OFFSET : -PAWN_OFFSET;
+		int square = H1;
+		do {
+			boolean pawnPromotes = white ? square == H7 : square == H2;
+			boolean isStartingPawnRank = white ? square == H2 : square == H7;
+			int fileCounter = 0;
+			do {
+				int piece = squares[square];
 				if ((piece & currentPlayer) == currentPlayer) {
-					Coordinate from = Coordinate.valueOf(x, y);
 					if ((piece & PAWN) == PAWN) {
-						addPawnMoves(possibleMoves, from, x, y, pawnDirection, isStartingPawnRank, pawnPromotes);
+						addPawnMoves(possibleMoves, square, pawnOffset, isStartingPawnRank, pawnPromotes);
 					} else if ((piece & KNIGHT) == KNIGHT) {
-						addKnightMoves(possibleMoves, from, x, y);
+						addKnightMoves(possibleMoves, square);
 					} else if ((piece & BISHOP) == BISHOP) {
-						addQueenOrBishopMoves(possibleMoves, from, x, y);
+						addSlidingMoves(possibleMoves, square, BISHOP_OFFSETS);
 					} else if ((piece & ROOK) == ROOK) {
-						addQueenOrRookMoves(possibleMoves, from, x, y);
+						addSlidingMoves(possibleMoves, square, ROOK_OFFSETS);
 					} else if ((piece & QUEEN) == QUEEN) {
-						addQueenOrBishopMoves(possibleMoves, from, x, y);
-						addQueenOrRookMoves(possibleMoves, from, x, y);
+						addSlidingMoves(possibleMoves, square, QUEEN_OFFSETS);
 					} else if ((piece & KING) == KING) {
-						addKingMoves(possibleMoves, from, x, y);
+						addKingMoves(possibleMoves, square);
 					}
 				}
-			}
-		}
-		addEnPassantCaptures(possibleMoves, pawnDirection);
+				++square;
+				++fileCounter;
+			} while (fileCounter < BOARD_WIDTH);
+			square += 2;
+		} while (square <= A8);
+		addEnPassantCaptures(possibleMoves, pawnOffset);
 		addCastlingMoves(possibleMoves);
 		return possibleMoves;
 	}
@@ -92,27 +94,25 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 	private void addPossibleMove(List<IChessMove> possibleMoves, IChessMove chessMove) {
 		// Move the pieces and then check if the king is attacked before adding the move
 		chessMove.applyMove(this, false);
-		Coordinate kingCoordinate = kingSquares[currentPlayer];
-		if (!ChessFunctions.isSquareAttacked(this, kingCoordinate.x, kingCoordinate.y, otherPlayer)) {
+		int kingSquare = kingSquares[currentPlayer];
+		if (!ChessFunctions.isSquareAttacked(this, kingSquare, otherPlayer)) {
 			possibleMoves.add(chessMove);
 		}
 		chessMove.unapplyMove(this, false);
 	}
 
-	private void addPawnMoves(List<IChessMove> possibleMoves, Coordinate from, int x, int y, int direction, boolean isStartingPawnRank, boolean pawnPromotes) {
-		if (isStartingPawnRank && squares[y + direction][x] == UNPLAYED && squares[y + direction + direction][x] == UNPLAYED) { // up 2 if on starting rank
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(x, y + direction + direction), UNPLAYED, Coordinate.valueOf(x, y + direction)));
+	private void addPawnMoves(List<IChessMove> possibleMoves, int from, int offset, boolean isStartingPawnRank, boolean pawnPromotes) {
+		int moveUpOne = from + offset;
+		int pawn = squares[from];
+		if (squares[moveUpOne] == UNPLAYED) { // up 1
+			addPawnMove(possibleMoves, new BasicChessMove(from, moveUpOne, UNPLAYED, NO_SQUARE), pawn, pawnPromotes);
+			int moveUpTwo = moveUpOne + offset;
+			if (isStartingPawnRank && squares[moveUpTwo] == UNPLAYED) { // up 2 if on starting rank
+				addPossibleMove(possibleMoves, new BasicChessMove(from, moveUpTwo, UNPLAYED, moveUpOne));
+			}
 		}
-		int pawn = squares[y][x];
-		if (squares[y + direction][x] == UNPLAYED) { // up 1
-			addPawnMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(x, y + direction), UNPLAYED, null), pawn, pawnPromotes);
-		}
-		if (x < BOARD_WIDTH - 1 && (squares[y + direction][x + 1] & otherPlayer) == otherPlayer) { // capture right
-			addPawnMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(x + 1, y + direction), squares[y + direction][x + 1], null), pawn, pawnPromotes);
-		}
-		if (x > 0 && (squares[y + direction][x - 1] & otherPlayer) == otherPlayer) { // capture left
-			addPawnMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(x - 1, y + direction), squares[y + direction][x - 1], null), pawn, pawnPromotes);
-		}
+		addPawnCapture(possibleMoves, from, moveUpOne + 1, pawn, pawnPromotes);
+		addPawnCapture(possibleMoves, from, moveUpOne - 1, pawn, pawnPromotes);
 	}
 
 	private void addPawnMove(List<IChessMove> possibleMoves, BasicChessMove basicMove, int pawn, boolean pawnPromotes) {
@@ -126,167 +126,90 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		}
 	}
 
-	private void addEnPassantCaptures(List<IChessMove> possibleMoves, int pawnDirection) {
-		if (enPassantSquare == null) {
+	private void addPawnCapture(List<IChessMove> possibleMoves, int from, int to, int pawn, boolean pawnPromotes) {
+		int capture = squares[to];
+		if ((capture & SENTINEL) == otherPlayer) {
+			addPawnMove(possibleMoves, new BasicChessMove(from, to, capture, NO_SQUARE), pawn, pawnPromotes);
+		}
+	}
+
+	private void addEnPassantCaptures(List<IChessMove> possibleMoves, int offset) {
+		if (enPassantSquare == NO_SQUARE) {
 			return;
 		}
 		int playerPawn = currentPlayer | PAWN;
-		if (enPassantSquare.x < BOARD_WIDTH - 1 && squares[enPassantSquare.y - pawnDirection][enPassantSquare.x + 1] == playerPawn) {
-			Coordinate from = Coordinate.valueOf(enPassantSquare.x + 1, enPassantSquare.y - pawnDirection);
-			BasicChessMove basicChessMove = new BasicChessMove(from, enPassantSquare, squares[enPassantSquare.y - pawnDirection][enPassantSquare.x], null);
-			addPossibleMove(possibleMoves, new EnPassantCaptureMove(basicChessMove, pawnDirection));
-		}
-		if (enPassantSquare.x > 0 && squares[enPassantSquare.y - pawnDirection][enPassantSquare.x - 1] == playerPawn) {
-			Coordinate from = Coordinate.valueOf(enPassantSquare.x - 1, enPassantSquare.y - pawnDirection);
-			BasicChessMove basicChessMove = new BasicChessMove(from, enPassantSquare, squares[enPassantSquare.y - pawnDirection][enPassantSquare.x], null);
-			addPossibleMove(possibleMoves, new EnPassantCaptureMove(basicChessMove, pawnDirection));
+		addEnPassantCapture(possibleMoves, enPassantSquare - offset + 1, offset, playerPawn);
+		addEnPassantCapture(possibleMoves, enPassantSquare - offset - 1, offset, playerPawn);
+	}
+
+	private void addEnPassantCapture(List<IChessMove> possibleMoves, int from, int offset, int playerPawn) {
+		if (squares[from] == playerPawn) {
+			BasicChessMove basicChessMove = new BasicChessMove(from, enPassantSquare, squares[enPassantSquare - offset], NO_SQUARE);
+			addPossibleMove(possibleMoves, new EnPassantCaptureMove(basicChessMove, offset));
 		}
 	}
 
-	private void addKnightMoves(List<IChessMove> possibleMoves, Coordinate from, int x, int y) {
-		// clockwise starting upper left
-		if (x > 0 && y > 1 && (squares[y - 2][x - 1] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(x - 1, y - 2), squares[y - 2][x - 1], null));
-		}
-		if (x < BOARD_WIDTH - 1 && y > 1 && (squares[y - 2][x + 1] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(x + 1, y - 2), squares[y - 2][x + 1], null));
-		}
-		if (x < BOARD_WIDTH - 2 && y > 0 && (squares[y - 1][x + 2] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(x + 2, y - 1), squares[y - 1][x + 2], null));
-		}
-		if (x < BOARD_WIDTH - 2 && y < BOARD_WIDTH - 1 && (squares[y + 1][x + 2] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(x + 2, y + 1), squares[y + 1][x + 2], null));
-		}
-		if (x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 2 && (squares[y + 2][x + 1] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(x + 1, y + 2), squares[y + 2][x + 1], null));
-		}
-		if (x > 0 && y < BOARD_WIDTH - 2 && (squares[y + 2][x - 1] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(x - 1, y + 2), squares[y + 2][x - 1], null));
-		}
-		if (x > 1 && y < BOARD_WIDTH - 1 && (squares[y + 1][x - 2] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(x - 2, y + 1), squares[y + 1][x - 2], null));
-		}
-		if (x > 1 && y > 0 && (squares[y - 1][x - 2] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(x - 2, y - 1), squares[y - 1][x - 2], null));
+	private void addKnightMoves(List<IChessMove> possibleMoves, int from) {
+		for (int i = 0; i < KNIGHT_OFFSETS.length; ++i) {
+			int offset = KNIGHT_OFFSETS[i];
+			int to = from + offset;
+			int pieceCaptured = squares[to];
+			if ((pieceCaptured & currentPlayer) != currentPlayer) {
+				addPossibleMove(possibleMoves, new BasicChessMove(from, to, pieceCaptured, NO_SQUARE));
+			}
 		}
 	}
 
-	private void addQueenOrBishopMoves(List<IChessMove> possibleMoves, Coordinate from, int x, int y) {
-		int bx = x;
-		int by = y;
-		while (bx < BOARD_WIDTH - 1 && by < BOARD_WIDTH - 1 && squares[++by][++bx] == UNPLAYED) { // down right
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), UNPLAYED, null));
-		}
-		if ((squares[by][bx] & otherPlayer) == otherPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), squares[by][bx], null));
-		}
-		bx = x;
-		by = y;
-		while (bx > 0 && by < BOARD_WIDTH - 1 && squares[++by][--bx] == UNPLAYED) { // down left
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), UNPLAYED, null));
-		}
-		if ((squares[by][bx] & otherPlayer) == otherPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), squares[by][bx], null));
-		}
-		bx = x;
-		by = y;
-		while (bx < BOARD_WIDTH - 1 && by > 0 && squares[--by][++bx] == UNPLAYED) { // up right
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), UNPLAYED, null));
-		}
-		if ((squares[by][bx] & otherPlayer) == otherPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), squares[by][bx], null));
-		}
-		bx = x;
-		by = y;
-		while (bx > 0 && by > 0 && squares[--by][--bx] == UNPLAYED) { // up left
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), UNPLAYED, null));
-		}
-		if ((squares[by][bx] & otherPlayer) == otherPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), squares[by][bx], null));
+	private void addKingMoves(List<IChessMove> possibleMoves, int from) {
+		for (int i = 0; i < KING_OFFSETS.length; ++i) {
+			int offset = KING_OFFSETS[i];
+			int to = from + offset;
+			int pieceCaptured = squares[to];
+			if ((pieceCaptured & currentPlayer) != currentPlayer) {
+				BasicChessMove basicMove = new BasicChessMove(from, to, pieceCaptured, NO_SQUARE);
+				addPossibleMove(possibleMoves, new KingMove(basicMove));
+			}
 		}
 	}
 
-	private void addQueenOrRookMoves(List<IChessMove> possibleMoves, Coordinate from, int x, int y) {
-		int bx = x;
-		int by = y;
-		while (bx > 0 && squares[by][--bx] == UNPLAYED) { // left
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), UNPLAYED, null));
-		}
-		if ((squares[by][bx] & otherPlayer) == otherPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), squares[by][bx], null));
-		}
-		bx = x;
-		by = y;
-		while (bx < BOARD_WIDTH - 1 && squares[by][++bx] == UNPLAYED) { // right
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), UNPLAYED, null));
-		}
-		if ((squares[by][bx] & otherPlayer) == otherPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), squares[by][bx], null));
-		}
-		bx = x;
-		by = y;
-		while (by > 0 && squares[--by][bx] == UNPLAYED) { // up
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), UNPLAYED, null));
-		}
-		if ((squares[by][bx] & otherPlayer) == otherPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), squares[by][bx], null));
-		}
-		bx = x;
-		by = y;
-		while (by < BOARD_WIDTH - 1 && squares[++by][bx] == UNPLAYED) { // down
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), UNPLAYED, null));
-		}
-		if ((squares[by][bx] & otherPlayer) == otherPlayer) {
-			addPossibleMove(possibleMoves, new BasicChessMove(from, Coordinate.valueOf(bx, by), squares[by][bx], null));
-		}
-	}
-
-	private void addKingMoves(List<IChessMove> possibleMoves, Coordinate from, int x, int y) {
-		// clockwise starting upper left
-		if (x > 0 && y > 0 && (squares[y - 1][x - 1] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new KingMove(new BasicChessMove(from, Coordinate.valueOf(x - 1, y - 1), squares[y - 1][x - 1], null)));
-		}
-		if (y > 0 && (squares[y - 1][x] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new KingMove(new BasicChessMove(from, Coordinate.valueOf(x, y - 1), squares[y - 1][x], null)));
-		}
-		if (x < BOARD_WIDTH - 1 && y > 0 && (squares[y - 1][x + 1] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new KingMove(new BasicChessMove(from, Coordinate.valueOf(x + 1, y - 1), squares[y - 1][x + 1], null)));
-		}
-		if (x < BOARD_WIDTH - 1 && (squares[y][x + 1] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new KingMove(new BasicChessMove(from, Coordinate.valueOf(x + 1, y), squares[y][x + 1], null)));
-		}
-		if (x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 1 && (squares[y + 1][x + 1] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new KingMove(new BasicChessMove(from, Coordinate.valueOf(x + 1, y + 1), squares[y + 1][x + 1], null)));
-		}
-		if (y < BOARD_WIDTH - 1 && (squares[y + 1][x] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new KingMove(new BasicChessMove(from, Coordinate.valueOf(x, y + 1), squares[y + 1][x], null)));
-		}
-		if (x > 0 && y < BOARD_WIDTH - 1 && (squares[y + 1][x - 1] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new KingMove(new BasicChessMove(from, Coordinate.valueOf(x - 1, y + 1), squares[y + 1][x - 1], null)));
-		}
-		if (x > 0 && (squares[y][x - 1] & currentPlayer) != currentPlayer) {
-			addPossibleMove(possibleMoves, new KingMove(new BasicChessMove(from, Coordinate.valueOf(x - 1, y), squares[y][x - 1], null)));
+	private void addSlidingMoves(List<IChessMove> possibleMoves, int from, int[] offsets) {
+		for (int i = 0; i < offsets.length; ++i) {
+			int offset = offsets[i];
+			int to = from + offset;
+			int pieceCaptured;
+			while ((pieceCaptured = squares[to]) == UNPLAYED) {
+				addPossibleMove(possibleMoves, new BasicChessMove(from, to, UNPLAYED, NO_SQUARE));
+				to += offset;
+			}
+			if ((pieceCaptured & SENTINEL) == otherPlayer) {
+				addPossibleMove(possibleMoves, new BasicChessMove(from, to, pieceCaptured, NO_SQUARE));
+			}
 		}
 	}
 
 	private void addCastlingMoves(List<IChessMove> possibleMoves) {
 		if (white) {
-			addCastingMoves(possibleMoves, RANK_1, WHITE_KING_CASTLE, WHITE_QUEEN_CASTLE);
+			addCastingMoves(possibleMoves, E1, WHITE_KING_CASTLE, WHITE_QUEEN_CASTLE);
 		} else {
-			addCastingMoves(possibleMoves, RANK_8, BLACK_KING_CASTLE, BLACK_QUEEN_CASTLE);
+			addCastingMoves(possibleMoves, E8, BLACK_KING_CASTLE, BLACK_QUEEN_CASTLE);
 		}
 	}
 
-	private void addCastingMoves(List<IChessMove> possibleMoves, int rank, int kingCastle, int queenCastle) {
-		if ((castleState & kingCastle) == kingCastle && squares[rank][F_FILE] == UNPLAYED && squares[rank][G_FILE] == UNPLAYED &&
-				!ChessFunctions.isSquareAttacked(this, E_FILE, rank, otherPlayer) && !ChessFunctions.isSquareAttacked(this, F_FILE, rank, otherPlayer)) {
-			BasicChessMove basicMove = new BasicChessMove(Coordinate.valueOf(E_FILE, rank), Coordinate.valueOf(G_FILE, rank), UNPLAYED, null);
-			addPossibleMove(possibleMoves, new CastleMove(basicMove, Coordinate.valueOf(H_FILE, rank), Coordinate.valueOf(F_FILE, rank)));
+	private void addCastingMoves(List<IChessMove> possibleMoves, int kingSquare, int kingCastle, int queenCastle) {
+		int fSquare = kingSquare - 1;
+		int gSquare = fSquare - 1;
+		if ((castleState & kingCastle) == kingCastle && squares[fSquare] == UNPLAYED && squares[gSquare] == UNPLAYED &&
+				!ChessFunctions.isSquareAttacked(this, kingSquare, otherPlayer) && !ChessFunctions.isSquareAttacked(this, fSquare, otherPlayer)) {
+			BasicChessMove basicMove = new BasicChessMove(kingSquare, gSquare, UNPLAYED, NO_SQUARE);
+			addPossibleMove(possibleMoves, new CastleMove(basicMove, gSquare - 1, fSquare));
 		}
-		if ((castleState & queenCastle) == queenCastle && squares[rank][D_FILE] == UNPLAYED && squares[rank][C_FILE] == UNPLAYED && squares[rank][B_FILE] == UNPLAYED &&
-				!ChessFunctions.isSquareAttacked(this, E_FILE, rank, otherPlayer) && !ChessFunctions.isSquareAttacked(this, D_FILE, rank, otherPlayer)) {
-			BasicChessMove basicMove = new BasicChessMove(Coordinate.valueOf(E_FILE, rank), Coordinate.valueOf(C_FILE, rank), UNPLAYED, null);
-			addPossibleMove(possibleMoves, new CastleMove(basicMove, Coordinate.valueOf(A_FILE, rank), Coordinate.valueOf(D_FILE, rank)));
+		int dSquare = kingSquare + 1;
+		int cSquare = dSquare + 1;
+		int bSquare = cSquare + 1;
+		if ((castleState & queenCastle) == queenCastle && squares[dSquare] == UNPLAYED && squares[cSquare] == UNPLAYED && squares[bSquare] == UNPLAYED &&
+				!ChessFunctions.isSquareAttacked(this, kingSquare, otherPlayer) && !ChessFunctions.isSquareAttacked(this, dSquare, otherPlayer)) {
+			BasicChessMove basicMove = new BasicChessMove(kingSquare, cSquare, UNPLAYED, NO_SQUARE);
+			addPossibleMove(possibleMoves, new CastleMove(basicMove, bSquare + 1, dSquare));
 		}
 	}
 
@@ -299,12 +222,13 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 	public void makeMove(IChessMove move) {
 		positionHistory.saveState(this);
 
-		Coordinate from = move.getFrom();
-		Coordinate to = move.getTo();
-		castleState &= CASTLING_PERMISSIONS[from.y][from.x];
-		castleState &= CASTLING_PERMISSIONS[to.y][to.x];
+		int from = move.getFrom();
+		int to = move.getTo();
+		castleState &= CASTLING_PERMISSIONS[from];
+		castleState &= CASTLING_PERMISSIONS[to];
 		enPassantSquare = move.getEnPassantSquare();
-		halfMoveClock = move.getPieceCaptured() != 0 || (squares[from.y][from.x] & PAWN) == PAWN ? 0 : halfMoveClock + 1;
+		int fromSquare = squares[from];
+		halfMoveClock = move.getPieceCaptured() != 0 || (fromSquare & PAWN) == PAWN ? 0 : halfMoveClock + 1;
 
 		move.applyMove(this, true);
 
@@ -326,12 +250,10 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 
 	@Override
 	public ChessPosition createCopy() {
-		int[][] squaresCopy = new int[BOARD_WIDTH][BOARD_WIDTH];
-		for (int y = 0; y < squares.length; ++y) {
-			System.arraycopy(squares[y], 0, squaresCopy[y], 0, BOARD_WIDTH);
-		}
+		int[] squaresCopy = new int[BOARD_ARRAY_SIZE];
+		System.arraycopy(squares, 0, squaresCopy, 0, BOARD_ARRAY_SIZE);
 
-		Coordinate[] kingSquaresCopy = new Coordinate[3];
+		int[] kingSquaresCopy = new int[3];
 		System.arraycopy(kingSquares, 1, kingSquaresCopy, 1, 2);
 
 		double[] materialScoreCopy = new double[3];

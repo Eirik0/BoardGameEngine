@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 
-import game.Coordinate;
 import game.TwoPlayers;
 import game.chess.ChessPositionHistory.UndoChessMove;
 import game.chess.fen.ForsythEdwardsNotation;
@@ -32,11 +31,21 @@ public class ChessPositionTest implements ChessConstants {
 		assertEquals(15, moveStrings.size());
 	}
 
+	@Test
+	public void testCantCastleThroughCheck() {
+		List<IChessMove> possibleMoves = ForsythEdwardsNotation.stringToPosition("8/8/8/8/8/8/6k1/4K2R w K - 0 1").getPossibleMoves();
+		assertEquals(12, possibleMoves.size());
+		List<String> expectedMoves = Arrays.asList("h1-g1", "h1-f1", "h1-h2", "h1-h3", "h1-h4", "h1-h5", "h1-h6", "h1-h7", "h1-h8", "e1-d1", "e1-e2", "e1-d2");
+		List<String> moveStrings = possibleMoves.stream().map(move -> move.toString()).collect(Collectors.toList());
+		moveStrings.retainAll(expectedMoves);
+		assertEquals(12, moveStrings.size());
+	}
+
 	public static void assertPositionIntegrity(ChessPosition position) {
-		Coordinate whiteKingSquare = position.kingSquares[TwoPlayers.PLAYER_1];
-		Coordinate blackKingSquare = position.kingSquares[TwoPlayers.PLAYER_2];
-		assertEquals("White king square", WHITE_KING, position.squares[whiteKingSquare.y][whiteKingSquare.x]);
-		assertEquals("Black king square", BLACK_KING, position.squares[blackKingSquare.y][blackKingSquare.x]);
+		int whiteKingSquare = position.kingSquares[TwoPlayers.PLAYER_1];
+		int blackKingSquare = position.kingSquares[TwoPlayers.PLAYER_2];
+		assertEquals("White king square", WHITE_KING, position.squares[whiteKingSquare]);
+		assertEquals("Black king square", BLACK_KING, position.squares[blackKingSquare]);
 		double[] expectedMaterialScore = ForsythEdwardsNotation.getMaterialScore(position.squares);
 		assertEquals("White material score", expectedMaterialScore[1], position.materialScore[1], 0.01);
 		assertEquals("Black material score", expectedMaterialScore[2], position.materialScore[2], 0.01);
@@ -67,9 +76,14 @@ public class ChessPositionTest implements ChessConstants {
 	}
 
 	public static String getBoardStr(ChessPosition expected) {
-		return Arrays.stream(expected.squares)
-				.map(row -> Arrays.stream(row).mapToObj(piece -> ForsythEdwardsNotation.getPieceString(piece)).collect(Collectors.joining(" ")))
-				.collect(Collectors.joining("\n"));
+		StringBuilder sb = new StringBuilder();
+		for (int y = 0; y < BOARD_WIDTH; ++y) {
+			for (int x = 0; x < BOARD_WIDTH; ++x) {
+				sb.append(ForsythEdwardsNotation.getPieceString(expected.squares[SQUARE_64_TO_SQUARE[y][x]]));
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 
 	public static void makeMove(ChessPosition position, String moveString) {
