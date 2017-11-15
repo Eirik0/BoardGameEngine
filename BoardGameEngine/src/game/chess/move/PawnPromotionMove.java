@@ -2,6 +2,7 @@ package game.chess.move;
 
 import game.chess.ChessFunctions;
 import game.chess.ChessPosition;
+import game.chess.fen.ForsythEdwardsNotation;
 
 public class PawnPromotionMove implements IChessMove {
 	private final BasicChessMove basicMove;
@@ -15,28 +16,42 @@ public class PawnPromotionMove implements IChessMove {
 	}
 
 	@Override
-	public void applyMove(ChessPosition position, boolean changeState) {
+	public void applyMove(ChessPosition position) {
 		position.squares[basicMove.to] = promotion;
 		position.squares[basicMove.from] = UNPLAYED;
-		if (changeState) {
+	}
+
+	@Override
+	public void unapplyMove(ChessPosition position) {
+		position.squares[basicMove.from] = pawn;
+		position.squares[basicMove.to] = basicMove.pieceCaptured;
+	}
+
+	@Override
+	public void updateMaterial(ChessPosition position) {
+		ChessFunctions.removePiece(position, basicMove.from, pawn, position.currentPlayer);
+		ChessFunctions.addPiece(position, basicMove.to, promotion, position.currentPlayer);
+		position.materialScore[position.currentPlayer] = position.materialScore[position.currentPlayer] + ChessFunctions.getPieceScore(promotion) - PAWN_SCORE;
+		if (basicMove.pieceCaptured != 0) {
 			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] - ChessFunctions.getPieceScore(basicMove.pieceCaptured);
-			position.materialScore[position.currentPlayer] = position.materialScore[position.currentPlayer] + ChessFunctions.getPieceScore(promotion) - PAWN_SCORE;
+			ChessFunctions.removePiece(position, basicMove.to, basicMove.pieceCaptured, position.otherPlayer);
 		}
 	}
 
 	@Override
-	public void unapplyMove(ChessPosition position, boolean changeState) {
-		position.squares[basicMove.from] = pawn;
-		position.squares[basicMove.to] = basicMove.pieceCaptured;
-		if (changeState) {
+	public void unupdateMaterial(ChessPosition position) {
+		ChessFunctions.removePiece(position, basicMove.to, promotion, position.currentPlayer);
+		ChessFunctions.addPiece(position, basicMove.from, pawn, position.currentPlayer);
+		position.materialScore[position.currentPlayer] = position.materialScore[position.currentPlayer] - ChessFunctions.getPieceScore(promotion) + PAWN_SCORE;
+		if (basicMove.pieceCaptured != 0) {
 			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] + ChessFunctions.getPieceScore(basicMove.pieceCaptured);
-			position.materialScore[position.currentPlayer] = position.materialScore[position.currentPlayer] - ChessFunctions.getPieceScore(promotion) + PAWN_SCORE;
+			ChessFunctions.addPiece(position, basicMove.to, basicMove.pieceCaptured, position.otherPlayer);
 		}
 	}
 
 	@Override
 	public int getEnPassantSquare() {
-		return basicMove.enPassantSquare;
+		return NO_SQUARE;
 	}
 
 	@Override
@@ -73,6 +88,6 @@ public class PawnPromotionMove implements IChessMove {
 
 	@Override
 	public String toString() {
-		return basicMove.toString();
+		return basicMove.toString() + ForsythEdwardsNotation.getPieceString(promotion).toLowerCase();
 	}
 }

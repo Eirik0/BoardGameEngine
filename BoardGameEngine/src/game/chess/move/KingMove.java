@@ -1,5 +1,6 @@
 package game.chess.move;
 
+import game.chess.ChessFunctions;
 import game.chess.ChessPosition;
 
 public class KingMove implements IChessMove {
@@ -10,20 +11,36 @@ public class KingMove implements IChessMove {
 	}
 
 	@Override
-	public void applyMove(ChessPosition position, boolean changeState) {
-		basicMove.applyMove(position, changeState);
+	public void applyMove(ChessPosition position) {
+		basicMove.applyMove(position);
 		position.kingSquares[position.currentPlayer] = basicMove.to;
 	}
 
 	@Override
-	public void unapplyMove(ChessPosition position, boolean changeState) {
-		basicMove.unapplyMove(position, changeState);
+	public void unapplyMove(ChessPosition position) {
+		basicMove.unapplyMove(position);
 		position.kingSquares[position.currentPlayer] = basicMove.from;
 	}
 
 	@Override
+	public void updateMaterial(ChessPosition position) {
+		if (basicMove.pieceCaptured != 0) {
+			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] - ChessFunctions.getPieceScore(basicMove.pieceCaptured);
+			ChessFunctions.removePiece(position, basicMove.to, basicMove.pieceCaptured, position.otherPlayer);
+		}
+	}
+
+	@Override
+	public void unupdateMaterial(ChessPosition position) {
+		if (basicMove.pieceCaptured != 0) {
+			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] + ChessFunctions.getPieceScore(basicMove.pieceCaptured);
+			ChessFunctions.addPiece(position, basicMove.to, basicMove.pieceCaptured, position.otherPlayer);
+		}
+	}
+
+	@Override
 	public int getEnPassantSquare() {
-		return basicMove.enPassantSquare;
+		return NO_SQUARE;
 	}
 
 	@Override

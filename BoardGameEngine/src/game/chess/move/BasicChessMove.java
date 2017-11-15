@@ -18,20 +18,32 @@ public class BasicChessMove implements IChessMove {
 	}
 
 	@Override
-	public void applyMove(ChessPosition position, boolean changeState) {
+	public void applyMove(ChessPosition position) {
 		position.squares[to] = position.squares[from];
 		position.squares[from] = UNPLAYED;
-		if (changeState) {
+	}
+
+	@Override
+	public void unapplyMove(ChessPosition position) {
+		position.squares[from] = position.squares[to];
+		position.squares[to] = pieceCaptured;
+	}
+
+	@Override
+	public void updateMaterial(ChessPosition position) {
+		ChessFunctions.updatePiece(position, from, to, position.squares[from], position.currentPlayer);
+		if (pieceCaptured != 0) {
 			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] - ChessFunctions.getPieceScore(pieceCaptured);
+			ChessFunctions.removePiece(position, to, pieceCaptured, position.otherPlayer);
 		}
 	}
 
 	@Override
-	public void unapplyMove(ChessPosition position, boolean changeState) {
-		position.squares[from] = position.squares[to];
-		position.squares[to] = pieceCaptured;
-		if (changeState) {
+	public void unupdateMaterial(ChessPosition position) {
+		ChessFunctions.updatePiece(position, to, from, position.squares[from], position.currentPlayer);
+		if (pieceCaptured != 0) {
 			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] + ChessFunctions.getPieceScore(pieceCaptured);
+			ChessFunctions.addPiece(position, to, pieceCaptured, position.otherPlayer);
 		}
 	}
 

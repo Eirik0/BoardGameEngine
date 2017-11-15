@@ -10,6 +10,7 @@ public interface ChessConstants {
 	static final int BOARD_ARRAY_SIZE = 120;
 
 	static final int MAX_MOVES = 2048;
+	static final int MAX_PIECE_NUM = 10;
 
 	static final int A_FILE = 7;
 	static final int B_FILE = 6;
@@ -20,14 +21,14 @@ public interface ChessConstants {
 	static final int G_FILE = 1;
 	static final int H_FILE = 0;
 
-	static final int A1 = 28;
-	static final int A8 = 98;
-	static final int E1 = 24;
-	static final int E8 = 94;
-	static final int H1 = 21;
-	static final int H2 = 31;
-	static final int H7 = 81;
-	static final int H8 = 91;
+	static final int A1 = 28, A2 = 38, A7 = 88, A8 = 98;
+	static final int B1 = 27, B2 = 37, B7 = 87, B8 = 97;
+	static final int C1 = 26, C2 = 36, C7 = 86, C8 = 96;
+	static final int D1 = 25, D2 = 35, D7 = 85, D8 = 95;
+	static final int E1 = 24, E2 = 34, E7 = 84, E8 = 94;
+	static final int F1 = 23, F2 = 33, F7 = 83, F8 = 93;
+	static final int G1 = 22, G2 = 32, G7 = 82, G8 = 92;
+	static final int H1 = 21, H2 = 31, H7 = 81, H8 = 91;
 	static final int NO_SQUARE = -1;
 
 	static final int PAWN = 1 << 2;
@@ -102,6 +103,69 @@ public interface ChessConstants {
 				SENTINEL, SENTINEL, SENTINEL, SENTINEL, SENTINEL, SENTINEL, SENTINEL, SENTINEL, SENTINEL, SENTINEL,
 				SENTINEL, SENTINEL, SENTINEL, SENTINEL, SENTINEL, SENTINEL, SENTINEL, SENTINEL, SENTINEL, SENTINEL
 		};
+	}
+
+	static int[][] newInitialPawns() {
+		return new int[][] { {},
+				{ A2, B2, C2, D2, E2, F2, G2, H2, NO_SQUARE, NO_SQUARE },
+				{ A7, B7, C7, D7, E7, F7, G7, H7, NO_SQUARE, NO_SQUARE }
+		};
+	}
+
+	static int[][] newInitialKnights() {
+		return new int[][] { {},
+				{ B1, G1, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE },
+				{ B8, G8, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE }
+		};
+	}
+
+	static int[][] newInitialBishops() {
+		return new int[][] { {},
+				{ C1, F1, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE },
+				{ C8, F8, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE }
+		};
+	}
+
+	static int[][] newInitialRooks() {
+		return new int[][] { {},
+				{ A1, H1, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE },
+				{ A8, H8, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE }
+		};
+	}
+
+	static int[][] newInitialQueens() {
+		return new int[][] { {},
+				{ D1, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE },
+				{ D8, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE }
+		};
+	}
+
+	static int[][] newInitialPieces() {
+		return new int[][] {
+				{},
+				{ NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE },
+				{ NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE, NO_SQUARE }
+		};
+	}
+
+	static int[] newInitialNumPawns() {
+		return new int[] { 0, 8, 8 };
+	}
+
+	static int[] newInitialNumKnights() {
+		return new int[] { 0, 2, 2 };
+	}
+
+	static int[] newInitialNumBishops() {
+		return new int[] { 0, 2, 2 };
+	}
+
+	static int[] newInitialNumRooks() {
+		return new int[] { 0, 2, 2 };
+	}
+
+	static int[] newInitialNumQueens() {
+		return new int[] { 0, 1, 1 };
 	}
 
 	static int[] newInitialKingSquares() {

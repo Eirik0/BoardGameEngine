@@ -41,6 +41,16 @@ public class ChessPositionTest implements ChessConstants {
 		assertEquals(12, moveStrings.size());
 	}
 
+	@Test
+	public void testPromotePawn() {
+		ChessPosition position = ForsythEdwardsNotation.stringToPosition("8/Pk6/8/8/8/8/6Kp/8 w - - 0 1");
+		int pawnsBefore = position.numPawns[TwoPlayers.PLAYER_1];
+		int queensBefore = position.numQueens[TwoPlayers.PLAYER_1];
+		ChessPositionTest.makeMove(position, "a7-a8q");
+		assertEquals(pawnsBefore - 1, position.numPawns[TwoPlayers.PLAYER_1]);
+		assertEquals(queensBefore + 1, position.numQueens[TwoPlayers.PLAYER_1]);
+	}
+
 	public static void assertPositionIntegrity(ChessPosition position) {
 		int whiteKingSquare = position.kingSquares[TwoPlayers.PLAYER_1];
 		int blackKingSquare = position.kingSquares[TwoPlayers.PLAYER_2];

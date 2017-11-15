@@ -5,32 +5,43 @@ import game.chess.ChessPosition;
 
 public class EnPassantCaptureMove implements IChessMove {
 	private final BasicChessMove basicMove;
-	public final int pawnDirection;
+	private final int captureSquare;
 
-	public EnPassantCaptureMove(BasicChessMove basicMove, int pawnDirection) {
+	public EnPassantCaptureMove(BasicChessMove basicMove, int captureSquare) {
 		this.basicMove = basicMove;
-		this.pawnDirection = pawnDirection;
+		this.captureSquare = captureSquare;
 	}
 
 	@Override
-	public void applyMove(ChessPosition position, boolean changeState) {
-		basicMove.applyMove(position, changeState);
-		position.squares[basicMove.to - pawnDirection] = UNPLAYED;
+	public void applyMove(ChessPosition position) {
+		basicMove.applyMove(position);
+		position.squares[captureSquare] = UNPLAYED;
 	}
 
 	@Override
-	public void unapplyMove(ChessPosition position, boolean changeState) {
-		position.squares[basicMove.to - pawnDirection] = basicMove.pieceCaptured;
+	public void unapplyMove(ChessPosition position) {
+		position.squares[captureSquare] = basicMove.pieceCaptured;
 		position.squares[basicMove.from] = position.squares[basicMove.to];
 		position.squares[basicMove.to] = UNPLAYED;
-		if (changeState) {
-			position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] + ChessFunctions.getPieceScore(basicMove.pieceCaptured);
-		}
+	}
+
+	@Override
+	public void updateMaterial(ChessPosition position) {
+		ChessFunctions.updatePiece(position, basicMove.from, basicMove.to, PAWN, position.currentPlayer);
+		position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] - ChessFunctions.getPieceScore(basicMove.pieceCaptured);
+		ChessFunctions.removePiece(position, captureSquare, basicMove.pieceCaptured, position.otherPlayer);
+	}
+
+	@Override
+	public void unupdateMaterial(ChessPosition position) {
+		ChessFunctions.updatePiece(position, basicMove.to, basicMove.from, PAWN, position.currentPlayer);
+		position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] + ChessFunctions.getPieceScore(basicMove.pieceCaptured);
+		ChessFunctions.addPiece(position, captureSquare, basicMove.pieceCaptured, position.otherPlayer);
 	}
 
 	@Override
 	public int getEnPassantSquare() {
-		return basicMove.enPassantSquare;
+		return NO_SQUARE;
 	}
 
 	@Override

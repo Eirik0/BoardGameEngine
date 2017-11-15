@@ -9,25 +9,41 @@ import game.chess.ChessConstants;
 import game.chess.ChessFunctions;
 import game.chess.ChessPosition;
 import game.chess.ChessPositionHistory;
+import util.Pair;
 
 public class ForsythEdwardsNotation implements ChessConstants {
 	public static ChessPosition stringToPosition(String string) {
 		String[] split = string.split(" ");
+
 		int[][] squares2d = getSquares(split[0]);
 		int[] squares = translateSquares(squares2d);
+
 		int currentPlayer = "w".equals(split[1]) ? TwoPlayers.PLAYER_1 : TwoPlayers.PLAYER_2;
 		int otherPlayer = TwoPlayers.otherPlayer(currentPlayer);
 		boolean white = currentPlayer == TwoPlayers.PLAYER_1;
+
 		int castleState = getCastleState(split[2]);
 		int enPassantSquare = getEnpassantSquare(split[3]);
 		int halfMoveClock = Integer.parseInt(split[4]);
+
+		Pair<int[][][], int[][]> pieceSquaresPair = getPieceSquares(squares);
+		int[][][] pieceSquares = pieceSquaresPair.getFirst();
+		int[][] numPieces = pieceSquaresPair.getSecond();
+
+		int[] kingSquares = new int[] { NO_SQUARE, pieceSquares[5][TwoPlayers.PLAYER_1][0], pieceSquares[5][TwoPlayers.PLAYER_2][0] };
+
 		int plyCount = Integer.parseInt(split[5]) * 2 - (currentPlayer == TwoPlayers.PLAYER_1 ? 2 : 1);
-		int whiteKingSquare = findPiece(squares2d, WHITE_KING);
-		int blackKingSquare = findPiece(squares2d, BLACK_KING);
-		int[] kingSquares = new int[] { NO_SQUARE, whiteKingSquare, blackKingSquare };
 		ChessPositionHistory positionHistory = new ChessPositionHistory(plyCount);
+
 		double[] materialScore = getMaterialScore(squares);
-		return new ChessPosition(squares, positionHistory, kingSquares, currentPlayer, otherPlayer, white, castleState, enPassantSquare, halfMoveClock, materialScore);
+
+		return new ChessPosition(squares, positionHistory,
+				pieceSquares[0], pieceSquares[1], pieceSquares[2], pieceSquares[3], pieceSquares[4],
+				numPieces[0], numPieces[1], numPieces[2], numPieces[3], numPieces[4],
+				kingSquares,
+				currentPlayer, otherPlayer, white,
+				castleState, enPassantSquare, halfMoveClock,
+				materialScore);
 	}
 
 	private static int[][] getSquares(String piecePlacement) {
@@ -107,15 +123,62 @@ public class ForsythEdwardsNotation implements ChessConstants {
 		return whiteKingCastle | whiteQueenCastle | blackKingCastle | blackQueenCastle;
 	}
 
-	private static int findPiece(int[][] squares, int pieceToFind) {
+	private static Pair<int[][][], int[][]> getPieceSquares(int[] squares) {
+		int[][][] pieceSquares = new int[6][][];
+		int[][] numPieces = new int[6][3];
+		for (int i = 0; i < 6; ++i) {
+			pieceSquares[i] = ChessConstants.newInitialPieces();
+			numPieces[i] = new int[] { 0, 0, 0 };
+		}
 		for (int y = 0; y < BOARD_WIDTH; ++y) {
 			for (int x = 0; x < BOARD_WIDTH; ++x) {
-				if (squares[y][x] == pieceToFind) {
-					return SQUARE_64_TO_SQUARE[y][x];
+				int square = SQUARE_64_TO_SQUARE[y][x];
+				int piece = squares[square];
+				switch (piece) {
+				case UNPLAYED:
+					continue;
+				case WHITE_PAWN:
+					pieceSquares[0][TwoPlayers.PLAYER_1][numPieces[0][TwoPlayers.PLAYER_1]++] = square;
+					continue;
+				case BLACK_PAWN:
+					pieceSquares[0][TwoPlayers.PLAYER_2][numPieces[0][TwoPlayers.PLAYER_2]++] = square;
+					continue;
+				case WHITE_KNIGHT:
+					pieceSquares[1][TwoPlayers.PLAYER_1][numPieces[1][TwoPlayers.PLAYER_1]++] = square;
+					continue;
+				case BLACK_KNIGHT:
+					pieceSquares[1][TwoPlayers.PLAYER_2][numPieces[1][TwoPlayers.PLAYER_2]++] = square;
+					continue;
+				case WHITE_BISHOP:
+					pieceSquares[2][TwoPlayers.PLAYER_1][numPieces[2][TwoPlayers.PLAYER_1]++] = square;
+					continue;
+				case BLACK_BISHOP:
+					pieceSquares[2][TwoPlayers.PLAYER_2][numPieces[2][TwoPlayers.PLAYER_2]++] = square;
+					continue;
+				case WHITE_ROOK:
+					pieceSquares[3][TwoPlayers.PLAYER_1][numPieces[3][TwoPlayers.PLAYER_1]++] = square;
+					continue;
+				case BLACK_ROOK:
+					pieceSquares[3][TwoPlayers.PLAYER_2][numPieces[3][TwoPlayers.PLAYER_2]++] = square;
+					continue;
+				case WHITE_QUEEN:
+					pieceSquares[4][TwoPlayers.PLAYER_1][numPieces[4][TwoPlayers.PLAYER_1]++] = square;
+					continue;
+				case BLACK_QUEEN:
+					pieceSquares[4][TwoPlayers.PLAYER_2][numPieces[4][TwoPlayers.PLAYER_2]++] = square;
+					continue;
+				case WHITE_KING:
+					pieceSquares[5][TwoPlayers.PLAYER_1][numPieces[5][TwoPlayers.PLAYER_1]++] = square;
+					continue;
+				case BLACK_KING:
+					pieceSquares[5][TwoPlayers.PLAYER_2][numPieces[5][TwoPlayers.PLAYER_2]++] = square;
+					continue;
+				default:
+					throw new IllegalStateException("Unknown piece: " + piece);
 				}
 			}
 		}
-		return NO_SQUARE;
+		return Pair.valueOf(pieceSquares, numPieces);
 	}
 
 	private static int getEnpassantSquare(String enPassantTargetSquare) {

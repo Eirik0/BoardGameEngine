@@ -4,9 +4,13 @@ import game.chess.ChessConstants;
 import game.chess.ChessPosition;
 
 public interface IChessMove extends ChessConstants {
-	public void applyMove(ChessPosition position, boolean changeState);
+	public void applyMove(ChessPosition position);
 
-	public void unapplyMove(ChessPosition position, boolean changeState);
+	public void unapplyMove(ChessPosition position);
+
+	public void updateMaterial(ChessPosition position);
+
+	public void unupdateMaterial(ChessPosition position);
 
 	public int getEnPassantSquare();
 

@@ -1,5 +1,6 @@
 package game.chess.move;
 
+import game.chess.ChessFunctions;
 import game.chess.ChessPosition;
 
 public class CastleMove implements IChessMove {
@@ -14,7 +15,7 @@ public class CastleMove implements IChessMove {
 	}
 
 	@Override
-	public void applyMove(ChessPosition position, boolean changeState) {
+	public void applyMove(ChessPosition position) {
 		int king = position.squares[basicMove.from];
 		int rook = position.squares[rookFrom];
 		position.squares[basicMove.from] = UNPLAYED;
@@ -25,7 +26,7 @@ public class CastleMove implements IChessMove {
 	}
 
 	@Override
-	public void unapplyMove(ChessPosition position, boolean changeState) {
+	public void unapplyMove(ChessPosition position) {
 		int king = position.squares[basicMove.to];
 		int rook = position.squares[rookTo];
 		position.squares[basicMove.to] = UNPLAYED;
@@ -36,13 +37,23 @@ public class CastleMove implements IChessMove {
 	}
 
 	@Override
+	public void updateMaterial(ChessPosition position) {
+		ChessFunctions.updatePiece(position, rookFrom, rookTo, ROOK, position.currentPlayer);
+	}
+
+	@Override
+	public void unupdateMaterial(ChessPosition position) {
+		ChessFunctions.updatePiece(position, rookTo, rookFrom, ROOK, position.currentPlayer);
+	}
+
+	@Override
 	public int getEnPassantSquare() {
-		return basicMove.enPassantSquare;
+		return NO_SQUARE;
 	}
 
 	@Override
 	public int getPieceCaptured() {
-		return basicMove.pieceCaptured;
+		return UNPLAYED;
 	}
 
 	@Override

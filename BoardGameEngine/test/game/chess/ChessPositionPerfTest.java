@@ -19,20 +19,20 @@ public class ChessPositionPerfTest {
 	@Test
 	public void testCountAtDepths() {
 		for (int depth = 0; depth <= 3; ++depth) {
-			countAtDepth(depth);
+			countAtDepth(depth, false);
 		}
 	}
 
 	@Test
 	@Ignore
 	public void testCountAtDepthFour() {
-		countAtDepth(4);
+		countAtDepth(4, true);
 	}
 
 	@Test
 	@Ignore
 	public void testCountAtDepthFive() {
-		countAtDepth(5);
+		countAtDepth(5, true);
 	}
 
 	@Test
@@ -54,16 +54,18 @@ public class ChessPositionPerfTest {
 		checkIntegrityAtDepth(4);
 	}
 
-	private static void countAtDepth(int depth) {
+	private static void countAtDepth(int depth, boolean verbose) {
 		List<PerfTest> perfTests = loadPerfTests();
 		long start = System.currentTimeMillis();
 		long totalPositions = 0;
 		for (PerfTest perfTest : perfTests) {
-			//long startPos = System.currentTimeMillis();
+			long startPos = System.currentTimeMillis();
 			long countPositions = countPositions(perfTest.position, depth);
-			//long posTime = System.currentTimeMillis() - startPos;
-			//long posPerSec = (long) (((double) countPositions / posTime) * 1000);
-			//System.out.println(perfTest.fen + "; D" + (depth + 1) + " " + countPositions + ", " + (posTime / 1000) + "s, pps= " + posPerSec);
+			if (verbose) {
+				long posTime = System.currentTimeMillis() - startPos;
+				long posPerSec = (long) (((double) countPositions / posTime) * 1000);
+				System.out.println(perfTest.fen + "; D" + (depth + 1) + " " + countPositions + ", " + (posTime / 1000) + "s, pps= " + posPerSec);
+			}
 			if (perfTest.expectedPositions[depth] != countPositions) {
 				System.out.println(depth + ": " + countPositions + " != " + perfTest.expectedPositions[depth] + " " + perfTest.fen);
 				System.out.println(ChessPositionTest.getBoardStr(perfTest.position));
