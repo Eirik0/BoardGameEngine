@@ -1,12 +1,8 @@
 package analysis.search;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 import org.junit.Test;
 
 import analysis.AnalysisResult;
-import analysis.MoveWithScore;
 import analysis.strategy.MinimaxStrategy;
 import game.ultimatetictactoe.UTTTCoordinate;
 import game.ultimatetictactoe.UltimateTicTacToePosition;
@@ -18,15 +14,9 @@ public class IterativeDeepeningTreeSearcherTest {
 		IterativeDeepeningTreeSearcher<UTTTCoordinate, UltimateTicTacToePosition> iterativeDeepeningStrategy = new IterativeDeepeningTreeSearcher<>(minimaxStrategy, numThreads);
 		iterativeDeepeningStrategy.searchForever(new UltimateTicTacToePosition());
 		Thread.sleep(50);
-		System.out.println("Stopping " + numThreads + "... ");
 		iterativeDeepeningStrategy.stopSearch(true);
 		AnalysisResult<UTTTCoordinate> result = iterativeDeepeningStrategy.getResult();
-		ArrayList<MoveWithScore<UTTTCoordinate>> movesWithScore = new ArrayList<>(result.getMovesWithScore());
-		Collections.sort(movesWithScore, (a, b) -> -Double.compare(a.score, b.score));
-		for (int i = 0; i < 3; ++i) {
-			System.out.println(movesWithScore.get(i));
-		}
-		System.out.println("plies: " + iterativeDeepeningStrategy.getPlies());
+		System.out.println(numThreads + " worksrs, plies: " + iterativeDeepeningStrategy.getPlies() + ", bestMove = " + result.getBestMove() + ": " + result.getMax());
 	}
 
 	@Test

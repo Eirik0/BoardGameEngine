@@ -79,16 +79,7 @@ public class UltimateTicTacToePosition implements IPosition<UTTTCoordinate, Ulti
 		// Check if the new board is won
 		if ((wonBoards & TicTacToeUtilities.POS[position]) == TwoPlayers.UNPLAYED) { // not won
 			int boardToCheck = boards[position];
-			boolean notFull = (boardToCheck & TicTacToeUtilities.POS_0) == TwoPlayers.UNPLAYED ||
-					(boardToCheck & TicTacToeUtilities.POS_1) == TwoPlayers.UNPLAYED ||
-					(boardToCheck & TicTacToeUtilities.POS_2) == TwoPlayers.UNPLAYED ||
-					(boardToCheck & TicTacToeUtilities.POS_3) == TwoPlayers.UNPLAYED ||
-					(boardToCheck & TicTacToeUtilities.POS_4) == TwoPlayers.UNPLAYED ||
-					(boardToCheck & TicTacToeUtilities.POS_5) == TwoPlayers.UNPLAYED ||
-					(boardToCheck & TicTacToeUtilities.POS_6) == TwoPlayers.UNPLAYED ||
-					(boardToCheck & TicTacToeUtilities.POS_7) == TwoPlayers.UNPLAYED ||
-					(boardToCheck & TicTacToeUtilities.POS_8) == TwoPlayers.UNPLAYED;
-			currentBoard = notFull ? position : ANY_BOARD;
+			currentBoard = (((boardToCheck << 1) | boardToCheck) & TicTacToeUtilities.PLAYER_2_ALL_POS) == TicTacToeUtilities.PLAYER_2_ALL_POS ? ANY_BOARD : position;
 		} else {
 			currentBoard = ANY_BOARD;
 		}
