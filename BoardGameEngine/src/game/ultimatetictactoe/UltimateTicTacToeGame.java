@@ -1,9 +1,10 @@
 package game.ultimatetictactoe;
 
+import game.Coordinate;
 import game.IGame;
 import game.TwoPlayers;
 
-public class UltimateTicTacToeGame implements IGame<UTTTCoordinate, UltimateTicTacToePosition> {
+public class UltimateTicTacToeGame implements IGame<Coordinate, UltimateTicTacToePosition> {
 	public static final String NAME = "Ultimate Tic Tac Toe";
 
 	@Override

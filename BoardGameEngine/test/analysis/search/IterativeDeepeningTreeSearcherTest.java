@@ -4,19 +4,19 @@ import org.junit.Test;
 
 import analysis.AnalysisResult;
 import analysis.strategy.MinimaxStrategy;
-import game.ultimatetictactoe.UTTTCoordinate;
+import game.Coordinate;
 import game.ultimatetictactoe.UltimateTicTacToePosition;
 import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
 
 public class IterativeDeepeningTreeSearcherTest {
 	private void doTest(int numThreads) throws InterruptedException {
-		MinimaxStrategy<UTTTCoordinate, UltimateTicTacToePosition> minimaxStrategy = new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator());
-		IterativeDeepeningTreeSearcher<UTTTCoordinate, UltimateTicTacToePosition> iterativeDeepeningStrategy = new IterativeDeepeningTreeSearcher<>(minimaxStrategy, numThreads);
+		MinimaxStrategy<Coordinate, UltimateTicTacToePosition> minimaxStrategy = new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator());
+		IterativeDeepeningTreeSearcher<Coordinate, UltimateTicTacToePosition> iterativeDeepeningStrategy = new IterativeDeepeningTreeSearcher<>(minimaxStrategy, numThreads);
 		iterativeDeepeningStrategy.searchForever(new UltimateTicTacToePosition());
 		Thread.sleep(50);
 		iterativeDeepeningStrategy.stopSearch(true);
-		AnalysisResult<UTTTCoordinate> result = iterativeDeepeningStrategy.getResult();
-		System.out.println(numThreads + " worksrs, plies: " + iterativeDeepeningStrategy.getPlies() + ", bestMove = " + result.getBestMove() + ": " + result.getMax());
+		AnalysisResult<Coordinate> result = iterativeDeepeningStrategy.getResult();
+		System.out.println(numThreads + " workers, plies: " + iterativeDeepeningStrategy.getPlies() + ", bestMove = " + result.getBestMove() + ": " + result.getMax());
 	}
 
 	@Test
@@ -61,8 +61,8 @@ public class IterativeDeepeningTreeSearcherTest {
 
 	private void doSpeedTest(int numThreads) {
 		int numPlies = 6;
-		MinimaxStrategy<UTTTCoordinate, UltimateTicTacToePosition> minimaxStrategy = new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator());
-		IterativeDeepeningTreeSearcher<UTTTCoordinate, UltimateTicTacToePosition> iterativeDeepeningStrategy = new IterativeDeepeningTreeSearcher<>(minimaxStrategy, numThreads);
+		MinimaxStrategy<Coordinate, UltimateTicTacToePosition> minimaxStrategy = new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator());
+		IterativeDeepeningTreeSearcher<Coordinate, UltimateTicTacToePosition> iterativeDeepeningStrategy = new IterativeDeepeningTreeSearcher<>(minimaxStrategy, numThreads);
 		long start = System.currentTimeMillis();
 		iterativeDeepeningStrategy.startSearch(new UltimateTicTacToePosition(), numPlies);
 		System.out.println(numThreads + " workers " + numPlies + " plies in " + (System.currentTimeMillis() - start) + "ms");

@@ -16,7 +16,7 @@ import gui.gamestate.GuiPlayerHelper;
 import gui.gamestate.IGameRenderer;
 import main.BoardGameEngineMain;
 
-public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordinate, UltimateTicTacToePosition> {
+public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, UltimateTicTacToePosition> {
 	private static final Color WOOD_COLOR = new Color(166, 128, 100);
 
 	private BoardSizer sizer;
@@ -61,20 +61,20 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 	}
 
 	@Override
-	public void drawPosition(Graphics2D g, UltimateTicTacToePosition position, List<UTTTCoordinate> possibleMoves, UTTTCoordinate lastMove) {
+	public void drawPosition(Graphics2D g, UltimateTicTacToePosition position, List<Coordinate> possibleMoves, Coordinate lastMove) {
 		drawMoves(g, position, lastMove);
 		highlightBoardInPlay(g, position);
 		drawMouseOn(g, position, possibleMoves);
 	}
 
-	private void drawMoves(Graphics2D g, UltimateTicTacToePosition position, UTTTCoordinate lastMove) {
+	private void drawMoves(Graphics2D g, UltimateTicTacToePosition position, Coordinate lastMove) {
 		Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, round(sizer.cellWidth * 0.33));
 		for (int n = 0; n < UltimateTicTacToePosition.BOARD_WIDTH; ++n) {
 			for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
 				int playerInt = (position.boards[n] >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
 				if (playerInt != TwoPlayers.UNPLAYED) {
 					Coordinate boardXY = UltimateTicTacToeUtilities.getBoardXY(n, m);
-					g.setColor(lastMove != null && n == lastMove.boardNum && m == lastMove.position ? Color.WHITE : Color.BLACK);
+					g.setColor(lastMove != null && n == lastMove.x && m == lastMove.y ? Color.WHITE : Color.BLACK);
 					String player = playerInt == TwoPlayers.PLAYER_1 ? "X" : "O";
 					drawCenteredString(g, smallFont, player, sizer.getCenterX(boardXY.x), sizer.getCenterY(boardXY.y));
 				}
@@ -84,7 +84,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 		for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
 			int wonBoardsInt = (position.wonBoards >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
 			if (wonBoardsInt != TwoPlayers.UNPLAYED) {
-				g.setColor(lastMove != null && lastMove.currentBoard == m ? Color.WHITE : Color.BLACK);
+				g.setColor(lastMove != null && position.currentBoardHistory[position.plyCount - 1] == m ? Color.WHITE : Color.BLACK);
 				String player = wonBoardsInt == TwoPlayers.PLAYER_1 ? "X" : "O";
 				Coordinate intersection = UltimateTicTacToeUtilities.getBoardXY(m, 4); // 4 = the center square of that board
 				drawCenteredString(g, largeFont, player, sizer.getCenterX(intersection.x), sizer.getCenterY(intersection.y));
@@ -106,12 +106,12 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 		}
 	}
 
-	private void drawMouseOn(Graphics g, UltimateTicTacToePosition position, List<UTTTCoordinate> possibleMoves) {
+	private void drawMouseOn(Graphics g, UltimateTicTacToePosition position, List<Coordinate> possibleMoves) {
 		if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
 			if (coordinate != null) {
 				Coordinate boardNM = UltimateTicTacToeUtilities.getBoardNM(coordinate.x, coordinate.y);
-				if (possibleMoves.contains(new UTTTCoordinate(boardNM.x, boardNM.y, position.currentBoard))) {
+				if (possibleMoves.contains(boardNM)) {
 					GuiPlayerHelper.highlightCoordinate(g, sizer, 0.1);
 				}
 			}
@@ -119,12 +119,11 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<UTTTCoordina
 	}
 
 	@Override
-	public UTTTCoordinate maybeGetUserMove(UserInput input, UltimateTicTacToePosition position, List<UTTTCoordinate> possibleMoves) {
+	public Coordinate maybeGetUserMove(UserInput input, UltimateTicTacToePosition position, List<Coordinate> possibleMoves) {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
 			if (coordinate != null) {
-				Coordinate boardNM = UltimateTicTacToeUtilities.getBoardNM(coordinate.x, coordinate.y);
-				return new UTTTCoordinate(boardNM.x, boardNM.y, position.currentBoard);
+				return UltimateTicTacToeUtilities.getBoardNM(coordinate.x, coordinate.y);
 			}
 		}
 		return null;
