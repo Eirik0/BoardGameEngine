@@ -3,7 +3,7 @@ package gui.gamestate;
 import gui.Drawable;
 
 public interface GameState extends Drawable {
-	public void componentResized();
+	public void componentResized(int width, int height);
 
 	public void handleUserInput(UserInput input);
 

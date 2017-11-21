@@ -63,7 +63,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 	@Override
 	public void drawPosition(Graphics2D g, UltimateTicTacToePosition position, List<Coordinate> possibleMoves, Coordinate lastMove) {
 		drawMoves(g, position, lastMove);
-		highlightBoardInPlay(g, position);
+		highlightBoardInPlay(g, position, possibleMoves);
 		drawMouseOn(g, position, possibleMoves);
 	}
 
@@ -84,7 +84,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 		for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
 			int wonBoardsInt = (position.wonBoards >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
 			if (wonBoardsInt != TwoPlayers.UNPLAYED) {
-				g.setColor(lastMove != null && position.currentBoardHistory[position.plyCount - 1] == m ? Color.WHITE : Color.BLACK);
+				g.setColor(lastMove != null && lastMove.x == m ? Color.WHITE : Color.BLACK);
 				String player = wonBoardsInt == TwoPlayers.PLAYER_1 ? "X" : "O";
 				Coordinate intersection = UltimateTicTacToeUtilities.getBoardXY(m, 4); // 4 = the center square of that board
 				drawCenteredString(g, largeFont, player, sizer.getCenterX(intersection.x), sizer.getCenterY(intersection.y));
@@ -92,7 +92,10 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 		}
 	}
 
-	private void highlightBoardInPlay(Graphics2D g, UltimateTicTacToePosition position) {
+	private void highlightBoardInPlay(Graphics2D g, UltimateTicTacToePosition position, List<Coordinate> possibleMoves) {
+		if (possibleMoves.isEmpty()) {
+			return;
+		}
 		// draw the current board in play
 		g.setColor(Color.BLUE);
 		double padding = sizer.cellWidth * 0.05;

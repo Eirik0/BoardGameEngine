@@ -10,7 +10,7 @@ public class ForkJoinExampleTree implements IPosition<ForkJoinExampleNode, ForkJ
 	private ForkJoinExampleNode currentNode;
 
 	public ForkJoinExampleTree(int depth, int branchingFactor) {
-		this(createTree(depth, branchingFactor));
+		this(createTree(depth, branchingFactor, 0));
 	}
 
 	private ForkJoinExampleTree(ForkJoinExampleNode root) {
@@ -46,17 +46,17 @@ public class ForkJoinExampleTree implements IPosition<ForkJoinExampleNode, ForkJ
 		return new ForkJoinExampleTree(currentNode);
 	}
 
-	public static ForkJoinExampleNode createTree(int depth, int branchingFactor) {
+	public static ForkJoinExampleNode createTree(int depth, int branchingFactor, int number) {
 		if (depth < 1) {
 			return null;
 		} else if (depth == 1) {
-			return new ForkJoinExampleNode(Collections.emptyList());
+			return new ForkJoinExampleNode(number, Collections.emptyList());
 		} else {
 			List<ForkJoinExampleNode> children = new ArrayList<>();
 			for (int i = 0; i < branchingFactor; ++i) {
-				children.add(createTree(depth - 1, branchingFactor));
+				children.add(createTree(depth - 1, branchingFactor, i));
 			}
-			return new ForkJoinExampleNode(children);
+			return new ForkJoinExampleNode(number, children);
 		}
 	}
 }

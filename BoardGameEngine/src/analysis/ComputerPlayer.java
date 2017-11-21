@@ -43,6 +43,11 @@ public class ComputerPlayer implements IPlayer {
 	}
 
 	@Override
+	public void notifyTurnEnded() {
+		treeSearcher.clearResult();
+	}
+
+	@Override
 	public synchronized void notifyGameEnded() {
 		treeSearcher.stopSearch(true);
 		keepSearching = false;
@@ -52,5 +57,10 @@ public class ComputerPlayer implements IPlayer {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <M> AnalysisResult<M> getCurrentResult() {
+		return (AnalysisResult<M>) treeSearcher.getResult();
 	}
 }

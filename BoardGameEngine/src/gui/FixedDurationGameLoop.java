@@ -6,21 +6,19 @@ public class FixedDurationGameLoop {
 	public static final long NANOS_PER_SECOND = 1000000000; // in nanoseconds
 	public static final long NANOS_PER_MILLISECOND = 1000000;
 
-	private final GamePanel component;
+	private final Runnable loopRunnable;
 
-	private final GameImage gameImage;
+	private boolean keepRunning = true;
 
-	public FixedDurationGameLoop(GamePanel component, GameImage gameImage) {
-		this.component = component;
-		this.gameImage = gameImage;
+	public FixedDurationGameLoop(Runnable loopRunnable) {
+		this.loopRunnable = loopRunnable;
 	}
 
 	public void runLoop() {
 		long loopStart;
-		for (;;) {
+		while (keepRunning) {
 			loopStart = System.nanoTime();
-			GameGuiManager.getGameState().drawOn(gameImage.getGraphics());
-			component.repaintAndWait();
+			loopRunnable.run();
 			double timeToSleep = NANOS_PER_SECOND / TARGET_FPS - (System.nanoTime() - loopStart);
 			if (timeToSleep > 0) {
 				try {
@@ -30,5 +28,9 @@ public class FixedDurationGameLoop {
 				}
 			}
 		}
+	}
+
+	public void stop() {
+		keepRunning = false;
 	}
 }

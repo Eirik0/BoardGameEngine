@@ -16,7 +16,7 @@ public class GameRunnerTest {
 	@Test
 	public void testStartStopGame() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame();
-		GameRunner<?, ?> gameRunner = new GameRunner<>(game);
+		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver());
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		Thread.sleep(10);// sleep a little to let the list populate
 		gameRunner.endGame();
@@ -28,7 +28,7 @@ public class GameRunnerTest {
 	@Test
 	public void testStartTwice() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame();
-		GameRunner<?, ?> gameRunner = new GameRunner<>(game);
+		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver());
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		Thread.sleep(10);// sleep a little to let the list populate
@@ -41,7 +41,7 @@ public class GameRunnerTest {
 	@Test
 	public void testEndTwice() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame();
-		GameRunner<?, ?> gameRunner = new GameRunner<>(game);
+		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver());
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		Thread.sleep(10);// sleep a little to let the list populate
 		gameRunner.endGame();
@@ -54,7 +54,7 @@ public class GameRunnerTest {
 	@Test
 	public void testEndWhenWaitingOnPlayer() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame(GuiPlayer.HUMAN);
-		GameRunner<?, ?> gameRunner = new GameRunner<>(game);
+		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver());
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		gameRunner.endGame();
 		assertEquals(2, game.numNewPositions);
@@ -63,7 +63,7 @@ public class GameRunnerTest {
 	@Test
 	public void testStardAndEndWhenNoMoves() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame(new AddToListTestPlayer(), i -> Collections.emptyList());
-		GameRunner<?, ?> gameRunner = new GameRunner<>(game);
+		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver());
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		assertEquals(2, game.numNewPositions);
 	}
@@ -109,6 +109,10 @@ public class GameRunnerTest {
 		@Override
 		public <M, P extends IPosition<M, P>> M getMove(P position) {
 			return position.getPossibleMoves().get(0);
+		}
+
+		@Override
+		public void notifyTurnEnded() {
 		}
 
 		@Override

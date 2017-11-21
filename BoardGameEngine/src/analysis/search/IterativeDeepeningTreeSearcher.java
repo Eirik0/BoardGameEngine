@@ -98,6 +98,10 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		return !searchStopped;
 	}
 
+	public void clearResult() {
+		result = null;
+	}
+
 	public void stopSearch(boolean joinWorkerThreads) {
 		stopWorkers();
 		try {

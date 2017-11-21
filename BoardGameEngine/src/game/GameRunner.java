@@ -9,6 +9,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private volatile boolean stopRequested = false;
 	private volatile boolean isRunning = false;
 
+	private final GameObserver gameObserver;
 	private Runnable endGameAction;
 	private IPositionObserver<M, P> positionObserver;
 
@@ -21,9 +22,10 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 	private IPlayer currentPlayer;
 
-	public GameRunner(IGame<M, P> game) {
+	public GameRunner(IGame<M, P> game, GameObserver gameObserver) {
 		this.game = game;
 		position = game.newInitialPosition();
+		this.gameObserver = gameObserver;
 		setPositionCopy();
 	}
 
@@ -75,10 +77,11 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 		new Thread(() -> {
 			try {
-				int playerNum = 0;
+				int playerNum = TwoPlayers.PLAYER_1;
 				while (!stopRequested && getPossibleMovesCopy().size() > 0) {
 					synchronized (this) {
-						currentPlayer = players.get(playerNum);
+						currentPlayer = players.get(playerNum - 1);
+						gameObserver.notifyPlayerChanged(currentPlayer, playerNum);
 					}
 					if (!isRunning) {
 						notifyGameStarted();
@@ -89,7 +92,8 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 							lastMove = move;
 							position.makeMove(move);
 							setPositionCopy();
-							playerNum = (playerNum + 1) % players.size();
+							playerNum = positionCopy.getCurrentPlayer();
+							currentPlayer.notifyTurnEnded();
 						}
 					}
 				}
@@ -144,6 +148,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		if (endGameAction != null) {
 			endGameAction.run();
 		}
+		gameObserver.notifyGameEnded();
 		notify();
 	}
 }

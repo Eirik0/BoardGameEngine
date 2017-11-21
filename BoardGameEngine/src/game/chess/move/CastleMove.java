@@ -84,6 +84,6 @@ public class CastleMove implements IChessMove {
 
 	@Override
 	public String toString() {
-		return rookFrom == H1 || rookFrom == H8 ? "O-O" : "O-O-O";
+		return rookFrom == H1 || rookFrom == H8 ? "o-o" : "o-o-o";
 	}
 }

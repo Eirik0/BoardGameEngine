@@ -10,8 +10,10 @@ import java.awt.event.ComponentEvent;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
+import game.GameObserver;
 import game.GameRunner;
 import game.IGame;
 import game.chess.ChessGame;
@@ -39,6 +41,7 @@ import gui.GameMouseAdapter;
 import gui.GamePanel;
 import gui.GameRegistry;
 import gui.GuiPlayer;
+import gui.analysis.AnalysisPanel;
 import gui.gamestate.GameRunningState;
 import gui.gamestate.MainMenuState;
 
@@ -68,19 +71,45 @@ public class BoardGameEngineMain {
 
 		GameGuiManager.setSetGameAction(gameName -> {
 			IGame<?, ?> game = GameRegistry.newGame(gameName);
-			GameRunner<?, ?> gameRunner = new GameRunner<>(game);
-			setGameState(gameName, gameRunner);
+			GameObserver gameObserver = new GameObserver();
+			GameRunner<?, ?> gameRunner = new GameRunner<>(game, gameObserver);
 			PlayerControllerPanel playerControllerPanel = new PlayerControllerPanel(game, gameRunner);
+			AnalysisPanel analysisPanel = new AnalysisPanel();
+			gameObserver.setPlayerChangedAction(analysisPanel::playerChanged);
+			gameObserver.setEndGameAction(analysisPanel::gameEnded);
+			JSplitPane gameSplitPane = createSplitPane(gamePanel, analysisPanel);
+
+			setGameState(gameName, gameRunner);
+
 			playerControllerPanel.setBackAction(() -> {
-				contentPane.remove(playerControllerPanel);
-				repackFrame(mainFrame, gamePanel);
+				analysisPanel.stopDrawThread();
+
+				SwingUtilities.invokeLater(() -> {
+					Dimension gamePanelSize = contentPane.getSize();
+					contentPane.remove(playerControllerPanel);
+					contentPane.remove(gameSplitPane);
+					contentPane.add(gamePanel, BorderLayout.CENTER);
+					gamePanel.setSize(gamePanelSize.getSize());
+					repackFrame(mainFrame, gamePanel);
+				});
 			});
-			contentPane.add(playerControllerPanel, BorderLayout.NORTH);
-			repackFrame(mainFrame, gamePanel);
+
+			SwingUtilities.invokeLater(() -> {
+				Dimension splitPaneSize = new Dimension(contentPane.getSize().width, contentPane.getSize().height - playerControllerPanel.getPreferredSize().height);
+				contentPane.remove(gamePanel);
+				contentPane.add(gameSplitPane, BorderLayout.CENTER);
+				contentPane.add(playerControllerPanel, BorderLayout.NORTH);
+				gameSplitPane.setSize(splitPaneSize);
+				repackFrame(mainFrame, gameSplitPane);
+			});
 		});
 
 		GameGuiManager.setGameState(new MainMenuState());
-		FixedDurationGameLoop gameLoop = new FixedDurationGameLoop(gamePanel, gameImage);
+
+		FixedDurationGameLoop gameLoop = new FixedDurationGameLoop(() -> {
+			GameGuiManager.getGameState().drawOn(gameImage.getGraphics());
+			gamePanel.repaintAndWait();
+		});
 
 		gamePanel.addComponentListener(new ComponentAdapter() {
 			@Override
@@ -95,6 +124,7 @@ public class BoardGameEngineMain {
 		new Thread(() -> gameLoop.runLoop(), "Game_Loop_Thread").start();
 
 		SwingUtilities.invokeLater(() -> {
+			mainFrame.setLocationRelativeTo(null);
 			mainFrame.setVisible(true);
 			gamePanel.requestFocus();
 		});
@@ -113,8 +143,9 @@ public class BoardGameEngineMain {
 
 		GameRegistry.registerGame(UltimateTicTacToeGame.NAME, UltimateTicTacToeGame.class, UltimateTicTacToeGameRenderer.class)
 				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
-				.registerPositionEvaluator("Computer 1", new UltimateTicTacToePositionEvaluator(), 2, 3000)
-				.registerPositionEvaluator("Computer 2", new UltimateTicTacToePositionEvaluator(), 6, 12000);
+				.registerPositionEvaluator("Computer 1", new UltimateTicTacToePositionEvaluator(), 2, 300)
+				.registerPositionEvaluator("Computer 2", new UltimateTicTacToePositionEvaluator(), 2, 3000)
+				.registerPositionEvaluator("Computer 3", new UltimateTicTacToePositionEvaluator(), 6, 12000);
 
 		GameRegistry.registerGame(GomokuGame.NAME, GomokuGame.class, GomokuGameRenderer.class)
 				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
@@ -158,7 +189,15 @@ public class BoardGameEngineMain {
 		return mainFrame;
 	}
 
-	private static void repackFrame(JFrame mainFrame, GamePanel gamePanel) {
+	private static JSplitPane createSplitPane(JComponent left, JComponent right) {
+		JSplitPane splitPane = initComponent(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, left, right));
+		splitPane.setDividerSize(3);
+		splitPane.setDividerLocation(GameGuiManager.getComponentWidth() * 3 / 4);
+		splitPane.setResizeWeight(1);
+		return splitPane;
+	}
+
+	private static void repackFrame(JFrame mainFrame, JComponent gamePanel) {
 		gamePanel.setPreferredSize(gamePanel.getSize());
 		mainFrame.pack();
 	}

@@ -55,7 +55,7 @@ public class GameGuiManager {
 		GameGuiManager.componentWidth = componentWidth;
 		GameGuiManager.componentHeight = componentHeight;
 		if (currentState != null) {
-			currentState.componentResized();
+			currentState.componentResized(componentWidth, componentHeight);
 		}
 	}
 

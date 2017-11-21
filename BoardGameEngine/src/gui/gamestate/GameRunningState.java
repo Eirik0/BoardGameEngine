@@ -20,7 +20,7 @@ public class GameRunningState<M, P extends IPosition<M, P>> implements GameState
 		if (gameRenderer instanceof IPositionObserver<?, ?>) {
 			gameRunner.setPositionObserver((IPositionObserver<M, P>) gameRenderer);
 		}
-		componentResized();
+		componentResized(GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
 	}
 
 	@Override
@@ -30,8 +30,8 @@ public class GameRunningState<M, P extends IPosition<M, P>> implements GameState
 	}
 
 	@Override
-	public void componentResized() {
-		boardImage.checkResized(GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
+	public void componentResized(int width, int height) {
+		boardImage.checkResized(width, height);
 		gameRenderer.initializeAndDrawBoard(boardImage.getGraphics());
 	}
 

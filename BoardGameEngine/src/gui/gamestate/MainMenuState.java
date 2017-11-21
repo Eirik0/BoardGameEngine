@@ -39,7 +39,7 @@ public class MainMenuState implements GameState {
 	}
 
 	@Override
-	public void componentResized() {
+	public void componentResized(int width, int height) {
 		// do nothing
 	}
 
