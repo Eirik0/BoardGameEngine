@@ -40,6 +40,7 @@ public class AnalysisPanel extends JPanel {
 			analysisPanel.repaint();
 		});
 
+		add(analysisState.getTopPanel(), BorderLayout.NORTH);
 		add(analysisPanel, BorderLayout.CENTER);
 		new Thread(() -> gameLoop.runLoop(), "Analysis_Draw_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
 	}
@@ -61,7 +62,12 @@ public class AnalysisPanel extends JPanel {
 		} else {
 			newAnalysisState = new InfiniteAnalysisState(playerNum);
 		}
+
 		newAnalysisState.componentResized(getWidth(), getHeight());
+
+		remove(analysisState.getTopPanel());
+		add(newAnalysisState.getTopPanel(), BorderLayout.NORTH);
+
 		analysisState = newAnalysisState;
 	}
 }

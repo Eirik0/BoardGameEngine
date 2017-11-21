@@ -8,6 +8,7 @@ import analysis.search.IterativeDeepeningTreeSearcher;
 import analysis.strategy.IDepthBasedStrategy;
 import game.IPlayer;
 import game.IPosition;
+import gui.analysis.ComputerPlayerResult;
 
 public class ComputerPlayer implements IPlayer {
 	private final IterativeDeepeningTreeSearcher<?, ?> treeSearcher;
@@ -60,7 +61,7 @@ public class ComputerPlayer implements IPlayer {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <M> AnalysisResult<M> getCurrentResult() {
-		return (AnalysisResult<M>) treeSearcher.getResult();
+	public ComputerPlayerResult getCurrentResult() {
+		return new ComputerPlayerResult((AnalysisResult<Object>) treeSearcher.getResult(), treeSearcher.getPlies());
 	}
 }

@@ -1,12 +1,14 @@
 package gui.analysis;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import analysis.AnalysisResult;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import analysis.ComputerPlayer;
 import analysis.MoveWithScore;
 import analysis.search.ThreadNumber;
@@ -22,35 +24,46 @@ public class ComputerPlayerObservationState implements IAnalysisState {
 
 	private volatile boolean keepObserving = true;
 
-	private volatile List<MoveWithScore<Object>> movesWithScore;
+	private ComputerPlayerResult currentResult = new ComputerPlayerResult(null, 0);
 
 	private final ComputerPlayer computerPlayer;
 	private final int playerNum;
 
+	private final JPanel titlePanel;
+
 	public ComputerPlayerObservationState(ComputerPlayer computerPlayer, int playerNum) {
 		this.computerPlayer = computerPlayer;
 		this.playerNum = playerNum;
+
+		JLabel nameLabel = BoardGameEngineMain.initComponent(new JLabel(computerPlayer.toString()));
+		JLabel depthLabel = BoardGameEngineMain.initComponent(new JLabel(String.format("depth = %-3d", currentResult.depth)));
+
+		titlePanel = BoardGameEngineMain.initComponent(new JPanel(new BorderLayout()));
+
+		JPanel titleLabelPanel = BoardGameEngineMain.initComponent(new JPanel(new FlowLayout(FlowLayout.LEADING)));
+		titleLabelPanel.add(nameLabel);
+
+		JPanel depthLabelPanel = BoardGameEngineMain.initComponent(new JPanel(new FlowLayout(FlowLayout.TRAILING)));
+		depthLabelPanel.add(depthLabel);
+
+		titlePanel.add(titleLabelPanel, BorderLayout.WEST);
+		titlePanel.add(depthLabelPanel, BorderLayout.EAST);
+
 		new Thread(() -> {
+			nameLabel.setText(computerPlayer.toString() + "...");
 			synchronized (this) {
 				do {
-					pollResult(computerPlayer);
+					currentResult = computerPlayer.getCurrentResult();
+					depthLabel.setText(String.format("depth = %-3d", currentResult.depth));
 					try {
 						wait(MS_PER_UPDATE);
 					} catch (InterruptedException e) {
 						throw new RuntimeException(e);
 					}
 				} while (keepObserving);
+				nameLabel.setText(computerPlayer.toString());
 			}
 		}, "Computer_Observation_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
-	}
-
-	private void pollResult(ComputerPlayer computerPlayer) {
-		AnalysisResult<Object> currentResult = computerPlayer.getCurrentResult();
-		if (currentResult != null) {
-			List<MoveWithScore<Object>> newMovesWithScore = new ArrayList<>(currentResult.getMovesWithScore());
-			Collections.sort(newMovesWithScore, (move1, move2) -> Double.compare(move2.score, move1.score));
-			movesWithScore = newMovesWithScore;
-		}
 	}
 
 	@Override
@@ -66,21 +79,20 @@ public class ComputerPlayerObservationState implements IAnalysisState {
 
 	@Override
 	public void drawOn(Graphics2D graphics) {
-		if (movesWithScore == null) {
+		List<MoveWithScore<Object>> currentMoves = currentResult.moves;
+		if (currentMoves == null) {
 			return;
 		}
 		fillRect(graphics, 0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
 		graphics.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
 		graphics.setFont(BoardGameEngineMain.DEFAULT_FONT_SMALL);
 		FontMetrics metrics = graphics.getFontMetrics();
-		int height = metrics.getHeight() + 2;
-		int startY = 20;
-		graphics.drawString(computerPlayer.toString() + (keepObserving ? "..." : ""), startY, 20);
+		int stringHeight = metrics.getHeight() + 2;
 		int i = 0;
-		startY += height + height / 2;
-		while (i < movesWithScore.size()) {
-			int y = startY + i * height;
-			MoveWithScore<Object> moveWithScore = movesWithScore.get(i);
+		int startY = stringHeight;
+		while (i < currentMoves.size()) {
+			int y = startY + i * stringHeight;
+			MoveWithScore<Object> moveWithScore = currentMoves.get(i);
 			String indexString = i < 9 ? (i + 1) + ".   " : (i + 1) + ". ";
 			double playerScore = playerNum == TwoPlayers.PLAYER_1 ? moveWithScore.score : -moveWithScore.score + 0.0;
 			String scoreString = Double.isFinite(playerScore) ? String.format("(%.2f)", playerScore) : "(" + playerScore + ")";
@@ -94,7 +106,12 @@ public class ComputerPlayerObservationState implements IAnalysisState {
 	@Override
 	public synchronized void stopAnalysis() {
 		keepObserving = false;
-		pollResult(computerPlayer);
+		currentResult = computerPlayer.getCurrentResult();
 		notify();
+	}
+
+	@Override
+	public JPanel getTopPanel() {
+		return titlePanel;
 	}
 }
