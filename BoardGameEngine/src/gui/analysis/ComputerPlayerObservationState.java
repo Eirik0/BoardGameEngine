@@ -29,6 +29,7 @@ public class ComputerPlayerObservationState implements IAnalysisState {
 	private final ComputerPlayer computerPlayer;
 	private final int playerNum;
 
+	private final JLabel depthLabel;
 	private final JPanel titlePanel;
 
 	public ComputerPlayerObservationState(ComputerPlayer computerPlayer, int playerNum) {
@@ -36,7 +37,7 @@ public class ComputerPlayerObservationState implements IAnalysisState {
 		this.playerNum = playerNum;
 
 		JLabel nameLabel = BoardGameEngineMain.initComponent(new JLabel(computerPlayer.toString()));
-		JLabel depthLabel = BoardGameEngineMain.initComponent(new JLabel(String.format("depth = %-3d", currentResult.depth)));
+		depthLabel = BoardGameEngineMain.initComponent(new JLabel(String.format("depth = %-3d", currentResult.depth)));
 
 		titlePanel = BoardGameEngineMain.initComponent(new JPanel(new BorderLayout()));
 
@@ -107,6 +108,7 @@ public class ComputerPlayerObservationState implements IAnalysisState {
 	public synchronized void stopAnalysis() {
 		keepObserving = false;
 		currentResult = computerPlayer.getCurrentResult();
+		depthLabel.setText(String.format("depth = %-3d", currentResult.depth));
 		notify();
 	}
 

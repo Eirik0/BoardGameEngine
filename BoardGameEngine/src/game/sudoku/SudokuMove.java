@@ -30,4 +30,9 @@ public class SudokuMove {
 		SudokuMove other = (SudokuMove) obj;
 		return coordinate.equals(other.coordinate) && number == other.number;
 	}
+
+	@Override
+	public String toString() {
+		return coordinate.toString() + ": " + number;
+	}
 }
