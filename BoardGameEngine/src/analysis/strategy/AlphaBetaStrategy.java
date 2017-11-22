@@ -32,24 +32,25 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 		}
 
 		List<M> possibleMoves = position.getPossibleMoves();
+		int numMoves = possibleMoves.size();
 
-		if (possibleMoves.size() == 0) {
+		if (numMoves == 0) {
 			return positionEvaluator.evaluate(position, player);
 		}
 
 		boolean max = player == position.getCurrentPlayer();
 
-		double bestScore = max ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
+		M move;
+		double bestScore;
+		int i = 0;
+		if (max) { // Max
+			bestScore = Double.NEGATIVE_INFINITY;
+			do {
+				move = possibleMoves.get(i);
+				position.makeMove(move);
+				double score = alphaBeta(position, player, plies - 1, alpha, beta);
+				position.unmakeMove(move);
 
-		for (M move : possibleMoves) {
-			if (searchCanceled) {
-				return 0;
-			}
-			position.makeMove(move);
-			double score = alphaBeta(position, player, plies - 1, alpha, beta);
-			position.unmakeMove(move);
-
-			if (max) {
 				if (score > bestScore) {
 					bestScore = score;
 					if (bestScore > alpha) {
@@ -59,7 +60,17 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 						}
 					}
 				}
-			} else {
+
+				++i;
+			} while (i < numMoves);
+		} else { // Min
+			bestScore = Double.POSITIVE_INFINITY;
+			do {
+				move = possibleMoves.get(i);
+				position.makeMove(move);
+				double score = alphaBeta(position, player, plies - 1, alpha, beta);
+				position.unmakeMove(move);
+
 				if (score < bestScore) {
 					bestScore = score;
 					if (bestScore < beta) {
@@ -69,7 +80,9 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 						}
 					}
 				}
-			}
+
+				++i;
+			} while (i < numMoves);
 		}
 
 		return bestScore;

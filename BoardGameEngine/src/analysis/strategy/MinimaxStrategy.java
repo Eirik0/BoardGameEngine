@@ -31,32 +31,43 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 		}
 
 		List<M> possibleMoves = position.getPossibleMoves();
+		int numMoves = possibleMoves.size();
 
-		if (possibleMoves.size() == 0) {
+		if (numMoves == 0) {
 			return positionEvaluator.evaluate(position, player);
 		}
 
-		boolean max = player == position.getCurrentPlayer();
+		M move;
+		double bestScore;
+		int i = 0;
+		if (player == position.getCurrentPlayer()) { // Max
+			bestScore = Double.NEGATIVE_INFINITY;
+			do {
+				move = possibleMoves.get(i);
+				position.makeMove(move);
+				double score = minimax(position, player, plies - 1);
+				position.unmakeMove(move);
 
-		double bestScore = max ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
-
-		for (M move : possibleMoves) {
-			if (searchCanceled) {
-				return 0;
-			}
-			position.makeMove(move);
-			double score = minimax(position, player, plies - 1);
-			position.unmakeMove(move);
-
-			if (max) {
 				if (score > bestScore) {
 					bestScore = score;
 				}
-			} else {
+
+				++i;
+			} while (i < numMoves);
+		} else { // Min
+			bestScore = Double.POSITIVE_INFINITY;
+			do {
+				move = possibleMoves.get(i);
+				position.makeMove(move);
+				double score = minimax(position, player, plies - 1);
+				position.unmakeMove(move);
+
 				if (score < bestScore) {
 					bestScore = score;
 				}
-			}
+
+				++i;
+			} while (i < numMoves);
 		}
 
 		return bestScore;
