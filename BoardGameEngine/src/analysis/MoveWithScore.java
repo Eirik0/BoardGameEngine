@@ -5,6 +5,7 @@ import java.util.Objects;
 public class MoveWithScore<M> {
 	public final M move;
 	public final double score;
+	public final boolean isDraw;
 
 	private boolean isValid = true;
 
@@ -14,7 +15,8 @@ public class MoveWithScore<M> {
 
 	public MoveWithScore(M move, double score, boolean isValid) {
 		this.move = move;
-		this.score = score;
+		isDraw = AnalysisResult.isDraw(score);
+		this.score = isDraw ? 0.0 : score;
 		this.isValid = isValid;
 	}
 

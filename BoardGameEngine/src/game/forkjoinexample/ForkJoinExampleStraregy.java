@@ -39,11 +39,6 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 	}
 
 	@Override
-	public boolean searchedAllPositions() {
-		return false; // keep searching
-	}
-
-	@Override
 	public void notifyPlyStarted(AnalysisResult<ForkJoinExampleNode> lastResult) {
 		ForkJoinExampleThreadTracker.searchStarted();
 	}

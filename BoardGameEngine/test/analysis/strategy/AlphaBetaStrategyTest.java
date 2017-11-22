@@ -29,7 +29,7 @@ public class AlphaBetaStrategyTest {
 			AnalysisResult<Coordinate> alphaBetaResult = alphabetaSearcher.startSearch(position, plies);
 			long alphaBetaTime = System.currentTimeMillis() - start2;
 			System.out.println("MM: " + minmaxTime + "ms, AB: " + alphaBetaTime + "ms, depth: " + plies + ", " + minmaxResult.getBestMove() + ": " + minmaxResult.getMax());
-			assertEquals("Comparing score " + plies, minmaxResult.getMax(), alphaBetaResult.getMax(), 0.000000001);
+			assertEquals("Comparing score " + plies, minmaxResult.getMax().score, alphaBetaResult.getMax().score, 0.000000001);
 		}
 	}
 }

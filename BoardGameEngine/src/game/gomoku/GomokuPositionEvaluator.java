@@ -1,5 +1,6 @@
 package game.gomoku;
 
+import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
 import game.Coordinate;
 import game.TwoPlayers;
@@ -11,8 +12,9 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, G
 	public double evaluate(GomokuPosition position, int player) {
 		int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
 		if (winExists(position.board, lastPlayer)) {
-			return player == lastPlayer ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
+			return player == lastPlayer ? AnalysisResult.WIN : AnalysisResult.LOSS;
 		}
+		// XXX check draw?
 		int opponent = TwoPlayers.otherPlayer(player);
 		return score(position.board, player, opponent) - score(position.board, opponent, player);
 	}

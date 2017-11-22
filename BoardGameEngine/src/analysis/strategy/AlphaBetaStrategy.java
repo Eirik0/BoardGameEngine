@@ -7,8 +7,6 @@ import analysis.IPositionEvaluator;
 import game.IPosition;
 
 public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
-	private boolean searchedAllPositions = true;
-
 	private final IPositionEvaluator<M, P> positionEvaluator;
 
 	public AlphaBetaStrategy(IPositionEvaluator<M, P> positionEvaluator) {
@@ -17,7 +15,6 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 
 	@Override
 	public double evaluate(P position, int player, int plies) {
-		searchedAllPositions = true;
 		return alphaBeta(position, player, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 
@@ -27,7 +24,6 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 		}
 
 		if (plies == 0) {
-			searchedAllPositions = false;
 			return positionEvaluator.evaluate(position, player);
 		}
 
@@ -51,7 +47,7 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 				double score = alphaBeta(position, player, plies - 1, alpha, beta);
 				position.unmakeMove(move);
 
-				if (score > bestScore) {
+				if (score > bestScore || (AnalysisResult.isDraw(score) && bestScore < 0) || (AnalysisResult.isDraw(bestScore) && score >= 0)) {
 					bestScore = score;
 					if (bestScore > alpha) {
 						alpha = bestScore;
@@ -71,7 +67,7 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 				double score = alphaBeta(position, player, plies - 1, alpha, beta);
 				position.unmakeMove(move);
 
-				if (score < bestScore) {
+				if (score < bestScore || (AnalysisResult.isDraw(score) && bestScore > 0) || (AnalysisResult.isDraw(bestScore) && score <= 0)) {
 					bestScore = score;
 					if (bestScore < beta) {
 						beta = bestScore;
@@ -86,11 +82,6 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 		}
 
 		return bestScore;
-	}
-
-	@Override
-	public boolean searchedAllPositions() {
-		return searchedAllPositions;
 	}
 
 	@Override

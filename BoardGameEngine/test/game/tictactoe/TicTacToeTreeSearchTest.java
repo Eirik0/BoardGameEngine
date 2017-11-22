@@ -1,7 +1,6 @@
 package game.tictactoe;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -85,12 +84,12 @@ public class TicTacToeTreeSearchTest {
 	public void testStopSearchIfAllPositionsEvaluated() {
 		TicTacToePosition position = new TicTacToePosition();
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher(2);
-		AnalysisResult<Coordinate> search1 = treeSearcher.startSearch(position, 9);
-		assertFalse(search1.searchedAllPositions());
-		AnalysisResult<Coordinate> search2 = treeSearcher.startSearch(position, 10);
-		assertTrue(search2.searchedAllPositions());
+		treeSearcher.startSearch(position, 9);
+		assertEquals(9, treeSearcher.getPlies());
+		treeSearcher.startSearch(position, 10);
+		assertEquals(9, treeSearcher.getPlies());
 		treeSearcher.startSearch(position, 11);
-		assertEquals(10, treeSearcher.getPlies());
+		assertEquals(9, treeSearcher.getPlies());
 	}
 
 	@Test
@@ -106,7 +105,8 @@ public class TicTacToeTreeSearchTest {
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher(2);
 		for (int i = 0; i < 1000; ++i) {
 			AnalysisResult<Coordinate> result = treeSearcher.startSearch(position, 11);
-			assertEquals("search " + String.valueOf(i), 0.0, result.getMax(), 0.00001);
+			assertEquals("search " + String.valueOf(i), 0.0, result.getMax().score, 0.00001);
+			assertTrue("search " + String.valueOf(i), result.isDraw());
 		}
 	}
 }

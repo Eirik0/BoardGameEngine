@@ -1,8 +1,8 @@
 package analysis;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import analysis.search.IterativeDeepeningTreeSearcher;
 import analysis.strategy.IDepthBasedStrategy;
@@ -38,9 +38,27 @@ public class ComputerPlayer implements IPlayer {
 			}
 		}
 		treeSearcher.stopSearch(false);
+
 		AnalysisResult<M> result = (AnalysisResult<M>) treeSearcher.getResult();
-		List<MoveWithScore<M>> bestMoves = result.getMovesWithScore().stream().filter(moveWithScore -> moveWithScore.score == result.getMax()).collect(Collectors.toList());
-		return bestMoves.get(new Random().nextInt(bestMoves.size())).move;
+		MoveWithScore<M> bestMoveWithScore = result.getMax();
+
+		List<M> bestMoves = new ArrayList<>();
+
+		if (bestMoveWithScore.isDraw) {
+			for (MoveWithScore<M> moveWithScore : result.getMovesWithScore()) {
+				if (moveWithScore.isDraw) {
+					bestMoves.add(moveWithScore.move);
+				}
+			}
+		} else {
+			for (MoveWithScore<M> moveWithScore : result.getMovesWithScore()) {
+				if (bestMoveWithScore.score == moveWithScore.score) {
+					bestMoves.add(moveWithScore.move);
+				}
+			}
+		}
+
+		return bestMoves.get(new Random().nextInt(bestMoves.size()));
 	}
 
 	@Override

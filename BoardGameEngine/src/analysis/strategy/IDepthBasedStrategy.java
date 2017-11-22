@@ -10,8 +10,6 @@ public interface IDepthBasedStrategy<M, P extends IPosition<M, P>> {
 
 	public void stopSearch();
 
-	public boolean searchedAllPositions();
-
 	public void notifyPlyStarted(AnalysisResult<M> lastResult);
 
 	public void notifyForked(M parentMove, List<M> unanalyzedMoves);

@@ -51,8 +51,8 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	public synchronized void search() {
 		searchStarted = true;
 		consumedResult = false;
-		if (plies == 0) {
-			result = new AnalysisResult<>(Collections.singletonList(new MoveWithScore<>(parentMove, strategy.evaluate(position, player, plies))));
+		if (plies == 0 || possibleMoves.size() == 0) {
+			result = new AnalysisResult<>(parentMove, strategy.evaluate(position, player, plies));
 			maybeConsumeResult(new MoveWithResult<>(parentMove, result));
 		} else {
 			result = searchWithStrategy();
@@ -65,7 +65,6 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 
 	private AnalysisResult<M> searchWithStrategy() {
 		AnalysisResult<M> analysisResult = new AnalysisResult<>();
-		boolean searchedAllPositions = true;
 		for (M move : possibleMoves) {
 			if (searchCanceled && !forked) {
 				return analysisResult;
@@ -77,11 +76,9 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 				analysisResult.addUnanalyzedMove(move);
 			} else {
 				analysisResult.addMoveWithScore(move, score);
-				searchedAllPositions = searchedAllPositions && strategy.searchedAllPositions();
 			}
 			remainingBranches.decrementAndGet();
 		}
-		analysisResult.setSearchedAllPositions(searchedAllPositions);
 		return analysisResult;
 	}
 
@@ -182,16 +179,19 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	public static <M, P extends IPosition<M, P>> MoveWithResult<M> join(IDepthBasedStrategy<M, P> strategy, M parentMove, P position, int player, AnalysisResult<M> partialResult,
 			List<MoveWithResult<M>> movesWithResults) {
 		boolean isValid = true;
-		boolean searchedAllPositions = partialResult.getMovesWithScore().isEmpty() || partialResult.searchedAllPositions();
 		for (MoveWithResult<M> moveWithResult : movesWithResults) {
 			strategy.notifyJoined(position, moveWithResult.move);
 			// Player and position come from the parent game tree search, so we are looking for the min for the current player
-			double score = player == position.getCurrentPlayer() ? moveWithResult.result.getMin() : moveWithResult.result.getMax();
+			MoveWithScore<M> moveWithScore = player == position.getCurrentPlayer() ? moveWithResult.result.getMin() : moveWithResult.result.getMax();
+			double score;
+			if (moveWithScore == null) {
+				score = player == position.getCurrentPlayer() ? AnalysisResult.WIN : AnalysisResult.LOSS;
+			} else {
+				score = moveWithScore.isDraw ? AnalysisResult.DRAW : moveWithScore.score;
+			}
 			partialResult.addMoveWithScore(moveWithResult.move, score, moveWithResult.isValid());
 			isValid = isValid && moveWithResult.isValid();
-			searchedAllPositions = searchedAllPositions && moveWithResult.result.searchedAllPositions();
 		}
-		partialResult.setSearchedAllPositions(searchedAllPositions);
 		return new MoveWithResult<M>(parentMove, partialResult, isValid);
 	}
 }

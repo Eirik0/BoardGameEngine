@@ -71,17 +71,13 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			++plies;
 			strategy.notifyPlyStarted(result);
 			AnalysisResult<M> search = search(position, position.getCurrentPlayer(), plies);
-			if (search.searchedAllPositions()) {
-				result.setSearchedAllPositions(true);
-				break; // if we have searched all positions, the last result was complete
-			}
 			if (searchStopped && result != null) { // merge only when the search is stopped
 				result.mergeWith(search);
 			} else {
 				result = search;
 			}
 			strategy.notifyPlyComplete(searchStopped);
-			if (result.getBestMove() != null && Double.isInfinite(result.getMax())) {
+			if (result.isWin() || result.isLoss() || result.isDraw()) {
 				break; // no need to keep looking if the game is decided
 			}
 		} while (!searchStopped && plies < maxPlies);

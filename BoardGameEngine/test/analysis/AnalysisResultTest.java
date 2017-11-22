@@ -21,8 +21,8 @@ public class AnalysisResultTest {
 		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(2, 0.5)));
 		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(3, 1.0)));
 		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(4, 1.0)));
-		assertEquals(2.0, mergedRestult.getMax(), 0.001);
-		assertEquals(0.5, mergedRestult.getMin(), 0.001);
+		assertEquals(2.0, mergedRestult.getMax().score, 0.001);
+		assertEquals(0.5, mergedRestult.getMin().score, 0.001);
 		assertEquals(Integer.valueOf(1), mergedRestult.getBestMove());
 	}
 

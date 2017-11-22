@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
 import game.Coordinate;
 import game.ultimatetictactoe.UltimateTicTacToeUtilities;
@@ -22,12 +23,12 @@ public class SudokuPositionEvaluator implements IPositionEvaluator<SudokuMove, S
 		}
 		List<SudokuMove> possibleMoves = position.getPossibleMoves();
 		if (possibleMoves.size() == 0) {
-			return openSquares.size() == 0 ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
+			return openSquares.size() == 0 ? AnalysisResult.WIN : AnalysisResult.LOSS;
 		}
 		Set<Coordinate> playableCoordinates = new HashSet<>();
 		for (SudokuMove move : possibleMoves) {
 			playableCoordinates.add(move.coordinate);
 		}
-		return openSquares.size() == playableCoordinates.size() ? 0 : Double.NEGATIVE_INFINITY;
+		return openSquares.size() == playableCoordinates.size() ? possibleMoves.size() : AnalysisResult.LOSS;
 	}
 }

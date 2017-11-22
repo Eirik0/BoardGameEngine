@@ -8,22 +8,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class AnalysisResult<M> {
+	public static final double WIN = Double.POSITIVE_INFINITY;
+	public static final double LOSS = Double.NEGATIVE_INFINITY;
+	public static final double DRAW = Double.NaN;
+
 	private final List<MoveWithScore<M>> movesWithScore = new ArrayList<>();
 	private final List<M> unanalyzedMoves = new ArrayList<>();
 
-	private volatile double min = Double.POSITIVE_INFINITY;
-	private volatile double max = Double.NEGATIVE_INFINITY;
-	private volatile M bestMove;
-
-	private volatile boolean searchedAllPositions = false;
+	private MoveWithScore<M> min;
+	private MoveWithScore<M> max;
 
 	public AnalysisResult() {
 	}
 
-	public AnalysisResult(List<MoveWithScore<M>> movesWithScore) {
-		for (MoveWithScore<M> moveWithScore : movesWithScore) {
-			addMoveWithScore(moveWithScore.move, moveWithScore.score);
-		}
+	public AnalysisResult(M move, double score) {
+		addMoveWithScore(move, score, true);
 	}
 
 	public void addMoveWithScore(M move, double score) {
@@ -31,14 +30,14 @@ public class AnalysisResult<M> {
 	}
 
 	public void addMoveWithScore(M move, double score, boolean isValid) {
-		movesWithScore.add(new MoveWithScore<>(move, score, isValid));
+		MoveWithScore<M> moveWithScore = new MoveWithScore<>(move, score, isValid);
+		movesWithScore.add(moveWithScore);
 		if (isValid) {
-			if (score < min) {
-				min = score;
+			if (min == null || score < min.score || (moveWithScore.isDraw && min.score > 0) || (min.isDraw && moveWithScore.score <= 0)) {
+				min = moveWithScore;
 			}
-			if (score > max || bestMove == null) {
-				max = score;
-				bestMove = move;
+			if (max == null || score > max.score || (moveWithScore.isDraw && max.score < 0) || (max.isDraw && moveWithScore.score >= 0)) {
+				max = moveWithScore;
 			}
 		}
 	}
@@ -72,25 +71,30 @@ public class AnalysisResult<M> {
 		return unanalyzedMoves;
 	}
 
-	public double getMin() {
+	public MoveWithScore<M> getMin() {
 		return min;
 	}
 
-	public double getMax() {
+	public MoveWithScore<M> getMax() {
 		return max;
 	}
 
-	public synchronized M getBestMove() {
-		return bestMove;
+	public M getBestMove() {
+		return max == null ? null : max.move;
 	}
 
-	public boolean searchedAllPositions() {
-		return searchedAllPositions;
+	public boolean isWin() {
+		return max != null && max.score == AnalysisResult.WIN;
 	}
 
-	public void setSearchedAllPositions(boolean searchedAllPositions) {
-		this.searchedAllPositions = searchedAllPositions;
+	public boolean isLoss() {
+		return max != null && max.score == AnalysisResult.LOSS;
 	}
+
+	public boolean isDraw() {
+		return max != null && max.isDraw;
+	}
+
 
 	@Override
 	public String toString() {
@@ -104,5 +108,9 @@ public class AnalysisResult<M> {
 			}
 		}
 		return sb.toString();
+	}
+
+	public static boolean isDraw(double d) {
+		return d != d;
 	}
 }

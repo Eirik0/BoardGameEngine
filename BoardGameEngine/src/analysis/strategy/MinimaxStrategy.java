@@ -2,12 +2,11 @@ package analysis.strategy;
 
 import java.util.List;
 
+import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
 import game.IPosition;
 
 public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
-	private boolean searchedAllPositions = true;
-
 	private final IPositionEvaluator<M, P> positionEvaluator;
 
 	public MinimaxStrategy(IPositionEvaluator<M, P> positionEvaluator) {
@@ -16,7 +15,6 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 
 	@Override
 	public double evaluate(P position, int player, int plies) {
-		searchedAllPositions = true;
 		return minimax(position, player, plies);
 	}
 
@@ -26,7 +24,6 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 		}
 
 		if (plies == 0) {
-			searchedAllPositions = false;
 			return positionEvaluator.evaluate(position, player);
 		}
 
@@ -48,7 +45,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 				double score = minimax(position, player, plies - 1);
 				position.unmakeMove(move);
 
-				if (score > bestScore) {
+				if (score > bestScore || (AnalysisResult.isDraw(score) && bestScore < 0) || (AnalysisResult.isDraw(bestScore) && score >= 0)) {
 					bestScore = score;
 				}
 
@@ -62,7 +59,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 				double score = minimax(position, player, plies - 1);
 				position.unmakeMove(move);
 
-				if (score < bestScore) {
+				if (score < bestScore || (AnalysisResult.isDraw(score) && bestScore > 0) || (AnalysisResult.isDraw(bestScore) && score <= 0)) {
 					bestScore = score;
 				}
 
@@ -71,11 +68,6 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 		}
 
 		return bestScore;
-	}
-
-	@Override
-	public boolean searchedAllPositions() {
-		return searchedAllPositions;
 	}
 
 	@Override
