@@ -1,11 +1,8 @@
 package game.tictactoe;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import game.Coordinate;
 import game.IPosition;
+import game.MoveList;
 import game.TwoPlayers;
 
 public class TicTacToePosition implements IPosition<Coordinate, TicTacToePosition> {
@@ -24,39 +21,37 @@ public class TicTacToePosition implements IPosition<Coordinate, TicTacToePositio
 	}
 
 	@Override
-	public List<Coordinate> getPossibleMoves() {
+	public void getPossibleMoves(MoveList<Coordinate> possibleMoves) {
 		if (TicTacToeUtilities.winExists(board, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
-			return Collections.emptyList();
+			return;
 		}
-		List<Coordinate> moves = new ArrayList<>();
 		if ((board & TicTacToeUtilities.POS_0) == TwoPlayers.UNPLAYED) {
-			moves.add(Coordinate.valueOf(0, 0));
+			possibleMoves.add(Coordinate.valueOf(0, 0));
 		}
 		if ((board & TicTacToeUtilities.POS_1) == TwoPlayers.UNPLAYED) {
-			moves.add(Coordinate.valueOf(1, 0));
+			possibleMoves.add(Coordinate.valueOf(1, 0));
 		}
 		if ((board & TicTacToeUtilities.POS_2) == TwoPlayers.UNPLAYED) {
-			moves.add(Coordinate.valueOf(2, 0));
+			possibleMoves.add(Coordinate.valueOf(2, 0));
 		}
 		if ((board & TicTacToeUtilities.POS_3) == TwoPlayers.UNPLAYED) {
-			moves.add(Coordinate.valueOf(0, 1));
+			possibleMoves.add(Coordinate.valueOf(0, 1));
 		}
 		if ((board & TicTacToeUtilities.POS_4) == TwoPlayers.UNPLAYED) {
-			moves.add(Coordinate.valueOf(1, 1));
+			possibleMoves.add(Coordinate.valueOf(1, 1));
 		}
 		if ((board & TicTacToeUtilities.POS_5) == TwoPlayers.UNPLAYED) {
-			moves.add(Coordinate.valueOf(2, 1));
+			possibleMoves.add(Coordinate.valueOf(2, 1));
 		}
 		if ((board & TicTacToeUtilities.POS_6) == TwoPlayers.UNPLAYED) {
-			moves.add(Coordinate.valueOf(0, 2));
+			possibleMoves.add(Coordinate.valueOf(0, 2));
 		}
 		if ((board & TicTacToeUtilities.POS_7) == TwoPlayers.UNPLAYED) {
-			moves.add(Coordinate.valueOf(1, 2));
+			possibleMoves.add(Coordinate.valueOf(1, 2));
 		}
 		if ((board & TicTacToeUtilities.POS_8) == TwoPlayers.UNPLAYED) {
-			moves.add(Coordinate.valueOf(2, 2));
+			possibleMoves.add(Coordinate.valueOf(2, 2));
 		}
-		return moves;
 	}
 
 	@Override

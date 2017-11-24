@@ -2,13 +2,17 @@ package game.chess;
 
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
+import game.ArrayMoveList;
+import game.MoveList;
 import game.TwoPlayers;
 import game.chess.move.IChessMove;
 
 public class ChessPositionEvaluator implements IPositionEvaluator<IChessMove, ChessPosition> {
 	@Override
 	public double evaluate(ChessPosition position, int player) {
-		if (position.getPossibleMoves().isEmpty()) {
+		MoveList<IChessMove> moveList = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		position.getPossibleMoves(moveList);
+		if (moveList.size() == 0) {
 			int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
 			int playerKingSquare = position.kingSquares[position.currentPlayer];
 			if (position.halfMoveClock < 100 && ChessFunctions.isSquareAttacked(position, playerKingSquare, lastPlayer)) {

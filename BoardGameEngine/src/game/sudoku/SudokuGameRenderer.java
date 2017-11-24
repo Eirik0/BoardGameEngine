@@ -3,9 +3,9 @@ package game.sudoku;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.util.List;
 
 import game.Coordinate;
+import game.MoveList;
 import game.ultimatetictactoe.UltimateTicTacToeGameRenderer;
 import game.ultimatetictactoe.UltimateTicTacToeUtilities;
 import gui.GameGuiManager;
@@ -42,7 +42,7 @@ public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosit
 	}
 
 	@Override
-	public void drawPosition(Graphics2D g, SudokuPosition position, List<SudokuMove> possibleMoves, SudokuMove lastMove) {
+	public void drawPosition(Graphics2D g, SudokuPosition position, MoveList<SudokuMove> possibleMoves, SudokuMove lastMove) {
 		Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, round(sizer.cellWidth * 0.33));
 		for (int n = 0; n < SudokuPosition.BOARD_WIDTH; ++n) {
 			for (int m = 0; m < SudokuPosition.BOARD_WIDTH; ++m) {
@@ -56,7 +56,7 @@ public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosit
 	}
 
 	@Override
-	public SudokuMove maybeGetUserMove(UserInput input, SudokuPosition position, List<SudokuMove> possibleMoves) {
+	public SudokuMove maybeGetUserMove(UserInput input, SudokuPosition position, MoveList<SudokuMove> possibleMoves) {
 		return null; // Currently only computer player
 	}
 }

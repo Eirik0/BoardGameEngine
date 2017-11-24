@@ -1,13 +1,11 @@
 package game.ultimatetictactoe;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import game.Coordinate;
 import game.IPosition;
+import game.MoveList;
 import game.TwoPlayers;
 import game.tictactoe.TicTacToeUtilities;
 
@@ -41,11 +39,10 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate, Ultimate
 	}
 
 	@Override
-	public List<Coordinate> getPossibleMoves() {
+	public void getPossibleMoves(MoveList<Coordinate> possibleMoves) {
 		if (TicTacToeUtilities.winExists(wonBoards, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
-			return Collections.emptyList();
+			return;
 		}
-		List<Coordinate> possibleMoves = new ArrayList<>();
 		if (currentBoard == ANY_BOARD) {
 			int n = 0;
 			while (n < BOARD_WIDTH) {
@@ -57,10 +54,9 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate, Ultimate
 		} else {
 			addMovesFromBoard(possibleMoves, currentBoard);
 		}
-		return possibleMoves;
 	}
 
-	private void addMovesFromBoard(List<Coordinate> possibleMoves, int boardNum) {
+	private void addMovesFromBoard(MoveList<Coordinate> possibleMoves, int boardNum) {
 		int board = boards[boardNum];
 		int m = 0;
 		while (m < BOARD_WIDTH) {

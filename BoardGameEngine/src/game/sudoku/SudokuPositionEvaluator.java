@@ -7,7 +7,9 @@ import java.util.Set;
 
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
+import game.ArrayMoveList;
 import game.Coordinate;
+import game.MoveList;
 import game.ultimatetictactoe.UltimateTicTacToeUtilities;
 
 public class SudokuPositionEvaluator implements IPositionEvaluator<SudokuMove, SudokuPosition> {
@@ -21,14 +23,16 @@ public class SudokuPositionEvaluator implements IPositionEvaluator<SudokuMove, S
 				}
 			}
 		}
-		List<SudokuMove> possibleMoves = position.getPossibleMoves();
+		MoveList<SudokuMove> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
 		if (possibleMoves.size() == 0) {
 			return openSquares.size() == 0 ? AnalysisResult.WIN : AnalysisResult.LOSS;
 		}
 		Set<Coordinate> playableCoordinates = new HashSet<>();
-		for (SudokuMove move : possibleMoves) {
-			playableCoordinates.add(move.coordinate);
-		}
+		int i = 0;
+		do {
+			playableCoordinates.add(possibleMoves.get(i).coordinate);
+			++i;
+		} while (i < possibleMoves.size());
 		return openSquares.size() == playableCoordinates.size() ? possibleMoves.size() : AnalysisResult.LOSS;
 	}
 }

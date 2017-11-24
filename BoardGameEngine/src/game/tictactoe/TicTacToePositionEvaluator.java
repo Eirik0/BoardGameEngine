@@ -2,7 +2,9 @@ package game.tictactoe;
 
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
+import game.ArrayMoveList;
 import game.Coordinate;
+import game.MoveList;
 import game.TwoPlayers;
 
 public class TicTacToePositionEvaluator implements IPositionEvaluator<Coordinate, TicTacToePosition> {
@@ -12,7 +14,9 @@ public class TicTacToePositionEvaluator implements IPositionEvaluator<Coordinate
 		if (TicTacToeUtilities.winExists(position.board, lastPlayer)) {
 			return player == lastPlayer ? AnalysisResult.WIN : AnalysisResult.LOSS;
 		} else {
-			return position.getPossibleMoves().isEmpty() ? AnalysisResult.DRAW : 0;
+			MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+			position.getPossibleMoves(possibleMoves);
+			return possibleMoves.size() == 0 ? AnalysisResult.DRAW : 0;
 		}
 	}
 }

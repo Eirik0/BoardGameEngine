@@ -56,6 +56,7 @@ public class GameRunnerTest {
 		AddToListTestGame game = new AddToListTestGame(GuiPlayer.HUMAN);
 		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver());
 		gameRunner.startNewGame(Collections.singletonList(game.player));
+		Thread.sleep(10);
 		gameRunner.endGame();
 		assertEquals(2, game.numNewPositions);
 	}
@@ -108,7 +109,9 @@ public class GameRunnerTest {
 	static class AddToListTestPlayer implements IPlayer {
 		@Override
 		public <M, P extends IPosition<M, P>> M getMove(P position) {
-			return position.getPossibleMoves().get(0);
+			MoveList<M> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+			position.getPossibleMoves(possibleMoves);
+			return possibleMoves.get(0);
 		}
 
 		@Override
@@ -132,8 +135,9 @@ public class GameRunnerTest {
 		}
 
 		@Override
-		public List<Integer> getPossibleMoves() {
-			return possibleMovesFunction.apply(index);
+		public void getPossibleMoves(MoveList<Integer> moveList) {
+			List<Integer> moves = possibleMovesFunction.apply(index);
+			moveList.addAll(moves.toArray(new Integer[moves.size()]));
 		}
 
 		@Override

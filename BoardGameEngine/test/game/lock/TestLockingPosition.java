@@ -1,8 +1,7 @@
 package game.lock;
 
-import java.util.List;
-
 import game.IPosition;
+import game.MoveList;
 
 public class TestLockingPosition implements IPosition<TestLockingNode, TestLockingPosition> {
 	private TestLockingNode previousNode;
@@ -17,8 +16,8 @@ public class TestLockingPosition implements IPosition<TestLockingNode, TestLocki
 	}
 
 	@Override
-	public List<TestLockingNode> getPossibleMoves() {
-		return currentNode.getPossibleMoves();
+	public void getPossibleMoves(MoveList<TestLockingNode> possibleMoves) {
+		possibleMoves.addAll(currentNode.getPossibleMoves());
 	}
 
 	@Override

@@ -4,11 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
 import org.junit.Test;
 
+import game.ArrayMoveList;
 import game.Coordinate;
+import game.MoveList;
 
 public class TicTacToePositionTest {
 	@Test
@@ -41,8 +41,9 @@ public class TicTacToePositionTest {
 	@Test
 	public void testGetPossibleMoves() {
 		TicTacToePosition position = new TicTacToePosition();
-		List<Coordinate> moves = position.getPossibleMoves();
-		assertEquals(9, moves.size());
+		MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		position.getPossibleMoves(possibleMoves);
+		assertEquals(9, possibleMoves.size());
 	}
 
 	@Test
@@ -50,10 +51,11 @@ public class TicTacToePositionTest {
 		TicTacToePosition position = new TicTacToePosition();
 		position.makeMove(Coordinate.valueOf(1, 1));
 		position.makeMove(Coordinate.valueOf(0, 2));
-		List<Coordinate> moves = position.getPossibleMoves();
-		assertEquals(7, moves.size());
-		assertFalse(moves.contains(Coordinate.valueOf(1, 1)));
-		assertFalse(moves.contains(Coordinate.valueOf(0, 2)));
+		MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		position.getPossibleMoves(possibleMoves);
+		assertEquals(7, possibleMoves.size());
+		assertFalse(possibleMoves.contains(Coordinate.valueOf(1, 1)));
+		assertFalse(possibleMoves.contains(Coordinate.valueOf(0, 2)));
 	}
 
 	@Test
@@ -73,7 +75,9 @@ public class TicTacToePositionTest {
 		position.makeMove(Coordinate.valueOf(1, 1));
 		position.makeMove(Coordinate.valueOf(2, 1));
 		position.makeMove(Coordinate.valueOf(1, 2));
-		assertEquals(0, position.getPossibleMoves().size());
+		MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		position.getPossibleMoves(possibleMoves);
+		assertEquals(0, possibleMoves.size());
 	}
 
 	@Test

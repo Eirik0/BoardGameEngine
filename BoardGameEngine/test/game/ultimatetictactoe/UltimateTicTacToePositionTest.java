@@ -9,7 +9,9 @@ import java.util.List;
 
 import org.junit.Test;
 
+import game.ArrayMoveList;
 import game.Coordinate;
+import game.MoveList;
 import game.TwoPlayers;
 import game.tictactoe.TicTacToeUtilities;
 
@@ -22,7 +24,9 @@ public class UltimateTicTacToePositionTest {
 		for (int i = 0; i < 20; ++i) {
 			positions.add(position.createCopy());
 			checkEqual(position, positions.get(i), -1);
-			Coordinate move = position.getPossibleMoves().get(0);
+			MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+			position.getPossibleMoves(possibleMoves);
+			Coordinate move = possibleMoves.get(0);
 			moves.add(move);
 			position.makeMove(move);
 		}

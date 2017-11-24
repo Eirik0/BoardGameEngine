@@ -4,9 +4,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.List;
 
 import game.Coordinate;
+import game.MoveList;
 import game.TwoPlayers;
 import gui.DrawingMethods;
 import gui.GameGuiManager;
@@ -61,7 +61,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 	}
 
 	@Override
-	public void drawPosition(Graphics2D g, UltimateTicTacToePosition position, List<Coordinate> possibleMoves, Coordinate lastMove) {
+	public void drawPosition(Graphics2D g, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves, Coordinate lastMove) {
 		drawMoves(g, position, lastMove);
 		highlightBoardInPlay(g, position, possibleMoves);
 		drawMouseOn(g, position, possibleMoves);
@@ -92,8 +92,8 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 		}
 	}
 
-	private void highlightBoardInPlay(Graphics2D g, UltimateTicTacToePosition position, List<Coordinate> possibleMoves) {
-		if (possibleMoves.isEmpty()) {
+	private void highlightBoardInPlay(Graphics2D g, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves) {
+		if (possibleMoves.size() == 0) {
 			return;
 		}
 		// draw the current board in play
@@ -109,7 +109,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 		}
 	}
 
-	private void drawMouseOn(Graphics g, UltimateTicTacToePosition position, List<Coordinate> possibleMoves) {
+	private void drawMouseOn(Graphics g, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves) {
 		if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
 			if (coordinate != null) {
@@ -122,7 +122,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 	}
 
 	@Override
-	public Coordinate maybeGetUserMove(UserInput input, UltimateTicTacToePosition position, List<Coordinate> possibleMoves) {
+	public Coordinate maybeGetUserMove(UserInput input, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves) {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
 			if (coordinate != null) {

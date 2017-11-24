@@ -1,10 +1,8 @@
 package game.sudoku;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import game.Coordinate;
 import game.IPosition;
+import game.MoveList;
 import game.ultimatetictactoe.UltimateTicTacToeUtilities;
 
 public class SudokuPosition implements IPosition<SudokuMove, SudokuPosition> {
@@ -26,8 +24,7 @@ public class SudokuPosition implements IPosition<SudokuMove, SudokuPosition> {
 	}
 
 	@Override
-	public List<SudokuMove> getPossibleMoves() {
-		List<SudokuMove> possibleMoves = new ArrayList<>();
+	public void getPossibleMoves(MoveList<SudokuMove> possibleMoves) {
 		for (int n = 0; n < BOARD_WIDTH; ++n) {
 			int[] square = squares[n];
 			boolean[] canNotPlayOrig = new boolean[BOARD_WIDTH + 1];
@@ -47,7 +44,6 @@ public class SudokuPosition implements IPosition<SudokuMove, SudokuPosition> {
 				}
 			}
 		}
-		return possibleMoves;
 	}
 
 	private void setCanNotPlay(boolean[] canNotPlay, int[] square) {

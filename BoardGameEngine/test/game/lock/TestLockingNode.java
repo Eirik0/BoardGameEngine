@@ -1,14 +1,12 @@
 package game.lock;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class TestLockingNode {
 	private volatile boolean isLocked;
 
 	private TestLockingNode parent = null;
-	private List<TestLockingNode> moves = Collections.emptyList();
+	private TestLockingNode[] moves = {};
 
 	public TestLockingNode(boolean isLocked) {
 		this.isLocked = isLocked;
@@ -29,7 +27,7 @@ public class TestLockingNode {
 		}
 	}
 
-	public List<TestLockingNode> getPossibleMoves() {
+	public TestLockingNode[] getPossibleMoves() {
 		return moves;
 	}
 
@@ -37,7 +35,7 @@ public class TestLockingNode {
 		for (TestLockingNode child : branches) {
 			child.parent = this;
 		}
-		moves = Arrays.asList(branches);
+		moves = branches;
 		return this;
 	}
 
@@ -47,9 +45,9 @@ public class TestLockingNode {
 
 	@Override
 	public String toString() {
-		boolean[] movesArr = new boolean[moves.size()];
+		boolean[] movesArr = new boolean[moves.length];
 		for (int i = 0; i < movesArr.length; i++) {
-			movesArr[i] = moves.get(i).isLocked;
+			movesArr[i] = moves[i].isLocked;
 		}
 		return isLocked + " -> " + Arrays.toString(movesArr);
 	}

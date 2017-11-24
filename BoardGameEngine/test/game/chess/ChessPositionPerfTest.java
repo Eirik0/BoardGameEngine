@@ -12,6 +12,8 @@ import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import game.ArrayMoveList;
+import game.MoveList;
 import game.chess.fen.ForsythEdwardsNotation;
 import game.chess.move.IChessMove;
 
@@ -79,15 +81,19 @@ public class ChessPositionPerfTest {
 	}
 
 	private static long countPositions(ChessPosition position, int depth) {
-		List<IChessMove> possibleMoves = position.getPossibleMoves();
+		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		position.getPossibleMoves(possibleMoves);
 		if (depth == 0) {
 			return possibleMoves.size();
 		}
 		long sum = 0;
-		for (IChessMove move : possibleMoves) {
+		int i = 0;
+		while (i < possibleMoves.size()) {
+			IChessMove move = possibleMoves.get(i);
 			position.makeMove(move);
 			sum += countPositions(position, depth - 1);
 			position.unmakeMove(move);
+			++i;
 		}
 		return sum;
 	}
@@ -103,18 +109,21 @@ public class ChessPositionPerfTest {
 	}
 
 	private static void checkPositionIntegrity(ChessPosition position, int depth) {
-		List<IChessMove> possibleMoves = position.getPossibleMoves();
+		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
 		if (depth == 0) {
 			ChessPositionTest.assertPositionIntegrity(position);
 			return;
 		}
 		ChessPosition positionCopy = position.createCopy();
-		for (IChessMove move : possibleMoves) {
+		int i = 0;
+		while (i < possibleMoves.size()) {
+			IChessMove move = possibleMoves.get(i);
 			position.makeMove(move);
 			checkPositionIntegrity(position, depth - 1);
 			position.unmakeMove(move);
 			ChessPositionTest.assertPositionIntegrity(position);
 			ChessPositionTest.assertPositionsEqual(positionCopy, position);
+			++i;
 		}
 	}
 

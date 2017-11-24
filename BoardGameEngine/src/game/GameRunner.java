@@ -17,7 +17,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private P position;
 
 	private P positionCopy;
-	private List<M> possibleMovesCopy;
+	private MoveList<M> possibleMovesCopy;
 	private M lastMove;
 
 	private IPlayer currentPlayer;
@@ -41,7 +41,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		return positionCopy;
 	}
 
-	public synchronized List<M> getPossibleMovesCopy() {
+	public synchronized MoveList<M> getPossibleMovesCopy() {
 		return possibleMovesCopy;
 	}
 
@@ -51,7 +51,8 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 	private void setPositionCopy() {
 		P newPositionCopy = position.createCopy();
-		List<M> newPossibleMoves = newPositionCopy.getPossibleMoves();
+		MoveList<M> newPossibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		newPositionCopy.getPossibleMoves(newPossibleMoves);
 		positionCopy = newPositionCopy;
 		possibleMovesCopy = newPossibleMoves;
 		if (positionObserver != null) {
@@ -71,7 +72,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		position = game.newInitialPosition();
 		lastMove = null;
 		setPositionCopy();
-		if (possibleMovesCopy.isEmpty()) {
+		if (possibleMovesCopy.size() == 0) {
 			notifyGameStarted();
 		}
 

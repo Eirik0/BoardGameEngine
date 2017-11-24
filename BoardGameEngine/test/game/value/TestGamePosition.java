@@ -1,8 +1,7 @@
 package game.value;
 
-import java.util.List;
-
 import game.IPosition;
+import game.MoveList;
 
 public class TestGamePosition implements IPosition<TestGameNode, TestGamePosition> {
 	private TestGameNode previousNode;
@@ -25,8 +24,8 @@ public class TestGamePosition implements IPosition<TestGameNode, TestGamePositio
 	}
 
 	@Override
-	public List<TestGameNode> getPossibleMoves() {
-		return currentNode.getPossibleMoves();
+	public void getPossibleMoves(MoveList<TestGameNode> possibleMoves) {
+		possibleMoves.addAll(currentNode.getPossibleMoves());
 	}
 
 	@Override

@@ -1,11 +1,8 @@
 package game.gomoku;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import game.Coordinate;
 import game.IPosition;
+import game.MoveList;
 import game.TwoPlayers;
 
 public class GomokuPosition implements IPosition<Coordinate, GomokuPosition> {
@@ -24,12 +21,11 @@ public class GomokuPosition implements IPosition<Coordinate, GomokuPosition> {
 	}
 
 	@Override
-	public List<Coordinate> getPossibleMoves() {
+	public void getPossibleMoves(MoveList<Coordinate> possibleMoves) {
 		int otherPlayer = TwoPlayers.otherPlayer(currentPlayer);
 		if (GomokuPositionEvaluator.winExists(board, otherPlayer)) { // We only need to check the last player who played
-			return Collections.emptyList();
+			return;
 		}
-		List<Coordinate> possibleMoves = new ArrayList<>();
 		for (int y = 0; y < BOARD_WIDTH; ++y) {
 			int[] column = board[y];
 			for (int x = 0; x < BOARD_WIDTH; ++x) {
@@ -38,7 +34,6 @@ public class GomokuPosition implements IPosition<Coordinate, GomokuPosition> {
 				}
 			}
 		}
-		return possibleMoves;
 	}
 
 	@Override

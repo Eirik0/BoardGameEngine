@@ -26,6 +26,7 @@ public class TicTacToeTreeSearchTest {
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
 		AnalysisResult<Coordinate> search = treeSearcher.startSearch(position, 1);
 		assertEquals(Coordinate.valueOf(0, 0), search.getBestMove());
+		treeSearcher.stopSearch(true);
 	}
 
 	@Test
@@ -33,6 +34,7 @@ public class TicTacToeTreeSearchTest {
 		TicTacToePosition position = new TicTacToePosition();
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
 		AnalysisResult<Coordinate> result = treeSearcher.startSearch(position, 2);
+		treeSearcher.stopSearch(true);
 		assertEquals(Coordinate.valueOf(0, 0), result.getBestMove());
 	}
 
@@ -50,6 +52,7 @@ public class TicTacToeTreeSearchTest {
 		assertEquals("[XOX],[O  ],[   ]", position.toString());
 		searchAndMove(treeSearcher, position, 2);
 		assertEquals("[XOX],[OX ],[   ]", position.toString());
+		treeSearcher.stopSearch(true);
 	}
 
 	private static void searchAndMove(IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher, TicTacToePosition position, int plies) {
@@ -65,6 +68,7 @@ public class TicTacToeTreeSearchTest {
 		for (MoveWithScore<Coordinate> moveWithScore : search.getMovesWithScore()) {
 			assertEquals(0.0, moveWithScore.score, 0.0);
 		}
+		treeSearcher.stopSearch(true);
 	}
 
 	@Test
@@ -78,6 +82,7 @@ public class TicTacToeTreeSearchTest {
 		for (MoveWithScore<Coordinate> moveWithScore : search.getMovesWithScore()) {
 			assertEquals(moveWithScore.move.toString(), moveWithScore.move.equals(draw) ? 0.0 : Double.POSITIVE_INFINITY, moveWithScore.score, 0.0);
 		}
+		treeSearcher.stopSearch(true);
 	}
 
 	@Test
@@ -90,6 +95,7 @@ public class TicTacToeTreeSearchTest {
 		assertEquals(9, treeSearcher.getPlies());
 		treeSearcher.startSearch(position, 11);
 		assertEquals(9, treeSearcher.getPlies());
+		treeSearcher.stopSearch(true);
 	}
 
 	@Test
@@ -108,5 +114,6 @@ public class TicTacToeTreeSearchTest {
 			assertEquals("search " + String.valueOf(i), 0.0, result.getMax().score, 0.00001);
 			assertTrue("search " + String.valueOf(i), result.isDraw());
 		}
+		treeSearcher.stopSearch(true);
 	}
 }

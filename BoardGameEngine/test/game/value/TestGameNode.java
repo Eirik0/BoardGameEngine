@@ -1,14 +1,12 @@
 package game.value;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class TestGameNode {
 	private final int value;
 
 	private TestGameNode parent = null;
-	private List<TestGameNode> moves = Collections.emptyList();
+	private TestGameNode[] moves = {};
 
 	public TestGameNode(int value) {
 		this.value = value;
@@ -18,7 +16,7 @@ public class TestGameNode {
 		return value;
 	}
 
-	public List<TestGameNode> getPossibleMoves() {
+	public TestGameNode[] getPossibleMoves() {
 		return moves;
 	}
 
@@ -26,7 +24,7 @@ public class TestGameNode {
 		for (TestGameNode child : branches) {
 			child.parent = this;
 		}
-		moves = Arrays.asList(branches);
+		moves = branches;
 		return this;
 	}
 
@@ -36,9 +34,9 @@ public class TestGameNode {
 
 	@Override
 	public String toString() {
-		int[] movesArr = new int[moves.size()];
+		int[] movesArr = new int[moves.length];
 		for (int i = 0; i < movesArr.length; i++) {
-			movesArr[i] = moves.get(i).value;
+			movesArr[i] = moves[i].value;
 		}
 		return value + " -> " + Arrays.toString(movesArr);
 	}

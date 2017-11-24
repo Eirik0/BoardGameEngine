@@ -2,9 +2,9 @@ package game.tictactoe;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.List;
 
 import game.Coordinate;
+import game.MoveList;
 import game.TwoPlayers;
 import gui.GameGuiManager;
 import gui.GuiPlayer;
@@ -30,7 +30,7 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
 	}
 
 	@Override
-	public void drawPosition(Graphics2D g, TicTacToePosition position, List<Coordinate> possibleMoves, Coordinate lastMove) {
+	public void drawPosition(Graphics2D g, TicTacToePosition position, MoveList<Coordinate> possibleMoves, Coordinate lastMove) {
 		int width = GameGuiManager.getComponentWidth();
 		int height = GameGuiManager.getComponentHeight();
 		for (int y = 0; y < TicTacToePosition.BOARD_WIDTH; ++y) {
@@ -53,7 +53,7 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
 	}
 
 	@Override
-	public Coordinate maybeGetUserMove(UserInput input, TicTacToePosition position, List<Coordinate> possibleMoves) {
+	public Coordinate maybeGetUserMove(UserInput input, TicTacToePosition position, MoveList<Coordinate> possibleMoves) {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			if (GuiPlayer.HUMAN.isRequestingMove()) {
 				return getCoordinate(3);

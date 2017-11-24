@@ -48,5 +48,6 @@ public class ForkJoinExmpleGameTreeSearchTest {
 			threadNames.add(threadName);
 		}
 		assertEquals(expectedWorkers, threadNames.size());
+		treeSearcher.stopSearch(true);
 	}
 }

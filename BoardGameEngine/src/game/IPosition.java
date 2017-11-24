@@ -1,9 +1,7 @@
 package game;
 
-import java.util.List;
-
 public interface IPosition<M, P extends IPosition<M, P>> {
-	public List<M> getPossibleMoves();
+	public void getPossibleMoves(MoveList<M> moveList);
 
 	public int getCurrentPlayer();
 

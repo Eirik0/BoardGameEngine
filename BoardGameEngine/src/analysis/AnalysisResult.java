@@ -7,13 +7,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import game.ArrayMoveList;
+import game.MoveList;
+
 public class AnalysisResult<M> {
 	public static final double WIN = Double.POSITIVE_INFINITY;
 	public static final double LOSS = Double.NEGATIVE_INFINITY;
 	public static final double DRAW = Double.NaN;
 
 	private final List<MoveWithScore<M>> movesWithScore = new ArrayList<>();
-	private final List<M> unanalyzedMoves = new ArrayList<>();
+	private final MoveList<M> unanalyzedMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
 
 	private MoveWithScore<M> min;
 	private MoveWithScore<M> max;
@@ -67,7 +70,7 @@ public class AnalysisResult<M> {
 		return movesWithScore;
 	}
 
-	public List<M> getUnanalyzedMoves() {
+	public MoveList<M> getUnanalyzedMoves() {
 		return unanalyzedMoves;
 	}
 
@@ -94,7 +97,6 @@ public class AnalysisResult<M> {
 	public boolean isDraw() {
 		return max != null && max.isDraw;
 	}
-
 
 	@Override
 	public String toString() {

@@ -1,10 +1,7 @@
 package game.forkjoinexample;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import game.IPosition;
+import game.MoveList;
 
 public class ForkJoinExampleTree implements IPosition<ForkJoinExampleNode, ForkJoinExampleTree> {
 	private ForkJoinExampleNode currentNode;
@@ -22,8 +19,8 @@ public class ForkJoinExampleTree implements IPosition<ForkJoinExampleNode, ForkJ
 	}
 
 	@Override
-	public List<ForkJoinExampleNode> getPossibleMoves() {
-		return currentNode.getChildren();
+	public void getPossibleMoves(MoveList<ForkJoinExampleNode> moveList) {
+		moveList.addAll(currentNode.getChildren());
 	}
 
 	@Override
@@ -50,11 +47,11 @@ public class ForkJoinExampleTree implements IPosition<ForkJoinExampleNode, ForkJ
 		if (depth < 1) {
 			return null;
 		} else if (depth == 1) {
-			return new ForkJoinExampleNode(number, Collections.emptyList());
+			return new ForkJoinExampleNode(number, new ForkJoinExampleNode[] {});
 		} else {
-			List<ForkJoinExampleNode> children = new ArrayList<>();
+			ForkJoinExampleNode[] children = new ForkJoinExampleNode[branchingFactor];
 			for (int i = 0; i < branchingFactor; ++i) {
-				children.add(createTree(depth - 1, branchingFactor, i));
+				children[i] = createTree(depth - 1, branchingFactor, i);
 			}
 			return new ForkJoinExampleNode(number, children);
 		}

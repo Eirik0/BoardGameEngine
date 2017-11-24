@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import game.Coordinate;
+import game.MoveList;
 import game.TwoPlayers;
 import gui.GameGuiManager;
 import gui.gamestate.BoardSizer;
@@ -59,7 +60,7 @@ public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosit
 	}
 
 	@Override
-	public void drawPosition(Graphics2D g, GomokuPosition position, List<Coordinate> possibleMoves, Coordinate lastMove) {
+	public void drawPosition(Graphics2D g, GomokuPosition position, MoveList<Coordinate> possibleMoves, Coordinate lastMove) {
 		drawMoves(g, position, lastMove);
 		drawMouseOn(g, possibleMoves);
 	}
@@ -81,7 +82,7 @@ public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosit
 		}
 	}
 
-	private void drawMouseOn(Graphics g, List<Coordinate> possibleMoves) {
+	private void drawMouseOn(Graphics g, MoveList<Coordinate> possibleMoves) {
 		if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, GomokuPosition.BOARD_WIDTH);
 			if (coordinate != null && possibleMoves.contains(coordinate)) {
@@ -91,7 +92,7 @@ public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosit
 	}
 
 	@Override
-	public Coordinate maybeGetUserMove(UserInput input, GomokuPosition position, List<Coordinate> possibleMoves) {
+	public Coordinate maybeGetUserMove(UserInput input, GomokuPosition position, MoveList<Coordinate> possibleMoves) {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			return GuiPlayerHelper.maybeGetCoordinate(sizer, GomokuPosition.BOARD_WIDTH);
 		}

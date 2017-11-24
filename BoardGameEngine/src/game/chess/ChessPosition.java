@@ -14,11 +14,8 @@ import static game.chess.ChessConstants.newInitialPosition;
 import static game.chess.ChessConstants.newInitialQueens;
 import static game.chess.ChessConstants.newInitialRooks;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import game.IPosition;
+import game.MoveList;
 import game.TwoPlayers;
 import game.chess.move.BasicChessMove;
 import game.chess.move.CastleMove;
@@ -98,11 +95,10 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 	}
 
 	@Override
-	public List<IChessMove> getPossibleMoves() {
+	public void getPossibleMoves(MoveList<IChessMove> possibleMoves) {
 		if (halfMoveClock == 100) {
-			return Collections.emptyList();
+			return;
 		}
-		List<IChessMove> possibleMoves = new ArrayList<>();
 		// Pawns
 		int pawnOffset = white ? PAWN_OFFSET : -PAWN_OFFSET;
 		int[] playerPawns = pawns[currentPlayer];
@@ -148,10 +144,9 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		// King
 		addKingMoves(possibleMoves, kingSquares[currentPlayer]);
 		addCastlingMoves(possibleMoves);
-		return possibleMoves;
 	}
 
-	private void addPossibleMove(List<IChessMove> possibleMoves, IChessMove chessMove) {
+	private void addPossibleMove(MoveList<IChessMove> possibleMoves, IChessMove chessMove) {
 		// Move the pieces and then check if the king is attacked before adding the move
 		chessMove.applyMove(this);
 		int kingSquare = kingSquares[currentPlayer];
@@ -161,7 +156,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		chessMove.unapplyMove(this);
 	}
 
-	private void addPawnMoves(List<IChessMove> possibleMoves, int from, int offset, boolean white) {
+	private void addPawnMoves(MoveList<IChessMove> possibleMoves, int from, int offset, boolean white) {
 		boolean isStartingPawnRank = white ? ChessFunctions.isRank2(from) : ChessFunctions.isRank7(from);
 		boolean pawnPromotes = white ? ChessFunctions.isRank7(from) : ChessFunctions.isRank2(from);
 		int moveUpOne = from + offset;
@@ -177,7 +172,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		addPawnCapture(possibleMoves, from, moveUpOne - 1, pawn, pawnPromotes);
 	}
 
-	private void addPawnMove(List<IChessMove> possibleMoves, BasicChessMove basicMove, int pawn, boolean pawnPromotes) {
+	private void addPawnMove(MoveList<IChessMove> possibleMoves, BasicChessMove basicMove, int pawn, boolean pawnPromotes) {
 		if (pawnPromotes) {
 			addPossibleMove(possibleMoves, new PawnPromotionMove(basicMove, currentPlayer | QUEEN, pawn));
 			addPossibleMove(possibleMoves, new PawnPromotionMove(basicMove, currentPlayer | ROOK, pawn));
@@ -188,14 +183,14 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		}
 	}
 
-	private void addPawnCapture(List<IChessMove> possibleMoves, int from, int to, int pawn, boolean pawnPromotes) {
+	private void addPawnCapture(MoveList<IChessMove> possibleMoves, int from, int to, int pawn, boolean pawnPromotes) {
 		int capture = squares[to];
 		if ((capture & SENTINEL) == otherPlayer) {
 			addPawnMove(possibleMoves, new BasicChessMove(from, to, capture, NO_SQUARE), pawn, pawnPromotes);
 		}
 	}
 
-	private void addEnPassantCaptures(List<IChessMove> possibleMoves, int offset) {
+	private void addEnPassantCaptures(MoveList<IChessMove> possibleMoves, int offset) {
 		if (enPassantSquare == NO_SQUARE) {
 			return;
 		}
@@ -204,7 +199,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		addEnPassantCapture(possibleMoves, enPassantSquare - offset - 1, offset, playerPawn);
 	}
 
-	private void addEnPassantCapture(List<IChessMove> possibleMoves, int from, int offset, int playerPawn) {
+	private void addEnPassantCapture(MoveList<IChessMove> possibleMoves, int from, int offset, int playerPawn) {
 		if (squares[from] == playerPawn) {
 			int captureSquare = enPassantSquare - offset;
 			BasicChessMove basicChessMove = new BasicChessMove(from, enPassantSquare, squares[captureSquare], NO_SQUARE);
@@ -212,7 +207,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		}
 	}
 
-	private void addKnightMoves(List<IChessMove> possibleMoves, int from) {
+	private void addKnightMoves(MoveList<IChessMove> possibleMoves, int from) {
 		int i = 0;
 		while (i < KNIGHT_OFFSETS.length) {
 			int offset = KNIGHT_OFFSETS[i];
@@ -225,7 +220,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		}
 	}
 
-	private void addKingMoves(List<IChessMove> possibleMoves, int from) {
+	private void addKingMoves(MoveList<IChessMove> possibleMoves, int from) {
 		int i = 0;
 		while (i < KING_OFFSETS.length) {
 			int offset = KING_OFFSETS[i];
@@ -239,7 +234,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		}
 	}
 
-	private void addSlidingMoves(List<IChessMove> possibleMoves, int from, int[] offsets, int numOffsets) {
+	private void addSlidingMoves(MoveList<IChessMove> possibleMoves, int from, int[] offsets, int numOffsets) {
 		int i = 0;
 		while (i < numOffsets) {
 			int offset = offsets[i];
@@ -256,7 +251,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		}
 	}
 
-	private void addCastlingMoves(List<IChessMove> possibleMoves) {
+	private void addCastlingMoves(MoveList<IChessMove> possibleMoves) {
 		if (white) {
 			addCastingMoves(possibleMoves, E1, WHITE_KING_CASTLE, WHITE_QUEEN_CASTLE);
 		} else {
@@ -264,7 +259,7 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		}
 	}
 
-	private void addCastingMoves(List<IChessMove> possibleMoves, int kingSquare, int kingCastle, int queenCastle) {
+	private void addCastingMoves(MoveList<IChessMove> possibleMoves, int kingSquare, int kingCastle, int queenCastle) {
 		int fSquare = kingSquare - 1;
 		int gSquare = fSquare - 1;
 		if ((castleState & kingCastle) == kingCastle && squares[fSquare] == UNPLAYED && squares[gSquare] == UNPLAYED &&

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import game.MoveList;
 import game.forkjoinexample.ForkJoinExampleThreadTracker.ForkJoinExampleNodeInfo;
 import gui.GameGuiManager;
 import gui.gamestate.GameState.UserInput;
@@ -31,7 +32,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 	}
 
 	@Override
-	public void drawPosition(Graphics2D g, ForkJoinExampleTree position, List<ForkJoinExampleNode> possibleMoves, ForkJoinExampleNode lastMove) {
+	public void drawPosition(Graphics2D g, ForkJoinExampleTree position, MoveList<ForkJoinExampleNode> possibleMoves, ForkJoinExampleNode lastMove) {
 		int width = GameGuiManager.getComponentWidth();
 		int height = GameGuiManager.getComponentHeight();
 		g.setFont(BoardGameEngineMain.DEFAULT_FONT_SMALL);
@@ -84,7 +85,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 	}
 
 	@Override
-	public ForkJoinExampleNode maybeGetUserMove(UserInput input, ForkJoinExampleTree position, List<ForkJoinExampleNode> possibleMoves) {
+	public ForkJoinExampleNode maybeGetUserMove(UserInput input, ForkJoinExampleTree position, MoveList<ForkJoinExampleNode> possibleMoves) {
 		return null; // only the computer plays this game
 	}
 }

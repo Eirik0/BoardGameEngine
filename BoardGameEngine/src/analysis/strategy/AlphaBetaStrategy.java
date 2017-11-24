@@ -1,10 +1,10 @@
 package analysis.strategy;
 
-import java.util.List;
-
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
+import game.ArrayMoveList;
 import game.IPosition;
+import game.MoveList;
 
 public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
 	private final IPositionEvaluator<M, P> positionEvaluator;
@@ -27,7 +27,8 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 			return positionEvaluator.evaluate(position, player);
 		}
 
-		List<M> possibleMoves = position.getPossibleMoves();
+		MoveList<M> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		position.getPossibleMoves(possibleMoves);
 		int numMoves = possibleMoves.size();
 
 		if (numMoves == 0) {
@@ -82,11 +83,6 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 		}
 
 		return bestScore;
-	}
-
-	@Override
-	public void notifyPlyStarted(AnalysisResult<M> lastResult) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override

@@ -1,14 +1,12 @@
 package game.forkjoinexample;
 
-import java.util.List;
-
 public class ForkJoinExampleNode {
 	private final int number;
 
 	private ForkJoinExampleNode parent;
-	private final List<ForkJoinExampleNode> children;
+	private final ForkJoinExampleNode[] children;
 
-	public ForkJoinExampleNode(int number, List<ForkJoinExampleNode> children) {
+	public ForkJoinExampleNode(int number, ForkJoinExampleNode[] children) {
 		this.number = number;
 		this.children = children;
 		for (ForkJoinExampleNode child : children) {
@@ -24,7 +22,7 @@ public class ForkJoinExampleNode {
 		this.parent = parent;
 	}
 
-	public List<ForkJoinExampleNode> getChildren() {
+	public ForkJoinExampleNode[] getChildren() {
 		return children;
 	}
 
