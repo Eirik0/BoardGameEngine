@@ -8,4 +8,9 @@ public class TestLockingEvaluator implements IPositionEvaluator<TestLockingNode,
 		position.getCurrentNode().waitForLock();
 		return 0;
 	}
+
+	@Override
+	public IPositionEvaluator<TestLockingNode, TestLockingPosition> createCopy() {
+		return new TestLockingEvaluator();
+	}
 }

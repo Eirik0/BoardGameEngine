@@ -7,16 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import game.ArrayMoveList;
-import game.MoveList;
-
 public class AnalysisResult<M> {
 	public static final double WIN = Double.POSITIVE_INFINITY;
 	public static final double LOSS = Double.NEGATIVE_INFINITY;
 	public static final double DRAW = Double.NaN;
 
 	private final List<MoveWithScore<M>> movesWithScore = new ArrayList<>();
-	private final MoveList<M> unanalyzedMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
 
 	private MoveWithScore<M> min;
 	private MoveWithScore<M> max;
@@ -62,16 +58,8 @@ public class AnalysisResult<M> {
 		return mergedResult;
 	}
 
-	public void addUnanalyzedMove(M move) {
-		unanalyzedMoves.add(move);
-	}
-
 	public List<MoveWithScore<M>> getMovesWithScore() {
 		return movesWithScore;
-	}
-
-	public MoveList<M> getUnanalyzedMoves() {
-		return unanalyzedMoves;
 	}
 
 	public MoveWithScore<M> getMin() {

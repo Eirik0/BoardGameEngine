@@ -13,6 +13,8 @@ import game.MoveList;
 import game.ultimatetictactoe.UltimateTicTacToeUtilities;
 
 public class SudokuPositionEvaluator implements IPositionEvaluator<SudokuMove, SudokuPosition> {
+	private final MoveList<SudokuMove> moveList = new ArrayMoveList<>(SudokuGame.MAX_MOVES);
+
 	@Override
 	public double evaluate(SudokuPosition position, int player) {
 		List<Coordinate> openSquares = new ArrayList<>();
@@ -23,16 +25,22 @@ public class SudokuPositionEvaluator implements IPositionEvaluator<SudokuMove, S
 				}
 			}
 		}
-		MoveList<SudokuMove> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
-		if (possibleMoves.size() == 0) {
+		moveList.clear();
+		position.getPossibleMoves(moveList);
+		if (moveList.size() == 0) {
 			return openSquares.size() == 0 ? AnalysisResult.WIN : AnalysisResult.LOSS;
 		}
 		Set<Coordinate> playableCoordinates = new HashSet<>();
 		int i = 0;
 		do {
-			playableCoordinates.add(possibleMoves.get(i).coordinate);
+			playableCoordinates.add(moveList.get(i).coordinate);
 			++i;
-		} while (i < possibleMoves.size());
-		return openSquares.size() == playableCoordinates.size() ? possibleMoves.size() : AnalysisResult.LOSS;
+		} while (i < moveList.size());
+		return openSquares.size() == playableCoordinates.size() ? moveList.size() : AnalysisResult.LOSS;
+	}
+
+	@Override
+	public IPositionEvaluator<SudokuMove, SudokuPosition> createCopy() {
+		return new SudokuPositionEvaluator();
 	}
 }

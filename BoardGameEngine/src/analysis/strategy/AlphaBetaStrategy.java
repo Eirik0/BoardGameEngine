@@ -2,19 +2,22 @@ package analysis.strategy;
 
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
-import game.ArrayMoveList;
 import game.IPosition;
 import game.MoveList;
+import game.MoveListFactory;
 
 public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
+	private final MoveListFactory<M> moveListFactory;
 	private final IPositionEvaluator<M, P> positionEvaluator;
 
-	public AlphaBetaStrategy(IPositionEvaluator<M, P> positionEvaluator) {
+	public AlphaBetaStrategy(MoveListFactory<M> moveListFactory, IPositionEvaluator<M, P> positionEvaluator) {
+		this.moveListFactory = moveListFactory;
 		this.positionEvaluator = positionEvaluator;
 	}
 
 	@Override
 	public double evaluate(P position, int player, int plies) {
+		initMoveLists(moveListFactory, plies);
 		return alphaBeta(position, player, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 
@@ -27,7 +30,7 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 			return positionEvaluator.evaluate(position, player);
 		}
 
-		MoveList<M> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<M> possibleMoves = getMoveList(plies);
 		position.getPossibleMoves(possibleMoves);
 		int numMoves = possibleMoves.size();
 
@@ -87,6 +90,6 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 
 	@Override
 	public IDepthBasedStrategy<M, P> createCopy() {
-		return new AlphaBetaStrategy<>(positionEvaluator);
+		return new AlphaBetaStrategy<>(moveListFactory, positionEvaluator.createCopy());
 	}
 }

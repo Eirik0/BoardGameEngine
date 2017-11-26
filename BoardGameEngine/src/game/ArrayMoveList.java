@@ -47,6 +47,20 @@ public class ArrayMoveList<M> implements MoveList<M> {
 	}
 
 	@Override
+	public void clear() {
+		size = 0;
+	}
+
+	@Override
+	public MoveList<M> subList(int beginIndex) {
+		int newSize = size - beginIndex;
+		ArrayMoveList<M> subList = new ArrayMoveList<>(newSize);
+		System.arraycopy(moveArray, beginIndex, subList.moveArray, 0, newSize);
+		subList.size = newSize;
+		return subList;
+	}
+
+	@Override
 	public String toString() {
 		return Arrays.toString(moveArray);
 	}

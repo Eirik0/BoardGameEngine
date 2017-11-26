@@ -1,5 +1,8 @@
 package game.forkjoinexample;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ForkJoinExampleNode {
 	private final int number;
 
@@ -28,6 +31,23 @@ public class ForkJoinExampleNode {
 
 	@Override
 	public String toString() {
-		return "Node " + number;
+		List<Integer> nodeList = new ArrayList<>();
+		nodeList.add(number);
+		ForkJoinExampleNode parentNode = parent;
+		if (parentNode == null) {
+			return Integer.toString(number);
+		}
+		while (parentNode != null) {
+			nodeList.add(parentNode.number);
+			parentNode = parentNode.parent;
+		}
+		StringBuilder sb = new StringBuilder();
+		int i = nodeList.size() - 1;
+		do {
+			sb.append(nodeList.get(i)).append("->");
+			--i;
+		} while (i > 0);
+		sb.append(nodeList.get(0));
+		return sb.toString();
 	}
 }

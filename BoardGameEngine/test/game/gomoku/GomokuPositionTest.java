@@ -10,7 +10,7 @@ import game.MoveList;
 
 public class GomokuPositionTest {
 	private static MoveList<Coordinate> getPossibleList(GomokuPosition position) {
-		MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(GomokuGame.MAX_MOVES);
 		position.getPossibleMoves(possibleMoves);
 		return possibleMoves;
 	}

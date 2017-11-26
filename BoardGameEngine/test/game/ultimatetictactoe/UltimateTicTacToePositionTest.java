@@ -24,7 +24,7 @@ public class UltimateTicTacToePositionTest {
 		for (int i = 0; i < 20; ++i) {
 			positions.add(position.createCopy());
 			checkEqual(position, positions.get(i), -1);
-			MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+			MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(UltimateTicTacToeGame.MAX_MOVES);
 			position.getPossibleMoves(possibleMoves);
 			Coordinate move = possibleMoves.get(0);
 			moves.add(move);

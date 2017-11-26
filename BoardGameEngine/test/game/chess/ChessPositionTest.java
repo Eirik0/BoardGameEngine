@@ -20,7 +20,7 @@ public class ChessPositionTest implements ChessConstants {
 	@Test
 	public void testMovesFromInitialPosition() {
 		ChessPosition position = new ChessPosition();
-		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(ChessGame.MAX_MOVES);
 		position.getPossibleMoves(possibleMoves);
 		assertEquals(20, possibleMoves.size());
 	}
@@ -38,7 +38,7 @@ public class ChessPositionTest implements ChessConstants {
 	@Test
 	public void testGetKnightMoves() {
 		ChessPosition position = ForsythEdwardsNotation.stringToPosition("8/1n4N1/2k5/8/8/5K2/1N4n1/8 b - - 0 1");
-		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(ChessGame.MAX_MOVES);
 		position.getPossibleMoves(possibleMoves);
 		assertEquals(15, possibleMoves.size());
 		List<String> expectedMoves = Arrays.asList("g2-e1", "g2-e3", "g2-f4", "g2-h4", "c6-d5", "c6-c5", "c6-b5", "c6-b6", "c6-c7", "c6-d7", "c6-d6", "b7-c5", "b7-a5", "b7-d8", "b7-d6");
@@ -50,7 +50,7 @@ public class ChessPositionTest implements ChessConstants {
 	@Test
 	public void testCantCastleThroughCheck() {
 		ChessPosition position = ForsythEdwardsNotation.stringToPosition("8/8/8/8/8/8/6k1/4K2R w K - 0 1");
-		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(ChessGame.MAX_MOVES);
 		position.getPossibleMoves(possibleMoves);
 		assertEquals(12, possibleMoves.size());
 		List<String> expectedMoves = Arrays.asList("h1-g1", "h1-f1", "h1-h2", "h1-h3", "h1-h4", "h1-h5", "h1-h6", "h1-h7", "h1-h8", "e1-d1", "e1-e2", "e1-d2");
@@ -115,7 +115,7 @@ public class ChessPositionTest implements ChessConstants {
 	}
 
 	public static void makeMove(ChessPosition position, String moveString) {
-		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(ChessGame.MAX_MOVES);
 		position.getPossibleMoves(possibleMoves);
 		position.makeMove(getMove(possibleMoves, moveString));
 	}

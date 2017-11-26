@@ -14,6 +14,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private IPositionObserver<M, P> positionObserver;
 
 	private final IGame<M, P> game;
+	private final MoveListFactory<M> moveListFactory;
 	private P position;
 
 	private P positionCopy;
@@ -22,10 +23,11 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 	private IPlayer currentPlayer;
 
-	public GameRunner(IGame<M, P> game, GameObserver gameObserver) {
+	public GameRunner(IGame<M, P> game, GameObserver gameObserver, MoveListFactory<M> moveListFactory) {
 		this.game = game;
-		position = game.newInitialPosition();
 		this.gameObserver = gameObserver;
+		this.moveListFactory = moveListFactory;
+		position = game.newInitialPosition();
 		setPositionCopy();
 	}
 
@@ -51,7 +53,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 	private void setPositionCopy() {
 		P newPositionCopy = position.createCopy();
-		MoveList<M> newPossibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<M> newPossibleMoves = moveListFactory.newArrayMoveList();
 		newPositionCopy.getPossibleMoves(newPossibleMoves);
 		positionCopy = newPositionCopy;
 		possibleMovesCopy = newPossibleMoves;

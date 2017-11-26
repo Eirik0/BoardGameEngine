@@ -57,4 +57,9 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<Co
 					- WINS_PER_BOARD * opponentAcualWins - totalOpponentPossibleWins;
 		}
 	}
+
+	@Override
+	public IPositionEvaluator<Coordinate, UltimateTicTacToePosition> createCopy() {
+		return new UltimateTicTacToePositionEvaluator();
+	}
 }

@@ -16,45 +16,42 @@ public class GameRunnerTest {
 	@Test
 	public void testStartStopGame() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame();
-		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver());
+		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver(), new MoveListFactory<>(1));
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		Thread.sleep(10);// sleep a little to let the list populate
 		gameRunner.endGame();
 		assertTrue(game.list.size() > 0);
 		assertEquals(2, game.numNewPositions);
-		System.out.println(game.list.get(game.list.size() - 1));
 	}
 
 	@Test
 	public void testStartTwice() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame();
-		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver());
+		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver(), new MoveListFactory<>(1));
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		Thread.sleep(10);// sleep a little to let the list populate
 		gameRunner.endGame();
 		assertTrue(game.list.size() > 0);
 		assertEquals(3, game.numNewPositions);
-		System.out.println(game.list.get(game.list.size() - 1));
 	}
 
 	@Test
 	public void testEndTwice() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame();
-		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver());
+		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver(), new MoveListFactory<>(1));
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		Thread.sleep(10);// sleep a little to let the list populate
 		gameRunner.endGame();
 		gameRunner.endGame();
 		assertTrue(game.list.size() > 0);
 		assertEquals(2, game.numNewPositions);
-		System.out.println(game.list.get(game.list.size() - 1));
 	}
 
 	@Test
 	public void testEndWhenWaitingOnPlayer() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame(GuiPlayer.HUMAN);
-		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver());
+		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver(), new MoveListFactory<>(1));
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		Thread.sleep(10);
 		gameRunner.endGame();
@@ -64,7 +61,7 @@ public class GameRunnerTest {
 	@Test
 	public void testStardAndEndWhenNoMoves() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame(new AddToListTestPlayer(), i -> Collections.emptyList());
-		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver());
+		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver(), new MoveListFactory<>(1));
 		gameRunner.startNewGame(Collections.singletonList(game.player));
 		assertEquals(2, game.numNewPositions);
 	}
@@ -99,6 +96,11 @@ public class GameRunnerTest {
 		}
 
 		@Override
+		public int getMaxMoves() {
+			return 0; // Unused
+		}
+
+		@Override
 		public AddToListPosition newInitialPosition() {
 			numNewPositions++;
 			list.clear();
@@ -109,7 +111,7 @@ public class GameRunnerTest {
 	static class AddToListTestPlayer implements IPlayer {
 		@Override
 		public <M, P extends IPosition<M, P>> M getMove(P position) {
-			MoveList<M> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+			MoveList<M> possibleMoves = new ArrayMoveList<>(1);
 			position.getPossibleMoves(possibleMoves);
 			return possibleMoves.get(0);
 		}

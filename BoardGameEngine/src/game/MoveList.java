@@ -1,8 +1,6 @@
 package game;
 
 public interface MoveList<M> {
-	public static final int MAX_SIZE = 512;
-
 	public void add(M move);
 
 	public void addAll(M[] moves);
@@ -12,4 +10,8 @@ public interface MoveList<M> {
 	public boolean contains(M move);
 
 	public int size();
+
+	public MoveList<M> subList(int beginIndex);
+
+	public void clear();
 }

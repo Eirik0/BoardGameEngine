@@ -5,5 +5,7 @@ public interface IGame<M, P extends IPosition<M, P>> {
 
 	public int getNumberOfPlayers();
 
+	public int getMaxMoves();
+
 	public P newInitialPosition();
 }

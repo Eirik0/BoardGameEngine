@@ -62,7 +62,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 				// draw node
 				if (nodeInfo.isForked()) {
 					g.setColor(color);
-					fillCircle(g, nodeX, nodeY, nodeRadius * 3);
+					fillCircle(g, nodeX, nodeY, nodeRadius * 5);
 				} else {
 					g.setColor(color);
 					drawCircle(g, nodeX, nodeY, nodeRadius);

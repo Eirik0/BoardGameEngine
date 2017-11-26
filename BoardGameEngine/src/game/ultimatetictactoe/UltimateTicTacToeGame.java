@@ -6,6 +6,7 @@ import game.TwoPlayers;
 
 public class UltimateTicTacToeGame implements IGame<Coordinate, UltimateTicTacToePosition> {
 	public static final String NAME = "Ultimate Tic Tac Toe";
+	public static final int MAX_MOVES = UltimateTicTacToePosition.BOARD_WIDTH * UltimateTicTacToePosition.BOARD_WIDTH;
 
 	@Override
 	public String getName() {
@@ -15,6 +16,11 @@ public class UltimateTicTacToeGame implements IGame<Coordinate, UltimateTicTacTo
 	@Override
 	public int getNumberOfPlayers() {
 		return TwoPlayers.NUMBER_OF_PLAYERS;
+	}
+
+	@Override
+	public int getMaxMoves() {
+		return MAX_MOVES;
 	}
 
 	@Override

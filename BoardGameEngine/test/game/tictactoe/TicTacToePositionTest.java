@@ -41,7 +41,7 @@ public class TicTacToePositionTest {
 	@Test
 	public void testGetPossibleMoves() {
 		TicTacToePosition position = new TicTacToePosition();
-		MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(TicTacToeGame.MAX_MOVES);
 		position.getPossibleMoves(possibleMoves);
 		assertEquals(9, possibleMoves.size());
 	}
@@ -51,7 +51,7 @@ public class TicTacToePositionTest {
 		TicTacToePosition position = new TicTacToePosition();
 		position.makeMove(Coordinate.valueOf(1, 1));
 		position.makeMove(Coordinate.valueOf(0, 2));
-		MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(TicTacToeGame.MAX_MOVES);
 		position.getPossibleMoves(possibleMoves);
 		assertEquals(7, possibleMoves.size());
 		assertFalse(possibleMoves.contains(Coordinate.valueOf(1, 1)));
@@ -75,7 +75,7 @@ public class TicTacToePositionTest {
 		position.makeMove(Coordinate.valueOf(1, 1));
 		position.makeMove(Coordinate.valueOf(2, 1));
 		position.makeMove(Coordinate.valueOf(1, 2));
-		MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(TicTacToeGame.MAX_MOVES);
 		position.getPossibleMoves(possibleMoves);
 		assertEquals(0, possibleMoves.size());
 	}

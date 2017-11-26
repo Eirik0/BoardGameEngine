@@ -6,6 +6,7 @@ import game.TwoPlayers;
 
 public class GomokuGame implements IGame<Coordinate, GomokuPosition> {
 	public static final String NAME = "Gomoku";
+	public static final int MAX_MOVES = GomokuPosition.BOARD_WIDTH * GomokuPosition.BOARD_WIDTH;
 
 	@Override
 	public String getName() {
@@ -15,6 +16,11 @@ public class GomokuGame implements IGame<Coordinate, GomokuPosition> {
 	@Override
 	public int getNumberOfPlayers() {
 		return TwoPlayers.NUMBER_OF_PLAYERS;
+	}
+
+	@Override
+	public int getMaxMoves() {
+		return MAX_MOVES;
 	}
 
 	@Override

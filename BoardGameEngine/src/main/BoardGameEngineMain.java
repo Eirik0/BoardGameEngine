@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 import game.GameObserver;
 import game.GameRunner;
 import game.IGame;
+import game.MoveListFactory;
 import game.chess.ChessGame;
 import game.chess.ChessGameRenderer;
 import game.chess.ChessPositionEvaluator;
@@ -70,9 +71,11 @@ public class BoardGameEngineMain {
 		contentPane.add(gamePanel, BorderLayout.CENTER);
 
 		GameGuiManager.setSetGameAction(gameName -> {
-			IGame<?, ?> game = GameRegistry.newGame(gameName);
+			IGame<?, ?> game = GameRegistry.getGame(gameName);
+			MoveListFactory<?> moveListFactory = GameRegistry.newMoveListFactory(game.getName());
 			GameObserver gameObserver = new GameObserver();
-			GameRunner<?, ?> gameRunner = new GameRunner<>(game, gameObserver);
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			GameRunner<?, ?> gameRunner = new GameRunner(game, gameObserver, moveListFactory);
 			PlayerControllerPanel playerControllerPanel = new PlayerControllerPanel(game, gameRunner);
 			AnalysisPanel analysisPanel = new AnalysisPanel();
 			gameObserver.setPlayerChangedAction(analysisPanel::playerChanged);
@@ -131,30 +134,30 @@ public class BoardGameEngineMain {
 	}
 
 	private static void registerGames() {
-		GameRegistry.registerGame(ChessGame.NAME, ChessGame.class, ChessGameRenderer.class)
+		GameRegistry.registerGame(new ChessGame(), ChessGameRenderer.class)
 				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
 				.registerPositionEvaluator("Computer 1", new ChessPositionEvaluator(), 2, 1000)
 				.registerPositionEvaluator("Computer 2", new ChessPositionEvaluator(), 2, 4000)
 				.registerPositionEvaluator("Computer 3", new ChessPositionEvaluator(), 4, 15000);
 
-		GameRegistry.registerGame(TicTacToeGame.NAME, TicTacToeGame.class, TicTacToeGameRenderer.class)
+		GameRegistry.registerGame(new TicTacToeGame(), TicTacToeGameRenderer.class)
 				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
 				.registerPositionEvaluator("Computer", new TicTacToePositionEvaluator(), 2, 500);
 
-		GameRegistry.registerGame(UltimateTicTacToeGame.NAME, UltimateTicTacToeGame.class, UltimateTicTacToeGameRenderer.class)
+		GameRegistry.registerGame(new UltimateTicTacToeGame(), UltimateTicTacToeGameRenderer.class)
 				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
 				.registerPositionEvaluator("Computer 1", new UltimateTicTacToePositionEvaluator(), 2, 300)
 				.registerPositionEvaluator("Computer 2", new UltimateTicTacToePositionEvaluator(), 2, 3000)
 				.registerPositionEvaluator("Computer 3", new UltimateTicTacToePositionEvaluator(), 6, 12000);
 
-		GameRegistry.registerGame(GomokuGame.NAME, GomokuGame.class, GomokuGameRenderer.class)
+		GameRegistry.registerGame(new GomokuGame(), GomokuGameRenderer.class)
 				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
 				.registerPositionEvaluator("Computer", new GomokuPositionEvaluator(), 4, 5000);
 
-		GameRegistry.registerGame(SudokuGame.NAME, SudokuGame.class, SudokuGameRenderer.class)
+		GameRegistry.registerGame(new SudokuGame(), SudokuGameRenderer.class)
 				.registerPositionEvaluator("Computer", new SudokuPositionEvaluator(), 4, 8000);
 
-		GameRegistry.registerGame(ForkJoinExampleGame.NAME, ForkJoinExampleGame.class, ForkJoinExampleGameRenderer.class)
+		GameRegistry.registerGame(new ForkJoinExampleGame(), ForkJoinExampleGameRenderer.class)
 				.registerStrategy("1 Worker", new ForkJoinExampleStraregy(), 1, Long.MAX_VALUE)
 				.registerStrategy("2 Workers", new ForkJoinExampleStraregy(), 2, Long.MAX_VALUE)
 				.registerStrategy("3 Workers", new ForkJoinExampleStraregy(), 3, Long.MAX_VALUE)

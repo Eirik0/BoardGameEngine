@@ -43,6 +43,11 @@ public class ForkJoinExampleTree implements IPosition<ForkJoinExampleNode, ForkJ
 		return new ForkJoinExampleTree(currentNode);
 	}
 
+	@Override
+	public String toString() {
+		return currentNode.toString();
+	}
+
 	public static ForkJoinExampleNode createTree(int depth, int branchingFactor, int number) {
 		if (depth < 1) {
 			return null;

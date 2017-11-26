@@ -8,6 +8,7 @@ import analysis.search.IterativeDeepeningTreeSearcher;
 import analysis.strategy.IDepthBasedStrategy;
 import game.IPlayer;
 import game.IPosition;
+import game.MoveListFactory;
 import gui.analysis.ComputerPlayerResult;
 
 public class ComputerPlayer implements IPlayer {
@@ -18,8 +19,8 @@ public class ComputerPlayer implements IPlayer {
 	private volatile boolean keepSearching = true;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ComputerPlayer(IDepthBasedStrategy<?, ?> strategy, int numWorkers, String name, long msPerMove) {
-		treeSearcher = new IterativeDeepeningTreeSearcher(strategy, numWorkers);
+	public ComputerPlayer(IDepthBasedStrategy<?, ?> strategy, MoveListFactory<?> moveListFactory, int numWorkers, String name, long msPerMove) {
+		treeSearcher = new IterativeDeepeningTreeSearcher(strategy, moveListFactory, numWorkers);
 		this.name = name;
 		this.msPerMove = msPerMove;
 	}

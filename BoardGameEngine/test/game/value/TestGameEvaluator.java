@@ -7,4 +7,9 @@ public class TestGameEvaluator implements IPositionEvaluator<TestGameNode, TestG
 	public double evaluate(TestGamePosition position, int player) {
 		return position.getCurrentNode().getValue();
 	}
+
+	@Override
+	public IPositionEvaluator<TestGameNode, TestGamePosition> createCopy() {
+		return new TestGameEvaluator();
+	}
 }

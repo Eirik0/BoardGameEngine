@@ -3,12 +3,13 @@ package game.forkjoinexample;
 import analysis.AnalysisResult;
 import analysis.strategy.AbstractDepthBasedStrategy;
 import analysis.strategy.IDepthBasedStrategy;
-import game.ArrayMoveList;
 import game.MoveList;
+import game.MoveListFactory;
 
 public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> {
 	@Override
 	public double evaluate(ForkJoinExampleTree position, int player, int plies) {
+		initMoveLists(new MoveListFactory<>(ForkJoinExampleGame.MAX_MOVES), plies);
 		visitNodes(position, player, plies);
 		return 0;
 	}
@@ -20,8 +21,6 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 		ForkJoinExampleNode currentNode = position.getCurrentNode();
 		ForkJoinExampleThreadTracker.branchVisited(currentNode.getParent(), currentNode, ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
 		int numChildren = position.getCurrentNode().getChildren().length;
-		MoveList<ForkJoinExampleNode> moveList = new ArrayMoveList<>(numChildren);
-		position.getPossibleMoves(moveList);
 		if (plies == 0 || numChildren == 0) {
 			if (searchCanceled) {
 				return;
@@ -29,6 +28,9 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 			ForkJoinExampleThreadTracker.evaluateNode(currentNode);
 			return;
 		} else {
+			MoveList<ForkJoinExampleNode> moveList = getMoveList(plies);
+			position.getPossibleMoves(moveList);
+
 			int i = 0;
 			while (i < numChildren) {
 				ForkJoinExampleNode move = moveList.get(i);

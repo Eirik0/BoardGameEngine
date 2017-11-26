@@ -7,6 +7,8 @@ import org.junit.Test;
 import analysis.AnalysisResult;
 import analysis.search.IterativeDeepeningTreeSearcher;
 import game.Coordinate;
+import game.MoveListFactory;
+import game.ultimatetictactoe.UltimateTicTacToeGame;
 import game.ultimatetictactoe.UltimateTicTacToePosition;
 import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
 
@@ -14,12 +16,14 @@ public class AlphaBetaStrategyTest {
 	@Test
 	public void testAlphaBetaEqualsMinMax() {
 		UltimateTicTacToePosition position = new UltimateTicTacToePosition();
+		MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
+		MinimaxStrategy<Coordinate, UltimateTicTacToePosition> minmaxStrategy = new MinimaxStrategy<>(moveListFactory, new UltimateTicTacToePositionEvaluator());
+		AlphaBetaStrategy<Coordinate, UltimateTicTacToePosition> alphabetaStrategy = new AlphaBetaStrategy<>(moveListFactory, new UltimateTicTacToePositionEvaluator());
 
-		MinimaxStrategy<Coordinate, UltimateTicTacToePosition> minmaxStrategy = new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator());
-		AlphaBetaStrategy<Coordinate, UltimateTicTacToePosition> alphabetaStrategy = new AlphaBetaStrategy<>(new UltimateTicTacToePositionEvaluator());
-
-		IterativeDeepeningTreeSearcher<Coordinate, UltimateTicTacToePosition> minmaxSearcher = new IterativeDeepeningTreeSearcher<>(minmaxStrategy, 4);
-		IterativeDeepeningTreeSearcher<Coordinate, UltimateTicTacToePosition> alphabetaSearcher = new IterativeDeepeningTreeSearcher<>(alphabetaStrategy, 4);
+		IterativeDeepeningTreeSearcher<Coordinate, UltimateTicTacToePosition> minmaxSearcher = new IterativeDeepeningTreeSearcher<>(minmaxStrategy,
+				new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES), 4);
+		IterativeDeepeningTreeSearcher<Coordinate, UltimateTicTacToePosition> alphabetaSearcher = new IterativeDeepeningTreeSearcher<>(alphabetaStrategy,
+				new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES), 4);
 
 		for (int plies = 0; plies < 7; ++plies) {
 			long start1 = System.currentTimeMillis();

@@ -7,6 +7,8 @@ import org.junit.Test;
 
 import analysis.ComputerPlayer;
 import analysis.strategy.MinimaxStrategy;
+import game.Coordinate;
+import game.MoveListFactory;
 
 public class UTTTComputerPlayerTest {
 	@Test
@@ -32,6 +34,7 @@ public class UTTTComputerPlayerTest {
 		UltimateTicTacToePosition position = new UltimateTicTacToePosition();
 		player.getMove(position);
 		player.getMove(position);
+		player.notifyGameEnded();
 	}
 
 	private void testStopOnTime(int numWorkers, long toWait) {
@@ -40,12 +43,14 @@ public class UTTTComputerPlayerTest {
 		long extraTime = 1000;
 		long allottedTime = toWait + extraTime;
 		player.getMove(new UltimateTicTacToePosition());
+		player.notifyGameEnded();
 		long timeTaken = System.currentTimeMillis() - start;
 		System.out.println("Stopped " + numWorkers + " workers in " + (timeTaken - toWait) + "ms");
 		assertTrue(Long.toString(timeTaken - allottedTime) + "ms over", timeTaken < allottedTime);
 	}
 
 	private static ComputerPlayer newComputerPlayer(int numWorkers, long toWait) {
-		return new ComputerPlayer(new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator()), numWorkers, "Computer", toWait);
+		MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
+		return new ComputerPlayer(new MinimaxStrategy<>(moveListFactory, new UltimateTicTacToePositionEvaluator()), moveListFactory, numWorkers, "Computer", toWait);
 	}
 }

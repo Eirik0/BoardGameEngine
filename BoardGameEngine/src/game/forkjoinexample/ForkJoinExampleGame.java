@@ -7,6 +7,7 @@ public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinE
 
 	public static final int DEPTH = 10;
 	public static final int BRANCHING_FACTOR = 3;
+	public static final int MAX_MOVES = BRANCHING_FACTOR;
 
 	@Override
 	public String getName() {
@@ -16,6 +17,11 @@ public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinE
 	@Override
 	public int getNumberOfPlayers() {
 		return 1;
+	}
+
+	@Override
+	public int getMaxMoves() {
+		return MAX_MOVES;
 	}
 
 	@Override

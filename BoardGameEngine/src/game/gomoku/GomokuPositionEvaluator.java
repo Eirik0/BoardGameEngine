@@ -115,4 +115,9 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, G
 		}
 		return false;
 	}
+
+	@Override
+	public IPositionEvaluator<Coordinate, GomokuPosition> createCopy() {
+		return new GomokuPositionEvaluator();
+	}
 }

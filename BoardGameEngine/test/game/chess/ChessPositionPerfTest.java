@@ -81,7 +81,7 @@ public class ChessPositionPerfTest {
 	}
 
 	private static long countPositions(ChessPosition position, int depth) {
-		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(ChessGame.MAX_MOVES);
 		position.getPossibleMoves(possibleMoves);
 		if (depth == 0) {
 			return possibleMoves.size();
@@ -109,7 +109,7 @@ public class ChessPositionPerfTest {
 	}
 
 	private static void checkPositionIntegrity(ChessPosition position, int depth) {
-		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(ChessGame.MAX_MOVES);
 		if (depth == 0) {
 			ChessPositionTest.assertPositionIntegrity(position);
 			return;

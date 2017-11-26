@@ -2,19 +2,22 @@ package analysis.strategy;
 
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
-import game.ArrayMoveList;
 import game.IPosition;
 import game.MoveList;
+import game.MoveListFactory;
 
 public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
+	private final MoveListFactory<M> moveListFactory;
 	private final IPositionEvaluator<M, P> positionEvaluator;
 
-	public MinimaxStrategy(IPositionEvaluator<M, P> positionEvaluator) {
+	public MinimaxStrategy(MoveListFactory<M> moveListFactory, IPositionEvaluator<M, P> positionEvaluator) {
+		this.moveListFactory = moveListFactory;
 		this.positionEvaluator = positionEvaluator;
 	}
 
 	@Override
 	public double evaluate(P position, int player, int plies) {
+		initMoveLists(moveListFactory, plies);
 		return minimax(position, player, plies);
 	}
 
@@ -27,7 +30,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 			return positionEvaluator.evaluate(position, player);
 		}
 
-		MoveList<M> possibleMoves = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		MoveList<M> possibleMoves = getMoveList(plies);
 		position.getPossibleMoves(possibleMoves);
 		int numMoves = possibleMoves.size();
 
@@ -73,6 +76,6 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 
 	@Override
 	public IDepthBasedStrategy<M, P> createCopy() {
-		return new MinimaxStrategy<>(positionEvaluator);
+		return new MinimaxStrategy<>(moveListFactory, positionEvaluator.createCopy());
 	}
 }

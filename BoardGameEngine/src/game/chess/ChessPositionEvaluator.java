@@ -8,9 +8,11 @@ import game.TwoPlayers;
 import game.chess.move.IChessMove;
 
 public class ChessPositionEvaluator implements IPositionEvaluator<IChessMove, ChessPosition> {
+	MoveList<IChessMove> moveList = new ArrayMoveList<>(ChessGame.MAX_MOVES);
+
 	@Override
 	public double evaluate(ChessPosition position, int player) {
-		MoveList<IChessMove> moveList = new ArrayMoveList<>(MoveList.MAX_SIZE);
+		moveList.clear();
 		position.getPossibleMoves(moveList);
 		if (moveList.size() == 0) {
 			int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
@@ -22,5 +24,10 @@ public class ChessPositionEvaluator implements IPositionEvaluator<IChessMove, Ch
 			}
 		}
 		return position.materialScore[player] - position.materialScore[TwoPlayers.otherPlayer(player)];
+	}
+
+	@Override
+	public IPositionEvaluator<IChessMove, ChessPosition> createCopy() {
+		return new ChessPositionEvaluator();
 	}
 }
