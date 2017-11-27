@@ -20,7 +20,7 @@ public class ForkJoinExampleTree implements IPosition<ForkJoinExampleNode, ForkJ
 
 	@Override
 	public void getPossibleMoves(MoveList<ForkJoinExampleNode> moveList) {
-		moveList.addAll(currentNode.getChildren());
+		moveList.addAll(currentNode.getChildren(), this);
 	}
 
 	@Override

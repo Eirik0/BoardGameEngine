@@ -1,9 +1,9 @@
 package game;
 
 public interface MoveList<M> {
-	public void add(M move);
+	public <P extends IPosition<M, P>> void add(M move, P position);
 
-	public void addAll(M[] moves);
+	public <P extends IPosition<M, P>> void addAll(M[] moves, P position);
 
 	public M get(int index);
 

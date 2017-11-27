@@ -15,7 +15,7 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 	protected void initMoveLists(MoveListFactory<M> moveListFactory, int maxDepth) {
 		int i = 0;
 		while (i < maxDepth) {
-			moveLists[i] = moveListFactory.newArrayMoveList();
+			moveLists[i] = moveListFactory.newAnalysisMoveList();
 			++i;
 		}
 	}

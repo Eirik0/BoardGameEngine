@@ -7,18 +7,18 @@ public class ArrayMoveList<M> implements MoveList<M> {
 	private int size = 0;
 
 	@SuppressWarnings("unchecked")
-	public ArrayMoveList(int capacity) {
+	public ArrayMoveList(Integer capacity) {
 		moveArray = (M[]) new Object[capacity];
 	}
 
 	@Override
-	public void add(M move) {
+	public <P extends IPosition<M, P>> void add(M move, P position) {
 		moveArray[size++] = move;
 
 	}
 
 	@Override
-	public void addAll(M[] moves) {
+	public <P extends IPosition<M, P>> void addAll(M[] moves, P position) {
 		System.arraycopy(moves, 0, moveArray, size, moves.length);
 		size += moves.length;
 

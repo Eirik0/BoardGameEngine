@@ -38,7 +38,7 @@ public class SudokuPosition implements IPosition<SudokuMove, SudokuPosition> {
 					setCanNotPlay(canNotPlay, columns[boardXY.y]);
 					for (int i = 1; i < BOARD_WIDTH + 1; ++i) {
 						if (!canNotPlay[i]) {
-							possibleMoves.add(new SudokuMove(boardXY, i));
+							possibleMoves.add(new SudokuMove(boardXY, i), this);
 						}
 					}
 				}

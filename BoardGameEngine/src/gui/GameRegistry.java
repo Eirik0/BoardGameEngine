@@ -11,9 +11,11 @@ import analysis.IPositionEvaluator;
 import analysis.strategy.AlphaBetaStrategy;
 import analysis.strategy.IDepthBasedStrategy;
 import analysis.strategy.MinimaxStrategy;
+import game.ArrayMoveList;
 import game.IGame;
 import game.IPlayer;
 import game.IPosition;
+import game.MoveList;
 import game.MoveListFactory;
 import gui.gamestate.IGameRenderer;
 
@@ -44,8 +46,10 @@ public class GameRegistry {
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <M> MoveListFactory<M> newMoveListFactory(String gameName) {
-		return new MoveListFactory<>(gameMap.get(gameName).game.getMaxMoves());
+		GameRegistryItem<?, ?> gameRegistryItem = gameMap.get(gameName);
+		return new MoveListFactory(gameRegistryItem.game.getMaxMoves(), gameRegistryItem.analysisMoveListClass);
 	}
 
 	public static Set<String> getPlayerNames(String gameName) {
@@ -60,6 +64,8 @@ public class GameRegistry {
 		private final IGame<M, P> game;
 		final Class<? extends IGameRenderer<?, ?>> gameRendererClass;
 		final Map<String, Supplier<IPlayer>> playerMap = new LinkedHashMap<>(); // The first player is the default player
+		@SuppressWarnings("unchecked")
+		Class<? extends MoveList<M>> analysisMoveListClass = (Class<? extends MoveList<M>>) ArrayMoveList.class;
 
 		public GameRegistryItem(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass) {
 			this.game = game;
@@ -81,6 +87,11 @@ public class GameRegistry {
 			MoveListFactory<M> moveListFactory = GameRegistry.newMoveListFactory(game.getName());
 			playerMap.put(playerName + "_AB", () -> new ComputerPlayer(new AlphaBetaStrategy<>(moveListFactory, positionEvaluator), moveListFactory, numWorkers, playerName + "_AB", msPerMove));
 			playerMap.put(playerName + "_MM", () -> new ComputerPlayer(new MinimaxStrategy<>(moveListFactory, positionEvaluator), moveListFactory, numWorkers, playerName + "_MM", msPerMove));
+			return this;
+		}
+
+		public GameRegistryItem<M, P> registerAnalysisMoveListClass(Class<? extends MoveList<M>> moveListClass) {
+			analysisMoveListClass = moveListClass;
 			return this;
 		}
 	}

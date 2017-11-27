@@ -139,7 +139,7 @@ public class GameRunnerTest {
 		@Override
 		public void getPossibleMoves(MoveList<Integer> moveList) {
 			List<Integer> moves = possibleMovesFunction.apply(index);
-			moveList.addAll(moves.toArray(new Integer[moves.size()]));
+			moveList.addAll(moves.toArray(new Integer[moves.size()]), this);
 		}
 
 		@Override

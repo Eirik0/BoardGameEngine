@@ -26,31 +26,31 @@ public class TicTacToePosition implements IPosition<Coordinate, TicTacToePositio
 			return;
 		}
 		if ((board & TicTacToeUtilities.POS_0) == TwoPlayers.UNPLAYED) {
-			possibleMoves.add(Coordinate.valueOf(0, 0));
+			possibleMoves.add(Coordinate.valueOf(0, 0), this);
 		}
 		if ((board & TicTacToeUtilities.POS_1) == TwoPlayers.UNPLAYED) {
-			possibleMoves.add(Coordinate.valueOf(1, 0));
+			possibleMoves.add(Coordinate.valueOf(1, 0), this);
 		}
 		if ((board & TicTacToeUtilities.POS_2) == TwoPlayers.UNPLAYED) {
-			possibleMoves.add(Coordinate.valueOf(2, 0));
+			possibleMoves.add(Coordinate.valueOf(2, 0), this);
 		}
 		if ((board & TicTacToeUtilities.POS_3) == TwoPlayers.UNPLAYED) {
-			possibleMoves.add(Coordinate.valueOf(0, 1));
+			possibleMoves.add(Coordinate.valueOf(0, 1), this);
 		}
 		if ((board & TicTacToeUtilities.POS_4) == TwoPlayers.UNPLAYED) {
-			possibleMoves.add(Coordinate.valueOf(1, 1));
+			possibleMoves.add(Coordinate.valueOf(1, 1), this);
 		}
 		if ((board & TicTacToeUtilities.POS_5) == TwoPlayers.UNPLAYED) {
-			possibleMoves.add(Coordinate.valueOf(2, 1));
+			possibleMoves.add(Coordinate.valueOf(2, 1), this);
 		}
 		if ((board & TicTacToeUtilities.POS_6) == TwoPlayers.UNPLAYED) {
-			possibleMoves.add(Coordinate.valueOf(0, 2));
+			possibleMoves.add(Coordinate.valueOf(0, 2), this);
 		}
 		if ((board & TicTacToeUtilities.POS_7) == TwoPlayers.UNPLAYED) {
-			possibleMoves.add(Coordinate.valueOf(1, 2));
+			possibleMoves.add(Coordinate.valueOf(1, 2), this);
 		}
 		if ((board & TicTacToeUtilities.POS_8) == TwoPlayers.UNPLAYED) {
-			possibleMoves.add(Coordinate.valueOf(2, 2));
+			possibleMoves.add(Coordinate.valueOf(2, 2), this);
 		}
 	}
 

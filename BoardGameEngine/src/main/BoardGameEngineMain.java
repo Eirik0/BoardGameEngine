@@ -25,6 +25,7 @@ import game.forkjoinexample.ForkJoinExampleGameRenderer;
 import game.forkjoinexample.ForkJoinExampleStraregy;
 import game.gomoku.GomokuGame;
 import game.gomoku.GomokuGameRenderer;
+import game.gomoku.GomokuMoveList;
 import game.gomoku.GomokuPositionEvaluator;
 import game.sudoku.SudokuGame;
 import game.sudoku.SudokuGameRenderer;
@@ -153,6 +154,7 @@ public class BoardGameEngineMain {
 
 		GameRegistry.registerGame(new GomokuGame(), GomokuGameRenderer.class)
 				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
+				.registerAnalysisMoveListClass(GomokuMoveList.class)
 				.registerPositionEvaluator("Computer", new GomokuPositionEvaluator(), 4, 5000);
 
 		GameRegistry.registerGame(new SudokuGame(), SudokuGameRenderer.class)

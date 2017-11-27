@@ -61,7 +61,7 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate, Ultimate
 		int m = 0;
 		while (m < BOARD_WIDTH) {
 			if ((board & TicTacToeUtilities.POS[m]) == TwoPlayers.UNPLAYED) {
-				possibleMoves.add(Coordinate.valueOf(boardNum, m));
+				possibleMoves.add(Coordinate.valueOf(boardNum, m), this);
 			}
 			++m;
 		}

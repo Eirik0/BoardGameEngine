@@ -42,7 +42,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		this.parentMove = parentMove;
 		this.position = position.createCopy();
 		this.moveListFactory = moveListFactory;
-		possibleMoves = moveListFactory.newArrayMoveList();
+		possibleMoves = moveListFactory.newAnalysisMoveList();
 		this.position.getPossibleMoves(possibleMoves);
 		branchIndex = new AtomicInteger(0);
 		this.player = player;
