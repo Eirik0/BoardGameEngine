@@ -1,6 +1,7 @@
 package analysis.search;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 import analysis.AnalysisResult;
+import analysis.MoveWithScore;
 import analysis.strategy.IDepthBasedStrategy;
 import game.IPosition;
 import game.MoveListFactory;
@@ -32,6 +34,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 
 	private int plies = 0;
 	private volatile AnalysisResult<M> result;
+	private List<GameTreeSearch<M, P>> rootSearches = null;
 
 	public IterativeDeepeningTreeSearcher(IDepthBasedStrategy<M, P> strategy, MoveListFactory<M> moveListFactory, int numWorkers) {
 		this.strategy = strategy;
@@ -99,6 +102,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 
 	public void clearResult() {
 		result = null;
+		rootSearches = null;
 	}
 
 	public void stopSearch(boolean joinWorkerThreads) {
@@ -133,16 +137,42 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		return result;
 	}
 
+	public List<MoveWithScore<M>> getPartialResult() {
+		if (rootSearches == null) {
+			return null;
+		}
+		List<MoveWithScore<M>> movesWithScore = new ArrayList<>();
+		for (GameTreeSearch<M, P> rootSearch : rootSearches) {
+			AnalysisResult<M> partialResult = rootSearch.getResult();
+			if (partialResult != null && partialResult.isSeachComplete()) {
+				MoveWithScore<M> min = partialResult.getMin();
+				if (min != null) {
+					movesWithScore.add(new MoveWithScore<>(rootSearch.parentMove, min.score));
+				}
+			}
+		}
+		return movesWithScore;
+	}
+
 	private AnalysisResult<M> search(P position, int player, int plies) {
 		BlockingQueue<AnalysisResult<M>> resultQueue = new SynchronousQueue<>();
 
-		treeSearchesToAnalyze.add(new GameTreeSearch<>(null, position, moveListFactory, player, plies, strategy, moveResult -> {
+		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(null, position, moveListFactory, player, plies, strategy, moveResult -> {
 			try {
 				resultQueue.put(moveResult.result);
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
-		}));
+		});
+
+		if (rootTreeSearch.getPlies() > 0 && rootTreeSearch.getRemainingBranches() > 0) {
+			List<GameTreeSearch<M, P>> fork = rootTreeSearch.fork();
+			treeSearchesToAnalyze.addAll(fork);
+			rootSearches = new ArrayList<>(fork);
+		} else {
+			treeSearchesToAnalyze.add(rootTreeSearch);
+			rootSearches = Collections.singletonList(rootTreeSearch);
+		}
 
 		int removeIndex = 0;
 		while (availableWorkers.size() > treeSearchesToAnalyze.size() && removeIndex < treeSearchesToAnalyze.size()) {

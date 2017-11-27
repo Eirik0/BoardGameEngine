@@ -17,6 +17,8 @@ public class AnalysisResult<M> {
 	private MoveWithScore<M> min;
 	private MoveWithScore<M> max;
 
+	private boolean searchComplete = false;
+
 	public AnalysisResult() {
 	}
 
@@ -28,7 +30,7 @@ public class AnalysisResult<M> {
 		addMoveWithScore(move, score, true);
 	}
 
-	public void addMoveWithScore(M move, double score, boolean isValid) {
+	public synchronized void addMoveWithScore(M move, double score, boolean isValid) {
 		MoveWithScore<M> moveWithScore = new MoveWithScore<>(move, score, isValid);
 		movesWithScore.add(moveWithScore);
 		if (isValid) {
@@ -39,6 +41,14 @@ public class AnalysisResult<M> {
 				max = moveWithScore;
 			}
 		}
+	}
+
+	public void searchCompleted() {
+		searchComplete = true;
+	}
+
+	public boolean isSeachComplete() {
+		return searchComplete;
 	}
 
 	public AnalysisResult<M> mergeWith(AnalysisResult<M> resultToMerge) {
@@ -58,8 +68,8 @@ public class AnalysisResult<M> {
 		return mergedResult;
 	}
 
-	public List<MoveWithScore<M>> getMovesWithScore() {
-		return movesWithScore;
+	public synchronized List<MoveWithScore<M>> getMovesWithScore() {
+		return new ArrayList<>(movesWithScore);
 	}
 
 	public MoveWithScore<M> getMin() {

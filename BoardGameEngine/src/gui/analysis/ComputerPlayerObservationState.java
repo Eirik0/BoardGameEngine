@@ -10,7 +10,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import analysis.ComputerPlayer;
-import analysis.MoveWithScore;
 import analysis.search.ThreadNumber;
 import game.TwoPlayers;
 import gui.DrawingMethods;
@@ -24,7 +23,7 @@ public class ComputerPlayerObservationState implements IAnalysisState {
 
 	private volatile boolean keepObserving = true;
 
-	private ComputerPlayerResult currentResult = new ComputerPlayerResult(null, 0);
+	private ComputerPlayerResult currentResult = new ComputerPlayerResult(null, null, 0);
 
 	private final ComputerPlayer computerPlayer;
 	private final int playerNum;
@@ -80,12 +79,11 @@ public class ComputerPlayerObservationState implements IAnalysisState {
 
 	@Override
 	public void drawOn(Graphics2D graphics) {
-		List<MoveWithScore<Object>> currentMoves = currentResult.moves;
+		List<ObservedMoveWithScore> currentMoves = currentResult.moves;
 		if (currentMoves == null) {
 			return;
 		}
 		fillRect(graphics, 0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
-		graphics.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
 		graphics.setFont(BoardGameEngineMain.DEFAULT_FONT_SMALL);
 		FontMetrics metrics = graphics.getFontMetrics();
 		int stringHeight = metrics.getHeight() + 2;
@@ -93,7 +91,8 @@ public class ComputerPlayerObservationState implements IAnalysisState {
 		int startY = stringHeight;
 		while (i < currentMoves.size()) {
 			int y = startY + i * stringHeight;
-			MoveWithScore<Object> moveWithScore = currentMoves.get(i);
+			ObservedMoveWithScore moveWithScore = currentMoves.get(i);
+			graphics.setColor(moveWithScore.isPartial ? BoardGameEngineMain.FOREGROUND_COLOR : BoardGameEngineMain.LIGHTER_FOREGROUND_COLOR);
 			String indexString = i < 9 ? (i + 1) + ".   " : (i + 1) + ". ";
 			double playerScore = playerNum == TwoPlayers.PLAYER_1 ? moveWithScore.score : -moveWithScore.score + 0.0;
 			String scoreString = Double.isFinite(playerScore) ? String.format("(%.2f)", playerScore) : "(" + playerScore + ")";

@@ -81,6 +81,7 @@ public class ComputerPlayer implements IPlayer {
 
 	@SuppressWarnings("unchecked")
 	public ComputerPlayerResult getCurrentResult() {
-		return new ComputerPlayerResult((AnalysisResult<Object>) treeSearcher.getResult(), treeSearcher.getPlies());
+		List<?> partialResult = treeSearcher.getPartialResult();
+		return new ComputerPlayerResult((AnalysisResult<Object>) treeSearcher.getResult(), (List<MoveWithScore<Object>>) partialResult, treeSearcher.getPlies());
 	}
 }

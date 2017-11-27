@@ -58,6 +58,7 @@ public class BoardGameEngineMain {
 
 	public static final Color BACKGROUND_COLOR = DARK_THEME ? Color.BLACK : Color.WHITE;
 	public static final Color FOREGROUND_COLOR = DARK_THEME ? Color.WHITE : Color.BLACK;
+	public static final Color LIGHTER_FOREGROUND_COLOR = DARK_THEME ? Color.LIGHT_GRAY : Color.GRAY;
 
 	public static void main(String[] args) {
 		registerGames();
