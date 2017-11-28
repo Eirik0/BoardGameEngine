@@ -2,41 +2,27 @@ package gui.analysis;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import analysis.ComputerPlayer;
-import analysis.search.ThreadNumber;
-import game.TwoPlayers;
-import gui.DrawingMethods;
+import game.IPosition;
 import main.BoardGameEngineMain;
 
-public class ComputerPlayerObservationState implements IAnalysisState {
-	private static final int MS_PER_UPDATE = DrawingMethods.roundS(1000.0 / 60);
-
+public class ComputerPlayerObservationState<M, P extends IPosition<M, P>> implements IAnalysisState<M, P> {
 	private int width;
 	private int height;
 
-	private volatile boolean keepObserving = true;
-
-	private ComputerPlayerResult currentResult = new ComputerPlayerResult(null, null, 0);
-
-	private final ComputerPlayer computerPlayer;
-	private final int playerNum;
-
-	private final JLabel depthLabel;
 	private final JPanel titlePanel;
+	private final ComputerPlayerObserver observer;
 
 	public ComputerPlayerObservationState(ComputerPlayer computerPlayer, int playerNum) {
-		this.computerPlayer = computerPlayer;
-		this.playerNum = playerNum;
-
 		JLabel nameLabel = BoardGameEngineMain.initComponent(new JLabel(computerPlayer.toString()));
-		depthLabel = BoardGameEngineMain.initComponent(new JLabel(String.format("depth = %-3d", currentResult.depth)));
+		JLabel depthLabel = BoardGameEngineMain.initComponent(new JLabel(String.format("depth = %-3d", 0)));
+
+		observer = new ComputerPlayerObserver(computerPlayer, playerNum, name -> nameLabel.setText(name), depth -> depthLabel.setText(depth));
 
 		titlePanel = BoardGameEngineMain.initComponent(new JPanel(new BorderLayout()));
 
@@ -48,22 +34,6 @@ public class ComputerPlayerObservationState implements IAnalysisState {
 
 		titlePanel.add(titleLabelPanel, BorderLayout.WEST);
 		titlePanel.add(depthLabelPanel, BorderLayout.EAST);
-
-		new Thread(() -> {
-			nameLabel.setText(computerPlayer.toString() + "...");
-			synchronized (this) {
-				do {
-					currentResult = computerPlayer.getCurrentResult();
-					depthLabel.setText(String.format("depth = %-3d", currentResult.depth));
-					try {
-						wait(MS_PER_UPDATE);
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-				} while (keepObserving);
-				nameLabel.setText(computerPlayer.toString());
-			}
-		}, "Computer_Observation_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
 	}
 
 	@Override
@@ -79,36 +49,17 @@ public class ComputerPlayerObservationState implements IAnalysisState {
 
 	@Override
 	public void drawOn(Graphics2D graphics) {
-		List<ObservedMoveWithScore> currentMoves = currentResult.moves;
-		if (currentMoves == null) {
-			return;
-		}
-		fillRect(graphics, 0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
-		graphics.setFont(BoardGameEngineMain.DEFAULT_FONT_SMALL);
-		FontMetrics metrics = graphics.getFontMetrics();
-		int stringHeight = metrics.getHeight() + 2;
-		int i = 0;
-		int startY = stringHeight;
-		while (i < currentMoves.size()) {
-			int y = startY + i * stringHeight;
-			ObservedMoveWithScore moveWithScore = currentMoves.get(i);
-			graphics.setColor(moveWithScore.isPartial ? BoardGameEngineMain.FOREGROUND_COLOR : BoardGameEngineMain.LIGHTER_FOREGROUND_COLOR);
-			String indexString = i < 9 ? (i + 1) + ".   " : (i + 1) + ". ";
-			double playerScore = playerNum == TwoPlayers.PLAYER_1 ? moveWithScore.score : -moveWithScore.score + 0.0;
-			String scoreString = Double.isFinite(playerScore) ? String.format("(%.2f)", playerScore) : "(" + playerScore + ")";
-			graphics.drawString(indexString, 20, y);
-			graphics.drawString(String.format("%-13s", scoreString), 45, y);
-			graphics.drawString(moveWithScore.move.toString(), 100, y);
-			++i;
-		}
+		observer.drawOn(graphics, width, height);
 	}
 
 	@Override
+	public void setPosition(P position) {
+		// do nothing
+	};
+
+	@Override
 	public synchronized void stopAnalysis() {
-		keepObserving = false;
-		currentResult = computerPlayer.getCurrentResult();
-		depthLabel.setText(String.format("depth = %-3d", currentResult.depth));
-		notify();
+		observer.stopObserving();
 	}
 
 	@Override

@@ -76,13 +76,18 @@ public class BoardGameEngineMain {
 		GameGuiManager.setSetGameAction(gameName -> {
 			IGame<?, ?> game = GameRegistry.getGame(gameName);
 			MoveListFactory<?> moveListFactory = GameRegistry.getMoveListFactory(game.getName());
-			GameObserver gameObserver = new GameObserver();
+
+			AnalysisPanel<?, ?> analysisPanel = new AnalysisPanel<>(gameName);
+
+			GameObserver<?, ?> gameObserver = new GameObserver<>();
+			gameObserver.setPlayerChangedAction(analysisPanel::playerChanged);
+			gameObserver.setPositionChangedAction(analysisPanel::positionChanged);
+			gameObserver.setEndGameAction(analysisPanel::gameEnded);
+
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			GameRunner<?, ?> gameRunner = new GameRunner(game, gameObserver, moveListFactory);
+
 			PlayerControllerPanel playerControllerPanel = new PlayerControllerPanel(game, gameRunner);
-			AnalysisPanel analysisPanel = new AnalysisPanel();
-			gameObserver.setPlayerChangedAction(analysisPanel::playerChanged);
-			gameObserver.setEndGameAction(analysisPanel::gameEnded);
 			JSplitPane gameSplitPane = createSplitPane(gamePanel, analysisPanel);
 
 			setGameState(gameName, gameRunner);
@@ -200,7 +205,7 @@ public class BoardGameEngineMain {
 	private static JSplitPane createSplitPane(JComponent left, JComponent right) {
 		JSplitPane splitPane = initComponent(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, left, right));
 		splitPane.setDividerSize(3);
-		splitPane.setDividerLocation(GameGuiManager.getComponentWidth() * 3 / 4);
+		splitPane.setDividerLocation(GameGuiManager.getComponentWidth() * 3 / 4 - 30);
 		splitPane.setResizeWeight(1);
 		return splitPane;
 	}

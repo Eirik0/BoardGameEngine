@@ -66,7 +66,7 @@ public class GameRegistry {
 		return gameMap.get(gameName).playerMap.get(playerName).apply(computerPlayerInfo);
 	}
 
-	public static <M, P extends IPosition<M, P>> ComputerPlayerInfo<M, P> getDefaultComputerPlayerInfo(String gameName) {
+	public static <M, P extends IPosition<M, P>> ComputerPlayerInfo<M, P> newDefaultComputerPlayerInfo(String gameName) {
 		@SuppressWarnings("unchecked")
 		GameRegistryItem<M, P> gameRegistryItem = (GameRegistryItem<M, P>) gameMap.get(gameName);
 		int numWorkers = Math.min(Math.max(1, gameRegistryItem.maxWorkers), 4);

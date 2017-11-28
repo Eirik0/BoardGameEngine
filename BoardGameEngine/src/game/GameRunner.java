@@ -9,7 +9,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private volatile boolean stopRequested = false;
 	private volatile boolean isRunning = false;
 
-	private final GameObserver gameObserver;
+	private final GameObserver<M, P> gameObserver;
 	private Runnable endGameAction;
 	private IPositionObserver<M, P> positionObserver;
 
@@ -23,7 +23,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 	private IPlayer currentPlayer;
 
-	public GameRunner(IGame<M, P> game, GameObserver gameObserver, MoveListFactory<M> moveListFactory) {
+	public GameRunner(IGame<M, P> game, GameObserver<M, P> gameObserver, MoveListFactory<M> moveListFactory) {
 		this.game = game;
 		this.gameObserver = gameObserver;
 		this.moveListFactory = moveListFactory;
@@ -60,6 +60,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		if (positionObserver != null) {
 			positionObserver.notifyPositionChanged(positionCopy, possibleMovesCopy);
 		}
+		gameObserver.notifyPositionChanged(positionCopy);
 	}
 
 	public synchronized void startNewGame(List<IPlayer> players) {

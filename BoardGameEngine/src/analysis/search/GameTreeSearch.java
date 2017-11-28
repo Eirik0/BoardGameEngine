@@ -200,14 +200,10 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			strategy.notifyJoined(position, moveWithResult.move);
 			// Player and position come from the parent game tree search, so we are looking for the min for the current player
 			MoveWithScore<M> moveWithScore = player == position.getCurrentPlayer() ? moveWithResult.result.getMin() : moveWithResult.result.getMax();
-
 			if (moveWithScore == null) {
 				continue;
 			}
-
-			double score = moveWithScore.isDraw ? AnalysisResult.DRAW : moveWithScore.score;
-
-			partialResult.addMoveWithScore(moveWithResult.move, score, moveWithResult.result.isSeachComplete());
+			partialResult.addMoveWithScore(moveWithResult.move, moveWithScore.isDraw ? AnalysisResult.DRAW : moveWithScore.score, moveWithResult.result.isSeachComplete());
 		}
 		return new MoveWithResult<>(parentMove, partialResult);
 	}

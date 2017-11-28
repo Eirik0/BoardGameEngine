@@ -22,7 +22,7 @@ public class PlayerSelectionPanel extends JPanel {
 		setLayout(new BorderLayout());
 		BoardGameEngineMain.initComponent(this);
 
-		ComputerPlayerInfo<?, ?> computerPlayerInfo = GameRegistry.getDefaultComputerPlayerInfo(gameName);
+		ComputerPlayerInfo<?, ?> computerPlayerInfo = GameRegistry.newDefaultComputerPlayerInfo(gameName);
 
 		configureButton = BoardGameEngineMain.initComponent(new JButton("C"));
 		configureButton.setMargin(new Insets(0, 5, 0, 5));

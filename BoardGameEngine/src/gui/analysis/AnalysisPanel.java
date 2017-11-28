@@ -7,23 +7,38 @@ import java.awt.event.ComponentEvent;
 import javax.swing.JPanel;
 
 import analysis.ComputerPlayer;
+import analysis.ComputerPlayerInfo;
 import analysis.search.ThreadNumber;
 import game.IPlayer;
+import game.IPosition;
 import game.TwoPlayers;
 import gui.FixedDurationGameLoop;
 import gui.GameImage;
 import gui.GamePanel;
+import gui.GameRegistry;
 import main.BoardGameEngineMain;
 
 @SuppressWarnings("serial")
-public class AnalysisPanel extends JPanel {
+public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
+	private final String gameName;
+	private final ComputerPlayerInfo<M, P> computerPlayerInfo;
 	private final FixedDurationGameLoop gameLoop;
-	private IAnalysisState analysisState;
 
-	public AnalysisPanel() {
-		analysisState = new InfiniteAnalysisState(TwoPlayers.PLAYER_1);
+	private IAnalysisState<M, P> analysisState;
+
+	private P position;
+
+	public AnalysisPanel(String gameName) {
+		this.gameName = gameName;
+
 		setLayout(new BorderLayout());
 		BoardGameEngineMain.initComponent(this);
+
+		computerPlayerInfo = GameRegistry.newDefaultComputerPlayerInfo(gameName);
+		GameRegistry.updateComputerPlayerInfo(computerPlayerInfo, gameName, computerPlayerInfo.strategyName, computerPlayerInfo.numWorkers, Long.MAX_VALUE);
+
+		analysisState = new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo, TwoPlayers.PLAYER_1);
+
 		GameImage analysisImage = new GameImage();
 		GamePanel analysisPanel = new GamePanel(analysisImage);
 
@@ -56,18 +71,26 @@ public class AnalysisPanel extends JPanel {
 
 	public void playerChanged(IPlayer player, int playerNum) {
 		analysisState.stopAnalysis();
-		IAnalysisState newAnalysisState;
+		IAnalysisState<M, P> newAnalysisState;
 		if (player instanceof ComputerPlayer) {
-			newAnalysisState = new ComputerPlayerObservationState((ComputerPlayer) player, playerNum);
+			newAnalysisState = new ComputerPlayerObservationState<>((ComputerPlayer) player, playerNum);
 		} else {
-			newAnalysisState = new InfiniteAnalysisState(playerNum);
+			newAnalysisState = new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo, playerNum);
 		}
 
 		newAnalysisState.componentResized(getWidth(), getHeight());
 
 		remove(analysisState.getTopPanel());
 		add(newAnalysisState.getTopPanel(), BorderLayout.NORTH);
+		revalidate();
 
 		analysisState = newAnalysisState;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void positionChanged(Object positionObj) {
+		P position = (P) positionObj;
+		this.position = position;
+		analysisState.setPosition(position);
 	}
 }

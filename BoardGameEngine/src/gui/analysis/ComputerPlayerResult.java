@@ -20,11 +20,13 @@ public class ComputerPlayerResult {
 			Map<String, ObservedMoveWithScore> moveMap = new HashMap<>();
 			if (analysisResult != null) {
 				for (MoveWithScore<Object> moveWithScore : analysisResult.getMovesWithScore()) {
-					moveMap.put(moveWithScore.move.toString(), new ObservedMoveWithScore(moveWithScore.move, moveWithScore.score, false));
+					String moveString = moveWithScore.move == null ? "-" : moveWithScore.move.toString();
+					moveMap.put(moveString, new ObservedMoveWithScore(moveString, moveWithScore.score, false));
 				}
 			}
 			for (MoveWithScore<Object> moveWithScore : partialResults) {
-				moveMap.put(moveWithScore.move.toString(), new ObservedMoveWithScore(moveWithScore.move, moveWithScore.score, true));
+				String moveString = moveWithScore.move == null ? "-" : moveWithScore.move.toString();
+				moveMap.put(moveString, new ObservedMoveWithScore(moveString, moveWithScore.score, true));
 			}
 			moves = new ArrayList<>(moveMap.values());
 			Collections.sort(moves, (move1, move2) -> Double.compare(move2.score, move1.score));
