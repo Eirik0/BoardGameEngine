@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -23,7 +22,7 @@ import gui.gamestate.MainMenuState;
 @SuppressWarnings("serial")
 public class PlayerControllerPanel extends JPanel {
 	private final JLabel gameLabel = BoardGameEngineMain.initComponent(new JLabel());
-	private final List<JComboBox<String>> playerComboBoxes;
+	private final List<PlayerSelectionPanel> playerSelectionPanels;
 	private Runnable backAction;
 
 	public PlayerControllerPanel(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
@@ -32,11 +31,10 @@ public class PlayerControllerPanel extends JPanel {
 		gameLabel.setText(game.getName());
 		int numberOfPlayers = game.getNumberOfPlayers();
 		String[] playerNames = GameRegistry.getPlayerNames(game.getName()).toArray(new String[0]);
-		String[] avaliablePlayers = playerNames;
-		String defaultPlayer = playerNames[0];
-		playerComboBoxes = new ArrayList<>();
+		String[] availablePlayers = playerNames;
+		playerSelectionPanels = new ArrayList<>();
 		for (int i = 0; i < numberOfPlayers; i++) {
-			playerComboBoxes.add(createPlayerComboBox(avaliablePlayers, defaultPlayer));
+			playerSelectionPanels.add(new PlayerSelectionPanel(availablePlayers, game.getName()));
 		}
 		rebuildWith(game, gameRunner);
 		gameRunner.setEndGameAction(() -> gameLabel.setText(game.getName()));
@@ -46,18 +44,12 @@ public class PlayerControllerPanel extends JPanel {
 		this.backAction = backAction;
 	}
 
-	private JComboBox<String> createPlayerComboBox(String[] availablePlayers, String defaultPlayer) {
-		JComboBox<String> jComboBox = BoardGameEngineMain.initComponent(new JComboBox<>(availablePlayers));
-		jComboBox.setSelectedItem(defaultPlayer);
-		return jComboBox;
-	}
-
 	private void rebuildWith(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
 		JPanel buttonPanel = BoardGameEngineMain.initComponent(new JPanel(new FlowLayout(FlowLayout.CENTER)));
 		buttonPanel.add(Box.createHorizontalStrut(30));
-		for (int i = 0; i < playerComboBoxes.size(); i++) {
-			buttonPanel.add(playerComboBoxes.get(i));
-			if (i < playerComboBoxes.size() - 1) {
+		for (int i = 0; i < playerSelectionPanels.size(); i++) {
+			buttonPanel.add(playerSelectionPanels.get(i));
+			if (i < playerSelectionPanels.size() - 1) {
 				buttonPanel.add(BoardGameEngineMain.initComponent(new JLabel(" v. ")));
 			}
 		}
@@ -108,9 +100,8 @@ public class PlayerControllerPanel extends JPanel {
 
 	private void startNewGame(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
 		List<IPlayer> players = new ArrayList<>();
-		for (JComboBox<String> jComboBox : playerComboBoxes) {
-			String playerName = jComboBox.getItemAt(jComboBox.getSelectedIndex());
-			players.add(GameRegistry.getPlayer(game.getName(), playerName));
+		for (PlayerSelectionPanel playerSelectionPanel : playerSelectionPanels) {
+			players.add(playerSelectionPanel.getPlayer(game.getName()));
 		}
 		gameRunner.startNewGame(players);
 		gameLabel.setText(game.getName() + "...");

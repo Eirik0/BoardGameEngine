@@ -12,16 +12,21 @@ import game.MoveListFactory;
 import gui.analysis.ComputerPlayerResult;
 
 public class ComputerPlayer implements IPlayer {
+	public static final String NAME = "Computer";
+
+	private final String strategyName;
+
 	private final IterativeDeepeningTreeSearcher<?, ?> treeSearcher;
-	private final String name;
+	private final int numWorkers;
 	private final long msPerMove;
 
 	private volatile boolean keepSearching = true;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ComputerPlayer(IDepthBasedStrategy<?, ?> strategy, MoveListFactory<?> moveListFactory, int numWorkers, String name, long msPerMove) {
+	public ComputerPlayer(String strategyName, IDepthBasedStrategy<?, ?> strategy, MoveListFactory<?> moveListFactory, int numWorkers, long msPerMove) {
+		this.strategyName = strategyName;
 		treeSearcher = new IterativeDeepeningTreeSearcher(strategy, moveListFactory, numWorkers);
-		this.name = name;
+		this.numWorkers = numWorkers;
 		this.msPerMove = msPerMove;
 	}
 
@@ -76,7 +81,7 @@ public class ComputerPlayer implements IPlayer {
 
 	@Override
 	public String toString() {
-		return name;
+		return ComputerPlayerInfo.getComputerName(strategyName, numWorkers, msPerMove);
 	}
 
 	@SuppressWarnings("unchecked")

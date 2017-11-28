@@ -13,6 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
+import analysis.strategy.AlphaBetaStrategy;
+import analysis.strategy.MinimaxStrategy;
 import game.GameObserver;
 import game.GameRunner;
 import game.IGame;
@@ -42,7 +44,6 @@ import gui.GameImage;
 import gui.GameMouseAdapter;
 import gui.GamePanel;
 import gui.GameRegistry;
-import gui.GuiPlayer;
 import gui.analysis.AnalysisPanel;
 import gui.gamestate.GameRunningState;
 import gui.gamestate.MainMenuState;
@@ -74,7 +75,7 @@ public class BoardGameEngineMain {
 
 		GameGuiManager.setSetGameAction(gameName -> {
 			IGame<?, ?> game = GameRegistry.getGame(gameName);
-			MoveListFactory<?> moveListFactory = GameRegistry.newMoveListFactory(game.getName());
+			MoveListFactory<?> moveListFactory = GameRegistry.getMoveListFactory(game.getName());
 			GameObserver gameObserver = new GameObserver();
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			GameRunner<?, ?> gameRunner = new GameRunner(game, gameObserver, moveListFactory);
@@ -136,38 +137,39 @@ public class BoardGameEngineMain {
 	}
 
 	private static void registerGames() {
+		int defaultMaxWorkers = Runtime.getRuntime().availableProcessors() - 1;
+
 		GameRegistry.registerGame(new ChessGame(), ChessGameRenderer.class)
-				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
-				.registerPositionEvaluator("Computer 1", new ChessPositionEvaluator(), 2, 1000)
-				.registerPositionEvaluator("Computer 2", new ChessPositionEvaluator(), 2, 4000)
-				.registerPositionEvaluator("Computer 3", new ChessPositionEvaluator(), 4, 15000);
+				.registerHuman()
+				.registerComputer(6000, defaultMaxWorkers)
+				.registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(GameRegistry.getMoveListFactory(ChessGame.NAME), new ChessPositionEvaluator()))
+				.registerStrategy("MinMax", () -> new MinimaxStrategy<>(GameRegistry.getMoveListFactory(ChessGame.NAME), new ChessPositionEvaluator()));
 
 		GameRegistry.registerGame(new TicTacToeGame(), TicTacToeGameRenderer.class)
-				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
-				.registerPositionEvaluator("Computer", new TicTacToePositionEvaluator(), 2, 500);
+				.registerHuman()
+				.registerComputer(500, defaultMaxWorkers)
+				.registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(GameRegistry.getMoveListFactory(TicTacToeGame.NAME), new TicTacToePositionEvaluator()))
+				.registerStrategy("MinMax", () -> new MinimaxStrategy<>(GameRegistry.getMoveListFactory(TicTacToeGame.NAME), new TicTacToePositionEvaluator()));
 
 		GameRegistry.registerGame(new UltimateTicTacToeGame(), UltimateTicTacToeGameRenderer.class)
-				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
-				.registerPositionEvaluator("Computer 1", new UltimateTicTacToePositionEvaluator(), 2, 300)
-				.registerPositionEvaluator("Computer 2", new UltimateTicTacToePositionEvaluator(), 2, 3000)
-				.registerPositionEvaluator("Computer 3", new UltimateTicTacToePositionEvaluator(), 6, 12000);
+				.registerHuman()
+				.registerComputer(3000, defaultMaxWorkers)
+				.registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(GameRegistry.getMoveListFactory(UltimateTicTacToeGame.NAME), new UltimateTicTacToePositionEvaluator()))
+				.registerStrategy("MinMax", () -> new MinimaxStrategy<>(GameRegistry.getMoveListFactory(UltimateTicTacToeGame.NAME), new UltimateTicTacToePositionEvaluator()));
 
-		GameRegistry.registerGame(new GomokuGame(), GomokuGameRenderer.class)
-				.registerPlayer(GuiPlayer.NAME, GuiPlayer.HUMAN)
-				.registerAnalysisMoveListClass(GomokuMoveList.class)
-				.registerPositionEvaluator("Computer", new GomokuPositionEvaluator(), 4, 5000);
+		GameRegistry.registerGame(new GomokuGame(), GomokuGameRenderer.class, GomokuMoveList.class)
+				.registerHuman()
+				.registerComputer(6000, defaultMaxWorkers)
+				.registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(GameRegistry.getMoveListFactory(GomokuGame.NAME), new GomokuPositionEvaluator()))
+				.registerStrategy("MinMax", () -> new MinimaxStrategy<>(GameRegistry.getMoveListFactory(GomokuGame.NAME), new GomokuPositionEvaluator()));
 
 		GameRegistry.registerGame(new SudokuGame(), SudokuGameRenderer.class)
-				.registerPositionEvaluator("Computer", new SudokuPositionEvaluator(), 4, 8000);
+				.registerComputer(15000, defaultMaxWorkers)
+				.registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(GameRegistry.getMoveListFactory(SudokuGame.NAME), new SudokuPositionEvaluator()));
 
 		GameRegistry.registerGame(new ForkJoinExampleGame(), ForkJoinExampleGameRenderer.class)
-				.registerStrategy("1 Worker", new ForkJoinExampleStraregy(), 1, Long.MAX_VALUE)
-				.registerStrategy("2 Workers", new ForkJoinExampleStraregy(), 2, Long.MAX_VALUE)
-				.registerStrategy("3 Workers", new ForkJoinExampleStraregy(), 3, Long.MAX_VALUE)
-				.registerStrategy("4 Workers", new ForkJoinExampleStraregy(), 4, Long.MAX_VALUE)
-				.registerStrategy("5 Workers", new ForkJoinExampleStraregy(), 5, Long.MAX_VALUE)
-				.registerStrategy("10 Workers", new ForkJoinExampleStraregy(), 10, Long.MAX_VALUE)
-				.registerStrategy("37 Workers", new ForkJoinExampleStraregy(), 37, Long.MAX_VALUE);
+				.registerComputer(Long.MAX_VALUE, 100)
+				.registerStrategy("ForkJoinExample", () -> new ForkJoinExampleStraregy());
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

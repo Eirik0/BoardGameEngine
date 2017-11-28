@@ -3,14 +3,14 @@ package gui;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import analysis.ComputerPlayer;
-import analysis.IPositionEvaluator;
-import analysis.strategy.AlphaBetaStrategy;
+import analysis.ComputerPlayerInfo;
 import analysis.strategy.IDepthBasedStrategy;
-import analysis.strategy.MinimaxStrategy;
 import game.ArrayMoveList;
 import game.IGame;
 import game.IPlayer;
@@ -22,8 +22,14 @@ import gui.gamestate.IGameRenderer;
 public class GameRegistry {
 	private static final Map<String, GameRegistryItem<?, ?>> gameMap = new LinkedHashMap<>();
 
+	@SuppressWarnings("unchecked")
 	public static <M, P extends IPosition<M, P>> GameRegistryItem<M, P> registerGame(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass) {
-		GameRegistryItem<M, P> gameRegistryItem = new GameRegistryItem<>(game, gameRendererClass);
+		return registerGame(game, gameRendererClass, (Class<? extends MoveList<M>>) ArrayMoveList.class);
+	}
+
+	public static <M, P extends IPosition<M, P>> GameRegistryItem<M, P> registerGame(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass,
+			Class<? extends MoveList<M>> moveListClass) {
+		GameRegistryItem<M, P> gameRegistryItem = new GameRegistryItem<>(game, gameRendererClass, moveListClass);
 		gameMap.put(game.getName(), gameRegistryItem);
 		return gameRegistryItem;
 	}
@@ -46,52 +52,77 @@ public class GameRegistry {
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static <M> MoveListFactory<M> newMoveListFactory(String gameName) {
-		GameRegistryItem<?, ?> gameRegistryItem = gameMap.get(gameName);
-		return new MoveListFactory(gameRegistryItem.game.getMaxMoves(), gameRegistryItem.analysisMoveListClass);
+	@SuppressWarnings("unchecked")
+	public static <M> MoveListFactory<M> getMoveListFactory(String gameName) {
+		return (MoveListFactory<M>) gameMap.get(gameName).moveListFactory;
 	}
 
 	public static Set<String> getPlayerNames(String gameName) {
 		return gameMap.get(gameName).playerMap.keySet();
 	}
 
-	public static IPlayer getPlayer(String gameName, String playerName) {
-		return gameMap.get(gameName).playerMap.get(playerName).get();
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static IPlayer getPlayer(String gameName, String playerName, ComputerPlayerInfo computerPlayerInfo) {
+		return gameMap.get(gameName).playerMap.get(playerName).apply(computerPlayerInfo);
+	}
+
+	public static <M, P extends IPosition<M, P>> ComputerPlayerInfo<M, P> getDefaultComputerPlayerInfo(String gameName) {
+		@SuppressWarnings("unchecked")
+		GameRegistryItem<M, P> gameRegistryItem = (GameRegistryItem<M, P>) gameMap.get(gameName);
+		int numWorkers = Math.min(Math.max(1, gameRegistryItem.maxWorkers), 4);
+		Entry<String, Supplier<IDepthBasedStrategy<M, P>>> strategySupplier = gameRegistryItem.strategySupplierMap.entrySet().iterator().next();
+		return new ComputerPlayerInfo<>(strategySupplier.getKey(), strategySupplier.getValue(), numWorkers, gameRegistryItem.defaultMsPerMove, gameRegistryItem.maxWorkers);
+	}
+
+	public static Set<String> getStrategyNames(String gameName) {
+		return gameMap.get(gameName).strategySupplierMap.keySet();
+	}
+
+	public static <M, P extends IPosition<M, P>> void updateComputerPlayerInfo(ComputerPlayerInfo<M, P> infoToUpdate, String gameName, String strategyName, int numWorkers,
+			long msPerMove) {
+		@SuppressWarnings("unchecked")
+		GameRegistryItem<M, P> gameRegistryItem = (GameRegistryItem<M, P>) gameMap.get(gameName);
+		Entry<String, Supplier<IDepthBasedStrategy<M, P>>> strategySupplier = gameRegistryItem.strategySupplierMap.entrySet().iterator().next();
+		infoToUpdate.setValues(strategySupplier.getKey(), strategySupplier.getValue(), numWorkers, msPerMove);
+	}
+
+	public static <M, P extends IPosition<M, P>> Supplier<IDepthBasedStrategy<M, P>> getStrategySupplier(String gameName, String strategyName) {
+		@SuppressWarnings("unchecked")
+		GameRegistryItem<M, P> gameRegistryItem = (GameRegistryItem<M, P>) gameMap.get(gameName);
+		return gameRegistryItem.strategySupplierMap.get(strategyName);
 	}
 
 	public static class GameRegistryItem<M, P extends IPosition<M, P>> {
 		private final IGame<M, P> game;
-		final Class<? extends IGameRenderer<?, ?>> gameRendererClass;
-		final Map<String, Supplier<IPlayer>> playerMap = new LinkedHashMap<>(); // The first player is the default player
-		@SuppressWarnings("unchecked")
-		Class<? extends MoveList<M>> analysisMoveListClass = (Class<? extends MoveList<M>>) ArrayMoveList.class;
+		final Class<? extends IGameRenderer<M, P>> gameRendererClass;
+		final Map<String, Function<ComputerPlayerInfo<M, P>, IPlayer>> playerMap = new LinkedHashMap<>(); // The first player is the default player
+		final Class<? extends MoveList<M>> analysisMoveListClass;;
+		final MoveListFactory<M> moveListFactory;
+		final Map<String, Supplier<IDepthBasedStrategy<M, P>>> strategySupplierMap = new LinkedHashMap<>();
+		long defaultMsPerMove = 3000;
+		int maxWorkers = 1;
 
-		public GameRegistryItem(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass) {
+		public GameRegistryItem(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass, Class<? extends MoveList<M>> analysisMoveListClass) {
 			this.game = game;
 			this.gameRendererClass = gameRendererClass;
+			this.analysisMoveListClass = analysisMoveListClass;
+			moveListFactory = new MoveListFactory<>(game.getMaxMoves(), analysisMoveListClass);
 		}
 
-		public GameRegistryItem<M, P> registerPlayer(String playerName, IPlayer player) {
-			playerMap.put(playerName, () -> player);
+		public GameRegistryItem<M, P> registerHuman() {
+			playerMap.put(GuiPlayer.NAME, info -> GuiPlayer.HUMAN);
 			return this;
 		}
 
-		public GameRegistryItem<M, P> registerStrategy(String playerName, IDepthBasedStrategy<M, P> strategy, int numWorkers, long msPerMove) {
-			MoveListFactory<?> moveListFactory = GameRegistry.newMoveListFactory(game.getName());
-			playerMap.put(playerName, () -> new ComputerPlayer(strategy, moveListFactory, numWorkers, playerName, msPerMove));
+		public GameRegistryItem<M, P> registerComputer(long defaultMsPerMove, int maxWorkers) {
+			playerMap.put(ComputerPlayer.NAME, info -> new ComputerPlayer(info.strategyName, info.strategySupplier.get(), moveListFactory, info.numWorkers, info.msPerMove));
+			this.defaultMsPerMove = defaultMsPerMove;
+			this.maxWorkers = maxWorkers;
 			return this;
 		}
 
-		public GameRegistryItem<M, P> registerPositionEvaluator(String playerName, IPositionEvaluator<M, P> positionEvaluator, int numWorkers, long msPerMove) {
-			MoveListFactory<M> moveListFactory = GameRegistry.newMoveListFactory(game.getName());
-			playerMap.put(playerName + "_AB", () -> new ComputerPlayer(new AlphaBetaStrategy<>(moveListFactory, positionEvaluator), moveListFactory, numWorkers, playerName + "_AB", msPerMove));
-			playerMap.put(playerName + "_MM", () -> new ComputerPlayer(new MinimaxStrategy<>(moveListFactory, positionEvaluator), moveListFactory, numWorkers, playerName + "_MM", msPerMove));
-			return this;
-		}
-
-		public GameRegistryItem<M, P> registerAnalysisMoveListClass(Class<? extends MoveList<M>> moveListClass) {
-			analysisMoveListClass = moveListClass;
+		public GameRegistryItem<M, P> registerStrategy(String stratrgyName, Supplier<IDepthBasedStrategy<M, P>> strategySupplier) {
+			strategySupplierMap.put(stratrgyName, strategySupplier);
 			return this;
 		}
 	}
