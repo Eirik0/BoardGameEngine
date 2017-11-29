@@ -151,7 +151,11 @@ public class ChessPosition implements IPosition<IChessMove, ChessPosition>, Ches
 		chessMove.applyMove(this);
 		int kingSquare = kingSquares[currentPlayer];
 		if (!ChessFunctions.isSquareAttacked(this, kingSquare, otherPlayer)) {
-			possibleMoves.add(chessMove, this);
+			if (chessMove.getPieceCaptured() == 0) {
+				possibleMoves.addQuietMove(chessMove, this);
+			} else {
+				possibleMoves.addDynamicMove(chessMove, this);
+			}
 		}
 		chessMove.unapplyMove(this);
 	}

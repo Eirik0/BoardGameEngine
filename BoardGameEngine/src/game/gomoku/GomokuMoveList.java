@@ -14,11 +14,26 @@ public class GomokuMoveList implements MoveList<Coordinate> {
 	}
 
 	@Override
-	public <P extends IPosition<Coordinate, P>> void add(Coordinate move, P position) {
-		int[][] board = ((GomokuPosition) position).board;
-		int x = move.x;
-		int y = move.y;
-		if ((x == 9 && y == 9) ||
+	public <P extends IPosition<Coordinate, P>> void setQuietMoves(Coordinate[] moves, P position) {
+		arrayMoveList.setQuietMoves(moves, position);
+	}
+
+	@Override
+	public <P extends IPosition<Coordinate, P>> void addDynamicMove(Coordinate move, P position) {
+		if (hasNeighbors(((GomokuPosition) position).board, move.x, move.y)) {
+			arrayMoveList.addDynamicMove(move, position);
+		}
+	}
+
+	@Override
+	public <P extends IPosition<Coordinate, P>> void addQuietMove(Coordinate move, P position) {
+		if (hasNeighbors(((GomokuPosition) position).board, move.x, move.y)) {
+			arrayMoveList.addQuietMove(move, position);
+		}
+	}
+
+	private static boolean hasNeighbors(int[][] board, int x, int y) {
+		return (x == 9 && y == 9) ||
 				(y > 0 && x > 0 && board[y - 1][x - 1] != TwoPlayers.UNPLAYED) ||
 				(y > 0 && board[y - 1][x] != TwoPlayers.UNPLAYED) ||
 				(y > 0 && x < GomokuPosition.BOARD_WIDTH - 1 && board[y - 1][x + 1] != TwoPlayers.UNPLAYED) ||
@@ -26,16 +41,7 @@ public class GomokuMoveList implements MoveList<Coordinate> {
 				(x < GomokuPosition.BOARD_WIDTH - 1 && board[y][x + 1] != TwoPlayers.UNPLAYED) ||
 				(y < GomokuPosition.BOARD_WIDTH - 1 && x > 0 && board[y + 1][x - 1] != TwoPlayers.UNPLAYED) ||
 				(y < GomokuPosition.BOARD_WIDTH - 1 && board[y + 1][x] != TwoPlayers.UNPLAYED) ||
-				(y < GomokuPosition.BOARD_WIDTH - 1 && x < GomokuPosition.BOARD_WIDTH - 1 && board[y + 1][x + 1] != TwoPlayers.UNPLAYED)) {
-			arrayMoveList.add(move, position);
-		}
-	}
-
-	@Override
-	public <P extends IPosition<Coordinate, P>> void addAll(Coordinate[] moves, P position) {
-		for (Coordinate move : moves) {
-			add(move, position);
-		}
+				(y < GomokuPosition.BOARD_WIDTH - 1 && x < GomokuPosition.BOARD_WIDTH - 1 && board[y + 1][x + 1] != TwoPlayers.UNPLAYED);
 	}
 
 	@Override
@@ -51,6 +57,11 @@ public class GomokuMoveList implements MoveList<Coordinate> {
 	@Override
 	public int size() {
 		return arrayMoveList.size();
+	}
+
+	@Override
+	public int numDynamicMoves() {
+		return arrayMoveList.numDynamicMoves();
 	}
 
 	@Override

@@ -29,7 +29,13 @@ public class ComputerPlayerResult {
 				moveMap.put(moveString, new ObservedMoveWithScore(moveString, moveWithScore.score, true));
 			}
 			moves = new ArrayList<>(moveMap.values());
-			Collections.sort(moves, (move1, move2) -> Double.compare(move2.score, move1.score));
+			Collections.sort(moves, (move1, move2) -> {
+				int scoreCompare = Double.compare(move2.score, move1.score);
+				if (scoreCompare != 0) {
+					return scoreCompare;
+				}
+				return move1.move.compareTo(move2.move);
+			});
 		}
 		this.depth = depth;
 	}

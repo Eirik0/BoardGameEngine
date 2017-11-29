@@ -82,8 +82,7 @@ public class GameRegistry {
 			long msPerMove) {
 		@SuppressWarnings("unchecked")
 		GameRegistryItem<M, P> gameRegistryItem = (GameRegistryItem<M, P>) gameMap.get(gameName);
-		Entry<String, Supplier<IDepthBasedStrategy<M, P>>> strategySupplier = gameRegistryItem.strategySupplierMap.entrySet().iterator().next();
-		infoToUpdate.setValues(strategySupplier.getKey(), strategySupplier.getValue(), numWorkers, msPerMove);
+		infoToUpdate.setValues(strategyName, gameRegistryItem.strategySupplierMap.get(strategyName), numWorkers, msPerMove);
 	}
 
 	public static <M, P extends IPosition<M, P>> Supplier<IDepthBasedStrategy<M, P>> getStrategySupplier(String gameName, String strategyName) {

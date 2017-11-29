@@ -3,6 +3,7 @@ package game.ultimatetictactoe;
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
 import game.Coordinate;
+import game.MoveList;
 import game.TwoPlayers;
 import game.tictactoe.TicTacToeUtilities;
 
@@ -10,7 +11,7 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<Co
 	private static final int WINS_PER_BOARD = 8;
 
 	@Override
-	public double evaluate(UltimateTicTacToePosition position, int player) {
+	public double evaluate(UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves, int player) {
 		int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
 		if (TicTacToeUtilities.winExists(position.wonBoards, lastPlayer)) {
 			return player == lastPlayer ? AnalysisResult.WIN : AnalysisResult.LOSS;
@@ -58,8 +59,19 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<Co
 		}
 	}
 
-	@Override
-	public IPositionEvaluator<Coordinate, UltimateTicTacToePosition> createCopy() {
-		return new UltimateTicTacToePositionEvaluator();
+	public boolean isQuiescent(UltimateTicTacToePosition position) {
+		if (position.currentBoard == -1) {
+			return true;
+		}
+		int board = position.boards[position.currentBoard];
+		int currentPlayer = position.currentPlayer;
+		int m = 0;
+		do {
+			if ((board & TicTacToeUtilities.POS[m]) == TwoPlayers.UNPLAYED && TicTacToeUtilities.winExists(board | TicTacToeUtilities.PLAYER_POS[currentPlayer][m], position.currentPlayer)) {
+				return false;
+			}
+			++m;
+		} while (m < UltimateTicTacToePosition.BOARD_WIDTH);
+		return true;
 	}
 }

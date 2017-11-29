@@ -25,7 +25,7 @@ public class TestGamePosition implements IPosition<TestGameNode, TestGamePositio
 
 	@Override
 	public void getPossibleMoves(MoveList<TestGameNode> possibleMoves) {
-		possibleMoves.addAll(currentNode.getPossibleMoves(), this);
+		possibleMoves.setQuietMoves(currentNode.getPossibleMoves(), this);
 	}
 
 	@Override

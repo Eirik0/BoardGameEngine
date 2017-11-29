@@ -7,21 +7,23 @@ import game.MoveListFactory;
 
 public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> implements IDepthBasedStrategy<M, P> {
 	protected static final int MAX_DEPTH = 64;
+
+	protected final MoveListFactory<M> moveListFactory;
 	@SuppressWarnings("unchecked")
 	private final MoveList<M>[] moveLists = new MoveList[MAX_DEPTH];
 
-	protected volatile boolean searchCanceled = false;
-
-	protected void initMoveLists(MoveListFactory<M> moveListFactory, int maxDepth) {
-		int i = 0;
-		while (i < maxDepth) {
-			moveLists[i] = moveListFactory.newAnalysisMoveList();
-			++i;
-		}
+	public AbstractDepthBasedStrategy(MoveListFactory<M> moveListFactory) {
+		this.moveListFactory = moveListFactory;
 	}
 
+	protected volatile boolean searchCanceled = false;
+
 	protected MoveList<M> getMoveList(int depth) {
-		MoveList<M> moveList = moveLists[depth - 1];
+		MoveList<M> moveList = moveLists[depth];
+		if (moveList == null) {
+			moveList = moveListFactory.newAnalysisMoveList();
+			moveLists[depth] = moveList;
+		}
 		moveList.clear();
 		return moveList;
 	}

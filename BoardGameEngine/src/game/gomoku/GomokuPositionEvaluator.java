@@ -3,13 +3,14 @@ package game.gomoku;
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
 import game.Coordinate;
+import game.MoveList;
 import game.TwoPlayers;
 
 public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, GomokuPosition> {
 	private static final int BOARD_WIDTH = GomokuPosition.BOARD_WIDTH;
 
 	@Override
-	public double evaluate(GomokuPosition position, int player) {
+	public double evaluate(GomokuPosition position, MoveList<Coordinate> possibleMoves, int player) {
 		int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
 		if (winExists(position.board, lastPlayer)) {
 			return player == lastPlayer ? AnalysisResult.WIN : AnalysisResult.LOSS;
@@ -114,10 +115,5 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, G
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public IPositionEvaluator<Coordinate, GomokuPosition> createCopy() {
-		return new GomokuPositionEvaluator();
 	}
 }

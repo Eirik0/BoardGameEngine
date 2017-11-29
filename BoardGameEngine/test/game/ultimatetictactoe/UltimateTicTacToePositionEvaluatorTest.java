@@ -7,6 +7,7 @@ import org.junit.Test;
 import game.ArrayMoveList;
 import game.Coordinate;
 import game.MoveList;
+import game.TwoPlayers;
 
 public class UltimateTicTacToePositionEvaluatorTest {
 	@Test
@@ -14,9 +15,9 @@ public class UltimateTicTacToePositionEvaluatorTest {
 		UltimateTicTacToePositionEvaluator evaluator = new UltimateTicTacToePositionEvaluator();
 		UltimateTicTacToePosition position = new UltimateTicTacToePosition();
 		for (int i = 0; i < 20; ++i) {
-			assertEquals(evaluator.evaluate(position, 1), -evaluator.evaluate(position, 2), 0.001);
 			MoveList<Coordinate> possibleMoves = new ArrayMoveList<>(UltimateTicTacToeGame.MAX_MOVES);
 			position.getPossibleMoves(possibleMoves);
+			assertEquals(evaluator.evaluate(position, possibleMoves, TwoPlayers.PLAYER_1), -evaluator.evaluate(position, possibleMoves, TwoPlayers.PLAYER_2), 0.001);
 			position.makeMove(possibleMoves.get(0));
 		}
 	}

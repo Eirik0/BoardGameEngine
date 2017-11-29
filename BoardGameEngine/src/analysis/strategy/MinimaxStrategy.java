@@ -7,35 +7,29 @@ import game.MoveList;
 import game.MoveListFactory;
 
 public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
-	private final MoveListFactory<M> moveListFactory;
 	private final IPositionEvaluator<M, P> positionEvaluator;
 
 	public MinimaxStrategy(MoveListFactory<M> moveListFactory, IPositionEvaluator<M, P> positionEvaluator) {
-		this.moveListFactory = moveListFactory;
+		super(moveListFactory);
 		this.positionEvaluator = positionEvaluator;
 	}
 
 	@Override
 	public double evaluate(P position, int player, int plies) {
-		initMoveLists(moveListFactory, plies);
-		return minimax(position, player, plies);
+		return minimax(position, player, 0, plies);
 	}
 
-	private double minimax(P position, int player, int plies) {
+	private double minimax(P position, int player, int ply, int maxPly) {
 		if (searchCanceled) {
 			return 0;
 		}
 
-		if (plies == 0) {
-			return positionEvaluator.evaluate(position, player);
-		}
-
-		MoveList<M> possibleMoves = getMoveList(plies);
+		MoveList<M> possibleMoves = getMoveList(ply);
 		position.getPossibleMoves(possibleMoves);
 		int numMoves = possibleMoves.size();
 
-		if (numMoves == 0) {
-			return positionEvaluator.evaluate(position, player);
+		if (numMoves == 0 || ply == maxPly) {
+			return positionEvaluator.evaluate(position, possibleMoves, player);
 		}
 
 		M move;
@@ -46,7 +40,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 			do {
 				move = possibleMoves.get(i);
 				position.makeMove(move);
-				double score = minimax(position, player, plies - 1);
+				double score = minimax(position, player, ply + 1, maxPly);
 				position.unmakeMove(move);
 
 				if (score > bestScore || (AnalysisResult.isDraw(score) && bestScore < 0) || (AnalysisResult.isDraw(bestScore) && score >= 0)) {
@@ -60,7 +54,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 			do {
 				move = possibleMoves.get(i);
 				position.makeMove(move);
-				double score = minimax(position, player, plies - 1);
+				double score = minimax(position, player, ply + 1, maxPly);
 				position.unmakeMove(move);
 
 				if (score < bestScore || (AnalysisResult.isDraw(score) && bestScore > 0) || (AnalysisResult.isDraw(bestScore) && score <= 0)) {
@@ -76,6 +70,6 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 
 	@Override
 	public IDepthBasedStrategy<M, P> createCopy() {
-		return new MinimaxStrategy<>(moveListFactory, positionEvaluator.createCopy());
+		return new MinimaxStrategy<>(moveListFactory, positionEvaluator);
 	}
 }

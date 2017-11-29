@@ -7,9 +7,12 @@ import game.MoveList;
 import game.MoveListFactory;
 
 public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> {
+	public ForkJoinExampleStraregy(MoveListFactory<ForkJoinExampleNode> moveListFactory) {
+		super(moveListFactory);
+	}
+
 	@Override
 	public double evaluate(ForkJoinExampleTree position, int player, int plies) {
-		initMoveLists(new MoveListFactory<>(ForkJoinExampleGame.MAX_MOVES), plies);
 		visitNodes(position, player, plies);
 		return 0;
 	}
@@ -77,6 +80,6 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 
 	@Override
 	public IDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> createCopy() {
-		return new ForkJoinExampleStraregy();
+		return new ForkJoinExampleStraregy(moveListFactory);
 	}
 }

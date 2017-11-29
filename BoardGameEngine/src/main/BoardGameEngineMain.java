@@ -174,7 +174,7 @@ public class BoardGameEngineMain {
 
 		GameRegistry.registerGame(new ForkJoinExampleGame(), ForkJoinExampleGameRenderer.class)
 				.registerComputer(Long.MAX_VALUE, 100)
-				.registerStrategy("ForkJoinExample", () -> new ForkJoinExampleStraregy());
+				.registerStrategy("ForkJoinExample", () -> new ForkJoinExampleStraregy(GameRegistry.getMoveListFactory(ForkJoinExampleGame.NAME)));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

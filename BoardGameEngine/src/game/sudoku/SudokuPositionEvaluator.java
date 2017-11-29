@@ -7,16 +7,13 @@ import java.util.Set;
 
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
-import game.ArrayMoveList;
 import game.Coordinate;
 import game.MoveList;
 import game.ultimatetictactoe.UltimateTicTacToeUtilities;
 
 public class SudokuPositionEvaluator implements IPositionEvaluator<SudokuMove, SudokuPosition> {
-	private final MoveList<SudokuMove> moveList = new ArrayMoveList<>(SudokuGame.MAX_MOVES);
-
 	@Override
-	public double evaluate(SudokuPosition position, int player) {
+	public double evaluate(SudokuPosition position, MoveList<SudokuMove> possibleMoves, int player) {
 		List<Coordinate> openSquares = new ArrayList<>();
 		for (int n = 0; n < SudokuPosition.BOARD_WIDTH; ++n) {
 			for (int m = 0; m < SudokuPosition.BOARD_WIDTH; ++m) {
@@ -25,22 +22,15 @@ public class SudokuPositionEvaluator implements IPositionEvaluator<SudokuMove, S
 				}
 			}
 		}
-		moveList.clear();
-		position.getPossibleMoves(moveList);
-		if (moveList.size() == 0) {
+		if (possibleMoves.size() == 0) {
 			return openSquares.size() == 0 ? AnalysisResult.WIN : AnalysisResult.LOSS;
 		}
 		Set<Coordinate> playableCoordinates = new HashSet<>();
 		int i = 0;
 		do {
-			playableCoordinates.add(moveList.get(i).coordinate);
+			playableCoordinates.add(possibleMoves.get(i).coordinate);
 			++i;
-		} while (i < moveList.size());
-		return openSquares.size() == playableCoordinates.size() ? moveList.size() : AnalysisResult.LOSS;
-	}
-
-	@Override
-	public IPositionEvaluator<SudokuMove, SudokuPosition> createCopy() {
-		return new SudokuPositionEvaluator();
+		} while (i < possibleMoves.size());
+		return openSquares.size() == playableCoordinates.size() ? possibleMoves.size() : AnalysisResult.LOSS;
 	}
 }

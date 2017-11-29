@@ -212,7 +212,10 @@ public class ChessFunctions implements ChessConstants {
 				}
 				++i;
 			}
-			throw new IllegalStateException("Pawn not found at " + from);
+			for (int c : pawns) {
+				System.out.println(c);
+			}
+			throw new IllegalStateException("\n" + ChessPositionTest.getBoardStr(position) + "Pawn not found at " + from);
 		case KNIGHT:
 			int[] knights = position.knights[player];
 			int numKnights = position.numKnights[player];

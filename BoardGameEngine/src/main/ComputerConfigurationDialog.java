@@ -2,6 +2,7 @@ package main;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -50,7 +51,7 @@ public class ComputerConfigurationDialog<M, P extends IPosition<M, P>> {
 
 	public void hide() {
 		SwingUtilities.invokeLater(() -> {
-			configurationFrame.setVisible(false);
+			configurationFrame.dispatchEvent(new WindowEvent(configurationFrame, WindowEvent.WINDOW_CLOSING));
 		});
 	}
 

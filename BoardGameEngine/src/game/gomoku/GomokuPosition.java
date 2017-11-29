@@ -30,7 +30,7 @@ public class GomokuPosition implements IPosition<Coordinate, GomokuPosition> {
 			int[] column = board[y];
 			for (int x = 0; x < BOARD_WIDTH; ++x) {
 				if (column[x] == TwoPlayers.UNPLAYED) {
-					possibleMoves.add(Coordinate.valueOf(x, y), this);
+					possibleMoves.addQuietMove(Coordinate.valueOf(x, y), this);
 				}
 			}
 		}
