@@ -65,7 +65,7 @@ public class IterativeDeepeningTreeSearcherTest {
 	}
 
 	private void doSpeedTest(int numThreads) {
-		int numPlies = 6;
+		int numPlies = 5;
 		MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
 		MinimaxStrategy<Coordinate, UltimateTicTacToePosition> minimaxStrategy = new MinimaxStrategy<>(moveListFactory, new UltimateTicTacToePositionEvaluator());
 		IterativeDeepeningTreeSearcher<Coordinate, UltimateTicTacToePosition> iterativeDeepeningSearcher = new IterativeDeepeningTreeSearcher<>(minimaxStrategy,

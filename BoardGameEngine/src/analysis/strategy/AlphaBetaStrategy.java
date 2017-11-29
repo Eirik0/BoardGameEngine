@@ -16,10 +16,12 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 
 	@Override
 	public double evaluate(P position, int player, int plies) {
-		return alphaBeta(position, player, 0, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+		double alpha = Double.NEGATIVE_INFINITY;
+		double beta = Double.POSITIVE_INFINITY;
+		return player == position.getCurrentPlayer() ? alphaBeta(position, player, 0, plies, alpha, beta, true) : alphaBeta(position, player, 0, plies, -beta, -alpha, false);
 	}
 
-	private double alphaBeta(P position, int player, int ply, int maxPly, double alpha, double beta) {
+	private double alphaBeta(P position, int player, int ply, int maxPly, double alpha, double beta, boolean max) {
 		if (searchCanceled) {
 			return 0;
 		}
@@ -32,51 +34,35 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 			return positionEvaluator.evaluate(position, possibleMoves, player);
 		}
 
+		double bestScore = Double.NEGATIVE_INFINITY;
 		M move;
-		double bestScore;
 		int i = 0;
-		if (player == position.getCurrentPlayer()) { // Max
-			bestScore = Double.NEGATIVE_INFINITY;
-			do {
-				move = possibleMoves.get(i);
-				position.makeMove(move);
-				double score = alphaBeta(position, player, ply + 1, maxPly, alpha, beta);
-				position.unmakeMove(move);
+		do {
+			move = possibleMoves.get(i);
+			position.makeMove(move);
+			double ab;
+			if (max == (player == position.getCurrentPlayer())) {
+				ab = alphaBeta(position, player, ply + 1, maxPly, alpha, beta, player == position.getCurrentPlayer());
+			} else {
+				ab = alphaBeta(position, player, ply + 1, maxPly, -beta, -alpha, player == position.getCurrentPlayer());
+			}
+			double score = max ? ab : -ab;
 
-				if (score > bestScore || (AnalysisResult.isDraw(score) && bestScore < 0) || (AnalysisResult.isDraw(bestScore) && score >= 0)) {
-					bestScore = score;
-					if (bestScore > alpha) {
-						alpha = bestScore;
-						if (beta <= alpha) {
-							break;
-						}
+			position.unmakeMove(move);
+
+			if (score > bestScore || (AnalysisResult.isDraw(score) && bestScore < 0) || (AnalysisResult.isDraw(bestScore) && score >= 0)) {
+				bestScore = score;
+				if (bestScore > alpha) {
+					alpha = bestScore;
+					if (beta <= alpha) {
+						break;
 					}
 				}
-				++i;
-			} while (i < numMoves);
-		} else { // Min
-			bestScore = Double.POSITIVE_INFINITY;
-			do {
-				move = possibleMoves.get(i);
-				position.makeMove(move);
-				double score = alphaBeta(position, player, ply + 1, maxPly, alpha, beta);
-				position.unmakeMove(move);
+			}
+			++i;
+		} while (i < numMoves);
 
-				if (score < bestScore || (AnalysisResult.isDraw(score) && bestScore > 0) || (AnalysisResult.isDraw(bestScore) && score <= 0)) {
-					bestScore = score;
-					if (bestScore < beta) {
-						beta = bestScore;
-						if (beta <= alpha) {
-							break;
-						}
-					}
-				}
-
-				++i;
-			} while (i < numMoves);
-		}
-
-		return bestScore;
+		return max ? bestScore : -bestScore;
 	}
 
 	@Override
