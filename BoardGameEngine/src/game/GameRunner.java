@@ -10,7 +10,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private volatile boolean isRunning = false;
 
 	private final GameObserver<M, P> gameObserver;
-	private Runnable endGameAction;
+	private Runnable gameOverAction;
 	private IPositionObserver<M, P> positionObserver;
 
 	private final IGame<M, P> game;
@@ -31,8 +31,8 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		setPositionCopy();
 	}
 
-	public synchronized void setEndGameAction(Runnable endGameAction) {
-		this.endGameAction = endGameAction;
+	public synchronized void setGameOverAction(Runnable gameOverAction) {
+		this.gameOverAction = gameOverAction;
 	}
 
 	public void setPositionObserver(IPositionObserver<M, P> positionObserver) {
@@ -106,6 +106,9 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 					player.notifyGameEnded();
 				}
 				notifyGameEnded();
+				if (gameOverAction != null) {
+					gameOverAction.run();
+				}
 			}
 		}, "Game_Runner_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
 
@@ -137,6 +140,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 				throw new RuntimeException(e);
 			}
 		}
+		gameObserver.notifyGameEnded();
 		stopRequested = false;
 	}
 
@@ -149,10 +153,6 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private synchronized void notifyGameEnded() {
 		isRunning = false;
 		currentPlayer = null;
-		if (endGameAction != null) {
-			endGameAction.run();
-		}
-		gameObserver.notifyGameEnded();
 		notify();
 	}
 }

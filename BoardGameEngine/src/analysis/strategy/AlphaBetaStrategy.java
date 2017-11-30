@@ -16,9 +16,7 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 
 	@Override
 	public double evaluate(P position, int player, int plies) {
-		double alpha = Double.NEGATIVE_INFINITY;
-		double beta = Double.POSITIVE_INFINITY;
-		return player == position.getCurrentPlayer() ? alphaBeta(position, player, 0, plies, alpha, beta, true) : alphaBeta(position, player, 0, plies, -beta, -alpha, false);
+		return alphaBeta(position, player, 0, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, player == position.getCurrentPlayer());
 	}
 
 	private double alphaBeta(P position, int player, int ply, int maxPly, double alpha, double beta, boolean max) {
@@ -34,7 +32,6 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 			return positionEvaluator.evaluate(position, possibleMoves, player);
 		}
 
-		double bestScore = Double.NEGATIVE_INFINITY;
 		M move;
 		int i = 0;
 		do {
@@ -50,19 +47,16 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 
 			position.unmakeMove(move);
 
-			if (AnalysisResult.isGreater(score, bestScore)) {
-				bestScore = score;
-				if (AnalysisResult.isGreater(bestScore, alpha)) {
-					alpha = bestScore;
-					if (!AnalysisResult.isGreater(beta, alpha)) {
-						break;
-					}
+			if (AnalysisResult.isGreater(score, alpha)) {
+				alpha = score;
+				if (!AnalysisResult.isGreater(beta, alpha)) { // alpha >= beta
+					break;
 				}
 			}
 			++i;
 		} while (i < numMoves);
 
-		return max ? bestScore : -bestScore;
+		return max ? alpha : -alpha;
 	}
 
 	@Override

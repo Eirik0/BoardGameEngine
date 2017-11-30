@@ -10,7 +10,11 @@ import java.util.function.Supplier;
 
 import analysis.ComputerPlayer;
 import analysis.ComputerPlayerInfo;
+import analysis.IPositionEvaluator;
+import analysis.strategy.AlphaBetaQStrategy;
+import analysis.strategy.AlphaBetaStrategy;
 import analysis.strategy.IDepthBasedStrategy;
+import analysis.strategy.MinimaxStrategy;
 import game.ArrayMoveList;
 import game.IGame;
 import game.IPlayer;
@@ -122,6 +126,13 @@ public class GameRegistry {
 
 		public GameRegistryItem<M, P> registerStrategy(String stratrgyName, Supplier<IDepthBasedStrategy<M, P>> strategySupplier) {
 			strategySupplierMap.put(stratrgyName, strategySupplier);
+			return this;
+		}
+
+		public GameRegistryItem<M, P> registerMinimaxStrategies(IPositionEvaluator<M, P> positionEvaluator) {
+			registerStrategy("AlphaBetaQ", () -> new AlphaBetaQStrategy<>(moveListFactory, positionEvaluator));
+			registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(moveListFactory, positionEvaluator));
+			registerStrategy("MinMax", () -> new MinimaxStrategy<>(moveListFactory, positionEvaluator));
 			return this;
 		}
 	}

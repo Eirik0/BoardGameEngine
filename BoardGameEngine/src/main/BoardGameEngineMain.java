@@ -14,7 +14,6 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
 import analysis.strategy.AlphaBetaStrategy;
-import analysis.strategy.MinimaxStrategy;
 import game.GameObserver;
 import game.GameRunner;
 import game.IGame;
@@ -147,26 +146,22 @@ public class BoardGameEngineMain {
 		GameRegistry.registerGame(new ChessGame(), ChessGameRenderer.class)
 				.registerHuman()
 				.registerComputer(6000, defaultMaxWorkers)
-				.registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(GameRegistry.getMoveListFactory(ChessGame.NAME), new ChessPositionEvaluator()))
-				.registerStrategy("MinMax", () -> new MinimaxStrategy<>(GameRegistry.getMoveListFactory(ChessGame.NAME), new ChessPositionEvaluator()));
+				.registerMinimaxStrategies(new ChessPositionEvaluator());
 
 		GameRegistry.registerGame(new TicTacToeGame(), TicTacToeGameRenderer.class)
 				.registerHuman()
 				.registerComputer(500, defaultMaxWorkers)
-				.registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(GameRegistry.getMoveListFactory(TicTacToeGame.NAME), new TicTacToePositionEvaluator()))
-				.registerStrategy("MinMax", () -> new MinimaxStrategy<>(GameRegistry.getMoveListFactory(TicTacToeGame.NAME), new TicTacToePositionEvaluator()));
+				.registerMinimaxStrategies(new TicTacToePositionEvaluator());
 
 		GameRegistry.registerGame(new UltimateTicTacToeGame(), UltimateTicTacToeGameRenderer.class)
 				.registerHuman()
 				.registerComputer(3000, defaultMaxWorkers)
-				.registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(GameRegistry.getMoveListFactory(UltimateTicTacToeGame.NAME), new UltimateTicTacToePositionEvaluator()))
-				.registerStrategy("MinMax", () -> new MinimaxStrategy<>(GameRegistry.getMoveListFactory(UltimateTicTacToeGame.NAME), new UltimateTicTacToePositionEvaluator()));
+				.registerMinimaxStrategies(new UltimateTicTacToePositionEvaluator());
 
 		GameRegistry.registerGame(new GomokuGame(), GomokuGameRenderer.class, GomokuMoveList.class)
 				.registerHuman()
 				.registerComputer(6000, defaultMaxWorkers)
-				.registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(GameRegistry.getMoveListFactory(GomokuGame.NAME), new GomokuPositionEvaluator()))
-				.registerStrategy("MinMax", () -> new MinimaxStrategy<>(GameRegistry.getMoveListFactory(GomokuGame.NAME), new GomokuPositionEvaluator()));
+				.registerMinimaxStrategies(new GomokuPositionEvaluator());
 
 		GameRegistry.registerGame(new SudokuGame(), SudokuGameRenderer.class)
 				.registerComputer(15000, defaultMaxWorkers)

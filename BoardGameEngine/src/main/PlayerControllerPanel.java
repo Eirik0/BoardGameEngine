@@ -37,7 +37,7 @@ public class PlayerControllerPanel extends JPanel {
 			playerSelectionPanels.add(new PlayerSelectionPanel(availablePlayers, game.getName()));
 		}
 		rebuildWith(game, gameRunner);
-		gameRunner.setEndGameAction(() -> gameLabel.setText(game.getName()));
+		gameRunner.setGameOverAction(() -> gameLabel.setText(game.getName()));
 	}
 
 	public void setBackAction(Runnable backAction) { // this allows for easy self reference outside of this

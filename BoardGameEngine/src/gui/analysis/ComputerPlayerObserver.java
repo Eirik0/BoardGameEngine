@@ -60,7 +60,7 @@ public class ComputerPlayerObserver implements DrawingMethods {
 			ObservedMoveWithScore moveWithScore = currentMoves.get(i);
 			graphics.setColor(moveWithScore.isPartial ? BoardGameEngineMain.FOREGROUND_COLOR : BoardGameEngineMain.LIGHTER_FOREGROUND_COLOR);
 			String indexString = i < 9 ? (i + 1) + ".   " : (i + 1) + ". ";
-			double playerScore = playerNum == TwoPlayers.PLAYER_1 ? moveWithScore.score : -moveWithScore.score + 0.0;
+			double playerScore = (playerNum == TwoPlayers.PLAYER_1 ? moveWithScore.score : -moveWithScore.score) + 0.0;
 			String scoreString = Double.isFinite(playerScore) ? String.format("(%.2f)", playerScore) : "(" + playerScore + ")";
 			graphics.drawString(indexString, 20, y);
 			graphics.drawString(String.format("%-13s", scoreString), 45, y);
