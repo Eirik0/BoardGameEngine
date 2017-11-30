@@ -110,6 +110,10 @@ public class AnalysisResult<M> {
 		return sb.toString();
 	}
 
+	public static boolean isGreater(double l, double r) {
+		return l > r || (r < 0 && isDraw(l)) || (l >= 0 && isDraw(r));
+	}
+
 	public static boolean isDraw(double d) {
 		return d != d;
 	}

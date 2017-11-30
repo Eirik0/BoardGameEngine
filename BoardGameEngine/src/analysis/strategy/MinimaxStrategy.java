@@ -42,7 +42,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 			double score = max ? negamax : -negamax;
 			position.unmakeMove(move);
 
-			if (score > bestScore || (AnalysisResult.isDraw(score) && bestScore < 0) || (AnalysisResult.isDraw(bestScore) && score >= 0)) {
+			if (AnalysisResult.isGreater(score, bestScore)) {
 				bestScore = score;
 			}
 

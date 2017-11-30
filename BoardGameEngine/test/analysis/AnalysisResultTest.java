@@ -1,6 +1,7 @@
 package analysis;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -39,5 +40,19 @@ public class AnalysisResultTest {
 		AnalysisResult<Integer> result = new AnalysisResult<>();
 		result.addMoveWithScore(1, Double.NEGATIVE_INFINITY);
 		assertEquals(Integer.valueOf(1), result.getBestMove());
+	}
+
+	@Test
+	public void testGreaterThan() {
+		assertTrue("2 > 1", AnalysisResult.isGreater(2, 1));
+		assertFalse("1 > 2", AnalysisResult.isGreater(1, 2));
+		assertFalse("0 > 0", AnalysisResult.isGreater(0, 0));
+		assertTrue("0 > Draw", AnalysisResult.isGreater(0, AnalysisResult.DRAW));
+		assertTrue("1 > Draw", AnalysisResult.isGreater(0, AnalysisResult.DRAW));
+		assertFalse("-1 > Draw", AnalysisResult.isGreater(-1, AnalysisResult.DRAW));
+		assertTrue("Draw > -1", AnalysisResult.isGreater(AnalysisResult.DRAW, -1));
+		assertFalse("Draw > 0", AnalysisResult.isGreater(AnalysisResult.DRAW, 0));
+		assertFalse("Draw > 1", AnalysisResult.isGreater(AnalysisResult.DRAW, 1));
+		assertFalse("Draw > Draw", AnalysisResult.isGreater(AnalysisResult.DRAW, AnalysisResult.DRAW));
 	}
 }
