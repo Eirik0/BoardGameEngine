@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import analysis.AnalysisResult;
-import analysis.MoveWithScore;
 import analysis.strategy.IDepthBasedStrategy;
 import game.IPosition;
 import game.MoveList;
@@ -169,6 +168,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 
 	private GameTreeSearch<M, P> createFork(M move, AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults, int expectedResults) {
 		GameTreeSearch<M, P> treeSearch = new GameTreeSearch<>(move, position, moveListFactory, player, plies - 1, strategy);
+		int currentPlayer = position.getCurrentPlayer();
 		treeSearch.setResultConsumer(moveWithResult -> {
 			if (consumedResult.get()) {
 				return;
@@ -176,13 +176,13 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			synchronized (this) {
 				movesWithResults.add(moveWithResult);
 				if (treeSearch.searchCanceled && !treeSearch.forked) {
-					join(partialResult, movesWithResults);
+					join(currentPlayer, partialResult, movesWithResults);
 				} else if (!moveWithResult.result.isSeachComplete()) {
-					join(partialResult, movesWithResults);
+					join(currentPlayer, partialResult, movesWithResults);
 				} else {
 					if (movesWithResults.size() == expectedResults) {
 						partialResult.searchCompleted();
-						join(partialResult, movesWithResults);
+						join(currentPlayer, partialResult, movesWithResults);
 					}
 				}
 			}
@@ -190,21 +190,8 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		return treeSearch;
 	}
 
-	private synchronized void join(AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults) {
-		maybeConsumeResult(join(strategy, parentMove, position, player, partialResult, movesWithResults));
-	}
-
-	public static <M, P extends IPosition<M, P>> MoveWithResult<M> join(IDepthBasedStrategy<M, P> strategy, M parentMove, P position, int player, AnalysisResult<M> partialResult,
-			List<MoveWithResult<M>> movesWithResults) {
-		for (MoveWithResult<M> moveWithResult : movesWithResults) {
-			strategy.notifyJoined(position, moveWithResult.move);
-			// Player and position come from the parent game tree search, so we are looking for the min for the current player
-			MoveWithScore<M> moveWithScore = player == position.getCurrentPlayer() ? moveWithResult.result.getMin() : moveWithResult.result.getMax();
-			if (moveWithScore == null) {
-				continue;
-			}
-			partialResult.addMoveWithScore(moveWithResult.move, moveWithScore.isDraw ? AnalysisResult.DRAW : moveWithScore.score, moveWithResult.result.isSeachComplete());
-		}
-		return new MoveWithResult<>(parentMove, partialResult);
+	private synchronized void join(int currentPlayer, AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults) {
+		strategy.join(position, player, currentPlayer, partialResult, movesWithResults);
+		maybeConsumeResult(new MoveWithResult<>(parentMove, partialResult));
 	}
 }

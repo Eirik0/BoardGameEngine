@@ -50,7 +50,7 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 			if (AnalysisResult.isGreater(score, alpha)) {
 				alpha = score;
 				if (!AnalysisResult.isGreater(beta, alpha)) { // alpha >= beta
-					break;
+					return max ? beta : -beta;
 				}
 			}
 			++i;

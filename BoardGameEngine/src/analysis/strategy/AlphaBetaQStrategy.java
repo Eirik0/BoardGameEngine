@@ -26,20 +26,22 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 
 		MoveList<M> possibleMoves = getMoveList(ply);
 		position.getPossibleMoves(possibleMoves);
-		int numMoves = quiescent ? possibleMoves.numDynamicMoves() : possibleMoves.size();
+		int numDynamicMoves = possibleMoves.numDynamicMoves();
+		int numMoves = quiescent ? numDynamicMoves : possibleMoves.size();
 
 		if (numMoves == 0 || ply == maxPly || quiescent) {
 			double eval = positionEvaluator.evaluate(position, possibleMoves, player);
-			if (possibleMoves.numDynamicMoves() == 0) {
+			if (numDynamicMoves == 0) {
 				return eval;
 			}
 			double score = max ? eval : -eval;
 			if (!AnalysisResult.isGreater(beta, score)) { // score >= beta
-				return beta;
+				return max ? beta : -beta;
 			}
 			if (AnalysisResult.isGreater(score, alpha)) {
 				alpha = score;
 			}
+			numMoves = numDynamicMoves;
 			quiescent = true;
 			++maxPly;
 		}
@@ -62,7 +64,7 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 			if (AnalysisResult.isGreater(score, alpha)) {
 				alpha = score;
 				if (!AnalysisResult.isGreater(beta, alpha)) { // alpha >= beta
-					break;
+					return max ? beta : -beta;
 				}
 			}
 			++i;
@@ -73,6 +75,6 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 
 	@Override
 	public IDepthBasedStrategy<M, P> createCopy() {
-		return new AlphaBetaStrategy<>(moveListFactory, positionEvaluator);
+		return new AlphaBetaQStrategy<>(moveListFactory, positionEvaluator);
 	}
 }

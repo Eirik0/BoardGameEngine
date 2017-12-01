@@ -1,6 +1,10 @@
 package analysis.strategy;
 
+import java.util.List;
+
 import analysis.AnalysisResult;
+import analysis.MoveWithScore;
+import analysis.search.MoveWithResult;
 import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
@@ -44,8 +48,15 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 	}
 
 	@Override
-	public void notifyJoined(P parentPosition, M moves) {
-		// do nothing by default
+	public void join(P parentPosition, int parentPlayer, int currentPlayer, AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults) {
+		for (MoveWithResult<M> moveWithResult : movesWithResults) {
+			// Player and position come from the parent game tree search, so we are looking for the min for the current player
+			MoveWithScore<M> moveWithScore = parentPlayer == currentPlayer ? moveWithResult.result.getMax() : moveWithResult.result.getMin();
+			if (moveWithScore == null) {
+				continue;
+			}
+			partialResult.addMoveWithScore(moveWithResult.move, moveWithScore.isDraw ? AnalysisResult.DRAW : moveWithScore.score, moveWithResult.result.isSeachComplete());
+		}
 	}
 
 	@Override
