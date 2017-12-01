@@ -3,6 +3,7 @@ package game.forkjoinexample;
 import java.util.List;
 
 import analysis.AnalysisResult;
+import analysis.MoveWithScore;
 import analysis.search.MoveWithResult;
 import analysis.strategy.AbstractDepthBasedStrategy;
 import analysis.strategy.IDepthBasedStrategy;
@@ -75,7 +76,11 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 			List<MoveWithResult<ForkJoinExampleNode>> movesWithResults) {
 		for (MoveWithResult<ForkJoinExampleNode> moveWithResult : movesWithResults) {
 			ForkJoinExampleThreadTracker.branchVisited(parentPosition.getCurrentNode(), moveWithResult.move, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
-			partialResult.addMoveWithScore(moveWithResult.move, moveWithResult.result.getMax().score);
+			MoveWithScore<ForkJoinExampleNode> moveWithScore = moveWithResult.result.getMax();
+			if (moveWithScore == null) {
+				continue;
+			}
+			partialResult.addMoveWithScore(moveWithResult.move, moveWithScore.score);
 		}
 		ForkJoinExampleThreadTracker.setJoined(parentPosition.getCurrentNode());
 	}

@@ -13,6 +13,7 @@ public class AnalysisResult<M> {
 	public static final double DRAW = Double.NaN;
 
 	private final List<MoveWithScore<M>> movesWithScore = new ArrayList<>();
+	private volatile int numDecided = 0;
 
 	private MoveWithScore<M> min;
 	private MoveWithScore<M> max;
@@ -34,6 +35,9 @@ public class AnalysisResult<M> {
 		MoveWithScore<M> moveWithScore = new MoveWithScore<>(move, score, isValid);
 		movesWithScore.add(moveWithScore);
 		if (isValid) {
+			if (isGameOver(score)) {
+				++numDecided;
+			}
 			if (min == null || score < min.score || (moveWithScore.isDraw && min.score > 0) || (min.isDraw && moveWithScore.score <= 0)) {
 				min = moveWithScore;
 			}
@@ -96,6 +100,10 @@ public class AnalysisResult<M> {
 		return max != null && max.isDraw;
 	}
 
+	public synchronized int getNumDecided() {
+		return numDecided;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -116,5 +124,9 @@ public class AnalysisResult<M> {
 
 	public static boolean isDraw(double d) {
 		return d != d;
+	}
+
+	private static boolean isGameOver(double d) {
+		return Double.isInfinite(d) || isDraw(d);
 	}
 }

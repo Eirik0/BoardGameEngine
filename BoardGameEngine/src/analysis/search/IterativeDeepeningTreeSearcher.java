@@ -45,14 +45,14 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		}
 	}
 
-	public void searchForever(P position) {
-		searchForever(position, Integer.MAX_VALUE);
+	public void searchForever(P position, boolean escapeEarly) {
+		searchForever(position, Integer.MAX_VALUE, escapeEarly);
 	}
 
-	public void searchForever(P position, int maxPlies) {
+	public void searchForever(P position, int maxPlies, boolean escapeEarly) {
 		searchStopped = true;
 		searchComplete = false;
-		treeSearchThread = new Thread(() -> startSearch(position, maxPlies), "Tree_Search_Thread_" + ThreadNumber.getThreadNum(getClass()));
+		treeSearchThread = new Thread(() -> startSearch(position, maxPlies, escapeEarly), "Tree_Search_Thread_" + ThreadNumber.getThreadNum(getClass()));
 		treeSearchThread.start();
 		synchronized (searchStartedLock) {
 			while (searchStopped && !searchComplete) {
@@ -65,7 +65,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		}
 	}
 
-	public AnalysisResult<M> startSearch(P position, int maxPlies) {
+	public AnalysisResult<M> startSearch(P position, int maxPlies, boolean escapeEarly) {
 		synchronized (searchStartedLock) {
 			searchStopped = false;
 			searchStartedLock.notify();
@@ -80,11 +80,15 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			if (searchStopped && result != null) { // merge only when the search is stopped
 				result.mergeWith(search);
 			} else {
+				if (escapeEarly && search.isLoss() && result != null) {
+					break; // return the previous result if the current is a loss for longevity
+				}
 				result = search;
 			}
 			strategy.notifyPlyComplete(searchStopped);
-			if (result.isWin() || result.isLoss() || result.isDraw()) {
-				break; // no need to keep looking if the game is decided
+			if (escapeEarly && (result.isWin() || result.isDraw() || result.getMovesWithScore().size() == result.getNumDecided() + 1)
+					|| (result.getMovesWithScore().size() == result.getNumDecided())) {
+				break; // when escaping early, break if the game is won, drawn, or there is only one move; of if all moves are decided
 			}
 		} while (!searchStopped && plies < maxPlies);
 
@@ -165,6 +169,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			}
 		});
 
+		// Always fork once so we can keep track of the searches in progress
 		if (rootTreeSearch.getPlies() > 0 && rootTreeSearch.getRemainingBranches() > 0) {
 			List<GameTreeSearch<M, P>> fork = rootTreeSearch.fork();
 			treeSearchesToAnalyze.addAll(fork);
@@ -175,7 +180,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		}
 
 		int removeIndex = 0;
-		while (availableWorkers.size() > treeSearchesToAnalyze.size() && removeIndex < treeSearchesToAnalyze.size()) {
+		while (availableWorkers.size() > treeSearchesToAnalyze.size() && removeIndex < treeSearchesToAnalyze.size() && !searchStopped) {
 			GameTreeSearch<M, P> treeSearch = treeSearchesToAnalyze.get(removeIndex);
 			if (treeSearch.getPlies() > 0 && treeSearch.getRemainingBranches() > 0) {
 				treeSearchesToAnalyze.addAll(treeSearchesToAnalyze.remove(removeIndex).fork());
@@ -183,6 +188,10 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			} else {
 				++removeIndex;
 			}
+		}
+
+		if (searchStopped) {
+			return new AnalysisResult<>();
 		}
 
 		synchronized (this) { // To prevent workers from completing before we have finished assigning work

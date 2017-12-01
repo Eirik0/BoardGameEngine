@@ -17,7 +17,7 @@ public class IterativeDeepeningTreeSearcherTest {
 		IterativeDeepeningTreeSearcher<Coordinate, UltimateTicTacToePosition> iterativeDeepeningStrategy = new IterativeDeepeningTreeSearcher<>(minimaxStrategy,
 				moveListFactory, numThreads);
 
-		iterativeDeepeningStrategy.searchForever(new UltimateTicTacToePosition());
+		iterativeDeepeningStrategy.searchForever(new UltimateTicTacToePosition(), true);
 		Thread.sleep(50);
 		iterativeDeepeningStrategy.stopSearch(true);
 		AnalysisResult<Coordinate> result = iterativeDeepeningStrategy.getResult();
@@ -72,7 +72,7 @@ public class IterativeDeepeningTreeSearcherTest {
 				moveListFactory, numThreads);
 
 		long start = System.currentTimeMillis();
-		iterativeDeepeningSearcher.startSearch(new UltimateTicTacToePosition(), numPlies);
+		iterativeDeepeningSearcher.startSearch(new UltimateTicTacToePosition(), numPlies, true);
 		System.out.println(numThreads + " workers " + numPlies + " plies in " + (System.currentTimeMillis() - start) + "ms");
 		iterativeDeepeningSearcher.stopSearch(true);
 	}

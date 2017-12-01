@@ -21,8 +21,8 @@ public class ComputerPlayerTest {
 	public void testDoNotWaitForAMoveIfFInishedSearching() throws InterruptedException {
 		TicTacToeGame game = new TicTacToeGame();
 		MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(TicTacToeGame.MAX_MOVES);
-		ComputerPlayer player = new ComputerPlayer("MinMax", new MinimaxStrategy<>(moveListFactory, new TicTacToePositionEvaluator()), moveListFactory, 2, 500);
-		GameRunner<Coordinate, TicTacToePosition> gameRunner = new GameRunner<>(game, new GameObserver(), moveListFactory);
+		ComputerPlayer player = new ComputerPlayer("MinMax", new MinimaxStrategy<>(moveListFactory, new TicTacToePositionEvaluator()), moveListFactory, 2, 500, true);
+		GameRunner<Coordinate, TicTacToePosition> gameRunner = new GameRunner<>(game, new GameObserver<>(), moveListFactory);
 		for (int i = 0; i < 100; ++i) {
 			gameRunner.startNewGame(Arrays.asList(player, player));
 			int sleep = new Random().nextInt(1000); // To reset the game randomly

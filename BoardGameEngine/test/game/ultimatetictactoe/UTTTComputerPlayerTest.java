@@ -51,6 +51,6 @@ public class UTTTComputerPlayerTest {
 
 	private static ComputerPlayer newComputerPlayer(int numWorkers, long toWait) {
 		MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
-		return new ComputerPlayer("MinMax", new MinimaxStrategy<>(moveListFactory, new UltimateTicTacToePositionEvaluator()), moveListFactory, numWorkers, toWait);
+		return new ComputerPlayer("MinMax", new MinimaxStrategy<>(moveListFactory, new UltimateTicTacToePositionEvaluator()), moveListFactory, numWorkers, toWait, true);
 	}
 }

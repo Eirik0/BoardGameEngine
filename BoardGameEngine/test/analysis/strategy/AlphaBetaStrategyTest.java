@@ -27,10 +27,10 @@ public class AlphaBetaStrategyTest {
 
 		for (int plies = 0; plies < 7; ++plies) {
 			long start1 = System.currentTimeMillis();
-			AnalysisResult<Coordinate> minmaxResult = minmaxSearcher.startSearch(position, plies);
+			AnalysisResult<Coordinate> minmaxResult = minmaxSearcher.startSearch(position, plies, true);
 			long minmaxTime = System.currentTimeMillis() - start1;
 			long start2 = System.currentTimeMillis();
-			AnalysisResult<Coordinate> alphaBetaResult = alphabetaSearcher.startSearch(position, plies);
+			AnalysisResult<Coordinate> alphaBetaResult = alphabetaSearcher.startSearch(position, plies, true);
 			long alphaBetaTime = System.currentTimeMillis() - start2;
 			System.out.println("MM: " + minmaxTime + "ms, AB: " + alphaBetaTime + "ms, depth: " + plies + ", " + minmaxResult.getBestMove() + ": " + minmaxResult.getMax());
 			assertEquals("Comparing score " + plies, minmaxResult.getMax().score, alphaBetaResult.getMax().score, 0.000000001);

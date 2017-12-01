@@ -118,7 +118,7 @@ public class GameRegistry {
 		}
 
 		public GameRegistryItem<M, P> registerComputer(long defaultMsPerMove, int maxWorkers) {
-			playerMap.put(ComputerPlayer.NAME, info -> new ComputerPlayer(info.strategyName, info.strategySupplier.get(), moveListFactory, info.numWorkers, info.msPerMove));
+			playerMap.put(ComputerPlayer.NAME, info -> new ComputerPlayer(info.strategyName, info.strategySupplier.get(), moveListFactory, info.numWorkers, info.msPerMove, !info.infiniteTimeOnly));
 			this.defaultMsPerMove = defaultMsPerMove;
 			this.maxWorkers = maxWorkers;
 			return this;

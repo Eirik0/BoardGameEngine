@@ -19,22 +19,24 @@ public class ComputerPlayer implements IPlayer {
 	private final IterativeDeepeningTreeSearcher<?, ?> treeSearcher;
 	private final int numWorkers;
 	private final long msPerMove;
+	private final boolean escapeEarly;
 
 	private volatile boolean keepSearching = true;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ComputerPlayer(String strategyName, IDepthBasedStrategy<?, ?> strategy, MoveListFactory<?> moveListFactory, int numWorkers, long msPerMove) {
+	public ComputerPlayer(String strategyName, IDepthBasedStrategy<?, ?> strategy, MoveListFactory<?> moveListFactory, int numWorkers, long msPerMove, boolean escapeEarly) {
 		this.strategyName = strategyName;
 		treeSearcher = new IterativeDeepeningTreeSearcher(strategy, moveListFactory, numWorkers);
 		this.numWorkers = numWorkers;
 		this.msPerMove = msPerMove;
+		this.escapeEarly = escapeEarly;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized <M, P extends IPosition<M, P>> M getMove(P position) {
 		long start = System.currentTimeMillis();
-		((IterativeDeepeningTreeSearcher<M, P>) treeSearcher).searchForever(position);
+		((IterativeDeepeningTreeSearcher<M, P>) treeSearcher).searchForever(position, escapeEarly);
 		keepSearching = true;
 		while (treeSearcher.isSearching() && keepSearching && msPerMove > System.currentTimeMillis() - start) {
 			try {

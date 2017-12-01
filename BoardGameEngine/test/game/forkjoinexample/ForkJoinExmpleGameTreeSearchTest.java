@@ -41,7 +41,7 @@ public class ForkJoinExmpleGameTreeSearchTest {
 				moveListFactory, numWorkers);
 		ForkJoinExampleTree position = new ForkJoinExampleTree(treeDepth, branchingFactor);
 		ForkJoinExampleThreadTracker.init(position);
-		treeSearcher.startSearch(position, searchDepth);
+		treeSearcher.startSearch(position, searchDepth, false);
 		List<ForkJoinExampleNode> nodesByDepth = ForkJoinExampleThreadTracker.nodesByDepth().get(searchDepth);
 		assertEquals(expectedNodes, nodesByDepth.size());
 		Set<String> threadNames = new HashSet<>();
