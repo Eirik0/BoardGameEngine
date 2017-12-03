@@ -32,6 +32,7 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 			return positionEvaluator.evaluate(position, possibleMoves, player);
 		}
 
+		double bestScore = Double.NEGATIVE_INFINITY;
 		M move;
 		int i = 0;
 		do {
@@ -47,16 +48,19 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 
 			position.unmakeMove(move);
 
-			if (AnalysisResult.isGreater(score, alpha)) {
-				alpha = score;
-				if (!AnalysisResult.isGreater(beta, alpha)) { // alpha >= beta
-					return max ? beta : -beta;
+			if (!AnalysisResult.isGreater(bestScore, score)) {
+				bestScore = score;
+				if (!AnalysisResult.isGreater(beta, bestScore)) { // alpha >= beta (fail-soft)
+					break;
+				}
+				if (AnalysisResult.isGreater(score, alpha)) {
+					alpha = score;
 				}
 			}
 			++i;
 		} while (i < numMoves);
 
-		return max ? alpha : -alpha;
+		return max ? bestScore : -bestScore;
 	}
 
 	@Override

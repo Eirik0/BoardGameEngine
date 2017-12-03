@@ -46,6 +46,7 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 			++maxPly;
 		}
 
+		double bestScore = Double.NEGATIVE_INFINITY;
 		M move;
 		int i = 0;
 		do {
@@ -61,16 +62,19 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 
 			position.unmakeMove(move);
 
-			if (AnalysisResult.isGreater(score, alpha)) {
-				alpha = score;
-				if (!AnalysisResult.isGreater(beta, alpha)) { // alpha >= beta
-					return max ? beta : -beta;
+			if (!AnalysisResult.isGreater(bestScore, score)) {
+				bestScore = score;
+				if (!AnalysisResult.isGreater(beta, bestScore)) { // alpha >= beta
+					break; // (fail-soft)
+				}
+				if (AnalysisResult.isGreater(score, alpha)) {
+					alpha = score;
 				}
 			}
 			++i;
 		} while (i < numMoves);
 
-		return max ? alpha : -alpha;
+		return max ? bestScore : -bestScore;
 	}
 
 	@Override
