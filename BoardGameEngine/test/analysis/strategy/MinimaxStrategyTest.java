@@ -169,7 +169,7 @@ public class MinimaxStrategyTest {
 		while (i < possibleMoves.size()) {
 			TestGameNode move = possibleMoves.get(i);
 			testGamePosition.makeMove(move);
-			results.add(new MoveWithResult<>(move, negateResults(search(minimaxStrategy, testGamePosition, 3))));
+			results.add(new MoveWithResult<>(move, search(minimaxStrategy, testGamePosition, 3)));
 			testGamePosition.unmakeMove(move);
 			++i;
 		}
@@ -207,7 +207,7 @@ public class MinimaxStrategyTest {
 		while (i < possibleMoves.size()) {
 			TestGameNode move = possibleMoves.get(i);
 			testGamePosition.makeMove(move);
-			results.add(new MoveWithResult<>(move, negateResults(search(minimaxStrategy, testGamePosition, 3))));
+			results.add(new MoveWithResult<>(move, search(minimaxStrategy, testGamePosition, 3)));
 			testGamePosition.unmakeMove(move);
 			++i;
 		}
@@ -216,13 +216,5 @@ public class MinimaxStrategyTest {
 		minimaxStrategy.join(testGamePosition, 0, 1, partialResult, secondResult);
 		assertEquals("-1 -> [6, 5]: 25.0\n"
 				+ "-2 -> [4, 3]: 17.0", partialResult.toString());
-	}
-
-	private static <M> AnalysisResult<M> negateResults(AnalysisResult<M> results) {
-		AnalysisResult<M> negated = new AnalysisResult<>();
-		for (MoveWithScore<M> moveWithScore : results.getMovesWithScore()) {
-			negated.addMoveWithScore(moveWithScore.move, -moveWithScore.score);
-		}
-		return negated;
 	}
 }

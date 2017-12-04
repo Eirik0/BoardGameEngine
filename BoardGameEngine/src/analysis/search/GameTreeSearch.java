@@ -16,10 +16,10 @@ import game.MoveListFactory;
 public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	public final M parentMove;
 	private final P position;
+	public final int player;
 	private MoveListFactory<M> moveListFactory;
 	private final MoveList<M> possibleMoves;
 	private AtomicInteger branchIndex;
-	private final int player;
 	private final int plies;
 
 	private final IDepthBasedStrategy<M, P> strategy;
@@ -33,18 +33,18 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private final AtomicBoolean consumedResult = new AtomicBoolean(false);
 
 	public GameTreeSearch(M parentMove, P position, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy, Consumer<MoveWithResult<M>> resultConsumer) {
-		this(parentMove, position, moveListFactory, position.getCurrentPlayer(), plies, strategy);
+		this(parentMove, position, moveListFactory, plies, strategy);
 		setResultConsumer(resultConsumer);
 	}
 
-	private GameTreeSearch(M parentMove, P position, MoveListFactory<M> moveListFactory, int player, int plies, IDepthBasedStrategy<M, P> strategy) {
+	private GameTreeSearch(M parentMove, P position, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
 		this.parentMove = parentMove;
 		this.position = position.createCopy();
+		this.player = this.position.getCurrentPlayer();
 		this.moveListFactory = moveListFactory;
 		possibleMoves = moveListFactory.newAnalysisMoveList();
 		this.position.getPossibleMoves(possibleMoves);
 		branchIndex = new AtomicInteger(0);
-		this.player = player;
 		this.plies = plies;
 		this.strategy = strategy.createCopy();
 	}
@@ -57,8 +57,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		searchStarted = true;
 		consumedResult.set(false);
 		if (plies == 0 || possibleMoves.size() == 0) {
-			double evaluate = strategy.evaluate(position, plies);
-			result = new AnalysisResult<>(parentMove, player == position.getCurrentPlayer() ? evaluate : -evaluate);
+			result = new AnalysisResult<>(parentMove, strategy.evaluate(position, plies));
 			result.searchCompleted();
 			maybeConsumeResult(new MoveWithResult<>(parentMove, result));
 		} else {
@@ -79,6 +78,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 				return analysisResult;
 			}
 			position.makeMove(move);
+			strategy.preSearch(analysisResult, player == position.getCurrentPlayer());
 			double evaluate = strategy.evaluate(position, plies - 1);
 			double score = searchCanceled ? 0 : player == position.getCurrentPlayer() ? evaluate : -evaluate;
 			position.unmakeMove(move);
@@ -140,8 +140,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		} else {
 			unanalyzedMoves = possibleMoves;
 			if (possibleMoves.size() == 0) {
-				double evaluate = strategy.evaluate(position, plies);
-				result = new AnalysisResult<>(parentMove, player == position.getCurrentPlayer() ? evaluate : -evaluate);
+				result = new AnalysisResult<>(parentMove, strategy.evaluate(position, plies));
 			} else {
 				result = new AnalysisResult<>();
 			}
@@ -174,8 +173,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	}
 
 	private GameTreeSearch<M, P> createFork(M move, AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults, int expectedResults) {
-		GameTreeSearch<M, P> treeSearch = new GameTreeSearch<>(move, position, moveListFactory, player, plies - 1, strategy);
-		int currentPlayer = position.getCurrentPlayer();
+		GameTreeSearch<M, P> treeSearch = new GameTreeSearch<>(move, position, moveListFactory, plies - 1, strategy);
 		treeSearch.setResultConsumer(moveWithResult -> {
 			if (consumedResult.get()) {
 				return;
@@ -183,13 +181,13 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			synchronized (this) {
 				movesWithResults.add(moveWithResult);
 				if (treeSearch.searchCanceled && !treeSearch.forked) {
-					join(currentPlayer, partialResult, movesWithResults);
+					join(treeSearch.player, partialResult, movesWithResults);
 				} else if (!moveWithResult.result.isSeachComplete()) {
-					join(currentPlayer, partialResult, movesWithResults);
+					join(treeSearch.player, partialResult, movesWithResults);
 				} else {
 					if (movesWithResults.size() == expectedResults) {
 						partialResult.searchCompleted();
-						join(currentPlayer, partialResult, movesWithResults);
+						join(treeSearch.player, partialResult, movesWithResults);
 					}
 				}
 			}

@@ -9,14 +9,21 @@ import game.MoveListFactory;
 public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
 	private final IPositionEvaluator<M, P> positionEvaluator;
 
+	private AlphaBetaPreSearch preSearch = new AlphaBetaPreSearch(new AnalysisResult<>(), true);
+
 	public AlphaBetaQStrategy(MoveListFactory<M> moveListFactory, IPositionEvaluator<M, P> positionEvaluator) {
 		super(moveListFactory);
 		this.positionEvaluator = positionEvaluator;
 	}
 
 	@Override
+	public void preSearch(AnalysisResult<M> currentResult, boolean isCurrentPlayer) {
+		preSearch = new AlphaBetaPreSearch(currentResult, isCurrentPlayer);
+	}
+
+	@Override
 	public double evaluate(P position, int plies) {
-		return alphaBeta(position, 0, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false);
+		return alphaBeta(position, 0, plies, preSearch.alpha, preSearch.beta, false);
 	}
 
 	private double alphaBeta(P position, int ply, int maxPly, double alpha, double beta, boolean quiescent) {

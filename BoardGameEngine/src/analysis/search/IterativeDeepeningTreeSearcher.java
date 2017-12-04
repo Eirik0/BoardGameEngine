@@ -1,7 +1,6 @@
 package analysis.search;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 
 	private int plies = 0;
 	private volatile AnalysisResult<M> result;
-	private List<GameTreeSearch<M, P>> rootSearches = null;
+	private TreeSearchRoot<M, P> treeSearchRoot = new TreeSearchRoot<>();
 
 	public IterativeDeepeningTreeSearcher(IDepthBasedStrategy<M, P> strategy, MoveListFactory<M> moveListFactory, int numWorkers) {
 		this.strategy = strategy;
@@ -106,7 +105,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 
 	public void clearResult() {
 		result = null;
-		rootSearches = null;
+		treeSearchRoot.clear();
 	}
 
 	public void stopSearch(boolean joinWorkerThreads) {
@@ -142,20 +141,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	}
 
 	public List<MoveWithScore<M>> getPartialResult() {
-		if (rootSearches == null) {
-			return null;
-		}
-		List<MoveWithScore<M>> movesWithScore = new ArrayList<>();
-		for (GameTreeSearch<M, P> rootSearch : rootSearches) {
-			AnalysisResult<M> partialResult = rootSearch.getResult();
-			if (partialResult != null && partialResult.isSeachComplete()) {
-				MoveWithScore<M> min = partialResult.getMin();
-				if (min != null) {
-					movesWithScore.add(new MoveWithScore<>(rootSearch.parentMove, min.score));
-				}
-			}
-		}
-		return movesWithScore;
+		return treeSearchRoot.getPartialResult();
 	}
 
 	private AnalysisResult<M> search(P position, int plies) {
@@ -169,15 +155,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			}
 		});
 
-		// Always fork once so we can keep track of the searches in progress
-		if (rootTreeSearch.getPlies() > 0 && rootTreeSearch.getRemainingBranches() > 0) {
-			List<GameTreeSearch<M, P>> fork = rootTreeSearch.fork();
-			treeSearchesToAnalyze.addAll(fork);
-			rootSearches = new ArrayList<>(fork);
-		} else {
-			treeSearchesToAnalyze.add(rootTreeSearch);
-			rootSearches = Collections.singletonList(rootTreeSearch);
-		}
+		treeSearchRoot = new TreeSearchRoot<>(rootTreeSearch);
+		treeSearchesToAnalyze.addAll(treeSearchRoot.getBranches());
 
 		int removeIndex = 0;
 		while (availableWorkers.size() > treeSearchesToAnalyze.size() && removeIndex < treeSearchesToAnalyze.size() && !searchStopped) {

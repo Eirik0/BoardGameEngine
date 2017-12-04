@@ -164,7 +164,7 @@ public class BoardGameEngineMain {
 				.registerMinimaxStrategies(new GomokuPositionEvaluator());
 
 		GameRegistry.registerGame(new SudokuGame(), SudokuGameRenderer.class)
-				.registerComputer(15000, defaultMaxWorkers)
+				.registerComputer(5000, defaultMaxWorkers)
 				.registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(GameRegistry.getMoveListFactory(SudokuGame.NAME), new SudokuPositionEvaluator()));
 
 		GameRegistry.registerGame(new ForkJoinExampleGame(), ForkJoinExampleGameRenderer.class)

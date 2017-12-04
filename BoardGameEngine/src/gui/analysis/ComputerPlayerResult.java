@@ -14,7 +14,7 @@ public class ComputerPlayerResult {
 	final int depth;
 
 	public ComputerPlayerResult(AnalysisResult<Object> analysisResult, List<MoveWithScore<Object>> partialResults, int depth) {
-		if (analysisResult == null && partialResults == null) {
+		if (analysisResult == null && partialResults.size() ==0) {
 			moves = null;
 		} else {
 			Map<String, ObservedMoveWithScore> moveMap = new HashMap<>();
