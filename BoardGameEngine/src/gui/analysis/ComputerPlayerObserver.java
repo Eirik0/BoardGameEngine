@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.util.List;
 import java.util.function.Consumer;
 
+import analysis.AnalysisResult;
 import analysis.ComputerPlayer;
 import analysis.search.ThreadNumber;
 import game.TwoPlayers;
@@ -59,13 +60,23 @@ public class ComputerPlayerObserver implements DrawingMethods {
 			int y = startY + i * stringHeight;
 			ObservedMoveWithScore moveWithScore = currentMoves.get(i);
 			graphics.setColor(moveWithScore.isPartial ? BoardGameEngineMain.FOREGROUND_COLOR : BoardGameEngineMain.LIGHTER_FOREGROUND_COLOR);
-			String indexString = i < 9 ? (i + 1) + ".   " : (i + 1) + ". ";
-			double playerScore = (playerNum == TwoPlayers.PLAYER_1 ? moveWithScore.score : -moveWithScore.score) + 0.0;
-			String scoreString = Double.isFinite(playerScore) ? String.format("(%.2f)", playerScore) : "(" + playerScore + ")";
-			graphics.drawString(indexString, 20, y);
-			graphics.drawString(String.format("%-13s", scoreString), 45, y);
+			graphics.drawString(i < 9 ? (i + 1) + ".   " : (i + 1) + ". ", 20, y);
+			graphics.drawString(String.format("%-13s", getScoreString(moveWithScore.score, playerNum == TwoPlayers.PLAYER_1)), 45, y);
 			graphics.drawString(moveWithScore.move.toString(), 100, y);
 			++i;
+		}
+	}
+
+	private static String getScoreString(double score, boolean isPlayerOne) {
+		if (AnalysisResult.isDraw(score)) {
+			return "(Draw)";
+		} else if (AnalysisResult.WIN == score) {
+			return "(Win)";
+		} else if (AnalysisResult.LOSS == score) {
+			return "(Loss)";
+		} else {
+			double playerScore = (isPlayerOne ? score : -score) + 0.0; // -0.0 + 0.0 = 0.0
+			return String.format("(%.2f)", playerScore);
 		}
 	}
 

@@ -27,7 +27,7 @@ public class GameTreeSearchTest {
 		MoveListFactory<TestGameNode> moveListFactory = new MoveListFactory<>(2);
 		MinimaxStrategy<TestGameNode, TestGamePosition> strategy = new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator());
 		List<AnalysisResult<TestGameNode>> results = new ArrayList<>();
-		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = new GameTreeSearch<>(null, position, moveListFactory, 0, 1, strategy,
+		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = new GameTreeSearch<>(null, position, moveListFactory, 1, strategy,
 				moveWithResult -> results.add(moveWithResult.result));
 		treeSearch.search();
 		assertEquals(1, results.size());
@@ -44,7 +44,7 @@ public class GameTreeSearchTest {
 		MoveListFactory<TestLockingNode> moveListFactory = new MoveListFactory<>(3);
 		MinimaxStrategy<TestLockingNode, TestLockingPosition> strategy = new MinimaxStrategy<>(moveListFactory, new TestLockingEvaluator());
 		List<AnalysisResult<TestLockingNode>> results = new ArrayList<>();
-		GameTreeSearch<TestLockingNode, TestLockingPosition> treeSearch = new GameTreeSearch<>(null, testUnlockedLockingPosition, moveListFactory, 0, 1, strategy,
+		GameTreeSearch<TestLockingNode, TestLockingPosition> treeSearch = new GameTreeSearch<>(null, testUnlockedLockingPosition, moveListFactory, 1, strategy,
 				moveWithResult -> results.add(moveWithResult.result));
 
 		List<GameTreeSearch<TestLockingNode, TestLockingPosition>> trees = treeSearch.fork();
@@ -66,7 +66,7 @@ public class GameTreeSearchTest {
 		MoveListFactory<TestLockingNode> moveListFactory = new MoveListFactory<>(2);
 		MinimaxStrategy<TestLockingNode, TestLockingPosition> strategy = new MinimaxStrategy<>(moveListFactory, new TestLockingEvaluator());
 		List<AnalysisResult<TestLockingNode>> results = new ArrayList<>();
-		GameTreeSearch<TestLockingNode, TestLockingPosition> treeSearch = new GameTreeSearch<>(null, testUnlockedLockingPosition, moveListFactory, 0, 1, strategy,
+		GameTreeSearch<TestLockingNode, TestLockingPosition> treeSearch = new GameTreeSearch<>(null, testUnlockedLockingPosition, moveListFactory, 1, strategy,
 				moveWithResult -> results.add(moveWithResult.result));
 
 		List<GameTreeSearch<TestLockingNode, TestLockingPosition>> treeSearches = treeSearch.fork();
@@ -90,7 +90,7 @@ public class GameTreeSearchTest {
 		MoveListFactory<TestLockingNode> moveListFactory = new MoveListFactory<>(3);
 		MinimaxStrategy<TestLockingNode, TestLockingPosition> strategy = new MinimaxStrategy<>(moveListFactory, new TestLockingEvaluator());
 		List<AnalysisResult<TestLockingNode>> results = new ArrayList<>();
-		GameTreeSearch<TestLockingNode, TestLockingPosition> treeSearch = new GameTreeSearch<>(null, testLockingPosition, moveListFactory, 0, 1, strategy,
+		GameTreeSearch<TestLockingNode, TestLockingPosition> treeSearch = new GameTreeSearch<>(null, testLockingPosition, moveListFactory, 1, strategy,
 				moveWithResult -> results.add(moveWithResult.result));
 
 		new Thread(() -> treeSearch.search()).start();
@@ -122,7 +122,7 @@ public class GameTreeSearchTest {
 		MoveListFactory<TestGameNode> moveListFactory = new MoveListFactory<>(2);
 		MinimaxStrategy<TestGameNode, TestGamePosition> strategy = new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator());
 		List<AnalysisResult<TestGameNode>> results = new ArrayList<>();
-		GameTreeSearch<TestGameNode, TestGamePosition> tree = new GameTreeSearch<>(null, position, moveListFactory, 0, 4, strategy,
+		GameTreeSearch<TestGameNode, TestGamePosition> tree = new GameTreeSearch<>(null, position, moveListFactory, 4, strategy,
 				moveWithResult -> results.add(moveWithResult.result));
 
 		List<GameTreeSearch<TestGameNode, TestGamePosition>> multiFork = new ArrayList<>();
@@ -151,7 +151,7 @@ public class GameTreeSearchTest {
 		MoveListFactory<TestLockingNode> moveListFactory = new MoveListFactory<>(3);
 		MinimaxStrategy<TestLockingNode, TestLockingPosition> strategy = new MinimaxStrategy<>(moveListFactory, new TestLockingEvaluator());
 		List<AnalysisResult<TestLockingNode>> results = new ArrayList<>();
-		GameTreeSearch<TestLockingNode, TestLockingPosition> treeSearch = new GameTreeSearch<>(null, testLockingPosition, moveListFactory, 0, 1, strategy,
+		GameTreeSearch<TestLockingNode, TestLockingPosition> treeSearch = new GameTreeSearch<>(null, testLockingPosition, moveListFactory, 1, strategy,
 				moveWithResult -> results.add(moveWithResult.result));
 		assertEquals(3, treeSearch.getRemainingBranches());
 	}
@@ -169,7 +169,7 @@ public class GameTreeSearchTest {
 		MoveListFactory<TestLockingNode> moveListFactory = new MoveListFactory<>(3);
 		MinimaxStrategy<TestLockingNode, TestLockingPosition> strategy = new MinimaxStrategy<>(moveListFactory, new TestLockingEvaluator());
 		List<AnalysisResult<TestLockingNode>> results = new ArrayList<>();
-		GameTreeSearch<TestLockingNode, TestLockingPosition> treeSearch = new GameTreeSearch<>(null, testLockingPosition, moveListFactory, 0, 1, strategy,
+		GameTreeSearch<TestLockingNode, TestLockingPosition> treeSearch = new GameTreeSearch<>(null, testLockingPosition, moveListFactory, 1, strategy,
 				moveWithResult -> results.add(moveWithResult.result));
 
 		new Thread(() -> treeSearch.search()).start();
@@ -192,7 +192,7 @@ public class GameTreeSearchTest {
 		MinimaxStrategy<TestGameNode, TestGamePosition> strategy = new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator());
 		List<AnalysisResult<TestGameNode>> results = new ArrayList<>();
 
-		GameTreeSearch<TestGameNode, TestGamePosition> tree = new GameTreeSearch<>(null, position, moveListFactory, 0, 3, strategy,
+		GameTreeSearch<TestGameNode, TestGamePosition> tree = new GameTreeSearch<>(null, position, moveListFactory, 3, strategy,
 				moveWithResult -> results.add(moveWithResult.result));
 
 		List<GameTreeSearch<TestGameNode, TestGamePosition>> fork = tree.fork();
@@ -220,7 +220,7 @@ public class GameTreeSearchTest {
 		MinimaxStrategy<TestGameNode, TestGamePosition> strategy = new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator());
 		List<AnalysisResult<TestGameNode>> results = new ArrayList<>();
 
-		GameTreeSearch<TestGameNode, TestGamePosition> tree = new GameTreeSearch<>(null, position, moveListFactory, 0, 4, strategy,
+		GameTreeSearch<TestGameNode, TestGamePosition> tree = new GameTreeSearch<>(null, position, moveListFactory, 4, strategy,
 				moveWithResult -> results.add(moveWithResult.result));
 
 		List<GameTreeSearch<TestGameNode, TestGamePosition>> fork = tree.fork();

@@ -76,7 +76,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		do {
 			++plies;
 			strategy.notifyPlyStarted(result);
-			AnalysisResult<M> search = search(position, position.getCurrentPlayer(), plies);
+			AnalysisResult<M> search = search(position, plies);
 			if (searchStopped && result != null) { // merge only when the search is stopped
 				result.mergeWith(search);
 			} else {
@@ -158,10 +158,10 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		return movesWithScore;
 	}
 
-	private AnalysisResult<M> search(P position, int player, int plies) {
+	private AnalysisResult<M> search(P position, int plies) {
 		BlockingQueue<AnalysisResult<M>> resultQueue = new SynchronousQueue<>();
 
-		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(null, position, moveListFactory, player, plies, strategy, moveResult -> {
+		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(null, position, moveListFactory, plies, strategy, moveResult -> {
 			try {
 				resultQueue.put(moveResult.result);
 			} catch (InterruptedException e) {

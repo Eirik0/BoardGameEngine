@@ -25,9 +25,9 @@ import game.value.TestGameNode;
 import game.value.TestGamePosition;
 
 public class MinimaxStrategyTest {
-	private synchronized <M, P extends IPosition<M, P>> AnalysisResult<M> search(MinimaxStrategy<M, P> minimaxStrategy, P testGamePosition, int currentPlayer, int plies) {
+	private synchronized <M, P extends IPosition<M, P>> AnalysisResult<M> search(MinimaxStrategy<M, P> minimaxStrategy, P testGamePosition, int plies) {
 		List<AnalysisResult<M>> result = new ArrayList<>();
-		GameTreeSearch<M, P> gameTreeSearch = new GameTreeSearch<>(null, testGamePosition, new MoveListFactory<>(2), currentPlayer, plies, minimaxStrategy, moveWithResult -> {
+		GameTreeSearch<M, P> gameTreeSearch = new GameTreeSearch<>(null, testGamePosition, new MoveListFactory<>(2), plies, minimaxStrategy, moveWithResult -> {
 			synchronized (this) {
 				result.add(moveWithResult.result);
 				notify();
@@ -49,7 +49,7 @@ public class MinimaxStrategyTest {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new MoveListFactory<>(2), new TestGameEvaluator());
 
-		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, testGamePosition.getCurrentPlayer(), 0);
+		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 0);
 
 		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
 		assertNull(result.getBestMove());
@@ -61,7 +61,7 @@ public class MinimaxStrategyTest {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new MoveListFactory<>(2), new TestGameEvaluator());
 
-		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, testGamePosition.getCurrentPlayer(), 1);
+		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 1);
 
 		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
 		assertEquals(-2, result.getBestMove().getValue());
@@ -74,7 +74,7 @@ public class MinimaxStrategyTest {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new MoveListFactory<>(2), new TestGameEvaluator());
 
-		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, testGamePosition.getCurrentPlayer(), 2);
+		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 2);
 
 		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
 		assertEquals(-1, result.getBestMove().getValue());
@@ -87,7 +87,7 @@ public class MinimaxStrategyTest {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new MoveListFactory<>(2), new TestGameEvaluator());
 
-		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, testGamePosition.getCurrentPlayer(), 3);
+		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 3);
 
 		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
 		assertEquals(-2, result.getBestMove().getValue());
@@ -100,7 +100,7 @@ public class MinimaxStrategyTest {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new MoveListFactory<>(2), new TestGameEvaluator());
 
-		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, testGamePosition.getCurrentPlayer(), 4);
+		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 4);
 
 		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
 		assertEquals(-1, result.getBestMove().getValue());
@@ -113,7 +113,7 @@ public class MinimaxStrategyTest {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new MoveListFactory<>(2), new TestGameEvaluator());
 
-		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, testGamePosition.getCurrentPlayer(), 5);
+		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 5);
 
 		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
 		assertEquals(-1, result.getBestMove().getValue());
@@ -133,7 +133,7 @@ public class MinimaxStrategyTest {
 
 		MinimaxStrategy<TestLockingNode, TestLockingPosition> minimaxStrategy = new MinimaxStrategy<>(new MoveListFactory<>(2), new TestLockingEvaluator());
 		List<AnalysisResult<TestLockingNode>> result = new ArrayList<>();
-		GameTreeSearch<TestLockingNode, TestLockingPosition> gameTreeSearch = new GameTreeSearch<>(null, testLockingPosition, new MoveListFactory<>(3), 0, 1, minimaxStrategy,
+		GameTreeSearch<TestLockingNode, TestLockingPosition> gameTreeSearch = new GameTreeSearch<>(null, testLockingPosition, new MoveListFactory<>(3), 1, minimaxStrategy,
 				moveWithResult -> result.add(moveWithResult.result));
 
 		Thread thread = new Thread(() -> gameTreeSearch.search());
@@ -169,7 +169,7 @@ public class MinimaxStrategyTest {
 		while (i < possibleMoves.size()) {
 			TestGameNode move = possibleMoves.get(i);
 			testGamePosition.makeMove(move);
-			results.add(new MoveWithResult<>(move, search(minimaxStrategy, testGamePosition, 0, 3)));
+			results.add(new MoveWithResult<>(move, negateResults(search(minimaxStrategy, testGamePosition, 3))));
 			testGamePosition.unmakeMove(move);
 			++i;
 		}
@@ -183,7 +183,7 @@ public class MinimaxStrategyTest {
 	public void testJoin_MovesWithScore() {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new MoveListFactory<>(2), new TestGameEvaluator());
-		List<MoveWithScore<TestGameNode>> movesWithScore = search(minimaxStrategy, testGamePosition, 0, 4).getMovesWithScore();
+		List<MoveWithScore<TestGameNode>> movesWithScore = search(minimaxStrategy, testGamePosition, 4).getMovesWithScore();
 		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>();
 		for (MoveWithScore<TestGameNode> moveWithScore : movesWithScore) {
 			partialResult.addMoveWithScore(moveWithScore.move, moveWithScore.score);
@@ -198,7 +198,7 @@ public class MinimaxStrategyTest {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new MoveListFactory<>(2), new TestGameEvaluator());
 
-		MoveWithScore<TestGameNode> moveWithScore = search(minimaxStrategy, testGamePosition, 0, 4).getMovesWithScore().get(0);
+		MoveWithScore<TestGameNode> moveWithScore = search(minimaxStrategy, testGamePosition, 4).getMovesWithScore().get(0);
 		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(moveWithScore.move, moveWithScore.score);
 		MoveList<TestGameNode> possibleMoves = new ArrayMoveList<>(2);
 		testGamePosition.getPossibleMoves(possibleMoves);
@@ -207,7 +207,7 @@ public class MinimaxStrategyTest {
 		while (i < possibleMoves.size()) {
 			TestGameNode move = possibleMoves.get(i);
 			testGamePosition.makeMove(move);
-			results.add(new MoveWithResult<>(move, search(minimaxStrategy, testGamePosition, 0, 3)));
+			results.add(new MoveWithResult<>(move, negateResults(search(minimaxStrategy, testGamePosition, 3))));
 			testGamePosition.unmakeMove(move);
 			++i;
 		}
@@ -216,5 +216,13 @@ public class MinimaxStrategyTest {
 		minimaxStrategy.join(testGamePosition, 0, 1, partialResult, secondResult);
 		assertEquals("-1 -> [6, 5]: 25.0\n"
 				+ "-2 -> [4, 3]: 17.0", partialResult.toString());
+	}
+
+	private static <M> AnalysisResult<M> negateResults(AnalysisResult<M> results) {
+		AnalysisResult<M> negated = new AnalysisResult<>();
+		for (MoveWithScore<M> moveWithScore : results.getMovesWithScore()) {
+			negated.addMoveWithScore(moveWithScore.move, -moveWithScore.score);
+		}
+		return negated;
 	}
 }

@@ -32,8 +32,8 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private volatile boolean forked = false;
 	private final AtomicBoolean consumedResult = new AtomicBoolean(false);
 
-	public GameTreeSearch(M parentMove, P position, MoveListFactory<M> moveListFactory, int player, int plies, IDepthBasedStrategy<M, P> strategy, Consumer<MoveWithResult<M>> resultConsumer) {
-		this(parentMove, position, moveListFactory, player, plies, strategy);
+	public GameTreeSearch(M parentMove, P position, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy, Consumer<MoveWithResult<M>> resultConsumer) {
+		this(parentMove, position, moveListFactory, position.getCurrentPlayer(), plies, strategy);
 		setResultConsumer(resultConsumer);
 	}
 

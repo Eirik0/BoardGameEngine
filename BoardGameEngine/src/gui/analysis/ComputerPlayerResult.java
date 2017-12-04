@@ -30,11 +30,10 @@ public class ComputerPlayerResult {
 			}
 			moves = new ArrayList<>(moveMap.values());
 			Collections.sort(moves, (move1, move2) -> {
-				int scoreCompare = Double.compare(move2.score, move1.score);
-				if (scoreCompare != 0) {
-					return scoreCompare;
+				if (move1.score == move2.score || (AnalysisResult.isDraw(move1.score) && AnalysisResult.isDraw(move2.score))) {
+					return move1.move.compareTo(move2.move);
 				}
-				return move1.move.compareTo(move2.move);
+				return AnalysisResult.isGreater(move1.score, move2.score) ? -1 : 1;
 			});
 		}
 		this.depth = depth;

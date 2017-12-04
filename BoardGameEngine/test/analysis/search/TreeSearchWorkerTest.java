@@ -17,16 +17,18 @@ import game.value.TestGamePosition;
 public class TreeSearchWorkerTest {
 	@Test
 	public void testJoinThread() {
-		TreeSearchWorker<TestGameNode, TestGamePosition> worker = new TreeSearchWorker<>("test", finishedWorker -> {});
+		TreeSearchWorker<TestGameNode, TestGamePosition> worker = new TreeSearchWorker<>("test", finishedWorker -> {
+		});
 		worker.joinThread();
 	}
 
 	@Test
 	public void testDoWork() throws InterruptedException {
 		BlockingQueue<AnalysisResult<TestGameNode>> resultQueue = new SynchronousQueue<>();
-		TreeSearchWorker<TestGameNode, TestGamePosition> worker = new TreeSearchWorker<>("test", finishedWorker -> {});
+		TreeSearchWorker<TestGameNode, TestGamePosition> worker = new TreeSearchWorker<>("test", finishedWorker -> {
+		});
 		MoveListFactory<TestGameNode> moveListFactory = new MoveListFactory<>(2);
-		worker.workOn(new GameTreeSearch<>(null, TestGamePosition.createTestPosition(), moveListFactory, 0, 0, new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator()), result -> {
+		worker.workOn(new GameTreeSearch<>(null, TestGamePosition.createTestPosition(), moveListFactory, 0, new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator()), result -> {
 			try {
 				resultQueue.put(result.result);
 			} catch (Exception e) {
@@ -41,7 +43,7 @@ public class TreeSearchWorkerTest {
 	public void testRescheduleWorkOnComplete() throws InterruptedException {
 		List<AnalysisResult<TestGameNode>> resultList = new ArrayList<>();
 		MoveListFactory<TestGameNode> moveListFactory = new MoveListFactory<>(2);
-		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = new GameTreeSearch<>(null, TestGamePosition.createTestPosition(), moveListFactory, 0, 0,
+		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = new GameTreeSearch<>(null, TestGamePosition.createTestPosition(), moveListFactory, 0,
 				new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator()), result -> {
 					synchronized (this) {
 						resultList.add(result.result);

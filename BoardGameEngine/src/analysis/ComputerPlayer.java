@@ -52,9 +52,9 @@ public class ComputerPlayer implements IPlayer {
 
 		List<M> bestMoves = new ArrayList<>();
 
-		if (bestMoveWithScore.isDraw) {
+		if (AnalysisResult.isDraw(bestMoveWithScore.score)) {
 			for (MoveWithScore<M> moveWithScore : result.getMovesWithScore()) {
-				if (moveWithScore.isDraw) {
+				if (AnalysisResult.isDraw(moveWithScore.score)) {
 					bestMoves.add(moveWithScore.move);
 				}
 			}

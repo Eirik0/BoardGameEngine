@@ -68,7 +68,7 @@ public class TicTacToeTreeSearchTest {
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
 		AnalysisResult<Coordinate> search = treeSearcher.startSearch(position, 9, true);
 		for (MoveWithScore<Coordinate> moveWithScore : search.getMovesWithScore()) {
-			assertEquals(0.0, moveWithScore.score, 0.0);
+			assertEquals(AnalysisResult.DRAW, moveWithScore.score, 0.0);
 		}
 		treeSearcher.stopSearch(true);
 	}
@@ -113,7 +113,7 @@ public class TicTacToeTreeSearchTest {
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher(2);
 		for (int i = 0; i < 1000; ++i) {
 			AnalysisResult<Coordinate> result = treeSearcher.startSearch(position, 11, true);
-			assertEquals("search " + String.valueOf(i), 0.0, result.getMax().score, 0.00001);
+			assertEquals("search " + String.valueOf(i), AnalysisResult.DRAW, result.getMax().score, 0.0);
 			assertTrue("search " + String.valueOf(i), result.isDraw());
 		}
 		treeSearcher.stopSearch(true);

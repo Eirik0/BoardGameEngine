@@ -38,10 +38,10 @@ public class AnalysisResult<M> {
 			if (isGameOver(score)) {
 				++numDecided;
 			}
-			if (min == null || score < min.score || (moveWithScore.isDraw && min.score > 0) || (min.isDraw && moveWithScore.score <= 0)) {
+			if (min == null || isGreater(min.score, score)) {
 				min = moveWithScore;
 			}
-			if (max == null || score > max.score || (moveWithScore.isDraw && max.score < 0) || (max.isDraw && moveWithScore.score >= 0)) {
+			if (max == null || isGreater(score, max.score)) {
 				max = moveWithScore;
 			}
 		}
@@ -97,7 +97,7 @@ public class AnalysisResult<M> {
 	}
 
 	public boolean isDraw() {
-		return max != null && max.isDraw;
+		return max != null && isDraw(max.score);
 	}
 
 	public synchronized int getNumDecided() {

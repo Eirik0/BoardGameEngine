@@ -48,14 +48,14 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 	}
 
 	@Override
-	public void join(P parentPosition, int parentPlayer, int currentPlayer, AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults) {
+	public void join(P parentPosition, int rootPlayer, int currentPlayer, AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults) {
 		for (MoveWithResult<M> moveWithResult : movesWithResults) {
 			// Player and position come from the parent game tree search, so we are looking for the min for the current player
-			MoveWithScore<M> moveWithScore = parentPlayer == currentPlayer ? moveWithResult.result.getMax() : moveWithResult.result.getMin();
+			MoveWithScore<M> moveWithScore = rootPlayer == currentPlayer ? moveWithResult.result.getMax() : moveWithResult.result.getMin();
 			if (moveWithScore == null) {
 				continue;
 			}
-			partialResult.addMoveWithScore(moveWithResult.move, moveWithScore.isDraw ? AnalysisResult.DRAW : moveWithScore.score, moveWithResult.result.isSeachComplete());
+			partialResult.addMoveWithScore(moveWithResult.move, moveWithScore.score, moveWithResult.result.isSeachComplete());
 		}
 	}
 
