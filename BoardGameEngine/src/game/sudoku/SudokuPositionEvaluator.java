@@ -13,7 +13,7 @@ import game.ultimatetictactoe.UltimateTicTacToeUtilities;
 
 public class SudokuPositionEvaluator implements IPositionEvaluator<SudokuMove, SudokuPosition> {
 	@Override
-	public double evaluate(SudokuPosition position, MoveList<SudokuMove> possibleMoves, int player) {
+	public double evaluate(SudokuPosition position, MoveList<SudokuMove> possibleMoves) {
 		List<Coordinate> openSquares = new ArrayList<>();
 		for (int n = 0; n < SudokuPosition.BOARD_WIDTH; ++n) {
 			for (int m = 0; m < SudokuPosition.BOARD_WIDTH; ++m) {

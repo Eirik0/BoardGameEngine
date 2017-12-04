@@ -15,12 +15,11 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M, P>> extends Abstra
 	}
 
 	@Override
-	public double evaluate(P position, int player, int plies) {
-		return player == position.getCurrentPlayer() ? max(position, player, 0, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY)
-				: min(position, player, 0, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+	public double evaluate(P position, int plies) {
+		return max(position, 0, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 
-	private double max(P position, int player, int ply, int maxPly, double alpha, double beta) {
+	private double max(P position, int ply, int maxPly, double alpha, double beta) {
 		if (searchCanceled) {
 			return 0;
 		}
@@ -30,31 +29,25 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M, P>> extends Abstra
 		int numMoves = possibleMoves.size();
 
 		if (ply == maxPly) {
-			return maxQ(position, player, maxPly, alpha, beta);
+			return maxQ(position, maxPly, alpha, beta);
 		} else if (numMoves == 0) {
-			return positionEvaluator.evaluate(position, possibleMoves, player);
+			return positionEvaluator.evaluate(position, possibleMoves);
 		}
 
+		int parentPlayer = position.getCurrentPlayer();
+
 		double bestScore = Double.NEGATIVE_INFINITY;
-		M move;
 		int i = 0;
 		do {
-			move = possibleMoves.get(i);
+			M move = possibleMoves.get(i);
 			position.makeMove(move);
-
-			double score;
-			if (player == position.getCurrentPlayer()) {
-				score = max(position, player, ply + 1, maxPly, alpha, beta);
-			} else {
-				score = min(position, player, ply + 1, maxPly, alpha, beta);
-			}
-
+			double score = parentPlayer == position.getCurrentPlayer() ? max(position, ply + 1, maxPly, alpha, beta) : min(position, ply + 1, maxPly, alpha, beta);
 			position.unmakeMove(move);
 
 			if (!AnalysisResult.isGreater(bestScore, score)) {
 				bestScore = score;
 				if (!AnalysisResult.isGreater(beta, bestScore)) { // alpha >= beta (fail-soft)
-					break;
+					return beta;
 				}
 				if (AnalysisResult.isGreater(score, alpha)) {
 					alpha = score;
@@ -66,7 +59,7 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M, P>> extends Abstra
 		return bestScore;
 	}
 
-	private double min(P position, int player, int ply, int maxPly, double alpha, double beta) {
+	private double min(P position, int ply, int maxPly, double alpha, double beta) {
 		if (searchCanceled) {
 			return 0;
 		}
@@ -76,31 +69,25 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M, P>> extends Abstra
 		int numMoves = possibleMoves.size();
 
 		if (ply == maxPly) {
-			return minQ(position, player, maxPly, alpha, beta);
+			return minQ(position, maxPly, alpha, beta);
 		} else if (numMoves == 0) {
-			return positionEvaluator.evaluate(position, possibleMoves, player);
+			return -positionEvaluator.evaluate(position, possibleMoves);
 		}
 
+		int parentPlayer = position.getCurrentPlayer();
+
 		double bestScore = Double.POSITIVE_INFINITY;
-		M move;
 		int i = 0;
 		do {
-			move = possibleMoves.get(i);
+			M move = possibleMoves.get(i);
 			position.makeMove(move);
-
-			double score;
-			if (player == position.getCurrentPlayer()) {
-				score = max(position, player, ply + 1, maxPly, alpha, beta);
-			} else {
-				score = min(position, player, ply + 1, maxPly, alpha, beta);
-			}
-
+			double score = parentPlayer == position.getCurrentPlayer() ? min(position, ply + 1, maxPly, alpha, beta) : max(position, ply + 1, maxPly, alpha, beta);
 			position.unmakeMove(move);
 
 			if (!AnalysisResult.isGreater(score, bestScore)) {
 				bestScore = score;
 				if (!AnalysisResult.isGreater(bestScore, alpha)) { // alpha >= beta
-					break;
+					return alpha;
 				}
 				if (AnalysisResult.isGreater(beta, score)) { // score < beta
 					beta = score;
@@ -112,7 +99,7 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M, P>> extends Abstra
 		return bestScore;
 	}
 
-	private double maxQ(P position, int player, int ply, double alpha, double beta) {
+	private double maxQ(P position, int ply, double alpha, double beta) {
 		if (searchCanceled) {
 			return 0;
 		}
@@ -121,37 +108,31 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M, P>> extends Abstra
 		position.getPossibleMoves(possibleMoves);
 		int numMoves = possibleMoves.numDynamicMoves();
 
-		double currentScore = positionEvaluator.evaluate(position, possibleMoves, player);
+		double currentScore = positionEvaluator.evaluate(position, possibleMoves);
 		if (numMoves == 0) {
 			return currentScore;
 		}
 		if (!AnalysisResult.isGreater(beta, currentScore)) {
-			return beta;
+			return currentScore;
 		}
 		if (AnalysisResult.isGreater(currentScore, alpha)) {
 			alpha = currentScore;
 		}
 
+		int parentPlayer = position.getCurrentPlayer();
+
 		double bestScore = Double.NEGATIVE_INFINITY;
-		M move;
 		int i = 0;
 		do {
-			move = possibleMoves.get(i);
+			M move = possibleMoves.get(i);
 			position.makeMove(move);
-
-			double score;
-			if (player == position.getCurrentPlayer()) {
-				score = maxQ(position, player, ply + 1, alpha, beta);
-			} else {
-				score = minQ(position, player, ply + 1, alpha, beta);
-			}
-
+			double score = parentPlayer == position.getCurrentPlayer() ? maxQ(position, ply + 1, alpha, beta) : minQ(position, ply + 1, alpha, beta);
 			position.unmakeMove(move);
 
 			if (!AnalysisResult.isGreater(bestScore, score)) {
 				bestScore = score;
 				if (!AnalysisResult.isGreater(beta, bestScore)) { // alpha >= beta (fail-soft)
-					break;
+					return beta;
 				}
 				if (AnalysisResult.isGreater(score, alpha)) {
 					alpha = score;
@@ -163,7 +144,7 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M, P>> extends Abstra
 		return bestScore;
 	}
 
-	private double minQ(P position, int player, int ply, double alpha, double beta) {
+	private double minQ(P position, int ply, double alpha, double beta) {
 		if (searchCanceled) {
 			return 0;
 		}
@@ -172,37 +153,31 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M, P>> extends Abstra
 		position.getPossibleMoves(possibleMoves);
 		int numMoves = possibleMoves.numDynamicMoves();
 
-		double currentScore = positionEvaluator.evaluate(position, possibleMoves, player);
+		double currentScore = -positionEvaluator.evaluate(position, possibleMoves);
 		if (numMoves == 0) {
 			return currentScore;
 		}
 		if (!AnalysisResult.isGreater(currentScore, alpha)) { // alpha >= beta
-			return alpha;
+			return currentScore;
 		}
 		if (AnalysisResult.isGreater(beta, currentScore)) { // score < beta
 			beta = currentScore;
 		}
 
+		int parentPlayer = position.getCurrentPlayer();
+
 		double bestScore = Double.POSITIVE_INFINITY;
-		M move;
 		int i = 0;
 		do {
-			move = possibleMoves.get(i);
+			M move = possibleMoves.get(i);
 			position.makeMove(move);
-
-			double score;
-			if (player == position.getCurrentPlayer()) {
-				score = maxQ(position, player, ply + 1, alpha, beta);
-			} else {
-				score = minQ(position, player, ply + 1, alpha, beta);
-			}
-
+			double score = parentPlayer == position.getCurrentPlayer() ? minQ(position, ply + 1, alpha, beta) : maxQ(position, ply + 1, alpha, beta);
 			position.unmakeMove(move);
 
 			if (!AnalysisResult.isGreater(score, bestScore)) {
 				bestScore = score;
 				if (!AnalysisResult.isGreater(bestScore, alpha)) { // alpha >= beta
-					break;
+					return alpha;
 				}
 				if (AnalysisResult.isGreater(beta, score)) { // score < beta
 					beta = score;

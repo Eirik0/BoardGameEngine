@@ -51,7 +51,7 @@ public class MinimaxStrategyTest {
 
 		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, testGamePosition.getCurrentPlayer(), 0);
 
-		assertEquals("0 -> [1, 2]", testGamePosition.toString());
+		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
 		assertNull(result.getBestMove());
 		assertEquals("null move: 0.0", result.toString());
 	}
@@ -63,10 +63,10 @@ public class MinimaxStrategyTest {
 
 		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, testGamePosition.getCurrentPlayer(), 1);
 
-		assertEquals("0 -> [1, 2]", testGamePosition.toString());
-		assertEquals(2, result.getBestMove().getValue());
-		assertEquals("1 -> [6, 5]: 1.0\n"
-				+ "2 -> [4, 3]: 2.0", result.toString());
+		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
+		assertEquals(-2, result.getBestMove().getValue());
+		assertEquals("-1 -> [6, 5]: 1.0\n"
+				+ "-2 -> [4, 3]: 2.0", result.toString());
 	}
 
 	@Test
@@ -76,10 +76,10 @@ public class MinimaxStrategyTest {
 
 		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, testGamePosition.getCurrentPlayer(), 2);
 
-		assertEquals("0 -> [1, 2]", testGamePosition.toString());
-		assertEquals(1, result.getBestMove().getValue());
-		assertEquals("1 -> [6, 5]: 5.0\n"
-				+ "2 -> [4, 3]: 3.0", result.toString());
+		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
+		assertEquals(-1, result.getBestMove().getValue());
+		assertEquals("-1 -> [6, 5]: 5.0\n"
+				+ "-2 -> [4, 3]: 3.0", result.toString());
 	}
 
 	@Test
@@ -89,10 +89,10 @@ public class MinimaxStrategyTest {
 
 		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, testGamePosition.getCurrentPlayer(), 3);
 
-		assertEquals("0 -> [1, 2]", testGamePosition.toString());
-		assertEquals(2, result.getBestMove().getValue());
-		assertEquals("1 -> [6, 5]: 8.0\n"
-				+ "2 -> [4, 3]: 12.0", result.toString());
+		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
+		assertEquals(-2, result.getBestMove().getValue());
+		assertEquals("-1 -> [6, 5]: 8.0\n"
+				+ "-2 -> [4, 3]: 12.0", result.toString());
 	}
 
 	@Test
@@ -102,10 +102,10 @@ public class MinimaxStrategyTest {
 
 		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, testGamePosition.getCurrentPlayer(), 4);
 
-		assertEquals("0 -> [1, 2]", testGamePosition.toString());
-		assertEquals(1, result.getBestMove().getValue());
-		assertEquals("1 -> [6, 5]: 25.0\n"
-				+ "2 -> [4, 3]: 17.0", result.toString());
+		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
+		assertEquals(-1, result.getBestMove().getValue());
+		assertEquals("-1 -> [6, 5]: 25.0\n"
+				+ "-2 -> [4, 3]: 17.0", result.toString());
 	}
 
 	@Test
@@ -115,10 +115,10 @@ public class MinimaxStrategyTest {
 
 		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, testGamePosition.getCurrentPlayer(), 5);
 
-		assertEquals("0 -> [1, 2]", testGamePosition.toString());
-		assertEquals(1, result.getBestMove().getValue());
-		assertEquals("1 -> [6, 5]: 25.0\n"
-				+ "2 -> [4, 3]: 17.0", result.toString());
+		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
+		assertEquals(-1, result.getBestMove().getValue());
+		assertEquals("-1 -> [6, 5]: 25.0\n"
+				+ "-2 -> [4, 3]: 17.0", result.toString());
 	}
 
 	@Test
@@ -175,8 +175,8 @@ public class MinimaxStrategyTest {
 		}
 		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>();
 		minimaxStrategy.join(testGamePosition, 0, 1, partialResult, results);
-		assertEquals("1 -> [6, 5]: 25.0\n"
-				+ "2 -> [4, 3]: 17.0", partialResult.toString());
+		assertEquals("-1 -> [6, 5]: 25.0\n"
+				+ "-2 -> [4, 3]: 17.0", partialResult.toString());
 	}
 
 	@Test
@@ -189,8 +189,8 @@ public class MinimaxStrategyTest {
 			partialResult.addMoveWithScore(moveWithScore.move, moveWithScore.score);
 		}
 		minimaxStrategy.join(testGamePosition, 0, 0, partialResult, Collections.emptyList());
-		assertEquals("1 -> [6, 5]: 25.0\n"
-				+ "2 -> [4, 3]: 17.0", partialResult.toString());
+		assertEquals("-1 -> [6, 5]: 25.0\n"
+				+ "-2 -> [4, 3]: 17.0", partialResult.toString());
 	}
 
 	@Test
@@ -214,7 +214,7 @@ public class MinimaxStrategyTest {
 
 		List<MoveWithResult<TestGameNode>> secondResult = Collections.singletonList(results.get(1));
 		minimaxStrategy.join(testGamePosition, 0, 1, partialResult, secondResult);
-		assertEquals("1 -> [6, 5]: 25.0\n"
-				+ "2 -> [4, 3]: 17.0", partialResult.toString());
+		assertEquals("-1 -> [6, 5]: 25.0\n"
+				+ "-2 -> [4, 3]: 17.0", partialResult.toString());
 	}
 }

@@ -72,34 +72,34 @@ public class TestGamePosition implements IPosition<TestGameNode, TestGamePositio
 	public static TestGamePosition createTestPosition() {
 		return new TestGamePosition(
 				new TestGameNode(0).setMoves(
-						new TestGameNode(1).setMoves(
+						new TestGameNode(-1).setMoves(
 								new TestGameNode(6).setMoves(
-										new TestGameNode(7).setMoves(
+										new TestGameNode(-7).setMoves(
 												new TestGameNode(30),
 												new TestGameNode(29)),
-										new TestGameNode(8).setMoves(
+										new TestGameNode(-8).setMoves(
 												new TestGameNode(28),
 												new TestGameNode(27))),
 								new TestGameNode(5).setMoves(
-										new TestGameNode(9).setMoves(
+										new TestGameNode(-9).setMoves(
 												new TestGameNode(26),
 												new TestGameNode(25)),
-										new TestGameNode(10).setMoves(
+										new TestGameNode(-10).setMoves(
 												new TestGameNode(24),
 												new TestGameNode(23)))),
-						new TestGameNode(2).setMoves(
+						new TestGameNode(-2).setMoves(
 								new TestGameNode(4).setMoves(
-										new TestGameNode(11).setMoves(
+										new TestGameNode(-11).setMoves(
 												new TestGameNode(22),
 												new TestGameNode(21)),
-										new TestGameNode(12).setMoves(
+										new TestGameNode(-12).setMoves(
 												new TestGameNode(20),
 												new TestGameNode(19))),
 								new TestGameNode(3).setMoves(
-										new TestGameNode(13).setMoves(
+										new TestGameNode(-13).setMoves(
 												new TestGameNode(18),
 												new TestGameNode(17)),
-										new TestGameNode(14).setMoves(
+										new TestGameNode(-14).setMoves(
 												new TestGameNode(16),
 												new TestGameNode(15))))));
 	}

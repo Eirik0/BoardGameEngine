@@ -16,12 +16,12 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 	}
 
 	@Override
-	public double evaluate(ForkJoinExampleTree position, int player, int plies) {
-		visitNodes(position, player, plies);
+	public double evaluate(ForkJoinExampleTree position, int plies) {
+		visitNodes(position, plies);
 		return 0;
 	}
 
-	private void visitNodes(ForkJoinExampleTree position, int player, int plies) {
+	private void visitNodes(ForkJoinExampleTree position, int plies) {
 		if (searchCanceled) {
 			return;
 		}
@@ -45,7 +45,7 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 					return;
 				}
 				position.makeMove(move);
-				visitNodes(position, player, plies - 1);
+				visitNodes(position, plies - 1);
 				position.unmakeMove(move);
 				++i;
 			}

@@ -57,7 +57,8 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		searchStarted = true;
 		consumedResult.set(false);
 		if (plies == 0 || possibleMoves.size() == 0) {
-			result = new AnalysisResult<>(parentMove, strategy.evaluate(position, player, plies));
+			double evaluate = strategy.evaluate(position, plies);
+			result = new AnalysisResult<>(parentMove, player == position.getCurrentPlayer() ? evaluate : -evaluate);
 			result.searchCompleted();
 			maybeConsumeResult(new MoveWithResult<>(parentMove, result));
 		} else {
@@ -78,7 +79,8 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 				return analysisResult;
 			}
 			position.makeMove(move);
-			double score = searchCanceled ? 0 : strategy.evaluate(position, player, plies - 1);
+			double evaluate = strategy.evaluate(position, plies - 1);
+			double score = searchCanceled ? 0 : player == position.getCurrentPlayer() ? evaluate : -evaluate;
 			position.unmakeMove(move);
 			if (searchCanceled) { // we need to check search canceled after making the call to evaluate
 				break;
@@ -137,7 +139,12 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			unanalyzedMoves = possibleMoves.subList(result.getMovesWithScore().size());
 		} else {
 			unanalyzedMoves = possibleMoves;
-			result = unanalyzedMoves.size() == 0 ? new AnalysisResult<>(parentMove, strategy.evaluate(position, player, plies)) : new AnalysisResult<>();
+			if (possibleMoves.size() == 0) {
+				double evaluate = strategy.evaluate(position, plies);
+				result = new AnalysisResult<>(parentMove, player == position.getCurrentPlayer() ? evaluate : -evaluate);
+			} else {
+				result = new AnalysisResult<>();
+			}
 		}
 
 		if (unanalyzedMoves.size() == 0) {

@@ -8,7 +8,7 @@ import game.IPosition;
 import game.MoveList;
 
 public interface IDepthBasedStrategy<M, P extends IPosition<M, P>> {
-	public double evaluate(P position, int player, int plies);
+	public double evaluate(P position, int plies);
 
 	public void stopSearch();
 

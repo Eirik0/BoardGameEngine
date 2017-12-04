@@ -16,6 +16,6 @@ public class AlphaBetaQStrategyTest {
 		AlphaBetaQTestStrategy<IChessMove, ChessPosition> minmaxStrategy = new AlphaBetaQTestStrategy<>(moveListFactory, new ChessPositionEvaluator());
 		AlphaBetaQStrategy<IChessMove, ChessPosition> alphabetaStrategy = new AlphaBetaQStrategy<>(moveListFactory, new ChessPositionEvaluator());
 
-		AlphaBetaStrategyTest.compareStrategies(new ChessPosition(), moveListFactory, minmaxStrategy, alphabetaStrategy, 1, 4);
+		AlphaBetaStrategyTest.compareStrategies(new ChessPosition(), moveListFactory, minmaxStrategy, alphabetaStrategy, 4, 4);
 	}
 }

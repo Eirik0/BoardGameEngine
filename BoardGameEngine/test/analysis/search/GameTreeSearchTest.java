@@ -134,8 +134,8 @@ public class GameTreeSearchTest {
 			gameTreeSearch.search();
 		}
 
-		assertEquals("1 -> [6, 5]: 25.0\n"
-				+ "2 -> [4, 3]: 17.0", results.get(0).toString());
+		assertEquals("-1 -> [6, 5]: 25.0\n"
+				+ "-2 -> [4, 3]: 17.0", results.get(0).toString());
 	}
 
 	@Test

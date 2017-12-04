@@ -28,7 +28,7 @@ public class AlphaBetaStrategyTest {
 		MinimaxStrategy<Coordinate, UltimateTicTacToePosition> minmaxStrategy = new MinimaxStrategy<>(moveListFactory, new UltimateTicTacToePositionEvaluator());
 		AlphaBetaStrategy<Coordinate, UltimateTicTacToePosition> alphabetaStrategy = new AlphaBetaStrategy<>(moveListFactory, new UltimateTicTacToePositionEvaluator());
 
-		compareStrategies(new UltimateTicTacToePosition(), moveListFactory, minmaxStrategy, alphabetaStrategy, 4, 6);
+		compareStrategies(new UltimateTicTacToePosition(), moveListFactory, minmaxStrategy, alphabetaStrategy, 4, 5);
 	}
 
 	public static <M, P extends IPosition<M, P>> void compareStrategies(P position, MoveListFactory<M> moveListFactory, IDepthBasedStrategy<M, P> strat1, IDepthBasedStrategy<M, P> strat2,

@@ -10,14 +10,14 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, G
 	private static final int BOARD_WIDTH = GomokuPosition.BOARD_WIDTH;
 
 	@Override
-	public double evaluate(GomokuPosition position, MoveList<Coordinate> possibleMoves, int player) {
-		int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
-		if (winExists(position.board, lastPlayer)) {
-			return player == lastPlayer ? AnalysisResult.WIN : AnalysisResult.LOSS;
+	public double evaluate(GomokuPosition position, MoveList<Coordinate> possibleMoves) {
+		int opponent = TwoPlayers.otherPlayer(position.currentPlayer);
+		if (winExists(position.board, opponent)) {
+			return AnalysisResult.LOSS;
+		} else if (possibleMoves.size() == 0) {
+			return AnalysisResult.DRAW;
 		}
-		// XXX check draw?
-		int opponent = TwoPlayers.otherPlayer(player);
-		return score(position.board, player, opponent) - score(position.board, opponent, player);
+		return score(position.board, position.currentPlayer, opponent) - score(position.board, opponent, position.currentPlayer);
 	}
 
 	private int score(int[][] board, int player, int opponent) {

@@ -8,17 +8,17 @@ import game.chess.move.IChessMove;
 
 public class ChessPositionEvaluator implements IPositionEvaluator<IChessMove, ChessPosition>, ChessEvaluationConstants {
 	@Override
-	public double evaluate(ChessPosition position, MoveList<IChessMove> possibleMoves, int player) {
+	public double evaluate(ChessPosition position, MoveList<IChessMove> possibleMoves) {
 		if (possibleMoves.size() == 0) {
 			int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
 			int playerKingSquare = position.kingSquares[position.currentPlayer];
 			if (position.halfMoveClock < 100 && ChessFunctions.isSquareAttacked(position, playerKingSquare, lastPlayer)) {
-				return player == lastPlayer ? AnalysisResult.WIN : AnalysisResult.LOSS;
+				return AnalysisResult.LOSS;
 			} else {
 				return AnalysisResult.DRAW;
 			}
 		}
-		return score(position, player) - score(position, TwoPlayers.otherPlayer(player));
+		return score(position, position.currentPlayer) - score(position, position.otherPlayer);
 	}
 
 	private double score(ChessPosition position, int player) {

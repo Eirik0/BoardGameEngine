@@ -15,11 +15,11 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 	}
 
 	@Override
-	public double evaluate(P position, int player, int plies) {
-		return alphaBeta(position, player, 0, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, player == position.getCurrentPlayer());
+	public double evaluate(P position, int plies) {
+		return alphaBeta(position, 0, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 
-	private double alphaBeta(P position, int player, int ply, int maxPly, double alpha, double beta, boolean max) {
+	private double alphaBeta(P position, int ply, int maxPly, double alpha, double beta) {
 		if (searchCanceled) {
 			return 0;
 		}
@@ -29,23 +29,17 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 		int numMoves = possibleMoves.size();
 
 		if (numMoves == 0 || ply == maxPly) {
-			return positionEvaluator.evaluate(position, possibleMoves, player);
+			return positionEvaluator.evaluate(position, possibleMoves);
 		}
 
+		int parentPlayer = position.getCurrentPlayer();
+
 		double bestScore = Double.NEGATIVE_INFINITY;
-		M move;
 		int i = 0;
 		do {
-			move = possibleMoves.get(i);
+			M move = possibleMoves.get(i);
 			position.makeMove(move);
-			double ab;
-			if (max == (player == position.getCurrentPlayer())) {
-				ab = alphaBeta(position, player, ply + 1, maxPly, alpha, beta, player == position.getCurrentPlayer());
-			} else {
-				ab = alphaBeta(position, player, ply + 1, maxPly, -beta, -alpha, player == position.getCurrentPlayer());
-			}
-			double score = max ? ab : -ab;
-
+			double score = parentPlayer == position.getCurrentPlayer() ? alphaBeta(position, ply + 1, maxPly, alpha, beta) : -alphaBeta(position, ply + 1, maxPly, -beta, -alpha);
 			position.unmakeMove(move);
 
 			if (!AnalysisResult.isGreater(bestScore, score)) {
@@ -60,7 +54,7 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 			++i;
 		} while (i < numMoves);
 
-		return max ? bestScore : -bestScore;
+		return bestScore;
 	}
 
 	@Override

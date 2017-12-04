@@ -15,11 +15,11 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 	}
 
 	@Override
-	public double evaluate(P position, int player, int plies) {
-		return alphaBeta(position, player, 0, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, player == position.getCurrentPlayer(), false);
+	public double evaluate(P position, int plies) {
+		return alphaBeta(position, 0, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false);
 	}
 
-	private double alphaBeta(P position, int player, int ply, int maxPly, double alpha, double beta, boolean max, boolean quiescent) {
+	private double alphaBeta(P position, int ply, int maxPly, double alpha, double beta, boolean quiescent) {
 		if (searchCanceled) {
 			return 0;
 		}
@@ -30,13 +30,12 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 		int numMoves = quiescent ? numDynamicMoves : possibleMoves.size();
 
 		if (numMoves == 0 || ply == maxPly || quiescent) {
-			double eval = positionEvaluator.evaluate(position, possibleMoves, player);
+			double score = positionEvaluator.evaluate(position, possibleMoves);
 			if (numDynamicMoves == 0) {
-				return eval;
+				return score;
 			}
-			double score = max ? eval : -eval;
 			if (!AnalysisResult.isGreater(beta, score)) { // score >= beta
-				return max ? beta : -beta;
+				return score;
 			}
 			if (AnalysisResult.isGreater(score, alpha)) {
 				alpha = score;
@@ -46,26 +45,21 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 			++maxPly;
 		}
 
+		int parentPlayer = position.getCurrentPlayer();
+
 		double bestScore = Double.NEGATIVE_INFINITY;
 		M move;
 		int i = 0;
 		do {
 			move = possibleMoves.get(i);
 			position.makeMove(move);
-			double ab;
-			if (max == (player == position.getCurrentPlayer())) {
-				ab = alphaBeta(position, player, ply + 1, maxPly, alpha, beta, player == position.getCurrentPlayer(), quiescent);
-			} else {
-				ab = alphaBeta(position, player, ply + 1, maxPly, -beta, -alpha, player == position.getCurrentPlayer(), quiescent);
-			}
-			double score = max ? ab : -ab;
-
+			double score = parentPlayer == position.getCurrentPlayer() ? alphaBeta(position, ply + 1, maxPly, alpha, beta, quiescent) : -alphaBeta(position, ply + 1, maxPly, -beta, -alpha, quiescent);
 			position.unmakeMove(move);
 
 			if (!AnalysisResult.isGreater(bestScore, score)) {
 				bestScore = score;
 				if (!AnalysisResult.isGreater(beta, bestScore)) { // alpha >= beta
-					break; // (fail-soft)
+					return beta;
 				}
 				if (AnalysisResult.isGreater(score, alpha)) {
 					alpha = score;
@@ -74,7 +68,7 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 			++i;
 		} while (i < numMoves);
 
-		return max ? bestScore : -bestScore;
+		return bestScore;
 	}
 
 	@Override

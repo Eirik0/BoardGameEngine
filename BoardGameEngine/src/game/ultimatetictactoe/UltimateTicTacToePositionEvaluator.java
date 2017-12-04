@@ -11,12 +11,12 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<Co
 	private static final int WINS_PER_BOARD = 8;
 
 	@Override
-	public double evaluate(UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves, int player) {
-		int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
-		if (TicTacToeUtilities.winExists(position.wonBoards, lastPlayer)) {
-			return player == lastPlayer ? AnalysisResult.WIN : AnalysisResult.LOSS;
+	public double evaluate(UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves) {
+		int player = position.currentPlayer;
+		int opponent = TwoPlayers.otherPlayer(player);
+		if (TicTacToeUtilities.winExists(position.wonBoards, opponent)) {
+			return AnalysisResult.LOSS;
 		} else {
-			int opponent = TwoPlayers.otherPlayer(player);
 			if (!UltimateTicTacToeUtilities.hasPossibleWins(position.wonBoards | position.fullBoards, opponent)
 					&& !UltimateTicTacToeUtilities.hasPossibleWins(position.wonBoards | position.fullBoards, player)) {
 				return AnalysisResult.DRAW;

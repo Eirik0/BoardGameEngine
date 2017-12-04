@@ -15,11 +15,11 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 	}
 
 	@Override
-	public double evaluate(P position, int player, int plies) {
-		return negamax(position, player, 0, plies, player == position.getCurrentPlayer());
+	public double evaluate(P position, int plies) {
+		return negamax(position, 0, plies);
 	}
 
-	private double negamax(P position, int player, int ply, int maxPly, boolean max) {
+	private double negamax(P position, int ply, int maxPly) {
 		if (searchCanceled) {
 			return 0;
 		}
@@ -29,17 +29,17 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 		int numMoves = possibleMoves.size();
 
 		if (numMoves == 0 || ply == maxPly) {
-			return positionEvaluator.evaluate(position, possibleMoves, player);
+			return positionEvaluator.evaluate(position, possibleMoves);
 		}
 
+		int parentPlayer = position.getCurrentPlayer();
+
 		double bestScore = Double.NEGATIVE_INFINITY;
-		M move;
 		int i = 0;
 		do {
-			move = possibleMoves.get(i);
+			M move = possibleMoves.get(i);
 			position.makeMove(move);
-			double negamax = negamax(position, player, ply + 1, maxPly, player == position.getCurrentPlayer());
-			double score = max ? negamax : -negamax;
+			double score = parentPlayer == position.getCurrentPlayer() ? negamax(position, ply + 1, maxPly) : -negamax(position, ply + 1, maxPly);
 			position.unmakeMove(move);
 
 			if (AnalysisResult.isGreater(score, bestScore)) {
@@ -49,7 +49,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 			++i;
 		} while (i < numMoves);
 
-		return max ? bestScore : -bestScore;
+		return bestScore;
 	}
 
 	@Override
