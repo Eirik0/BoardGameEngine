@@ -6,14 +6,14 @@ import java.util.function.Consumer;
 public class GameObserver<M, P extends IPosition<M, P>> {
 	private BiConsumer<IPlayer, Integer> playerChangedConsumer;
 	private Consumer<P> positionChangedConsumer;
-	private Runnable gameEndedRunnable;
+	private Consumer<Integer> gamePausedConsumer;
 
 	public GameObserver() {
 		playerChangedConsumer = (b, i) -> {
 		};
 		positionChangedConsumer = p -> {
 		};
-		gameEndedRunnable = () -> {
+		gamePausedConsumer = i -> {
 		};
 	}
 
@@ -33,11 +33,11 @@ public class GameObserver<M, P extends IPosition<M, P>> {
 		positionChangedConsumer.accept(position);
 	}
 
-	public void setEndGameAction(Runnable gameEndedRunnable) {
-		this.gameEndedRunnable = gameEndedRunnable;
+	public void setGamePausedAction(Consumer<Integer> gamePausedConsumer) {
+		this.gamePausedConsumer = gamePausedConsumer;
 	}
 
-	public void notifyGameEnded() {
-		gameEndedRunnable.run();
+	public void notifyGamePaused(int playerNum) {
+		gamePausedConsumer.accept(playerNum);
 	}
 }

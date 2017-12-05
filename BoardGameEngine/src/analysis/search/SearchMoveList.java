@@ -11,11 +11,11 @@ public class SearchMoveList<M> implements MoveList<M> {
 	private final MoveList<M> moveList;
 	private final Set<M> decidedMoves;
 
-	public SearchMoveList(MoveList<M> moveList, Set<MoveWithScore<M>> decidedMoves) {
+	public SearchMoveList(MoveList<M> moveList, Set<MoveWithScore<M>> decidedMovesWithScores) {
 		this.moveList = moveList;
 		this.decidedMoves = new HashSet<>();
-		for (MoveWithScore<M> moveWithScore : decidedMoves) {
-			decidedMoves.add(moveWithScore);
+		for (MoveWithScore<M> moveWithScore : decidedMovesWithScores) {
+			decidedMoves.add(moveWithScore.move);
 		}
 	}
 

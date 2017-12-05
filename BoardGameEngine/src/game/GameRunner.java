@@ -10,7 +10,6 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private volatile boolean isRunning = false;
 
 	private final GameObserver<M, P> gameObserver;
-	private Runnable gameOverAction;
 	private IPositionObserver<M, P> positionObserver;
 
 	private final IGame<M, P> game;
@@ -29,10 +28,6 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		this.moveListFactory = moveListFactory;
 		position = game.newInitialPosition();
 		setPositionCopy();
-	}
-
-	public synchronized void setGameOverAction(Runnable gameOverAction) {
-		this.gameOverAction = gameOverAction;
 	}
 
 	public void setPositionObserver(IPositionObserver<M, P> positionObserver) {
@@ -63,20 +58,20 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		gameObserver.notifyPositionChanged(positionCopy);
 	}
 
-	public synchronized void startNewGame(List<IPlayer> players) {
-		if (players.isEmpty()) {
-			throw new UnsupportedOperationException("Running a game with no players is not supported.");
-		}
-
+	public synchronized void createNewGame() {
 		if (isRunning) {
-			endGame();
+			pauseGame();
 		}
 
 		position = game.newInitialPosition();
-		lastMove = null;
 		setPositionCopy();
+		lastMove = null;
+	}
+
+	public synchronized void resumeGame(List<IPlayer> players) {
 		if (possibleMovesCopy.size() == 0) {
-			notifyGameStarted();
+			notifyGameEnded(players);
+			return;
 		}
 
 		new Thread(() -> {
@@ -102,13 +97,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 					}
 				}
 			} finally {
-				for (IPlayer player : players) {
-					player.notifyGameEnded();
-				}
-				notifyGameEnded();
-				if (gameOverAction != null) {
-					gameOverAction.run();
-				}
+				notifyGameEnded(players);
 			}
 		}, "Game_Runner_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
 
@@ -130,9 +119,11 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		notify();
 	}
 
-	public synchronized void endGame() {
+	public synchronized void pauseGame() {
 		stopRequested = true;
-		maybeNotifyPlayerGameEnded();
+		if (currentPlayer != null) {
+			currentPlayer.notifyGameEnded();
+		}
 		while (isRunning) {
 			try {
 				wait();
@@ -140,17 +131,15 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 				throw new RuntimeException(e);
 			}
 		}
-		gameObserver.notifyGameEnded();
+		gameObserver.notifyGamePaused(position.getCurrentPlayer());
 		stopRequested = false;
 	}
 
-	private synchronized void maybeNotifyPlayerGameEnded() {
-		if (currentPlayer != null) {
-			currentPlayer.notifyGameEnded();
+	private synchronized void notifyGameEnded(List<IPlayer> players) {
+		for (IPlayer player : players) {
+			player.notifyGameEnded();
 		}
-	}
-
-	private synchronized void notifyGameEnded() {
+		gameObserver.notifyGamePaused(position.getCurrentPlayer());
 		isRunning = false;
 		currentPlayer = null;
 		notify();

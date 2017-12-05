@@ -13,6 +13,7 @@ import analysis.AnalysisResult;
 import analysis.MoveWithScore;
 import analysis.strategy.IDepthBasedStrategy;
 import game.IPosition;
+import game.MoveList;
 import game.MoveListFactory;
 
 public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
@@ -153,7 +154,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	private AnalysisResult<M> search(P position, int plies) {
 		BlockingQueue<AnalysisResult<M>> resultQueue = new SynchronousQueue<>();
 
-		SearchMoveList<M> searchMoveList = new SearchMoveList<>(moveListFactory.newAnalysisMoveList(), result == null ? Collections.emptySet() : result.getDecidedMoves());
+		MoveList<M> searchMoveList = new SearchMoveList<>(moveListFactory.newAnalysisMoveList(), result == null ? Collections.emptySet() : result.getDecidedMoves());
 		position.getPossibleMoves(searchMoveList);
 
 		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(null, position, searchMoveList, moveListFactory, plies, strategy, moveResult -> {

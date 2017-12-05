@@ -24,7 +24,8 @@ public class ComputerPlayerTest {
 		ComputerPlayer player = new ComputerPlayer("MinMax", new MinimaxStrategy<>(moveListFactory, new TicTacToePositionEvaluator()), moveListFactory, 2, 500, true);
 		GameRunner<Coordinate, TicTacToePosition> gameRunner = new GameRunner<>(game, new GameObserver<>(), moveListFactory);
 		for (int i = 0; i < 100; ++i) {
-			gameRunner.startNewGame(Arrays.asList(player, player));
+			gameRunner.createNewGame();
+			gameRunner.resumeGame(Arrays.asList(player, player));
 			int sleep = new Random().nextInt(1000); // To reset the game randomly
 			System.out.println(i + 1 + ": " + sleep);
 			Thread.sleep(sleep);

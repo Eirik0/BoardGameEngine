@@ -43,11 +43,12 @@ public class ComputerConfigurationPanel<M, P extends IPosition<M, P>> extends JP
 			msPerMoveField.setFocusable(true);
 		}
 
-		add(strategyComboBox);
-		add(Box.createHorizontalStrut(10));
+		if (strategyNames.length > 1) {
+			add(strategyComboBox);
+			add(Box.createHorizontalStrut(10));
+		}
 		add(BoardGameEngineMain.initComponent(new JLabel("Threads:")));
 		add(numWorkersField);
-
 		if (!infiniteTimeOnly) {
 			add(Box.createHorizontalStrut(10));
 			add(BoardGameEngineMain.initComponent(new JLabel("ms per move:")));

@@ -14,10 +14,7 @@ public class SudokuMove {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((coordinate == null) ? 0 : coordinate.hashCode());
-		result = prime * result + number;
-		return result;
+		return prime * (prime + coordinate.hashCode()) + number;
 	}
 
 	@Override

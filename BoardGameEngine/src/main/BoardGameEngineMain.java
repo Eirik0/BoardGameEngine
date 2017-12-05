@@ -81,12 +81,16 @@ public class BoardGameEngineMain {
 			GameObserver<?, ?> gameObserver = new GameObserver<>();
 			gameObserver.setPlayerChangedAction(analysisPanel::playerChanged);
 			gameObserver.setPositionChangedAction(analysisPanel::positionChanged);
-			gameObserver.setEndGameAction(analysisPanel::gameEnded);
 
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			GameRunner<?, ?> gameRunner = new GameRunner(game, gameObserver, moveListFactory);
-
 			PlayerControllerPanel playerControllerPanel = new PlayerControllerPanel(game, gameRunner);
+
+			gameObserver.setGamePausedAction(playerNum -> {
+				playerControllerPanel.gameEnded();
+				analysisPanel.gamePaused(playerNum);
+			});
+
 			JSplitPane gameSplitPane = createSplitPane(gamePanel, analysisPanel);
 
 			setGameState(gameName, gameRunner);

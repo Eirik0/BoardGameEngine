@@ -13,13 +13,18 @@ import org.junit.Test;
 import gui.GuiPlayer;
 
 public class GameRunnerTest {
+	private static void startGame(GameRunner<?, ?> gameRunner, IPlayer player) {
+		gameRunner.createNewGame();
+		gameRunner.resumeGame(Collections.singletonList(player));
+	}
+
 	@Test
 	public void testStartStopGame() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame();
 		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
-		gameRunner.startNewGame(Collections.singletonList(game.player));
+		startGame(gameRunner, game.player);
 		Thread.sleep(10);// sleep a little to let the list populate
-		gameRunner.endGame();
+		gameRunner.pauseGame();
 		assertTrue(game.list.size() > 0);
 		assertEquals(2, game.numNewPositions);
 	}
@@ -28,10 +33,10 @@ public class GameRunnerTest {
 	public void testStartTwice() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame();
 		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
-		gameRunner.startNewGame(Collections.singletonList(game.player));
-		gameRunner.startNewGame(Collections.singletonList(game.player));
+		startGame(gameRunner, game.player);
+		startGame(gameRunner, game.player);
 		Thread.sleep(10);// sleep a little to let the list populate
-		gameRunner.endGame();
+		gameRunner.pauseGame();
 		assertTrue(game.list.size() > 0);
 		assertEquals(3, game.numNewPositions);
 	}
@@ -40,10 +45,10 @@ public class GameRunnerTest {
 	public void testEndTwice() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame();
 		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
-		gameRunner.startNewGame(Collections.singletonList(game.player));
+		startGame(gameRunner, game.player);
 		Thread.sleep(10);// sleep a little to let the list populate
-		gameRunner.endGame();
-		gameRunner.endGame();
+		gameRunner.pauseGame();
+		gameRunner.pauseGame();
 		assertTrue(game.list.size() > 0);
 		assertEquals(2, game.numNewPositions);
 	}
@@ -52,9 +57,9 @@ public class GameRunnerTest {
 	public void testEndWhenWaitingOnPlayer() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame(GuiPlayer.HUMAN);
 		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
-		gameRunner.startNewGame(Collections.singletonList(game.player));
+		startGame(gameRunner, game.player);
 		Thread.sleep(10);
-		gameRunner.endGame();
+		gameRunner.pauseGame();
 		assertEquals(2, game.numNewPositions);
 	}
 
@@ -62,7 +67,7 @@ public class GameRunnerTest {
 	public void testStardAndEndWhenNoMoves() throws InterruptedException {
 		AddToListTestGame game = new AddToListTestGame(new AddToListTestPlayer(), i -> Collections.emptyList());
 		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
-		gameRunner.startNewGame(Collections.singletonList(game.player));
+		startGame(gameRunner, game.player);
 		assertEquals(2, game.numNewPositions);
 	}
 

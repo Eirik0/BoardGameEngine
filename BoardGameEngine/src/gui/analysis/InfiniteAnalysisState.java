@@ -49,6 +49,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 
 			new Thread(() -> {
 				computerPlayer.getMove(this.position);
+				computerPlayer.notifyGameEnded();
 			}, "Infinite_Analysis_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
 
 			observer = new ComputerPlayerObserver(computerPlayer, playerNum, name -> {

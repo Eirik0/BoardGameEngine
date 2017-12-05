@@ -65,8 +65,9 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 		analysisState.stopAnalysis();
 	}
 
-	public void gameEnded() {
+	public void gamePaused(int playerNum) {
 		analysisState.stopAnalysis();
+		setAnalysisState(new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo, playerNum));
 	}
 
 	public void playerChanged(IPlayer player, int playerNum) {
@@ -78,6 +79,10 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 			newAnalysisState = new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo, playerNum);
 		}
 
+		setAnalysisState(newAnalysisState);
+	}
+
+	private void setAnalysisState(IAnalysisState<M, P> newAnalysisState) {
 		newAnalysisState.componentResized(getWidth(), getHeight());
 
 		remove(analysisState.getTopPanel());

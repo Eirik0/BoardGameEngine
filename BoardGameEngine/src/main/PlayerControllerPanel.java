@@ -4,8 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -21,23 +21,26 @@ import gui.gamestate.MainMenuState;
 
 @SuppressWarnings("serial")
 public class PlayerControllerPanel extends JPanel {
-	private final JLabel gameLabel = BoardGameEngineMain.initComponent(new JLabel());
-	private final List<PlayerSelectionPanel> playerSelectionPanels;
+	private String gameName;
+
+	final JLabel gameLabel = BoardGameEngineMain.initComponent(new JLabel());
+	private final List<PlayerSelectionPanel> playerSelectionPanels = new ArrayList<>();
+
+	private PausePlayButton pausePlayButton;
 	private Runnable backAction;
 
 	public PlayerControllerPanel(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
 		setLayout(new BorderLayout());
 		BoardGameEngineMain.initComponent(this);
-		gameLabel.setText(game.getName());
+		gameName = game.getName();
+		gameLabel.setText(gameName);
 		int numberOfPlayers = game.getNumberOfPlayers();
-		String[] playerNames = GameRegistry.getPlayerNames(game.getName()).toArray(new String[0]);
+		String[] playerNames = GameRegistry.getPlayerNames(gameName).toArray(new String[0]);
 		String[] availablePlayers = playerNames;
-		playerSelectionPanels = new ArrayList<>();
 		for (int i = 0; i < numberOfPlayers; i++) {
-			playerSelectionPanels.add(new PlayerSelectionPanel(availablePlayers, game.getName()));
+			playerSelectionPanels.add(new PlayerSelectionPanel(availablePlayers, gameName));
 		}
 		rebuildWith(game, gameRunner);
-		gameRunner.setGameOverAction(() -> gameLabel.setText(game.getName()));
 	}
 
 	public void setBackAction(Runnable backAction) { // this allows for easy self reference outside of this
@@ -45,6 +48,7 @@ public class PlayerControllerPanel extends JPanel {
 	}
 
 	private void rebuildWith(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
+		gameName = game.getName();
 		JPanel buttonPanel = BoardGameEngineMain.initComponent(new JPanel(new FlowLayout(FlowLayout.CENTER)));
 		buttonPanel.add(Box.createHorizontalStrut(30));
 		for (int i = 0; i < playerSelectionPanels.size(); i++) {
@@ -59,29 +63,41 @@ public class PlayerControllerPanel extends JPanel {
 		buttonPanelWrapper.add(buttonPanel, BorderLayout.EAST);
 
 		JButton newGameButton = BoardGameEngineMain.initComponent(new JButton("New Game"));
-		JButton endGameButton = BoardGameEngineMain.initComponent(new JButton("End Game"));
 		JButton backButton = BoardGameEngineMain.initComponent(new JButton("Back"));
-		List<JButton> buttons = Arrays.asList(newGameButton, endGameButton, backButton);
+		pausePlayButton = new PausePlayButton(gameName, gameRunner, this, newGameButton, backButton);
+		JButton[] buttons = new JButton[] { newGameButton, backButton, pausePlayButton };
 
-		newGameButton.addActionListener(createEnableDisableRunnableWrapper(buttons, () -> startNewGame(game, gameRunner)));
-		endGameButton.addActionListener(createEnableDisableRunnableWrapper(buttons, () -> gameRunner.endGame()));
-		backButton.addActionListener(createEnableDisableRunnableWrapper(buttons, () -> {
-			gameRunner.endGame();
+		newGameButton.addActionListener(createEnableDisableRunnableWrapper(() -> gameRunner.createNewGame(), buttons));
+		backButton.addActionListener(createEnableDisableRunnableWrapper(() -> {
+			gameRunner.pauseGame();
 			backAction.run();
 			GameGuiManager.setGameState(new MainMenuState());
-		}));
+		}, buttons));
 
 		buttonPanel.add(Box.createHorizontalStrut(30));
-		buttonPanel.add(newGameButton);
+		buttonPanel.add(pausePlayButton);
 		buttonPanel.add(Box.createHorizontalStrut(10));
-		buttonPanel.add(endGameButton);
-
+		buttonPanel.add(newGameButton);
+		removeAll();
 		add(gameLabel, BorderLayout.WEST);
 		add(buttonPanelWrapper, BorderLayout.CENTER);
 		add(backButton, BorderLayout.EAST);
 	}
 
-	private ActionListener createEnableDisableRunnableWrapper(List<JButton> buttons, Runnable r) {
+	public void gameEnded() {
+		gameLabel.setText(gameName);
+		pausePlayButton.gameEnded();
+	}
+
+	List<IPlayer> getSelectedPlayers(String gameName) {
+		List<IPlayer> players = new ArrayList<>();
+		for (PlayerSelectionPanel playerSelectionPanel : playerSelectionPanels) {
+			players.add(playerSelectionPanel.getPlayer(gameName));
+		}
+		return players;
+	}
+
+	static ActionListener createEnableDisableRunnableWrapper(Runnable r, JButton... buttons) {
 		return e -> {
 			for (JButton button : buttons) {
 				button.setEnabled(false);
@@ -98,12 +114,28 @@ public class PlayerControllerPanel extends JPanel {
 		};
 	}
 
-	private void startNewGame(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
-		List<IPlayer> players = new ArrayList<>();
-		for (PlayerSelectionPanel playerSelectionPanel : playerSelectionPanels) {
-			players.add(playerSelectionPanel.getPlayer(game.getName()));
+	static class PausePlayButton extends JButton {
+		private final AtomicBoolean paused;
+
+		public PausePlayButton(String gameName, GameRunner<?, ?> gameRunner, PlayerControllerPanel playerControllerPanel, JButton newGameButton, JButton backButton) {
+			super("  Play  ");
+			paused = new AtomicBoolean(true);
+			BoardGameEngineMain.initComponent(this);
+			addActionListener(createEnableDisableRunnableWrapper(() -> {
+				if (paused.getAndSet(!paused.get())) {
+					playerControllerPanel.gameLabel.setText(gameName + "...");
+					setText("Pause");
+					gameRunner.resumeGame(playerControllerPanel.getSelectedPlayers(gameName));
+				} else {
+					setText("  Play  ");
+					gameRunner.pauseGame();
+				}
+			}, newGameButton, backButton, this));
 		}
-		gameRunner.startNewGame(players);
-		gameLabel.setText(game.getName() + "...");
+
+		public void gameEnded() {
+			paused.set(true);
+			setText("  Play  ");
+		}
 	}
 }

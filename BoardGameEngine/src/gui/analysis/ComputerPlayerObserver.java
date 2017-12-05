@@ -35,7 +35,7 @@ public class ComputerPlayerObserver implements DrawingMethods {
 					} catch (InterruptedException e) {
 						throw new RuntimeException(e);
 					}
-				} while (keepObserving);
+				} while (keepObserving && !currentResult.isDecided);
 				nameConsumer.accept(computerPlayer.toString());
 				currentDepthConsumer.accept(String.format("depth = %-3d", currentResult.depth));
 			}
@@ -76,8 +76,9 @@ public class ComputerPlayerObserver implements DrawingMethods {
 		} else if (AnalysisResult.LOSS == score) {
 			return "(Loss)";
 		} else {
-			double playerScore = (isPlayerOne ? score : -score) + 0.0; // -0.0 + 0.0 = 0.0
-			return String.format("(%.2f)", playerScore);
+			long playerScore = Math.round(100 * (isPlayerOne ? score : -score));
+			double roundScore = playerScore / 100.0;
+			return String.format("(%.2f)", roundScore);
 		}
 	}
 
