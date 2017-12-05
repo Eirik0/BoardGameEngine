@@ -2,6 +2,7 @@ package gui.analysis;
 
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -17,7 +18,7 @@ public class ComputerPlayerObserver implements DrawingMethods {
 
 	private final int playerNum;
 
-	private ComputerPlayerResult currentResult = new ComputerPlayerResult(null, null, 0);
+	private ComputerPlayerResult currentResult = new ComputerPlayerResult(null, Collections.emptyList(), 0);
 
 	private volatile boolean keepObserving = true;
 
@@ -59,7 +60,7 @@ public class ComputerPlayerObserver implements DrawingMethods {
 		while (i < currentMoves.size()) {
 			int y = startY + i * stringHeight;
 			ObservedMoveWithScore moveWithScore = currentMoves.get(i);
-			graphics.setColor(moveWithScore.isPartial ? BoardGameEngineMain.FOREGROUND_COLOR : BoardGameEngineMain.LIGHTER_FOREGROUND_COLOR);
+			graphics.setColor(moveWithScore.isPartial || AnalysisResult.isGameOver(moveWithScore.score) ? BoardGameEngineMain.FOREGROUND_COLOR : BoardGameEngineMain.LIGHTER_FOREGROUND_COLOR);
 			graphics.drawString(i < 9 ? (i + 1) + ".   " : (i + 1) + ". ", 20, y);
 			graphics.drawString(String.format("%-13s", getScoreString(moveWithScore.score, playerNum == TwoPlayers.PLAYER_1)), 45, y);
 			graphics.drawString(moveWithScore.move.toString(), 100, y);

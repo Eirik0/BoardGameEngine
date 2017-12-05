@@ -18,7 +18,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private final P position;
 	public final int player;
 	private MoveListFactory<M> moveListFactory;
-	private final MoveList<M> possibleMoves;
+	private final MoveList<M> movesToSearch;
 	private AtomicInteger branchIndex;
 	private final int plies;
 
@@ -32,18 +32,18 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private volatile boolean forked = false;
 	private final AtomicBoolean consumedResult = new AtomicBoolean(false);
 
-	public GameTreeSearch(M parentMove, P position, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy, Consumer<MoveWithResult<M>> resultConsumer) {
-		this(parentMove, position, moveListFactory, plies, strategy);
+	public GameTreeSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy,
+			Consumer<MoveWithResult<M>> resultConsumer) {
+		this(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
 		setResultConsumer(resultConsumer);
 	}
 
-	private GameTreeSearch(M parentMove, P position, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
+	private GameTreeSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
 		this.parentMove = parentMove;
 		this.position = position.createCopy();
 		this.player = this.position.getCurrentPlayer();
 		this.moveListFactory = moveListFactory;
-		possibleMoves = moveListFactory.newAnalysisMoveList();
-		this.position.getPossibleMoves(possibleMoves);
+		this.movesToSearch = movesToSearch;
 		branchIndex = new AtomicInteger(0);
 		this.plies = plies;
 		this.strategy = strategy.createCopy();
@@ -56,7 +56,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	public synchronized void search() {
 		searchStarted = true;
 		consumedResult.set(false);
-		if (plies == 0 || possibleMoves.size() == 0) {
+		if (plies == 0 || movesToSearch.size() == 0) {
 			result = new AnalysisResult<>(parentMove, strategy.evaluate(position, plies));
 			result.searchCompleted();
 			maybeConsumeResult(new MoveWithResult<>(parentMove, result));
@@ -73,7 +73,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		AnalysisResult<M> analysisResult = new AnalysisResult<>();
 
 		do {
-			M move = possibleMoves.get(branchIndex.get());
+			M move = movesToSearch.get(branchIndex.get());
 			if (searchCanceled && !forked) {
 				return analysisResult;
 			}
@@ -87,7 +87,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 			} else {
 				analysisResult.addMoveWithScore(move, score);
 			}
-		} while (branchIndex.incrementAndGet() < possibleMoves.size());
+		} while (branchIndex.incrementAndGet() < movesToSearch.size());
 		if (!searchCanceled) {
 			analysisResult.searchCompleted();
 		}
@@ -116,7 +116,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	}
 
 	public int getRemainingBranches() {
-		return possibleMoves.size() - branchIndex.get();
+		return movesToSearch.size() - branchIndex.get();
 	}
 
 	public List<GameTreeSearch<M, P>> fork() {
@@ -136,10 +136,10 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 				}
 			}
 
-			unanalyzedMoves = possibleMoves.subList(result.getMovesWithScore().size());
+			unanalyzedMoves = movesToSearch.subList(result.getMovesWithScore().size());
 		} else {
-			unanalyzedMoves = possibleMoves;
-			if (possibleMoves.size() == 0) {
+			unanalyzedMoves = movesToSearch;
+			if (movesToSearch.size() == 0) {
 				result = new AnalysisResult<>(parentMove, strategy.evaluate(position, plies));
 			} else {
 				result = new AnalysisResult<>();
@@ -173,7 +173,9 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	}
 
 	private GameTreeSearch<M, P> createFork(M move, AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults, int expectedResults) {
-		GameTreeSearch<M, P> treeSearch = new GameTreeSearch<>(move, position, moveListFactory, plies - 1, strategy);
+		MoveList<M> subMoves = moveListFactory.newAnalysisMoveList();
+		position.getPossibleMoves(subMoves);
+		GameTreeSearch<M, P> treeSearch = new GameTreeSearch<>(move, position, subMoves, moveListFactory, plies - 1, strategy);
 		treeSearch.setResultConsumer(moveWithResult -> {
 			if (consumedResult.get()) {
 				return;

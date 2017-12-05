@@ -2,10 +2,12 @@ package analysis;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public class AnalysisResult<M> {
 	public static final double WIN = Double.POSITIVE_INFINITY;
@@ -13,7 +15,8 @@ public class AnalysisResult<M> {
 	public static final double DRAW = Double.NaN;
 
 	private final List<MoveWithScore<M>> movesWithScore = new ArrayList<>();
-	private volatile int numDecided = 0;
+	private final Set<MoveWithScore<M>> decidedMoves = new HashSet<>();
+	private volatile int numLost = 0;
 
 	private MoveWithScore<M> min;
 	private MoveWithScore<M> max;
@@ -36,7 +39,10 @@ public class AnalysisResult<M> {
 		movesWithScore.add(moveWithScore);
 		if (isValid) {
 			if (isGameOver(score)) {
-				++numDecided;
+				decidedMoves.add(moveWithScore);
+				if (LOSS == score) {
+					++numLost;
+				}
 			}
 			if (min == null || isGreater(min.score, score)) {
 				min = moveWithScore;
@@ -88,6 +94,10 @@ public class AnalysisResult<M> {
 		return max == null ? null : max.move;
 	}
 
+	public Set<MoveWithScore<M>> getDecidedMoves() {
+		return decidedMoves;
+	}
+
 	public boolean isWin() {
 		return max != null && max.score == AnalysisResult.WIN;
 	}
@@ -100,8 +110,12 @@ public class AnalysisResult<M> {
 		return max != null && isDraw(max.score);
 	}
 
-	public synchronized int getNumDecided() {
-		return numDecided;
+	public synchronized boolean onlyOneMove() {
+		return movesWithScore.size() == 0 || movesWithScore.size() == numLost + 1;
+	}
+
+	public synchronized boolean isDecided() {
+		return decidedMoves.size() == movesWithScore.size();
 	}
 
 	@Override
@@ -126,7 +140,7 @@ public class AnalysisResult<M> {
 		return d != d;
 	}
 
-	private static boolean isGameOver(double d) {
+	public static boolean isGameOver(double d) {
 		return Double.isInfinite(d) || isDraw(d);
 	}
 }

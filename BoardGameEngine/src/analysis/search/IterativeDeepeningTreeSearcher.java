@@ -1,6 +1,7 @@
 package analysis.search;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,15 +80,20 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			if (searchStopped && result != null) { // merge only when the search is stopped
 				result.mergeWith(search);
 			} else {
-				if (escapeEarly && search.isLoss() && result != null) {
-					break; // return the previous result if the current is a loss for longevity
+				if (result != null) {
+					if (escapeEarly && search.isLoss()) {
+						break; // return the previous result if the current is a loss for longevity
+					}
+					// Add back decided moves
+					for (MoveWithScore<M> moveWithScore : result.getDecidedMoves()) {
+						search.addMoveWithScore(moveWithScore.move, moveWithScore.score);
+					}
 				}
 				result = search;
 			}
 			strategy.notifyPlyComplete(searchStopped);
-			if (escapeEarly && (result.isWin() || result.isDraw() || result.getMovesWithScore().size() == result.getNumDecided() + 1)
-					|| (result.getMovesWithScore().size() == result.getNumDecided())) {
-				break; // when escaping early, break if the game is won, drawn, or there is only one move; of if all moves are decided
+			if (escapeEarly && (result.isWin() || result.isDraw() || result.onlyOneMove()) || result.isDecided()) {
+				break; // when escaping early, break if the game is won, drawn, or there is only one move; or if all moves are decided
 			}
 		} while (!searchStopped && plies < maxPlies);
 
@@ -147,7 +153,10 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	private AnalysisResult<M> search(P position, int plies) {
 		BlockingQueue<AnalysisResult<M>> resultQueue = new SynchronousQueue<>();
 
-		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(null, position, moveListFactory, plies, strategy, moveResult -> {
+		SearchMoveList<M> searchMoveList = new SearchMoveList<>(moveListFactory.newAnalysisMoveList(), result == null ? Collections.emptySet() : result.getDecidedMoves());
+		position.getPossibleMoves(searchMoveList);
+
+		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(null, position, searchMoveList, moveListFactory, plies, strategy, moveResult -> {
 			try {
 				resultQueue.put(moveResult.result);
 			} catch (InterruptedException e) {

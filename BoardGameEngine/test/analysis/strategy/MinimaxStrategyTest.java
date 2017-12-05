@@ -27,7 +27,10 @@ import game.value.TestGamePosition;
 public class MinimaxStrategyTest {
 	private synchronized <M, P extends IPosition<M, P>> AnalysisResult<M> search(MinimaxStrategy<M, P> minimaxStrategy, P testGamePosition, int plies) {
 		List<AnalysisResult<M>> result = new ArrayList<>();
-		GameTreeSearch<M, P> gameTreeSearch = new GameTreeSearch<>(null, testGamePosition, new MoveListFactory<>(2), plies, minimaxStrategy, moveWithResult -> {
+		MoveListFactory<M> moveListFactory = new MoveListFactory<>(2);
+		MoveList<M> moveList = moveListFactory.newAnalysisMoveList();
+		testGamePosition.getPossibleMoves(moveList);
+		GameTreeSearch<M, P> gameTreeSearch = new GameTreeSearch<>(null, testGamePosition, moveList, moveListFactory, plies, minimaxStrategy, moveWithResult -> {
 			synchronized (this) {
 				result.add(moveWithResult.result);
 				notify();
@@ -131,10 +134,12 @@ public class MinimaxStrategyTest {
 						new TestLockingNode(false),
 						lockedNode));
 
-		MinimaxStrategy<TestLockingNode, TestLockingPosition> minimaxStrategy = new MinimaxStrategy<>(new MoveListFactory<>(2), new TestLockingEvaluator());
+		MoveListFactory<TestLockingNode> moveListFactory = new MoveListFactory<>(3);
+		MoveList<TestLockingNode> moveList = moveListFactory.newAnalysisMoveList();
+		testLockingPosition.getPossibleMoves(moveList);
 		List<AnalysisResult<TestLockingNode>> result = new ArrayList<>();
-		GameTreeSearch<TestLockingNode, TestLockingPosition> gameTreeSearch = new GameTreeSearch<>(null, testLockingPosition, new MoveListFactory<>(3), 1, minimaxStrategy,
-				moveWithResult -> result.add(moveWithResult.result));
+		GameTreeSearch<TestLockingNode, TestLockingPosition> gameTreeSearch = new GameTreeSearch<>(null, testLockingPosition, moveList, moveListFactory, 1,
+				new MinimaxStrategy<>(moveListFactory, new TestLockingEvaluator()), moveWithResult -> result.add(moveWithResult.result));
 
 		Thread thread = new Thread(() -> gameTreeSearch.search());
 		thread.start();
