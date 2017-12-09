@@ -1,8 +1,6 @@
 package gui.analysis;
 
 import java.awt.BorderLayout;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
 import javax.swing.JPanel;
 
@@ -11,9 +9,7 @@ import analysis.ComputerPlayerInfo;
 import analysis.search.ThreadNumber;
 import game.IPlayer;
 import game.IPosition;
-import game.TwoPlayers;
-import gui.FixedDurationGameLoop;
-import gui.GameImage;
+import game.PositionChangedInfo;
 import gui.GamePanel;
 import gui.GameRegistry;
 import main.BoardGameEngineMain;
@@ -22,8 +18,7 @@ import main.BoardGameEngineMain;
 public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 	private final String gameName;
 	private final ComputerPlayerInfo<M, P> computerPlayerInfo;
-	private final FixedDurationGameLoop gameLoop;
-
+	private final GamePanel analysisPanel;
 	private IAnalysisState<M, P> analysisState;
 
 	private P position;
@@ -37,49 +32,29 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 		computerPlayerInfo = GameRegistry.newDefaultComputerPlayerInfo(gameName);
 		GameRegistry.updateComputerPlayerInfo(computerPlayerInfo, gameName, computerPlayerInfo.strategyName, computerPlayerInfo.numWorkers, Long.MAX_VALUE);
 
-		analysisState = new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo, TwoPlayers.PLAYER_1);
+		analysisState = new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo);
 
-		GameImage analysisImage = new GameImage();
-		GamePanel analysisPanel = new GamePanel(analysisImage);
-
-		addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				analysisImage.checkResized(getWidth(), getHeight());
-				analysisState.componentResized(getWidth(), getHeight());
-			}
-		});
-
-		gameLoop = new FixedDurationGameLoop(() -> {
-			analysisState.drawOn(analysisImage.getGraphics());
-			analysisPanel.repaint();
-		});
+		analysisPanel = new GamePanel(g -> analysisState.drawOn(g), (width, height) -> analysisState.componentResized(width, height));
 
 		add(analysisState.getTopPanel(), BorderLayout.NORTH);
 		add(analysisPanel, BorderLayout.CENTER);
-		new Thread(() -> gameLoop.runLoop(), "Analysis_Draw_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
+
+		analysisPanel.startGameLoop("Analysis_Draw_Thread_" + ThreadNumber.getThreadNum(getClass()));
 	}
 
 	public void stopDrawThread() {
-		gameLoop.stop();
+		analysisPanel.stopGameLoop();
 		analysisState.stopAnalysis();
 	}
 
-	public void gamePaused(int playerNum) {
-		analysisState.stopAnalysis();
-		setAnalysisState(new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo, playerNum));
+	public void gamePaused() {
+		if (!(analysisState instanceof InfiniteAnalysisState<?, ?>)) {
+			analysisState.stopAnalysis();
+			setAnalysisState(new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo));
+		}
 	}
 
 	public void playerChanged(IPlayer player, int playerNum) {
-		analysisState.stopAnalysis();
-		IAnalysisState<M, P> newAnalysisState;
-		if (player instanceof ComputerPlayer) {
-			newAnalysisState = new ComputerPlayerObservationState<>((ComputerPlayer) player, playerNum);
-		} else {
-			newAnalysisState = new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo, playerNum);
-		}
-
-		setAnalysisState(newAnalysisState);
 	}
 
 	private void setAnalysisState(IAnalysisState<M, P> newAnalysisState) {
@@ -92,10 +67,18 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 		analysisState = newAnalysisState;
 	}
 
-	@SuppressWarnings("unchecked")
-	public void positionChanged(Object positionObj) {
-		P position = (P) positionObj;
-		this.position = position;
-		analysisState.setPosition(position);
+	public void positionChanged(PositionChangedInfo<M, P> positionChangedInfo) {
+		this.position = positionChangedInfo.position;
+		IPlayer player = positionChangedInfo.currentPlayer;
+		if (player != null && player instanceof ComputerPlayer) {
+			analysisState.stopAnalysis();
+			setAnalysisState(new ComputerPlayerObservationState<>((ComputerPlayer) player, position.getCurrentPlayer()));
+		} else if (!(analysisState instanceof InfiniteAnalysisState<?, ?>)) {
+			analysisState.stopAnalysis();
+			setAnalysisState(new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo));
+			analysisState.setPosition(position);
+		} else {
+			analysisState.setPosition(position);
+		}
 	}
 }

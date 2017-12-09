@@ -49,13 +49,14 @@ public class ComputerPlayerObservationState<M, P extends IPosition<M, P>> implem
 
 	@Override
 	public void drawOn(Graphics2D graphics) {
+		fillRect(graphics, 0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
 		observer.drawOn(graphics, width, height);
 	}
 
 	@Override
 	public void setPosition(P position) {
 		// do nothing
-	};
+	}
 
 	@Override
 	public synchronized void stopAnalysis() {

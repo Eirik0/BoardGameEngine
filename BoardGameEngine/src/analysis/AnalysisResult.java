@@ -16,7 +16,7 @@ public class AnalysisResult<M> {
 
 	private final List<MoveWithScore<M>> movesWithScore = new ArrayList<>();
 	private final Set<MoveWithScore<M>> decidedMoves = new HashSet<>();
-	private volatile int numLost = 0;
+	private int numLost = 0;
 
 	private MoveWithScore<M> min;
 	private MoveWithScore<M> max;
@@ -111,10 +111,10 @@ public class AnalysisResult<M> {
 	}
 
 	public synchronized boolean onlyOneMove() {
-		return movesWithScore.size() == 0 || movesWithScore.size() == numLost + 1;
+		return max != null && movesWithScore.size() == numLost + 1;
 	}
 
-	public synchronized boolean isDecided() {
+	public boolean isDecided() {
 		return decidedMoves.size() == movesWithScore.size();
 	}
 

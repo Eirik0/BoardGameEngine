@@ -21,8 +21,6 @@ public class ComputerPlayer implements IPlayer {
 	private final long msPerMove;
 	private final boolean escapeEarly;
 
-	private volatile boolean keepSearching = true;
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ComputerPlayer(String strategyName, IDepthBasedStrategy<?, ?> strategy, MoveListFactory<?> moveListFactory, int numWorkers, long msPerMove, boolean escapeEarly) {
 		this.strategyName = strategyName;
@@ -37,18 +35,24 @@ public class ComputerPlayer implements IPlayer {
 	public synchronized <M, P extends IPosition<M, P>> M getMove(P position) {
 		long start = System.currentTimeMillis();
 		((IterativeDeepeningTreeSearcher<M, P>) treeSearcher).searchForever(position, escapeEarly);
-		keepSearching = true;
-		while (treeSearcher.isSearching() && keepSearching && msPerMove > System.currentTimeMillis() - start) {
+		while (treeSearcher.isSearching() && msPerMove > System.currentTimeMillis() - start) {
 			try {
 				wait(50);
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
 		}
-		treeSearcher.stopSearch(false);
+
+		if (treeSearcher.isSearching()) {
+			treeSearcher.stopSearch(false);
+		}
 
 		AnalysisResult<M> result = (AnalysisResult<M>) treeSearcher.getResult();
-		MoveWithScore<M> bestMoveWithScore = result.getMax();
+		MoveWithScore<M> bestMoveWithScore = result == null ? null : result.getMax();
+
+		if (bestMoveWithScore == null) {
+			return null;
+		}
 
 		List<M> bestMoves = new ArrayList<>();
 
@@ -76,9 +80,12 @@ public class ComputerPlayer implements IPlayer {
 
 	@Override
 	public synchronized void notifyGameEnded() {
-		treeSearcher.stopSearch(true);
-		keepSearching = false;
+		stopSearch(true);
 		notify();
+	}
+
+	public void stopSearch(boolean gameEnded) {
+		treeSearcher.stopSearch(gameEnded);
 	}
 
 	@Override

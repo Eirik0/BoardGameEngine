@@ -34,6 +34,12 @@ public interface DrawingMethods {
 		g.drawString(text, round(x - width / 2), round(y + height / 3));
 	}
 
+	public default void drawCenteredYString(Graphics2D g, String text, double x, double y) {
+		FontMetrics metrics = g.getFontMetrics();
+		double height = metrics.getHeight();
+		g.drawString(text, round(x), round(y + height / 3));
+	}
+
 	public default void drawCircle(Graphics2D g, double x, double y, double radius) {
 		double height = 2 * radius;
 		g.drawOval(round(x - radius), round(y - radius), round(height), round(height));

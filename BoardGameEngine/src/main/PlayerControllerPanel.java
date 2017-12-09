@@ -69,8 +69,8 @@ public class PlayerControllerPanel extends JPanel {
 
 		newGameButton.addActionListener(createEnableDisableRunnableWrapper(() -> gameRunner.createNewGame(), buttons));
 		backButton.addActionListener(createEnableDisableRunnableWrapper(() -> {
-			gameRunner.pauseGame();
 			backAction.run();
+			gameRunner.pauseGame(false);
 			GameGuiManager.setGameState(new MainMenuState());
 		}, buttons));
 
@@ -84,12 +84,17 @@ public class PlayerControllerPanel extends JPanel {
 		add(backButton, BorderLayout.EAST);
 	}
 
+	public void gameStarted() {
+		gameLabel.setText(gameName + "...");
+		pausePlayButton.gameStarted();
+	}
+
 	public void gameEnded() {
 		gameLabel.setText(gameName);
 		pausePlayButton.gameEnded();
 	}
 
-	List<IPlayer> getSelectedPlayers(String gameName) {
+	List<IPlayer> getSelectedPlayers() {
 		List<IPlayer> players = new ArrayList<>();
 		for (PlayerSelectionPanel playerSelectionPanel : playerSelectionPanels) {
 			players.add(playerSelectionPanel.getPlayer(gameName));
@@ -123,14 +128,17 @@ public class PlayerControllerPanel extends JPanel {
 			BoardGameEngineMain.initComponent(this);
 			addActionListener(createEnableDisableRunnableWrapper(() -> {
 				if (paused.getAndSet(!paused.get())) {
-					playerControllerPanel.gameLabel.setText(gameName + "...");
-					setText("Pause");
-					gameRunner.resumeGame(playerControllerPanel.getSelectedPlayers(gameName));
+					gameRunner.setPlayers(playerControllerPanel.getSelectedPlayers());
+					gameRunner.resumeGame();
 				} else {
-					setText("  Play  ");
-					gameRunner.pauseGame();
+					gameRunner.pauseGame(false);
 				}
 			}, newGameButton, backButton, this));
+		}
+
+		public void gameStarted() {
+			paused.set(false);
+			setText("Pause");
 		}
 
 		public void gameEnded() {

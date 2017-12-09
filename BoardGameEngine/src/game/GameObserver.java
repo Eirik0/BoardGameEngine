@@ -1,43 +1,42 @@
 package game;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class GameObserver<M, P extends IPosition<M, P>> {
-	private BiConsumer<IPlayer, Integer> playerChangedConsumer;
-	private Consumer<P> positionChangedConsumer;
-	private Consumer<Integer> gamePausedConsumer;
+	private Consumer<PositionChangedInfo<M, P>> positionChangedConsumer;
+	private Runnable gamePausedRunnable;
+	private Runnable gameRunningRunnable;
 
 	public GameObserver() {
-		playerChangedConsumer = (b, i) -> {
-		};
 		positionChangedConsumer = p -> {
 		};
-		gamePausedConsumer = i -> {
+		gamePausedRunnable = () -> {
+		};
+		gameRunningRunnable = () -> {
 		};
 	}
 
-	public void setPlayerChangedAction(BiConsumer<IPlayer, Integer> playerChangedConsumer) {
-		this.playerChangedConsumer = playerChangedConsumer;
-	}
-
-	public void notifyPlayerChanged(IPlayer newPlayer, int playerNum) {
-		playerChangedConsumer.accept(newPlayer, playerNum);
-	}
-
-	public void setPositionChangedAction(Consumer<P> positionChangedConsumer) {
+	public void setPositionChangedAction(Consumer<PositionChangedInfo<M, P>> positionChangedConsumer) {
 		this.positionChangedConsumer = positionChangedConsumer;
 	}
 
-	public void notifyPositionChanged(P position) {
-		positionChangedConsumer.accept(position);
+	public void notifyPositionChanged(PositionChangedInfo<M, P> positionChangedInfo) {
+		positionChangedConsumer.accept(positionChangedInfo);
 	}
 
-	public void setGamePausedAction(Consumer<Integer> gamePausedConsumer) {
-		this.gamePausedConsumer = gamePausedConsumer;
+	public void setGameRunningAction(Runnable gameRunningRunnable) {
+		this.gameRunningRunnable = gameRunningRunnable;
 	}
 
-	public void notifyGamePaused(int playerNum) {
-		gamePausedConsumer.accept(playerNum);
+	public void notifyGameRunning() {
+		gameRunningRunnable.run();
+	}
+
+	public void setGamePausedAction(Runnable gamePausedRunnable) {
+		this.gamePausedRunnable = gamePausedRunnable;
+	}
+
+	public void notifyGamePaused() {
+		gamePausedRunnable.run();
 	}
 }

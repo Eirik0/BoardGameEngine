@@ -6,10 +6,7 @@ import gui.gamestate.GameState;
 import gui.gamestate.GameState.UserInput;
 
 public class GameGuiManager {
-	private static int mouseX;
-	private static int mouseY;
-
-	private static boolean mouseEntered;
+	private static final MouseTracker mouseTracker = new MouseTracker(GameGuiManager::handleUserInput);
 
 	private static int componentWidth;
 	private static int componentHeight;
@@ -19,24 +16,27 @@ public class GameGuiManager {
 	private static Consumer<String> startGameAction;
 
 	public static int getMouseX() {
-		return mouseX;
+		return mouseTracker.mouseX;
 	}
 
 	public static int getMouseY() {
-		return mouseY;
+		return mouseTracker.mouseY;
 	}
 
 	public static void setMouseXY(int mouseX, int mouseY) {
-		GameGuiManager.mouseX = mouseX;
-		GameGuiManager.mouseY = mouseY;
+		mouseTracker.setMouseXY(mouseX, mouseY);
 	}
 
 	public static boolean isMouseEntered() {
-		return mouseEntered;
+		return mouseTracker.isMouseEntered;
 	}
 
 	public static void setMouseEntered(boolean mouseEntered) {
-		GameGuiManager.mouseEntered = mouseEntered;
+		mouseTracker.setMouseEntered(mouseEntered);
+	}
+
+	public static MouseTracker getMouseTracker() {
+		return mouseTracker;
 	}
 
 	public static void handleUserInput(UserInput input) {
@@ -63,7 +63,7 @@ public class GameGuiManager {
 		return currentState;
 	}
 
-	public static void setSetGameAction(Consumer<String> startGameAction) {
+	public static void setLoadGameAction(Consumer<String> startGameAction) {
 		GameGuiManager.startGameAction = startGameAction;
 	}
 
@@ -74,4 +74,5 @@ public class GameGuiManager {
 	public static void setGameState(GameState gameState) {
 		currentState = gameState;
 	}
+
 }

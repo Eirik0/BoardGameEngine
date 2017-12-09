@@ -15,7 +15,8 @@ import gui.GuiPlayer;
 public class GameRunnerTest {
 	private static void startGame(GameRunner<?, ?> gameRunner, IPlayer player) {
 		gameRunner.createNewGame();
-		gameRunner.resumeGame(Collections.singletonList(player));
+		gameRunner.setPlayers(Collections.singletonList(player));
+		gameRunner.resumeGame();
 	}
 
 	@Test
@@ -24,7 +25,7 @@ public class GameRunnerTest {
 		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
 		startGame(gameRunner, game.player);
 		Thread.sleep(10);// sleep a little to let the list populate
-		gameRunner.pauseGame();
+		gameRunner.pauseGame(false);
 		assertTrue(game.list.size() > 0);
 		assertEquals(2, game.numNewPositions);
 	}
@@ -36,7 +37,7 @@ public class GameRunnerTest {
 		startGame(gameRunner, game.player);
 		startGame(gameRunner, game.player);
 		Thread.sleep(10);// sleep a little to let the list populate
-		gameRunner.pauseGame();
+		gameRunner.pauseGame(false);
 		assertTrue(game.list.size() > 0);
 		assertEquals(3, game.numNewPositions);
 	}
@@ -47,8 +48,8 @@ public class GameRunnerTest {
 		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
 		startGame(gameRunner, game.player);
 		Thread.sleep(10);// sleep a little to let the list populate
-		gameRunner.pauseGame();
-		gameRunner.pauseGame();
+		gameRunner.pauseGame(false);
+		gameRunner.pauseGame(false);
 		assertTrue(game.list.size() > 0);
 		assertEquals(2, game.numNewPositions);
 	}
@@ -59,7 +60,7 @@ public class GameRunnerTest {
 		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
 		startGame(gameRunner, game.player);
 		Thread.sleep(10);
-		gameRunner.pauseGame();
+		gameRunner.pauseGame(false);
 		assertEquals(2, game.numNewPositions);
 	}
 

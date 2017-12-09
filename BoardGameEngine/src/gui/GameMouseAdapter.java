@@ -7,6 +7,12 @@ import java.awt.event.MouseWheelEvent;
 import gui.gamestate.GameState.UserInput;
 
 public class GameMouseAdapter extends MouseAdapter {
+	private final MouseTracker mouseTracker;
+
+	public GameMouseAdapter(MouseTracker mouseTracker) {
+		this.mouseTracker = mouseTracker;
+	}
+
 	@Override
 	public void mouseClicked(MouseEvent e) {
 	}
@@ -14,26 +20,26 @@ public class GameMouseAdapter extends MouseAdapter {
 	@Override
 	public void mousePressed(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			GameGuiManager.handleUserInput(UserInput.LEFT_BUTTON_PRESSED);
+			mouseTracker.handleUserInput(UserInput.LEFT_BUTTON_PRESSED);
 		}
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			GameGuiManager.handleUserInput(UserInput.LEFT_BUTTON_RELEASED);
+			mouseTracker.handleUserInput(UserInput.LEFT_BUTTON_RELEASED);
 		}
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		GameGuiManager.setMouseEntered(true);
-		GameGuiManager.setMouseXY(e.getX(), e.getY());
+		mouseTracker.setMouseEntered(true);
+		mouseTracker.setMouseXY(e.getX(), e.getY());
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		GameGuiManager.setMouseEntered(false);
+		mouseTracker.setMouseEntered(false);
 	}
 
 	@Override
@@ -42,11 +48,11 @@ public class GameMouseAdapter extends MouseAdapter {
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		GameGuiManager.setMouseXY(e.getX(), e.getY());
+		mouseTracker.setMouseXY(e.getX(), e.getY());
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		GameGuiManager.setMouseXY(e.getX(), e.getY());
+		mouseTracker.setMouseXY(e.getX(), e.getY());
 	}
 }

@@ -42,16 +42,11 @@ public class ComputerPlayerObserver implements DrawingMethods {
 		}, "Computer_Observation_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
 	}
 
-	public ComputerPlayerResult getCurrentResult() {
-		return currentResult;
-	}
-
 	public void drawOn(Graphics2D graphics, int width, int height) {
 		List<ObservedMoveWithScore> currentMoves = currentResult.moves;
 		if (currentMoves == null) {
 			return;
 		}
-		fillRect(graphics, 0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
 		graphics.setFont(BoardGameEngineMain.DEFAULT_FONT_SMALL);
 		FontMetrics metrics = graphics.getFontMetrics();
 		int stringHeight = metrics.getHeight() + 2;

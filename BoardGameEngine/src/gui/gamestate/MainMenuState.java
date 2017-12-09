@@ -17,8 +17,8 @@ public class MainMenuState implements GameState {
 	public MainMenuState() {
 		Set<String> gameNames = GameRegistry.getGameNames();
 
-		double widthPercentStart = 0.15;
-		double widthPercentEnd = 0.85;
+		double widthPercentStart = 0.25;
+		double widthPercentEnd = 0.75;
 		double gap = 0.05;
 		double height = 1.0 / gameNames.size() - gap * (gameNames.size() + 1) / gameNames.size();
 
@@ -78,11 +78,12 @@ public class MainMenuState implements GameState {
 			drawCenteredString(graphics, gameName, getCenterX(), getCenterY());
 		}
 
-		private boolean checkContainsCursor() {
-			return GameGuiManager.getMouseY() >= getY0() && GameGuiManager.getMouseY() <= getY1() && GameGuiManager.getMouseX() >= getX0() && GameGuiManager.getMouseX() <= getX1();
+		boolean checkContainsCursor() {
+			return GameGuiManager.isMouseEntered() && GameGuiManager.getMouseY() >= getY0() && GameGuiManager.getMouseY() <= getY1()
+					&& GameGuiManager.getMouseX() >= getX0() && GameGuiManager.getMouseX() <= getX1();
 		}
 
-		private int getX0() {
+		int getX0() {
 			return round(GameGuiManager.getComponentWidth() * widthPercentStart);
 		}
 

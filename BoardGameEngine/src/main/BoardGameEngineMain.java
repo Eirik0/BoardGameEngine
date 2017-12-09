@@ -1,23 +1,14 @@
 package main;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
 import analysis.strategy.AlphaBetaStrategy;
-import game.GameObserver;
 import game.GameRunner;
-import game.IGame;
-import game.MoveListFactory;
 import game.chess.ChessGame;
 import game.chess.ChessGameRenderer;
 import game.chess.ChessPositionEvaluator;
@@ -37,13 +28,8 @@ import game.tictactoe.TicTacToePositionEvaluator;
 import game.ultimatetictactoe.UltimateTicTacToeGame;
 import game.ultimatetictactoe.UltimateTicTacToeGameRenderer;
 import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
-import gui.FixedDurationGameLoop;
 import gui.GameGuiManager;
-import gui.GameImage;
-import gui.GameMouseAdapter;
-import gui.GamePanel;
 import gui.GameRegistry;
-import gui.analysis.AnalysisPanel;
 import gui.gamestate.GameRunningState;
 import gui.gamestate.MainMenuState;
 
@@ -51,96 +37,35 @@ public class BoardGameEngineMain {
 	private static final String TITLE = "Board Game Engine";
 	private static final boolean DARK_THEME = true;
 
-	public static final int DEFAULT_WIDTH = 1024;
-	public static final int DEFAULT_HEIGHT = 768;
+	public static final int DEFAULT_WIDTH = 1280;
+	public static final int DEFAULT_HEIGHT = 720;
 
 	public static final Font DEFAULT_FONT = new Font("consolas", Font.PLAIN, 24);
 	public static final Font DEFAULT_FONT_SMALL = new Font(Font.DIALOG, Font.PLAIN, 12);
 
 	public static final Color BACKGROUND_COLOR = DARK_THEME ? Color.BLACK : Color.WHITE;
 	public static final Color FOREGROUND_COLOR = DARK_THEME ? Color.WHITE : Color.BLACK;
-	public static final Color LIGHTER_FOREGROUND_COLOR = DARK_THEME ? Color.LIGHT_GRAY : Color.GRAY;
+	public static final Color LIGHTER_FOREGROUND_COLOR = DARK_THEME ? new Color(209, 209, 209) : Color.GRAY;
 
 	public static void main(String[] args) {
 		registerGames();
 
-		GameImage gameImage = new GameImage();
+		JFrame mainFrame = createMainFrame();
+		MainPanel mainPanel = new MainPanel(mainFrame);
+		mainFrame.setContentPane(mainPanel);
 
-		JPanel contentPane = new JPanel(new BorderLayout());
-		JFrame mainFrame = createMainFrame(contentPane);
-		GamePanel gamePanel = createGamePanel(gameImage);
-
-		contentPane.add(gamePanel, BorderLayout.CENTER);
-
-		GameGuiManager.setSetGameAction(gameName -> {
-			IGame<?, ?> game = GameRegistry.getGame(gameName);
-			MoveListFactory<?> moveListFactory = GameRegistry.getMoveListFactory(game.getName());
-
-			AnalysisPanel<?, ?> analysisPanel = new AnalysisPanel<>(gameName);
-
-			GameObserver<?, ?> gameObserver = new GameObserver<>();
-			gameObserver.setPlayerChangedAction(analysisPanel::playerChanged);
-			gameObserver.setPositionChangedAction(analysisPanel::positionChanged);
-
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			GameRunner<?, ?> gameRunner = new GameRunner(game, gameObserver, moveListFactory);
-			PlayerControllerPanel playerControllerPanel = new PlayerControllerPanel(game, gameRunner);
-
-			gameObserver.setGamePausedAction(playerNum -> {
-				playerControllerPanel.gameEnded();
-				analysisPanel.gamePaused(playerNum);
-			});
-
-			JSplitPane gameSplitPane = createSplitPane(gamePanel, analysisPanel);
-
-			setGameState(gameName, gameRunner);
-
-			playerControllerPanel.setBackAction(() -> {
-				analysisPanel.stopDrawThread();
-
-				SwingUtilities.invokeLater(() -> {
-					Dimension gamePanelSize = contentPane.getSize();
-					contentPane.remove(playerControllerPanel);
-					contentPane.remove(gameSplitPane);
-					contentPane.add(gamePanel, BorderLayout.CENTER);
-					gamePanel.setSize(gamePanelSize.getSize());
-					repackFrame(mainFrame, gamePanel);
-				});
-			});
-
-			SwingUtilities.invokeLater(() -> {
-				Dimension splitPaneSize = new Dimension(contentPane.getSize().width, contentPane.getSize().height - playerControllerPanel.getPreferredSize().height);
-				contentPane.remove(gamePanel);
-				contentPane.add(gameSplitPane, BorderLayout.CENTER);
-				contentPane.add(playerControllerPanel, BorderLayout.NORTH);
-				gameSplitPane.setSize(splitPaneSize);
-				repackFrame(mainFrame, gameSplitPane);
-			});
-		});
+		GameGuiManager.setLoadGameAction(gameName -> mainPanel.loadGame(gameName));
 
 		GameGuiManager.setGameState(new MainMenuState());
 
-		FixedDurationGameLoop gameLoop = new FixedDurationGameLoop(() -> {
-			GameGuiManager.getGameState().drawOn(gameImage.getGraphics());
-			gamePanel.repaintAndWait();
-		});
-
-		gamePanel.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				gameImage.checkResized(gamePanel.getWidth(), gamePanel.getHeight());
-				GameGuiManager.setComponentSize(gamePanel.getWidth(), gamePanel.getHeight());
-			}
-		});
-
 		mainFrame.pack();
 
-		new Thread(() -> gameLoop.runLoop(), "Game_Loop_Thread").start();
+		mainPanel.gamePanel.startGameLoop("Game_Loop_Thread");
 
 		SwingUtilities.invokeLater(() -> {
 			mainFrame.setLocationRelativeTo(null);
 			mainFrame.setVisible(true);
-			gamePanel.requestFocus();
+			mainPanel.gamePanel.requestFocus();
 		});
 	}
 
@@ -177,41 +102,15 @@ public class BoardGameEngineMain {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void setGameState(String gameName, GameRunner<?, ?> gameRunner) {
+	public static void setGameState(String gameName, GameRunner<?, ?> gameRunner) {
 		GameGuiManager.setGameState(new GameRunningState(gameRunner, GameRegistry.newGameRenderer(gameName)));
 	}
 
-	private static GamePanel createGamePanel(GameImage gameImage) {
-		GamePanel gamePanel = new GamePanel(gameImage);
-		gamePanel.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-
-		GameMouseAdapter mouseAdapter = new GameMouseAdapter();
-
-		gamePanel.addMouseMotionListener(mouseAdapter);
-		gamePanel.addMouseListener(mouseAdapter);
-
-		return gamePanel;
-	}
-
-	private static JFrame createMainFrame(JPanel contentPane) {
+	private static JFrame createMainFrame() {
 		JFrame mainFrame = new JFrame(TITLE);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setFocusable(false);
-		mainFrame.setContentPane(contentPane);
 		return mainFrame;
-	}
-
-	private static JSplitPane createSplitPane(JComponent left, JComponent right) {
-		JSplitPane splitPane = initComponent(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, left, right));
-		splitPane.setDividerSize(3);
-		splitPane.setDividerLocation(GameGuiManager.getComponentWidth() * 3 / 4 - 30);
-		splitPane.setResizeWeight(1);
-		return splitPane;
-	}
-
-	private static void repackFrame(JFrame mainFrame, JComponent gamePanel) {
-		gamePanel.setPreferredSize(gamePanel.getSize());
-		mainFrame.pack();
 	}
 
 	public static <T extends JComponent> T initComponent(T component) {
