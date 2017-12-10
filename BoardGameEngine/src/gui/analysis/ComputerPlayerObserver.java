@@ -8,38 +8,38 @@ import java.util.function.Consumer;
 
 import analysis.AnalysisResult;
 import analysis.ComputerPlayer;
-import analysis.search.ThreadNumber;
 import game.TwoPlayers;
 import gui.DrawingMethods;
+import gui.FixedDurationGameLoop;
 import main.BoardGameEngineMain;
 
 public class ComputerPlayerObserver implements DrawingMethods {
-	private static final int MS_PER_UPDATE = DrawingMethods.roundS(1000.0 / 60);
+	public static final String NAME = "Computer Observer";
 
-	private final int playerNum;
+	private final ComputerPlayer computerPlayer;
+	private int playerNum;
+	private final Consumer<String> nameConsumer;
+	private final Consumer<String> currentDepthConsumer;
 
 	private ComputerPlayerResult currentResult = new ComputerPlayerResult(null, Collections.emptyList(), 0);
 
-	private volatile boolean keepObserving = true;
-
 	public ComputerPlayerObserver(ComputerPlayer computerPlayer, int playerNum, Consumer<String> nameConsumer, Consumer<String> currentDepthConsumer) {
+		this.computerPlayer = computerPlayer;
 		this.playerNum = playerNum;
-		new Thread(() -> {
-			nameConsumer.accept(computerPlayer.toString() + "...");
-			do {
-				currentResult = computerPlayer.getCurrentResult();
-				currentDepthConsumer.accept(String.format("depth = %-3d", currentResult.depth));
-				synchronized (this) {
-					try {
-						wait(MS_PER_UPDATE);
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			} while (keepObserving && !currentResult.isDecided);
-			nameConsumer.accept(computerPlayer.toString());
+		this.nameConsumer = nameConsumer;
+		this.currentDepthConsumer = currentDepthConsumer;
+		nameConsumer.accept(computerPlayer.toString() + "...");
+		FixedDurationGameLoop.addRunnable(NAME, () -> {
+			currentResult = computerPlayer.getCurrentResult();
 			currentDepthConsumer.accept(String.format("depth = %-3d", currentResult.depth));
-		}, "Computer_Observation_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
+			if (currentResult.isDecided) {
+				stopObserving();
+			}
+		});
+	}
+
+	public void setPlayerNum(int playerNum) {
+		this.playerNum = playerNum;
 	}
 
 	public void drawOn(Graphics2D graphics) {
@@ -77,8 +77,9 @@ public class ComputerPlayerObserver implements DrawingMethods {
 		}
 	}
 
-	public synchronized void stopObserving() {
-		keepObserving = false;
-		notify();
+	public void stopObserving() {
+		FixedDurationGameLoop.removeRunnable(NAME);
+		nameConsumer.accept(computerPlayer.toString());
+		currentDepthConsumer.accept(String.format("depth = %-3d", currentResult.depth));
 	}
 }

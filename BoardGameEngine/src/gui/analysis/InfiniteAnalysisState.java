@@ -52,10 +52,10 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 				computerConfiurationPanel.updateComputerPlayerInfo();
 				computerPlayer = (ComputerPlayer) GameRegistry.getPlayer(gameName, ComputerPlayer.NAME, computerPlayerInfo);
 
-				startAnalysisThread();
-
 				observer = new ComputerPlayerObserver(computerPlayer, this.position.getCurrentPlayer(), name -> {
 				}, depth -> depthLabel.setText(depth));
+
+				startAnalysisThread();
 			}
 		});
 
@@ -87,7 +87,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 					synchronized (this) {
 						keepRunning.set(false); // Only keep analyzing if we have set another position
 					}
-					computerPlayer.getMove(this.position.createCopy());
+					computerPlayer.getMove(position.createCopy());
 				} while (keepRunning.get());
 			} finally {
 				computerPlayer.notifyGameEnded();
@@ -137,12 +137,8 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 		if (computerPlayer != null) {
 			computerPlayer.stopSearch(false);
 		}
-		if (observer != null) {
-			observer.stopObserving();
-		}
 		if (isRunning) {
-			observer = new ComputerPlayerObserver(computerPlayer, this.position.getCurrentPlayer(), name -> {
-			}, depth -> depthLabel.setText(depth));
+			observer.setPlayerNum(position.getCurrentPlayer());
 		}
 	}
 
