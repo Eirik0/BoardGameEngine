@@ -24,6 +24,7 @@ public class MoveHistory<M, P extends IPosition<M, P>> {
 	public synchronized void addMove(M move, int playerNum) {
 		if (move == null) {
 			moveHistoryList.clear();
+			setIndex(new MoveIndex(-1, numberOfPlayers - 1));
 			return;
 		}
 		MoveIndex nextIndex = MoveIndex.nextIndex(selectedMoveIndex, numberOfPlayers);
@@ -43,6 +44,7 @@ public class MoveHistory<M, P extends IPosition<M, P>> {
 			historyMove.addMove(move, playerNum);
 			selectedMoveIndex = new MoveIndex(nextIndex.moveNumber, playerNum - 1);
 		} else {
+			historyMove.addMove(move, playerNum);
 			int moveNum = moveHistoryList.size() - 1;
 			while (moveNum > nextIndex.moveNumber) {
 				moveHistoryList.remove(moveNum);

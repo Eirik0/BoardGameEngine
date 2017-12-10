@@ -86,6 +86,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 				do {
 					synchronized (this) {
 						keepRunning.set(false); // Only keep analyzing if we have set another position
+						notify();
 					}
 					computerPlayer.getMove(position.createCopy());
 				} while (keepRunning.get());
@@ -133,12 +134,17 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 	@Override
 	public synchronized void setPosition(P position) {
 		this.position = position;
-		keepRunning.set(true);
-		if (computerPlayer != null) {
-			computerPlayer.stopSearch(false);
-		}
 		if (isRunning) {
+			keepRunning.set(true);
+			computerPlayer.stopSearch(false);
 			observer.setPlayerNum(position.getCurrentPlayer());
+			while (keepRunning.get()) {
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+			}
 		}
 	}
 

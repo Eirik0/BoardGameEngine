@@ -78,6 +78,7 @@ public class PlayerControllerPanel extends JPanel {
 		buttonPanel.add(pausePlayButton);
 		buttonPanel.add(Box.createHorizontalStrut(10));
 		buttonPanel.add(newGameButton);
+		buttonPanel.add(Box.createHorizontalStrut(30));
 		removeAll();
 		add(gameLabel, BorderLayout.WEST);
 		add(buttonPanelWrapper, BorderLayout.CENTER);

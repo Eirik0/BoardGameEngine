@@ -265,7 +265,7 @@ public class ChessFunctions implements ChessConstants {
 			}
 			throw new IllegalStateException("Queen not found at " + from);
 		default:
-			throw new IllegalStateException("Unexpected piece: " + piece);
+			throw new IllegalStateException("Unexpected piece: " + piece + " at " + from);
 		}
 	}
 

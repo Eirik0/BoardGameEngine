@@ -32,8 +32,8 @@ public class UTTTComputerPlayerTest {
 	public void testMakeTwoMoves() {
 		ComputerPlayer player = newComputerPlayer(2, 50);
 		UltimateTicTacToePosition position = new UltimateTicTacToePosition();
-		player.getMove(position);
-		player.getMove(position);
+		position.makeMove(player.getMove(position));
+		position.makeMove(player.getMove(position));
 		player.notifyGameEnded();
 	}
 

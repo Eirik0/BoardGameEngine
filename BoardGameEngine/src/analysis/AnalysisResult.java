@@ -106,10 +106,6 @@ public class AnalysisResult<M> {
 		return max != null && max.score == AnalysisResult.LOSS;
 	}
 
-	public boolean isDraw() {
-		return max != null && isDraw(max.score);
-	}
-
 	public synchronized boolean onlyOneMove() {
 		return max != null && movesWithScore.size() == numLost + 1;
 	}

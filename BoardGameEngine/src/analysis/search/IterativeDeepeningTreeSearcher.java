@@ -81,19 +81,20 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			if (searchStopped && result != null) { // merge only when the search is stopped
 				result.mergeWith(search);
 			} else {
+				// add back decided moves
 				if (result != null) {
-					if (escapeEarly && search.isLoss()) {
-						break; // return the previous result if the current is a loss for longevity
-					}
-					// Add back decided moves
 					for (MoveWithScore<M> moveWithScore : result.getDecidedMoves()) {
 						search.addMoveWithScore(moveWithScore.move, moveWithScore.score);
 					}
 				}
+				// return the previous result if the current is a loss for longevity
+				if (result != null && escapeEarly && search.isLoss()) {
+					break;
+				}
 				result = search;
 			}
 			strategy.notifyPlyComplete(searchStopped);
-			if (escapeEarly && (result.isWin() || result.isDraw() || result.onlyOneMove()) || result.isDecided()) {
+			if (escapeEarly && (result.isWin() || result.onlyOneMove()) || result.isDecided()) {
 				break; // when escaping early, break if the game is won, drawn, or there is only one move; or if all moves are decided
 			}
 		} while (!searchStopped && plies < maxPlies);
@@ -131,7 +132,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		}
 	}
 
-	private synchronized void stopWorkers() { // Stopping a worker will eventually remove it from workingWorkers
+	private synchronized void stopWorkers() { // Stopping a worker will eventually remove it from treeSearchesInProgress
 		searchStopped = true;
 		for (Entry<TreeSearchWorker<M, P>, GameTreeSearch<M, P>> searchInProgress : treeSearchesInProgress.entrySet()) {
 			searchInProgress.getKey().waitForSearchToStart();
