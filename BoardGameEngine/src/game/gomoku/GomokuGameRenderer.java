@@ -3,8 +3,6 @@ package game.gomoku;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.Arrays;
-import java.util.List;
 
 import game.Coordinate;
 import game.MoveList;
@@ -18,6 +16,11 @@ import main.BoardGameEngineMain;
 
 public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosition> {
 	private static final Color BOARD_COLOR = new Color(155, 111, 111);
+	private static final Coordinate[] STAR_POINTS = new Coordinate[] {
+			Coordinate.valueOf(3, 3), Coordinate.valueOf(9, 3), Coordinate.valueOf(15, 3),
+			Coordinate.valueOf(3, 9), Coordinate.valueOf(9, 9), Coordinate.valueOf(15, 9),
+			Coordinate.valueOf(3, 15), Coordinate.valueOf(9, 15), Coordinate.valueOf(15, 15)
+	};
 
 	private BoardSizer sizer;
 
@@ -48,15 +51,9 @@ public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosit
 		}
 		// Large
 		double large = Math.min(4, sizer.boardWidth / 100.0);
-		for (Coordinate starPoint : getStarPoints()) {
+		for (Coordinate starPoint : STAR_POINTS) {
 			fillCircle(g, sizer.getCenterX(starPoint.x), sizer.getCenterY(starPoint.y), large);
 		}
-	}
-
-	private List<Coordinate> getStarPoints() {
-		return Arrays.asList(Coordinate.valueOf(3, 3), Coordinate.valueOf(9, 3), Coordinate.valueOf(15, 3),
-				Coordinate.valueOf(3, 9), Coordinate.valueOf(9, 9), Coordinate.valueOf(15, 9),
-				Coordinate.valueOf(3, 15), Coordinate.valueOf(9, 15), Coordinate.valueOf(15, 15));
 	}
 
 	@Override

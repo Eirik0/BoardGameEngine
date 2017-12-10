@@ -29,7 +29,7 @@ public class MainPanel extends JPanel {
 	public MainPanel(JFrame mainFrame) {
 		super(new BorderLayout());
 		this.mainFrame = mainFrame;
-		gamePanel = new GamePanel(g -> GameGuiManager.getGameState().drawOn(g), (width, height) -> GameGuiManager.setComponentSize(width, height));
+		gamePanel = new GamePanel(g -> GameGuiManager.getGameState().drawOn(g), (width, height) -> GameGuiManager.setComponentSize(width.intValue(), height.intValue()));
 
 		gamePanel.setPreferredSize(new Dimension(BoardGameEngineMain.DEFAULT_WIDTH, BoardGameEngineMain.DEFAULT_HEIGHT));
 
@@ -49,8 +49,8 @@ public class MainPanel extends JPanel {
 		JSplitPane gameSplitPane = createSplitPane(gameRunnerPanels.moveHistoryPanel, analysisSplitPane, GameGuiManager.getComponentWidth() / 6, 0);
 
 		gameRunnerPanels.playerControllerPanel.setBackAction(() -> {
-			gameRunnerPanels.analysisPanel.stopDrawThread();
-			gameRunnerPanels.moveHistoryPanel.stopDrawThread();
+			gameRunnerPanels.analysisPanel.stopAnalysis();
+			gameRunnerPanels.moveHistoryPanel.stopDrawing();
 			SwingUtilities.invokeLater(() -> {
 				Dimension gamePanelSize = getSize();
 				remove(gameRunnerPanels.playerControllerPanel);
@@ -68,6 +68,8 @@ public class MainPanel extends JPanel {
 			add(gameRunnerPanels.playerControllerPanel, BorderLayout.NORTH);
 			gameSplitPane.setSize(splitPaneSize);
 			repackFrame(mainFrame, gameSplitPane);
+			gameRunnerPanels.moveHistoryPanel.startDrawing();
+			gameRunnerPanels.analysisPanel.startDrawing();
 		});
 	}
 

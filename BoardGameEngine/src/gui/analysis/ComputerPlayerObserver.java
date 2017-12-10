@@ -26,23 +26,23 @@ public class ComputerPlayerObserver implements DrawingMethods {
 		this.playerNum = playerNum;
 		new Thread(() -> {
 			nameConsumer.accept(computerPlayer.toString() + "...");
-			synchronized (this) {
-				do {
-					currentResult = computerPlayer.getCurrentResult();
-					currentDepthConsumer.accept(String.format("depth = %-3d", currentResult.depth));
+			do {
+				currentResult = computerPlayer.getCurrentResult();
+				currentDepthConsumer.accept(String.format("depth = %-3d", currentResult.depth));
+				synchronized (this) {
 					try {
 						wait(MS_PER_UPDATE);
 					} catch (InterruptedException e) {
 						throw new RuntimeException(e);
 					}
-				} while (keepObserving && !currentResult.isDecided);
-				nameConsumer.accept(computerPlayer.toString());
-				currentDepthConsumer.accept(String.format("depth = %-3d", currentResult.depth));
-			}
+				}
+			} while (keepObserving && !currentResult.isDecided);
+			nameConsumer.accept(computerPlayer.toString());
+			currentDepthConsumer.accept(String.format("depth = %-3d", currentResult.depth));
 		}, "Computer_Observation_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
 	}
 
-	public void drawOn(Graphics2D graphics, int width, int height) {
+	public void drawOn(Graphics2D graphics) {
 		List<ObservedMoveWithScore> currentMoves = currentResult.moves;
 		if (currentMoves == null) {
 			return;
@@ -58,7 +58,7 @@ public class ComputerPlayerObserver implements DrawingMethods {
 			graphics.setColor(moveWithScore.isPartial || AnalysisResult.isGameOver(moveWithScore.score) ? BoardGameEngineMain.FOREGROUND_COLOR : BoardGameEngineMain.LIGHTER_FOREGROUND_COLOR);
 			graphics.drawString(i < 9 ? (i + 1) + ".   " : (i + 1) + ". ", 20, y);
 			graphics.drawString(String.format("%-13s", getScoreString(moveWithScore.score, playerNum == TwoPlayers.PLAYER_1)), 45, y);
-			graphics.drawString(moveWithScore.move.toString(), 100, y);
+			graphics.drawString(moveWithScore.moveString, 100, y);
 			++i;
 		}
 	}
@@ -73,7 +73,7 @@ public class ComputerPlayerObserver implements DrawingMethods {
 		} else {
 			long playerScore = Math.round(100 * (isPlayerOne ? score : -score));
 			double roundScore = playerScore / 100.0;
-			return String.format("(%.2f)", roundScore);
+			return String.format("(%.2f)", Double.valueOf(roundScore));
 		}
 	}
 

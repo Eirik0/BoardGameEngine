@@ -99,7 +99,6 @@ public class GameRegistry {
 		private final IGame<M, P> game;
 		final Class<? extends IGameRenderer<M, P>> gameRendererClass;
 		final Map<String, Function<ComputerPlayerInfo<M, P>, IPlayer>> playerMap = new LinkedHashMap<>(); // The first player is the default player
-		final Class<? extends MoveList<M>> analysisMoveListClass;;
 		final MoveListFactory<M> moveListFactory;
 		final Map<String, Supplier<IDepthBasedStrategy<M, P>>> strategySupplierMap = new LinkedHashMap<>();
 		long defaultMsPerMove = 3000;
@@ -108,7 +107,6 @@ public class GameRegistry {
 		public GameRegistryItem(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass, Class<? extends MoveList<M>> analysisMoveListClass) {
 			this.game = game;
 			this.gameRendererClass = gameRendererClass;
-			this.analysisMoveListClass = analysisMoveListClass;
 			moveListFactory = new MoveListFactory<>(game.getMaxMoves(), analysisMoveListClass);
 		}
 

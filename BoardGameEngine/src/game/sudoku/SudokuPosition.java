@@ -46,7 +46,7 @@ public class SudokuPosition implements IPosition<SudokuMove, SudokuPosition> {
 		}
 	}
 
-	private void setCanNotPlay(boolean[] canNotPlay, int[] square) {
+	private static void setCanNotPlay(boolean[] canNotPlay, int[] square) {
 		for (int m = 0; m < BOARD_WIDTH; ++m) {
 			if (square[m] != 0) {
 				canNotPlay[square[m]] = true;

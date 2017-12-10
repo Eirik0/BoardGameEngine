@@ -10,9 +10,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import util.Pair;
 
 public class ForkJoinExampleThreadTracker {
-	public static int SLEEP_PER_EVAL = 128;
-	public static int SLEEP_PER_BRANCH = 32;
-	public static int SLEEP_PER_MERGE = 16;
+	static int SLEEP_PER_EVAL = 128;
+	static int SLEEP_PER_BRANCH = 32;
+	static int SLEEP_PER_MERGE = 16;
 
 	private static List<List<ForkJoinExampleNode>> nodesByDepth = new ArrayList<>();
 	private static Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> nodeToInfoMap = new HashMap<>();

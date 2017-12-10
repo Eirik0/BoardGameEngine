@@ -65,15 +65,15 @@ public class AnalysisResult<M> {
 		AnalysisResult<M> mergedResult = new AnalysisResult<>();
 		Map<M, Double> mergedMoveMap = new HashMap<>();
 		for (MoveWithScore<M> moveWithScore : movesWithScore) {
-			mergedMoveMap.put(moveWithScore.move, moveWithScore.score);
+			mergedMoveMap.put(moveWithScore.move, Double.valueOf(moveWithScore.score));
 		}
 		for (MoveWithScore<M> moveWithScore : resultToMerge.movesWithScore) {
 			if (moveWithScore.isValid()) {
-				mergedMoveMap.put(moveWithScore.move, moveWithScore.score);
+				mergedMoveMap.put(moveWithScore.move, Double.valueOf(moveWithScore.score));
 			}
 		}
 		for (Entry<M, Double> moveWithScore : mergedMoveMap.entrySet()) {
-			mergedResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue());
+			mergedResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue().doubleValue());
 		}
 		return mergedResult;
 	}
@@ -82,11 +82,11 @@ public class AnalysisResult<M> {
 		return new ArrayList<>(movesWithScore);
 	}
 
-	public MoveWithScore<M> getMin() {
+	public synchronized MoveWithScore<M> getMin() {
 		return min;
 	}
 
-	public MoveWithScore<M> getMax() {
+	public synchronized MoveWithScore<M> getMax() {
 		return max;
 	}
 

@@ -64,7 +64,7 @@ public class PlayerControllerPanel extends JPanel {
 
 		JButton newGameButton = BoardGameEngineMain.initComponent(new JButton("New Game"));
 		JButton backButton = BoardGameEngineMain.initComponent(new JButton("Back"));
-		pausePlayButton = new PausePlayButton(gameName, gameRunner, this, newGameButton, backButton);
+		pausePlayButton = new PausePlayButton(gameRunner, this, newGameButton, backButton);
 		JButton[] buttons = new JButton[] { newGameButton, backButton, pausePlayButton };
 
 		newGameButton.addActionListener(createEnableDisableRunnableWrapper(() -> gameRunner.createNewGame(), buttons));
@@ -122,7 +122,7 @@ public class PlayerControllerPanel extends JPanel {
 	static class PausePlayButton extends JButton {
 		private final AtomicBoolean paused;
 
-		public PausePlayButton(String gameName, GameRunner<?, ?> gameRunner, PlayerControllerPanel playerControllerPanel, JButton newGameButton, JButton backButton) {
+		public PausePlayButton(GameRunner<?, ?> gameRunner, PlayerControllerPanel playerControllerPanel, JButton newGameButton, JButton backButton) {
 			super("  Play  ");
 			paused = new AtomicBoolean(true);
 			BoardGameEngineMain.initComponent(this);

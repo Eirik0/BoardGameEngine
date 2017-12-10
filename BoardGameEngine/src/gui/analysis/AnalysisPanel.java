@@ -6,7 +6,6 @@ import javax.swing.JPanel;
 
 import analysis.ComputerPlayer;
 import analysis.ComputerPlayerInfo;
-import analysis.search.ThreadNumber;
 import game.IPlayer;
 import game.IPosition;
 import game.PositionChangedInfo;
@@ -16,6 +15,8 @@ import main.BoardGameEngineMain;
 
 @SuppressWarnings("serial")
 public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
+	private static final String NAME = "Analysis";
+
 	private final String gameName;
 	private final ComputerPlayerInfo<M, P> computerPlayerInfo;
 	private final GamePanel analysisPanel;
@@ -34,16 +35,18 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 
 		analysisState = new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo);
 
-		analysisPanel = new GamePanel(g -> analysisState.drawOn(g), (width, height) -> analysisState.componentResized(width, height));
+		analysisPanel = new GamePanel(g -> analysisState.drawOn(g), (width, height) -> analysisState.componentResized(width.intValue(), height.intValue()));
 
 		add(analysisState.getTopPanel(), BorderLayout.NORTH);
 		add(analysisPanel, BorderLayout.CENTER);
-
-		analysisPanel.startGameLoop("Analysis_Draw_Thread_" + ThreadNumber.getThreadNum(getClass()));
 	}
 
-	public void stopDrawThread() {
-		analysisPanel.stopGameLoop();
+	public void startDrawing() {
+		analysisPanel.addToGameLoop(NAME);
+	}
+
+	public void stopAnalysis() {
+		analysisPanel.removeFromGameLoop(NAME);
 		analysisState.stopAnalysis();
 	}
 
@@ -52,9 +55,6 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 			analysisState.stopAnalysis();
 			setAnalysisState(new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo));
 		}
-	}
-
-	public void playerChanged(IPlayer player, int playerNum) {
 	}
 
 	private void setAnalysisState(IAnalysisState<M, P> newAnalysisState) {

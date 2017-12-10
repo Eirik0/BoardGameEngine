@@ -37,7 +37,7 @@ public class UTTTComputerPlayerTest {
 		player.notifyGameEnded();
 	}
 
-	private void testStopOnTime(int numWorkers, long toWait) {
+	private static void testStopOnTime(int numWorkers, long toWait) {
 		ComputerPlayer player = newComputerPlayer(numWorkers, toWait);
 		long start = System.currentTimeMillis();
 		long extraTime = 1000;

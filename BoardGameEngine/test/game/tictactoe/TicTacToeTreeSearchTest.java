@@ -32,7 +32,7 @@ public class TicTacToeTreeSearchTest {
 	}
 
 	@Test
-	public void testSearchTicTacToe_TestSearchTwoPlies() throws InterruptedException {
+	public void testSearchTicTacToe_TestSearchTwoPlies() {
 		TicTacToePosition position = new TicTacToePosition();
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
 		AnalysisResult<Coordinate> result = treeSearcher.startSearch(position, 2, true);
@@ -41,7 +41,7 @@ public class TicTacToeTreeSearchTest {
 	}
 
 	@Test
-	public void testSearchTicTacToe_TestPlayGame() throws InterruptedException {
+	public void testSearchTicTacToe_TestPlayGame() {
 		TicTacToePosition position = new TicTacToePosition();
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
 		searchAndMove(treeSearcher, position, 2);

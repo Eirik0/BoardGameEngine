@@ -40,7 +40,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 
 		ComputerConfigurationPanel<?, ?> computerConfiurationPanel = new ComputerConfigurationPanel<>(gameName, computerPlayerInfo, true);
 
-		depthLabel = BoardGameEngineMain.initComponent(new JLabel(String.format("depth = %-3d", 0)));
+		depthLabel = BoardGameEngineMain.initComponent(new JLabel(String.format("depth = %-3d", Integer.valueOf(0))));
 
 		JButton analyzeButton = BoardGameEngineMain.initComponent(new JButton("Analyze"));
 		JButton stopButton = BoardGameEngineMain.initComponent(new JButton("Stop"));
@@ -126,7 +126,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 	public void drawOn(Graphics2D graphics) {
 		fillRect(graphics, 0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
 		if (observer != null) {
-			observer.drawOn(graphics, width, height);
+			observer.drawOn(graphics);
 		}
 	}
 

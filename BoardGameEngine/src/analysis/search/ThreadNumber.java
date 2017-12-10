@@ -12,8 +12,8 @@ public class ThreadNumber {
 
 	public static synchronized int getThreadNum(String className) {
 		Integer num = threadNumMap.get(className);
-		num = num == null ? Integer.valueOf(0) : num + 1;
-		threadNumMap.put(className, num);
-		return num;
+		int threadNum = num == null ? 0 : num.intValue() + 1;
+		threadNumMap.put(className, Integer.valueOf(threadNum));
+		return threadNum;
 	}
 }

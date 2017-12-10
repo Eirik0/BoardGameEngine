@@ -39,9 +39,9 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 		int fontHeight = g.getFontMetrics().getHeight() + 2;
 		g.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
 		ForkJoinExampleThreadTracker.maybeRecalculateTimeElapsed();
-		g.drawString("Nodes per evaluated second: " + String.format("%.2f", ForkJoinExampleThreadTracker.getNodesEvaluatedPerSecond()), 2, fontHeight);
-		g.drawString("Percent reevaluated: " + String.format("%.2f", ForkJoinExampleThreadTracker.getPercentReevaluated()), 0, fontHeight * 2);
-		g.drawString("Effective evaluations second: " + String.format("%.2f", ForkJoinExampleThreadTracker.getEffectiveNodesEvaluatedPerSecond()), 2, fontHeight * 3);
+		g.drawString("Nodes per evaluated second: " + String.format("%.2f", Double.valueOf(ForkJoinExampleThreadTracker.getNodesEvaluatedPerSecond())), 2, fontHeight);
+		g.drawString("Percent reevaluated: " + String.format("%.2f", Double.valueOf(ForkJoinExampleThreadTracker.getPercentReevaluated())), 0, fontHeight * 2);
+		g.drawString("Effective evaluations second: " + String.format("%.2f", Double.valueOf(ForkJoinExampleThreadTracker.getEffectiveNodesEvaluatedPerSecond())), 2, fontHeight * 3);
 		List<List<ForkJoinExampleNode>> nodesByDepth = ForkJoinExampleThreadTracker.nodesByDepth();
 		for (List<ForkJoinExampleNode> nodes : nodesByDepth) {
 			for (ForkJoinExampleNode node : nodes) {

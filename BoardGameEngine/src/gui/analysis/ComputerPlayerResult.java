@@ -11,7 +11,7 @@ import analysis.MoveWithScore;
 
 public class ComputerPlayerResult {
 	final List<ObservedMoveWithScore> moves;
-	final int depth;
+	final Integer depth;
 	final boolean isDecided;
 
 	public ComputerPlayerResult(AnalysisResult<Object> analysisResult, List<MoveWithScore<Object>> partialResults, int depth) {
@@ -27,7 +27,7 @@ public class ComputerPlayerResult {
 			moves = new ArrayList<>(moveMap.values());
 			Collections.sort(moves, (move1, move2) -> {
 				if (move1.score == move2.score || (AnalysisResult.isDraw(move1.score) && AnalysisResult.isDraw(move2.score))) {
-					return move1.move.compareTo(move2.move);
+					return move1.moveString.compareTo(move2.moveString);
 				}
 				return AnalysisResult.isGreater(move1.score, move2.score) ? -1 : 1;
 			});
@@ -40,10 +40,10 @@ public class ComputerPlayerResult {
 			}
 			isDecided = decided && analysisResult != null && moves.size() == analysisResult.getMovesWithScore().size();
 		}
-		this.depth = depth;
+		this.depth = Integer.valueOf(depth);
 	}
 
-	private void addMovesToMap(Map<String, ObservedMoveWithScore> moveMap, List<MoveWithScore<Object>> movesWithScore, boolean partial) {
+	private static void addMovesToMap(Map<String, ObservedMoveWithScore> moveMap, List<MoveWithScore<Object>> movesWithScore, boolean partial) {
 		for (MoveWithScore<Object> moveWithScore : movesWithScore) {
 			String moveString = moveWithScore.move == null ? "-" : moveWithScore.move.toString();
 			moveMap.put(moveString, new ObservedMoveWithScore(moveString, moveWithScore.score, partial));

@@ -63,7 +63,7 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
 	public void drawPosition(Graphics2D g, ChessPosition position, MoveList<IChessMove> possibleMoves, IChessMove lastMove) {
 		drawBoard(g, position);
 		drawLastMove(g, position, lastMove);
-		drawMouseOn(g, position, possibleMoves);
+		drawMouseOn(g, position);
 	}
 
 	private void drawBoard(Graphics2D g, ChessPosition position) {
@@ -96,7 +96,7 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
 		GuiPlayerHelper.highlightCoordinate(g, sizer, to.x, to.y, 1.0 / 2.125);
 	}
 
-	private void drawMouseOn(Graphics g, ChessPosition position, MoveList<IChessMove> possibleMoves) {
+	private void drawMouseOn(Graphics g, ChessPosition position) {
 		if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, BOARD_WIDTH);
 			if (movingPieceStart != null) {

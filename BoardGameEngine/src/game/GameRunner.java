@@ -145,13 +145,15 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		}
 	}
 
-	public void setPositionFromHistory(int moveNumToFind, int playerNumToFind) {
+	public synchronized void setPositionFromHistory(int moveNumToFind, int playerNumToFind) {
 		pauseGame(false);
 		P newPosition = game.newInitialPosition();
 		lastMove = moveHistory.setPositionFromHistory(newPosition, moveNumToFind, playerNumToFind);
 		position = newPosition;
 		if (players.get(position.getCurrentPlayer() - 1) instanceof GuiPlayer) {
 			resumeGame();
+		} else {
+			setPositionCopy(NO_PLAYER, currentPlayer, false);
 		}
 	}
 

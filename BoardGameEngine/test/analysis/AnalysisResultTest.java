@@ -18,10 +18,10 @@ public class AnalysisResultTest {
 		AnalysisResult<Integer> result2 = createResult(Arrays.asList(Pair.valueOf(1, 2.0), Pair.valueOf(2, 0.5)));
 		AnalysisResult<Integer> mergedRestult = result1.mergeWith(result2);
 		assertEquals(4, result1.getMovesWithScore().size());
-		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(1, 2.0)));
-		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(2, 0.5)));
-		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(3, 1.0)));
-		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(4, 1.0)));
+		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(Integer.valueOf(1), 2.0)));
+		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(Integer.valueOf(2), 0.5)));
+		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(Integer.valueOf(3), 1.0)));
+		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(Integer.valueOf(4), 1.0)));
 		assertEquals(2.0, mergedRestult.getMax().score, 0.001);
 		assertEquals(0.5, mergedRestult.getMin().score, 0.001);
 		assertEquals(Integer.valueOf(1), mergedRestult.getBestMove());
@@ -30,16 +30,16 @@ public class AnalysisResultTest {
 	private static AnalysisResult<Integer> createResult(List<Pair<Integer, Double>> movesWithScore) {
 		AnalysisResult<Integer> result = new AnalysisResult<>();
 		for (Pair<Integer, Double> moveWithScore : movesWithScore) {
-			result.addMoveWithScore(moveWithScore.getFirst(), moveWithScore.getSecond());
+			result.addMoveWithScore(moveWithScore.getFirst(), moveWithScore.getSecond().doubleValue());
 		}
 		return result;
 	}
 
 	@Test
 	public void testFindBestMoveEvenIfLost() {
-		AnalysisResult<Integer> result = new AnalysisResult<>();
-		result.addMoveWithScore(1, Double.NEGATIVE_INFINITY);
-		assertEquals(Integer.valueOf(1), result.getBestMove());
+		AnalysisResult<String> result = new AnalysisResult<>();
+		result.addMoveWithScore("1", Double.NEGATIVE_INFINITY);
+		assertEquals("1", result.getBestMove());
 	}
 
 	@Test

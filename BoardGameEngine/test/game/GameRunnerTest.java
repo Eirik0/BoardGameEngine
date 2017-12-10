@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.IntFunction;
 
 import org.junit.Test;
 
@@ -65,7 +65,7 @@ public class GameRunnerTest {
 	}
 
 	@Test
-	public void testStardAndEndWhenNoMoves() throws InterruptedException {
+	public void testStardAndEndWhenNoMoves() {
 		AddToListTestGame game = new AddToListTestGame(new AddToListTestPlayer(), i -> Collections.emptyList());
 		GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
 		startGame(gameRunner, game.player);
@@ -75,7 +75,7 @@ public class GameRunnerTest {
 	static class AddToListTestGame implements IGame<Integer, AddToListPosition> {
 		final IPlayer player;
 		final List<Integer> list = new ArrayList<>();
-		final Function<Integer, List<Integer>> possibleMovesFunction;
+		final IntFunction<List<Integer>> possibleMovesFunction;
 		int numNewPositions = 0;
 
 		public AddToListTestGame() {
@@ -83,10 +83,10 @@ public class GameRunnerTest {
 		}
 
 		public AddToListTestGame(IPlayer player) {
-			this(player, i -> Collections.singletonList(i));
+			this(player, i -> Collections.singletonList(Integer.valueOf(i)));
 		}
 
-		public AddToListTestGame(IPlayer player, Function<Integer, List<Integer>> possibleMovesFunction) {
+		public AddToListTestGame(IPlayer player, IntFunction<List<Integer>> possibleMovesFunction) {
 			this.player = player;
 			this.possibleMovesFunction = possibleMovesFunction;
 		}
@@ -134,9 +134,9 @@ public class GameRunnerTest {
 	static class AddToListPosition implements IPosition<Integer, AddToListPosition> {
 		int index;
 		final List<Integer> list;
-		final Function<Integer, List<Integer>> possibleMovesFunction;
+		final IntFunction<List<Integer>> possibleMovesFunction;
 
-		private AddToListPosition(int index, List<Integer> list, Function<Integer, List<Integer>> possibleMovesFunction) {
+		private AddToListPosition(int index, List<Integer> list, IntFunction<List<Integer>> possibleMovesFunction) {
 			this.index = index;
 			this.list = list;
 			this.possibleMovesFunction = possibleMovesFunction;

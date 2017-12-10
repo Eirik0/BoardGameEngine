@@ -9,7 +9,7 @@ import game.TwoPlayers;
 public class GomokuMoveList implements MoveList<Coordinate> {
 	ArrayMoveList<Coordinate> arrayMoveList;
 
-	public GomokuMoveList(Integer capacity) {
+	public GomokuMoveList(int capacity) {
 		arrayMoveList = new ArrayMoveList<>(capacity);
 	}
 

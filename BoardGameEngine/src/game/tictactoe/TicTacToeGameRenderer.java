@@ -47,7 +47,7 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
 		}
 	}
 
-	private int getPlayer(int board, int x, int y) {
+	private static int getPlayer(int board, int x, int y) {
 		int shift = (y * TicTacToePosition.BOARD_WIDTH + x) * 2;
 		return (board >> shift) & TwoPlayers.BOTH_PLAYERS;
 	}

@@ -21,7 +21,7 @@ public class ChessPositionEvaluator implements IPositionEvaluator<IChessMove, Ch
 		return score(position, position.currentPlayer) - score(position, position.otherPlayer);
 	}
 
-	private double score(ChessPosition position, int player) {
+	private static double score(ChessPosition position, int player) {
 		double score = position.materialScore[player];
 		int i = 0;
 		while (i < position.numPawns[player]) {

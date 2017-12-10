@@ -13,12 +13,7 @@ public class MoveHistory<M, P extends IPosition<M, P>> {
 
 	public MoveHistory(int numberOfPlayers) {
 		this.numberOfPlayers = numberOfPlayers;
-		addNullMove();
-	}
-
-	private void addNullMove() {
-		moveHistoryList.add(new HistoryMove<>(numberOfPlayers));
-		setIndex(new MoveIndex(0, 0));
+		setIndex(new MoveIndex(-1, numberOfPlayers - 1));
 	}
 
 	private void setIndex(MoveIndex selectedAndMaxIndex) {
@@ -29,7 +24,6 @@ public class MoveHistory<M, P extends IPosition<M, P>> {
 	public synchronized void addMove(M move, int playerNum) {
 		if (move == null) {
 			moveHistoryList.clear();
-			addNullMove();
 			return;
 		}
 		MoveIndex nextIndex = MoveIndex.nextIndex(selectedMoveIndex, numberOfPlayers);

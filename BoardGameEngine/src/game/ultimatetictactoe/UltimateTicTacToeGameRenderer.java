@@ -64,7 +64,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 	public void drawPosition(Graphics2D g, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves, Coordinate lastMove) {
 		drawMoves(g, position, lastMove);
 		highlightBoardInPlay(g, position, possibleMoves);
-		drawMouseOn(g, position, possibleMoves);
+		drawMouseOn(g, possibleMoves);
 	}
 
 	private void drawMoves(Graphics2D g, UltimateTicTacToePosition position, Coordinate lastMove) {
@@ -109,7 +109,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 		}
 	}
 
-	private void drawMouseOn(Graphics g, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves) {
+	private void drawMouseOn(Graphics g, MoveList<Coordinate> possibleMoves) {
 		if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
 			if (coordinate != null) {

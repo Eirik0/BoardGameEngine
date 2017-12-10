@@ -9,12 +9,12 @@ public class ArrayMoveList<M> implements MoveList<M> {
 	private final M[] quietMoveArray;
 	private int quietArraySize = 0;
 
-	public ArrayMoveList(Integer capacity) {
+	public ArrayMoveList(int capacity) {
 		this(capacity, capacity);
 	}
 
 	@SuppressWarnings("unchecked")
-	public ArrayMoveList(Integer dynamicCapacity, Integer quietCapacity) {
+	public ArrayMoveList(int dynamicCapacity, int quietCapacity) {
 		dynamicMoveArray = (M[]) new Object[dynamicCapacity];
 		quietMoveArray = (M[]) new Object[quietCapacity];
 	}

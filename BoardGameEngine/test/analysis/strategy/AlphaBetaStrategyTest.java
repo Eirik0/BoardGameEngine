@@ -49,7 +49,7 @@ public class AlphaBetaStrategyTest {
 			Map<M, Double> s2MoveMap = createMoveMap(s2Result);
 
 			for (MoveWithScore<M> moveWithScore : s1Result.getMovesWithScore()) {
-				if (!(Math.abs(moveWithScore.score - s2MoveMap.get(moveWithScore.move)) < 0.001)) {
+				if (!(Math.abs(moveWithScore.score - s2MoveMap.get(moveWithScore.move).doubleValue()) < 0.001)) {
 					printResults(s1Result, s2Result);
 					fail(moveWithScore + " " + s2MoveMap.get(moveWithScore.move));
 				}
@@ -64,7 +64,7 @@ public class AlphaBetaStrategyTest {
 	private static <M> Map<M, Double> createMoveMap(AnalysisResult<M> result) {
 		Map<M, Double> moveMap = new HashMap<>();
 		for (MoveWithScore<M> moveWithScore : result.getMovesWithScore()) {
-			moveMap.put(moveWithScore.move, moveWithScore.score);
+			moveMap.put(moveWithScore.move, Double.valueOf(moveWithScore.score));
 		}
 		return moveMap;
 	}

@@ -20,7 +20,7 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, G
 		return score(position.board, position.currentPlayer, opponent) - score(position.board, opponent, position.currentPlayer);
 	}
 
-	private int score(int[][] board, int player, int opponent) {
+	private static int score(int[][] board, int player, int opponent) {
 		int[] open = new int[4];
 		int[] closed = new int[4];
 		for (int y = 0; y < BOARD_WIDTH; ++y) {

@@ -15,6 +15,10 @@ public class Pair<A, B> {
 		return new Pair<A, B>(first, second);
 	}
 
+	public static Pair<Integer, Double> valueOf(int first, double second) {
+		return new Pair<>(Integer.valueOf(first), Double.valueOf(second));
+	}
+
 	public A getFirst() {
 		return a;
 	}

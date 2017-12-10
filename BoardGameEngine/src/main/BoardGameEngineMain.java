@@ -28,6 +28,7 @@ import game.tictactoe.TicTacToePositionEvaluator;
 import game.ultimatetictactoe.UltimateTicTacToeGame;
 import game.ultimatetictactoe.UltimateTicTacToeGameRenderer;
 import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
+import gui.FixedDurationGameLoop;
 import gui.GameGuiManager;
 import gui.GameRegistry;
 import gui.gamestate.GameRunningState;
@@ -45,7 +46,7 @@ public class BoardGameEngineMain {
 
 	public static final Color BACKGROUND_COLOR = DARK_THEME ? Color.BLACK : Color.WHITE;
 	public static final Color FOREGROUND_COLOR = DARK_THEME ? Color.WHITE : Color.BLACK;
-	public static final Color LIGHTER_FOREGROUND_COLOR = DARK_THEME ? new Color(209, 209, 209) : Color.GRAY;
+	public static final Color LIGHTER_FOREGROUND_COLOR = DARK_THEME ? new Color(200, 200, 200) : Color.GRAY;
 
 	public static void main(String[] args) {
 		registerGames();
@@ -60,7 +61,8 @@ public class BoardGameEngineMain {
 
 		mainFrame.pack();
 
-		mainPanel.gamePanel.startGameLoop("Game_Loop_Thread");
+		mainPanel.gamePanel.addToGameLoop("Game");
+		FixedDurationGameLoop.startLoop();
 
 		SwingUtilities.invokeLater(() -> {
 			mainFrame.setLocationRelativeTo(null);

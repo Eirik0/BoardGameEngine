@@ -39,16 +39,16 @@ public class ArrayMoveListTest {
 	}
 
 	private static void testSublist(int beginIndex, int expectedDynamic, int expectedSize) {
-		ArrayMoveList<Integer> moveList = new ArrayMoveList<>(6);
-		moveList.addQuietMove(1, null);
-		moveList.addDynamicMove(2, null);
-		moveList.addQuietMove(3, null);
-		moveList.addDynamicMove(4, null);
-		moveList.addQuietMove(5, null);
-		moveList.addDynamicMove(6, null);
+		ArrayMoveList<String> moveList = new ArrayMoveList<>(6);
+		moveList.addQuietMove("1", null);
+		moveList.addDynamicMove("2", null);
+		moveList.addQuietMove("3", null);
+		moveList.addDynamicMove("4", null);
+		moveList.addQuietMove("5", null);
+		moveList.addDynamicMove("6", null);
 		assertEquals(3, moveList.numDynamicMoves());
 		assertEquals(6, moveList.size());
-		MoveList<Integer> subList = moveList.subList(beginIndex);
+		MoveList<String> subList = moveList.subList(beginIndex);
 		assertEquals(expectedDynamic, subList.numDynamicMoves());
 		assertEquals(expectedSize, subList.size());
 	}

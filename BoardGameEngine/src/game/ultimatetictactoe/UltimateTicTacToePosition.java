@@ -30,8 +30,9 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate, Ultimate
 	}
 
 	public UltimateTicTacToePosition(int[] boards, int wonBoards, int fullBoards, int currentBoard, int currentPlayer, int[] currentBoardHistory, int plyCount) {
-		this.wonBoards = wonBoards;
 		this.boards = boards;
+		this.wonBoards = wonBoards;
+		this.fullBoards = fullBoards;
 		this.currentBoard = currentBoard;
 		this.currentPlayer = currentPlayer;
 		this.currentBoardHistory = currentBoardHistory;

@@ -22,7 +22,7 @@ public class MoveListFactory<M> {
 
 	public MoveList<M> newAnalysisMoveList() {
 		try {
-			return analysisMoveListClass.getDeclaredConstructor(Integer.class).newInstance(maxMoves);
+			return analysisMoveListClass.getDeclaredConstructor(Integer.TYPE).newInstance(Integer.valueOf(maxMoves));
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}

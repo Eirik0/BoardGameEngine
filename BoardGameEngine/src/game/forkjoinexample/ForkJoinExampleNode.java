@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ForkJoinExampleNode {
-	private final int number;
+	private final Integer number;
 
 	private ForkJoinExampleNode parent;
 	private final ForkJoinExampleNode[] children;
 
 	public ForkJoinExampleNode(int number, ForkJoinExampleNode[] children) {
-		this.number = number;
+		this.number = Integer.valueOf(number);
 		this.children = children;
 		for (ForkJoinExampleNode child : children) {
 			child.setParent(this);
@@ -35,7 +35,7 @@ public class ForkJoinExampleNode {
 		nodeList.add(number);
 		ForkJoinExampleNode parentNode = parent;
 		if (parentNode == null) {
-			return Integer.toString(number);
+			return number.toString();
 		}
 		while (parentNode != null) {
 			nodeList.add(parentNode.number);

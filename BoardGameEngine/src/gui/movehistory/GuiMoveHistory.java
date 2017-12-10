@@ -51,9 +51,11 @@ public class GuiMoveHistory<M> implements Drawable {
 	public void drawOn(Graphics2D graphics) {
 		graphics.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
 		graphics.setFont(BoardGameEngineMain.DEFAULT_FONT_SMALL);
-		for (int moveNum = 0; moveNum < maxMoves; ++moveNum) {
+		int moveNum = 0;
+		do {
 			drawCenteredYString(graphics, (moveNum + 1) + ". ", 5, MOVE_Y_PADDING + moveNum * MOVE_HEIGHT + MOVE_HEIGHT / 2);
-		}
+			++moveNum;
+		} while (moveNum < maxMoves);
 		for (MoveMenuItem moveMenuItem : menuItemList) {
 			moveMenuItem.drawOn(graphics);
 		}

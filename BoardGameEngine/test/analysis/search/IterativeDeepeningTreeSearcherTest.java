@@ -11,7 +11,7 @@ import game.ultimatetictactoe.UltimateTicTacToePosition;
 import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
 
 public class IterativeDeepeningTreeSearcherTest {
-	private void doTest(int numThreads) throws InterruptedException {
+	private static void doTest(int numThreads) throws InterruptedException {
 		MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
 		MinimaxStrategy<Coordinate, UltimateTicTacToePosition> minimaxStrategy = new MinimaxStrategy<>(moveListFactory, new UltimateTicTacToePositionEvaluator());
 		IterativeDeepeningTreeSearcher<Coordinate, UltimateTicTacToePosition> iterativeDeepeningStrategy = new IterativeDeepeningTreeSearcher<>(minimaxStrategy,
@@ -55,7 +55,7 @@ public class IterativeDeepeningTreeSearcherTest {
 	}
 
 	@Test
-	public void testCompareSpeeds() throws InterruptedException {
+	public void testCompareSpeeds() {
 		doSpeedTest(1);
 		doSpeedTest(2);
 		doSpeedTest(3);
@@ -64,7 +64,7 @@ public class IterativeDeepeningTreeSearcherTest {
 		doSpeedTest(6);
 	}
 
-	private void doSpeedTest(int numThreads) {
+	private static void doSpeedTest(int numThreads) {
 		int numPlies = 5;
 		MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
 		MinimaxStrategy<Coordinate, UltimateTicTacToePosition> minimaxStrategy = new MinimaxStrategy<>(moveListFactory, new UltimateTicTacToePositionEvaluator());

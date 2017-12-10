@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import analysis.search.ThreadNumber;
 import game.GameRunner;
 import game.IPosition;
 import game.MoveHistory;
@@ -17,6 +16,8 @@ import main.BoardGameEngineMain;
 
 @SuppressWarnings("serial")
 public class MoveHistoryPanel<M, P extends IPosition<M, P>> extends JPanel {
+	private static final String NAME = "Move History";
+
 	private final MoveHistoryState<M, P> moveHistoryState;
 	private final GamePanel moveHistoryPanel;
 
@@ -26,7 +27,7 @@ public class MoveHistoryPanel<M, P extends IPosition<M, P>> extends JPanel {
 
 		moveHistoryState = new MoveHistoryState<>();
 
-		moveHistoryPanel = new GamePanel(g -> drawOn(g), (width, height) -> resized(width, height));
+		moveHistoryPanel = new GamePanel(g -> drawOn(g), (width, height) -> resized(width.intValue(), height.intValue()));
 		GameMouseAdapter mouseAdapter = new GameMouseAdapter(moveHistoryState.mouseTracker);
 		moveHistoryPanel.addMouseMotionListener(mouseAdapter);
 		moveHistoryPanel.addMouseListener(mouseAdapter);
@@ -36,8 +37,6 @@ public class MoveHistoryPanel<M, P extends IPosition<M, P>> extends JPanel {
 
 		add(topPanel, BorderLayout.NORTH);
 		add(moveHistoryPanel, BorderLayout.CENTER);
-
-		moveHistoryPanel.startGameLoop("Move_History_Draw_Thread_" + ThreadNumber.getThreadNum(getClass()));
 	}
 
 	public void setGameRunner(GameRunner<M, P> gameRunner) {
@@ -53,10 +52,14 @@ public class MoveHistoryPanel<M, P extends IPosition<M, P>> extends JPanel {
 	}
 
 	private void resized(int width, int height) {
-		moveHistoryState.componentResized(getWidth(), getHeight());
+		moveHistoryState.componentResized(width, height);
 	}
 
-	public void stopDrawThread() {
-		moveHistoryPanel.stopGameLoop();
+	public void startDrawing() {
+		moveHistoryPanel.addToGameLoop(NAME);
+	}
+
+	public void stopDrawing() {
+		moveHistoryPanel.removeFromGameLoop(NAME);
 	}
 }

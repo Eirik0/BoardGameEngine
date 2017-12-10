@@ -27,7 +27,7 @@ public class ComputerPlayerInfo<M, P extends IPosition<M, P>> {
 	}
 
 	public static String getComputerName(String strategyName, int numWorkers, long msPerMove) {
-		return new StringBuilder(strategyName).append("(").append(numWorkers).append(", ").append(msPerMove == Long.MAX_VALUE ? "Inf" : msPerMove).append(")").toString();
+		return new StringBuilder(strategyName).append("(").append(numWorkers).append(", ").append(msPerMove == Long.MAX_VALUE ? "Inf" : Long.toString(msPerMove)).append(")").toString();
 	}
 
 	@Override

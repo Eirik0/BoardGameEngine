@@ -1,6 +1,7 @@
 package game;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -36,8 +37,8 @@ public class MoveHistoryTest {
 
 	private static <M, P extends IPosition<M, P>> void checkMove(MoveHistory<M, P> moveHistory, int index, boolean p1Expected, boolean p2Expected) {
 		M[] moves = moveHistory.getMoveHistoryListCopy().get(index).moves;
-		assertEquals("P1", p1Expected, moves[0] != null);
-		assertEquals("P2", p2Expected, moves[1] != null);
+		assertTrue("P1", p1Expected == (moves[0] != null));
+		assertTrue("P2", p2Expected == (moves[1] != null));
 	}
 
 	private static <M, P extends IPosition<M, P>> void checkIndex(MoveHistory<M, P> moveHistory, MoveIndex expectedSelectedMoveIndex, MoveIndex expectedMaxMoveIndex) {

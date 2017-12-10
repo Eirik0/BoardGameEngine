@@ -42,7 +42,7 @@ public class GameTreeSearchTest {
 	}
 
 	@Test
-	public void testFork_NotRunning() throws InterruptedException {
+	public void testFork_NotRunning() {
 		TestLockingPosition testUnlockedLockingPosition = new TestLockingPosition(
 				new TestLockingNode(false).setMoves(
 						new TestLockingNode(false),
@@ -62,7 +62,7 @@ public class GameTreeSearchTest {
 	}
 
 	@Test
-	public void testFork() throws InterruptedException {
+	public void testFork() {
 		TestLockingPosition testUnlockedLockingPosition = new TestLockingPosition(
 				new TestLockingNode(false).setMoves(
 						new TestLockingNode(false),

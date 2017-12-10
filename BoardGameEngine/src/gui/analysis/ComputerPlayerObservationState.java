@@ -20,7 +20,7 @@ public class ComputerPlayerObservationState<M, P extends IPosition<M, P>> implem
 
 	public ComputerPlayerObservationState(ComputerPlayer computerPlayer, int playerNum) {
 		JLabel nameLabel = BoardGameEngineMain.initComponent(new JLabel(computerPlayer.toString()));
-		JLabel depthLabel = BoardGameEngineMain.initComponent(new JLabel(String.format("depth = %-3d", 0)));
+		JLabel depthLabel = BoardGameEngineMain.initComponent(new JLabel(String.format("depth = %-3d", Integer.valueOf(0))));
 
 		observer = new ComputerPlayerObserver(computerPlayer, playerNum, name -> nameLabel.setText(name), depth -> depthLabel.setText(depth));
 
@@ -50,7 +50,7 @@ public class ComputerPlayerObservationState<M, P extends IPosition<M, P>> implem
 	@Override
 	public void drawOn(Graphics2D graphics) {
 		fillRect(graphics, 0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
-		observer.drawOn(graphics, width, height);
+		observer.drawOn(graphics);
 	}
 
 	@Override
