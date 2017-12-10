@@ -4,8 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -26,7 +26,7 @@ public class PlayerControllerPanel extends JPanel {
 	final JLabel gameLabel = BoardGameEngineMain.initComponent(new JLabel());
 	private final List<PlayerSelectionPanel> playerSelectionPanels = new ArrayList<>();
 
-	private PausePlayButton pausePlayButton;
+	private StartStopButton pausePlayButton;
 	private Runnable backAction;
 
 	public PlayerControllerPanel(IGame<?, ?> game, GameRunner<?, ?> gameRunner) {
@@ -64,8 +64,11 @@ public class PlayerControllerPanel extends JPanel {
 
 		JButton newGameButton = BoardGameEngineMain.initComponent(new JButton("New Game"));
 		JButton backButton = BoardGameEngineMain.initComponent(new JButton("Back"));
-		pausePlayButton = new PausePlayButton(gameRunner, this, newGameButton, backButton);
-		JButton[] buttons = new JButton[] { newGameButton, backButton, pausePlayButton };
+
+		pausePlayButton = new StartStopButton("  Play  ", "Pause", () -> gameRunner.setPlayersAndResume(getSelectedPlayers()), () -> gameRunner.pauseGame(false),
+				Arrays.asList(newGameButton, backButton));
+
+		List<JButton> buttons = Arrays.asList(newGameButton, backButton, pausePlayButton);
 
 		newGameButton.addActionListener(createEnableDisableRunnableWrapper(() -> gameRunner.createNewGame(), buttons));
 		backButton.addActionListener(createEnableDisableRunnableWrapper(() -> {
@@ -87,15 +90,15 @@ public class PlayerControllerPanel extends JPanel {
 
 	public void gameStarted() {
 		gameLabel.setText(gameName + "...");
-		pausePlayButton.gameStarted();
+		pausePlayButton.notifyStarted();
 	}
 
 	public void gameEnded() {
 		gameLabel.setText(gameName);
-		pausePlayButton.gameEnded();
+		pausePlayButton.notifyStopped();
 	}
 
-	List<IPlayer> getSelectedPlayers() {
+	private List<IPlayer> getSelectedPlayers() {
 		List<IPlayer> players = new ArrayList<>();
 		for (PlayerSelectionPanel playerSelectionPanel : playerSelectionPanels) {
 			players.add(playerSelectionPanel.getPlayer(gameName));
@@ -103,7 +106,7 @@ public class PlayerControllerPanel extends JPanel {
 		return players;
 	}
 
-	static ActionListener createEnableDisableRunnableWrapper(Runnable r, JButton... buttons) {
+	static ActionListener createEnableDisableRunnableWrapper(Runnable r, List<JButton> buttons) {
 		return e -> {
 			for (JButton button : buttons) {
 				button.setEnabled(false);
@@ -118,33 +121,5 @@ public class PlayerControllerPanel extends JPanel {
 				}
 			}, "Enabke_Disable_Button_Thread").start();
 		};
-	}
-
-	static class PausePlayButton extends JButton {
-		private final AtomicBoolean paused;
-
-		public PausePlayButton(GameRunner<?, ?> gameRunner, PlayerControllerPanel playerControllerPanel, JButton newGameButton, JButton backButton) {
-			super("  Play  ");
-			paused = new AtomicBoolean(true);
-			BoardGameEngineMain.initComponent(this);
-			addActionListener(createEnableDisableRunnableWrapper(() -> {
-				if (paused.getAndSet(!paused.get())) {
-					gameRunner.setPlayers(playerControllerPanel.getSelectedPlayers());
-					gameRunner.resumeGame();
-				} else {
-					gameRunner.pauseGame(false);
-				}
-			}, newGameButton, backButton, this));
-		}
-
-		public void gameStarted() {
-			paused.set(false);
-			setText("Pause");
-		}
-
-		public void gameEnded() {
-			paused.set(true);
-			setText("  Play  ");
-		}
 	}
 }

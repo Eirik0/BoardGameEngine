@@ -78,8 +78,9 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		setPositionCopy(NO_PLAYER, null, true);
 	}
 
-	public void setPlayers(List<IPlayer> players) {
+	public void setPlayersAndResume(List<IPlayer> players) {
 		this.players = players;
+		resumeGame();
 	}
 
 	public synchronized void resumeGame() {

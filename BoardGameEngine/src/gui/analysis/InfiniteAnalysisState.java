@@ -3,10 +3,9 @@ package gui.analysis;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Graphics2D;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -17,6 +16,7 @@ import game.IPosition;
 import gui.GameRegistry;
 import main.BoardGameEngineMain;
 import main.ComputerConfigurationPanel;
+import main.StartStopButton;
 
 public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAnalysisState<M, P> {
 	private int width;
@@ -31,6 +31,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 	private final AtomicBoolean keepRunning = new AtomicBoolean(false);
 
 	private final JPanel optionsPanel;
+	private final StartStopButton analyzeButton;
 	private final JLabel depthLabel;
 
 	public InfiniteAnalysisState(String gameName, P position, ComputerPlayerInfo<M, P> computerPlayerInfo) {
@@ -42,10 +43,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 
 		depthLabel = BoardGameEngineMain.initComponent(new JLabel(String.format("depth = %-3d", Integer.valueOf(0))));
 
-		JButton analyzeButton = BoardGameEngineMain.initComponent(new JButton("Analyze"));
-		JButton stopButton = BoardGameEngineMain.initComponent(new JButton("Stop"));
-
-		analyzeButton.addActionListener(e -> {
+		analyzeButton = new StartStopButton("Analyze", "   Stop   ", () -> {
 			if (isRunning) {
 				setPosition(this.position);
 			} else {
@@ -57,11 +55,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 
 				startAnalysisThread();
 			}
-		});
-
-		stopButton.addActionListener(e -> {
-			stopAnalysis();
-		});
+		}, () -> stopAnalysis(), Collections.emptyList());
 
 		JPanel topPanel = BoardGameEngineMain.initComponent(new JPanel(new BorderLayout()));
 		topPanel.add(computerConfiurationPanel, BorderLayout.WEST);
@@ -69,14 +63,13 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 
 		JPanel bottomPanel = BoardGameEngineMain.initComponent(new JPanel(new FlowLayout(FlowLayout.LEADING)));
 		bottomPanel.add(analyzeButton);
-		bottomPanel.add(Box.createHorizontalStrut(10));
-		bottomPanel.add(stopButton);
 
 		optionsPanel.add(topPanel, BorderLayout.CENTER);
 		optionsPanel.add(bottomPanel, BorderLayout.SOUTH);
 	}
 
 	private void startAnalysisThread() {
+		analyzeButton.notifyStarted();
 		new Thread(() -> {
 			synchronized (this) {
 				isRunning = true;
@@ -150,6 +143,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 
 	@Override
 	public synchronized void stopAnalysis() {
+		analyzeButton.notifyStopped();
 		if (computerPlayer != null) {
 			computerPlayer.notifyGameEnded();
 		}

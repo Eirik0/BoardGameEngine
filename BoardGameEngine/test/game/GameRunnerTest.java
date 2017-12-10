@@ -15,8 +15,7 @@ import gui.GuiPlayer;
 public class GameRunnerTest {
 	private static void startGame(GameRunner<?, ?> gameRunner, IPlayer player) {
 		gameRunner.createNewGame();
-		gameRunner.setPlayers(Collections.singletonList(player));
-		gameRunner.resumeGame();
+		gameRunner.setPlayersAndResume(Collections.singletonList(player));
 	}
 
 	@Test

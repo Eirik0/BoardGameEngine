@@ -25,8 +25,7 @@ public class ComputerPlayerTest {
 		GameRunner<Coordinate, TicTacToePosition> gameRunner = new GameRunner<>(game, new GameObserver<>(), moveListFactory);
 		for (int i = 0; i < 100; ++i) {
 			gameRunner.createNewGame();
-			gameRunner.setPlayers(Arrays.asList(player, player));
-			gameRunner.resumeGame();
+			gameRunner.setPlayersAndResume(Arrays.asList(player, player));
 			int sleep = new Random().nextInt(1000); // To reset the game randomly
 			System.out.println(i + 1 + ": " + sleep);
 			Thread.sleep(sleep);
