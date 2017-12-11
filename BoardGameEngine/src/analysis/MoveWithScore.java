@@ -37,7 +37,7 @@ public class MoveWithScore<M> {
 			return false;
 		}
 		MoveWithScore<?> other = (MoveWithScore<?>) obj;
-		return Objects.equals(move, other.move) && score == other.score;
+		return Objects.equals(move, other.move) && (score == other.score || AnalysisResult.isDraw(score) && AnalysisResult.isDraw(other.score));
 	}
 
 	@Override

@@ -18,7 +18,6 @@ public class AnalysisResult<M> {
 	private final Set<MoveWithScore<M>> decidedMoves = new HashSet<>();
 	private int numLost = 0;
 
-	private MoveWithScore<M> min;
 	private MoveWithScore<M> max;
 
 	private boolean searchComplete = false;
@@ -43,9 +42,6 @@ public class AnalysisResult<M> {
 				if (LOSS == score) {
 					++numLost;
 				}
-			}
-			if (min == null || isGreater(min.score, score)) {
-				min = moveWithScore;
 			}
 			if (max == null || isGreater(score, max.score)) {
 				max = moveWithScore;
@@ -82,12 +78,8 @@ public class AnalysisResult<M> {
 		return new ArrayList<>(movesWithScore);
 	}
 
-	public synchronized MoveWithScore<M> getMin() {
-		return min;
-	}
-
 	public synchronized MoveWithScore<M> getMax() {
-		return max;
+		return max != null && isDraw(max.score) && !isDecided() ? new MoveWithScore<>(max.move, 0.0) : max;
 	}
 
 	public M getBestMove() {

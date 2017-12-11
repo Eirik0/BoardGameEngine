@@ -38,13 +38,9 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 
 		if (numMoves == 0 || ply == maxPly || quiescent) {
 			double score = positionEvaluator.evaluate(position, possibleMoves);
-			if (numDynamicMoves == 0) {
+			if (numDynamicMoves == 0 || !AnalysisResult.isGreater(beta, score)) { // no moves or score >= beta
 				return score;
-			}
-			if (!AnalysisResult.isGreater(beta, score)) { // score >= beta
-				return score;
-			}
-			if (AnalysisResult.isGreater(score, alpha)) {
+			} else if (AnalysisResult.isGreater(score, alpha)) {
 				alpha = score;
 			}
 			numMoves = numDynamicMoves;
@@ -54,6 +50,7 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 
 		int parentPlayer = position.getCurrentPlayer();
 
+		boolean gameOver = numMoves == possibleMoves.size(); // only for quiescent searches that look at all moves
 		double bestScore = Double.NEGATIVE_INFINITY;
 		M move;
 		int i = 0;
@@ -63,10 +60,12 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 			double score = parentPlayer == position.getCurrentPlayer() ? alphaBeta(position, ply + 1, maxPly, alpha, beta, quiescent) : -alphaBeta(position, ply + 1, maxPly, -beta, -alpha, quiescent);
 			position.unmakeMove(move);
 
+			gameOver = gameOver && AnalysisResult.isGameOver(score);
 			if (!AnalysisResult.isGreater(bestScore, score)) {
 				bestScore = score;
 				if (!AnalysisResult.isGreater(beta, bestScore)) { // alpha >= beta
-					return beta;
+					bestScore = beta;
+					break;
 				}
 				if (AnalysisResult.isGreater(score, alpha)) {
 					alpha = score;
@@ -74,6 +73,10 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M, P>> extends AbstractDe
 			}
 			++i;
 		} while (i < numMoves);
+
+		if (!gameOver && AnalysisResult.isDraw(bestScore)) {
+			return 0.0;
+		}
 
 		return bestScore;
 	}

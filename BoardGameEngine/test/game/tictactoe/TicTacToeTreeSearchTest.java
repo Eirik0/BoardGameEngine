@@ -1,6 +1,9 @@
 package game.tictactoe;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -112,9 +115,10 @@ public class TicTacToeTreeSearchTest {
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher(2);
 		for (int i = 0; i < 1000; ++i) {
 			AnalysisResult<Coordinate> result = treeSearcher.startSearch(position, 11, true);
-			assertEquals("search " + String.valueOf(i), 2, result.getMovesWithScore().size());
-			assertEquals("search " + String.valueOf(i), AnalysisResult.DRAW, result.getMax().score, 0.0);
-			assertEquals("search " + String.valueOf(i), AnalysisResult.LOSS, result.getMin().score, 0.0);
+			String assertMessage = "search " + String.valueOf(i) + ": " + Arrays.toString(result.getMovesWithScore().toArray());
+			assertEquals(assertMessage, 2, result.getMovesWithScore().size());
+			assertTrue(assertMessage, result.getMovesWithScore().contains(new MoveWithScore<>(Coordinate.valueOf(2, 2), AnalysisResult.DRAW)));
+			assertTrue(assertMessage, result.getMovesWithScore().contains(new MoveWithScore<>(Coordinate.valueOf(0, 2), AnalysisResult.LOSS)));
 		}
 		treeSearcher.stopSearch(true);
 	}

@@ -85,6 +85,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 				} while (keepRunning.get());
 			} finally {
 				computerPlayer.notifyGameEnded();
+				analyzeButton.notifyStopped();
 				synchronized (this) {
 					isRunning = false;
 					notify();

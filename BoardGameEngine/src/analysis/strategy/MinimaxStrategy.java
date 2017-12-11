@@ -34,6 +34,7 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 
 		int parentPlayer = position.getCurrentPlayer();
 
+		boolean gameOver = true;
 		double bestScore = Double.NEGATIVE_INFINITY;
 		int i = 0;
 		do {
@@ -42,12 +43,16 @@ public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepth
 			double score = parentPlayer == position.getCurrentPlayer() ? negamax(position, ply + 1, maxPly) : -negamax(position, ply + 1, maxPly);
 			position.unmakeMove(move);
 
+			gameOver = gameOver && AnalysisResult.isGameOver(score);
 			if (AnalysisResult.isGreater(score, bestScore)) {
 				bestScore = score;
 			}
-
 			++i;
 		} while (i < numMoves);
+
+		if (!gameOver && AnalysisResult.isDraw(bestScore)) {
+			return 0.0;
+		}
 
 		return bestScore;
 	}

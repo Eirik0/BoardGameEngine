@@ -41,6 +41,7 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 
 		int parentPlayer = position.getCurrentPlayer();
 
+		boolean gameOver = true;
 		double bestScore = Double.NEGATIVE_INFINITY;
 		int i = 0;
 		do {
@@ -49,6 +50,7 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 			double score = parentPlayer == position.getCurrentPlayer() ? alphaBeta(position, ply + 1, maxPly, alpha, beta) : -alphaBeta(position, ply + 1, maxPly, -beta, -alpha);
 			position.unmakeMove(move);
 
+			gameOver = gameOver && AnalysisResult.isGameOver(score);
 			if (!AnalysisResult.isGreater(bestScore, score)) {
 				bestScore = score;
 				if (!AnalysisResult.isGreater(beta, bestScore)) { // alpha >= beta (fail-soft)
@@ -60,6 +62,10 @@ public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDep
 			}
 			++i;
 		} while (i < numMoves);
+
+		if (!gameOver && AnalysisResult.isDraw(bestScore)) {
+			return 0.0;
+		}
 
 		return bestScore;
 	}
