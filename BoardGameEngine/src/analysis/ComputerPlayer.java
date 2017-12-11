@@ -1,6 +1,6 @@
 package analysis;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -48,29 +48,10 @@ public class ComputerPlayer implements IPlayer {
 		}
 
 		AnalysisResult<M> result = (AnalysisResult<M>) treeSearcher.getResult();
-		MoveWithScore<M> bestMoveWithScore = result == null ? null : result.getMax();
 
-		if (bestMoveWithScore == null) {
-			return null;
-		}
+		List<M> bestMoves = result == null ? Collections.emptyList() : result.getBestMoves();
 
-		List<M> bestMoves = new ArrayList<>();
-
-		if (AnalysisResult.isDraw(bestMoveWithScore.score)) {
-			for (MoveWithScore<M> moveWithScore : result.getMovesWithScore()) {
-				if (AnalysisResult.isDraw(moveWithScore.score)) {
-					bestMoves.add(moveWithScore.move);
-				}
-			}
-		} else {
-			for (MoveWithScore<M> moveWithScore : result.getMovesWithScore()) {
-				if (bestMoveWithScore.score == moveWithScore.score) {
-					bestMoves.add(moveWithScore.move);
-				}
-			}
-		}
-
-		return bestMoves.get(new Random().nextInt(bestMoves.size()));
+		return bestMoves.size() > 0 ? bestMoves.get(new Random().nextInt(bestMoves.size())) : null;
 	}
 
 	@Override

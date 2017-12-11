@@ -9,12 +9,11 @@ import analysis.AnalysisResult;
 import analysis.ComputerPlayer;
 import game.TwoPlayers;
 import gui.Drawable;
-import gui.DrawingMethods;
 import gui.FixedDurationGameLoop;
 import gui.Sizable;
 import main.BoardGameEngineMain;
 
-public class ComputerPlayerObserver implements Drawable, Sizable, DrawingMethods {
+public class ComputerPlayerObserver implements Drawable, Sizable {
 	public static final String NAME = "Computer Observer";
 
 	private int width;

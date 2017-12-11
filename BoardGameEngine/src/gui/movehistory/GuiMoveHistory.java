@@ -12,10 +12,10 @@ import gui.MouseTracker;
 import main.BoardGameEngineMain;
 
 public class GuiMoveHistory<M> implements Drawable {
-	static final int MOVE_X_PADDING = 30;
-	static final int MOVE_Y_PADDING = 5;
-	static final int MOVE_WIDTH = 60;
-	static final int MOVE_HEIGHT = 18;
+	static final int MOVE_X_PADDING = 40;
+	static final int MOVE_WIDTH = 66;
+
+	private final int height;
 
 	private final List<MoveMenuItem> menuItemList = new ArrayList<>();
 	private final MoveMenuItem seletedMove;
@@ -43,8 +43,13 @@ public class GuiMoveHistory<M> implements Drawable {
 			} while (playerNum < historyMove.moves.length);
 			++moveNum;
 		}
+		height = round(BoardGameEngineMain.DEFAULT_SMALL_FONT_HEIGHT * (historyMoveList.size() + 1.5));
 		this.seletedMove = moveHistory.selectedMoveIndex.equals(moveHistory.maxMoveIndex) ? null : seletedMove;
 		maxMoves = historyMoveList.size();
+	}
+
+	public int getHeight() {
+		return height;
 	}
 
 	@Override
@@ -53,7 +58,8 @@ public class GuiMoveHistory<M> implements Drawable {
 		graphics.setFont(BoardGameEngineMain.DEFAULT_SMALL_FONT);
 		int moveNum = 0;
 		do {
-			drawCenteredYString(graphics, (moveNum + 1) + ". ", 5, MOVE_Y_PADDING + moveNum * MOVE_HEIGHT + MOVE_HEIGHT / 2);
+			int y = BoardGameEngineMain.DEFAULT_SMALL_FONT_HEIGHT * (moveNum + 1);
+			drawCenteredYString(graphics, (moveNum + 1) + ". ", 10, y);
 			++moveNum;
 		} while (moveNum < maxMoves);
 		for (MoveMenuItem moveMenuItem : menuItemList) {
@@ -100,17 +106,17 @@ public class GuiMoveHistory<M> implements Drawable {
 			this.playerNum = playerNum;
 			x0 = MOVE_X_PADDING + playerNum * MOVE_WIDTH;
 			x1 = x0 + MOVE_WIDTH - 1;
-			y0 = MOVE_Y_PADDING + MOVE_HEIGHT * moveNum;
-			y1 = y0 + MOVE_HEIGHT - 1;
+			y0 = round(BoardGameEngineMain.DEFAULT_SMALL_FONT_HEIGHT * (moveNum + 0.5));
+			y1 = y0 + BoardGameEngineMain.DEFAULT_SMALL_FONT_HEIGHT - 1;
 		}
 
 		@Override
 		public void drawOn(Graphics2D graphics) {
-			drawCenteredString(graphics, BoardGameEngineMain.DEFAULT_SMALL_FONT, moveString, x0 + MOVE_WIDTH / 2, y0 + MOVE_HEIGHT / 2);
+			drawCenteredString(graphics, BoardGameEngineMain.DEFAULT_SMALL_FONT, moveString, x0 + MOVE_WIDTH / 2, y0 + BoardGameEngineMain.DEFAULT_SMALL_FONT_HEIGHT / 2);
 		}
 
 		public void highlightMove(Graphics2D graphics) {
-			graphics.drawRect(x0, y0, MOVE_WIDTH - 1, MOVE_HEIGHT - 1);
+			graphics.drawRect(x0, y0, MOVE_WIDTH - 1, BoardGameEngineMain.DEFAULT_SMALL_FONT_HEIGHT - 1);
 		}
 
 		boolean checkContainsCursor(MouseTracker mouseTracker) {

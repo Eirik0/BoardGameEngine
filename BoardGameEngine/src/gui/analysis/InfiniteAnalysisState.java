@@ -61,14 +61,14 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 			}
 		}, () -> stopAnalysis(), Collections.emptyList());
 
-		JPanel topPanel = BoardGameEngineMain.initComponent(new JPanel(new BorderLayout()));
-		topPanel.add(computerConfiurationPanel, BorderLayout.WEST);
-		topPanel.add(depthLabel, BorderLayout.EAST);
+		JPanel bottomCenterPanel = BoardGameEngineMain.initComponent(new JPanel(new FlowLayout(FlowLayout.LEADING)));
+		bottomCenterPanel.add(analyzeButton);
 
-		JPanel bottomPanel = BoardGameEngineMain.initComponent(new JPanel(new FlowLayout(FlowLayout.LEADING)));
-		bottomPanel.add(analyzeButton);
+		JPanel bottomPanel = BoardGameEngineMain.initComponent(new JPanel(new BorderLayout()));
+		bottomPanel.add(bottomCenterPanel, BorderLayout.CENTER);
+		bottomPanel.add(depthLabel, BorderLayout.EAST);
 
-		optionsPanel.add(topPanel, BorderLayout.CENTER);
+		optionsPanel.add(computerConfiurationPanel, BorderLayout.CENTER);
 		optionsPanel.add(bottomPanel, BorderLayout.SOUTH);
 	}
 

@@ -3,9 +3,14 @@ package main;
 import java.awt.Color;
 import java.awt.Font;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import analysis.strategy.AlphaBetaStrategy;
 import game.GameRunner;
@@ -51,6 +56,11 @@ public class BoardGameEngineMain {
 
 	public static void main(String[] args) {
 		registerGames();
+
+		try {
+			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+		}
 
 		JFrame mainFrame = createMainFrame();
 		MainPanel mainPanel = new MainPanel(mainFrame);
@@ -120,6 +130,13 @@ public class BoardGameEngineMain {
 		component.setBackground(BACKGROUND_COLOR);
 		component.setForeground(FOREGROUND_COLOR);
 		component.setFocusable(false);
+		if (component instanceof PlayerControllerPanel) {
+			component.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(FOREGROUND_COLOR, 1), BorderFactory.createEmptyBorder(0, 10, 0, 0)));
+		} else if (component instanceof JTextField) {
+			component.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createDashedBorder(null), BorderFactory.createEmptyBorder(2, 5, 2, 5)));
+		} else if (!(component instanceof JButton)) {
+			component.setBorder(BorderFactory.createEmptyBorder());
+		}
 		return component;
 	}
 }

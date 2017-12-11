@@ -38,9 +38,7 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 
 		analysisState = new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo);
 
-		JScrollPane scrollPane = BoardGameEngineMain.initComponent(new JScrollPane());
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		JScrollPane scrollPane = createScrollPane(true);
 		JViewport viewport = scrollPane.getViewport();
 		analysisPanel = new ScrollableGamePanel(viewport, analysisState, g -> analysisState.drawOn(g));
 		viewport.setView(analysisPanel);
@@ -48,6 +46,14 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 
 		add(analysisState.getTopPanel(), BorderLayout.NORTH);
 		add(scrollPane, BorderLayout.CENTER);
+	}
+
+	public static JScrollPane createScrollPane(boolean verticalScrollBarAlways) {
+		JScrollPane scrollPane = BoardGameEngineMain.initComponent(new JScrollPane());
+		BoardGameEngineMain.initComponent(scrollPane.getVerticalScrollBar());
+		scrollPane.setVerticalScrollBarPolicy(verticalScrollBarAlways ? ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS : ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		return scrollPane;
 	}
 
 	public void startDrawing() {

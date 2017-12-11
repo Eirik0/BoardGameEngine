@@ -6,11 +6,12 @@ import game.GameRunner;
 import game.IPosition;
 import game.MoveHistory;
 import gui.MouseTracker;
+import gui.Sizable;
 import gui.gamestate.GameState;
 import gui.movehistory.GuiMoveHistory.MoveMenuItem;
 import main.BoardGameEngineMain;
 
-public class MoveHistoryState<M, P extends IPosition<M, P>> implements GameState {
+public class MoveHistoryState<M, P extends IPosition<M, P>> implements Sizable, GameState {
 	int width;
 	int height;
 
@@ -27,8 +28,24 @@ public class MoveHistoryState<M, P extends IPosition<M, P>> implements GameState
 	}
 
 	@Override
+	public void checkResized(int width, int height) {
+		this.width = width;
+		this.height = height;
+	}
+
+	@Override
+	public int getWidth() {
+		return width;
+	}
+
+	@Override
+	public int getHeight() {
+		return Math.max(guiMoveHistory.getHeight(), height);
+	}
+
+	@Override
 	public void drawOn(Graphics2D graphics) {
-		fillRect(graphics, 0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
+		fillRect(graphics, 0, 0, width, getHeight(), BoardGameEngineMain.BACKGROUND_COLOR);
 		guiMoveHistory.drawOn(graphics);
 	}
 
@@ -38,8 +55,7 @@ public class MoveHistoryState<M, P extends IPosition<M, P>> implements GameState
 
 	@Override
 	public void componentResized(int width, int height) {
-		this.width = width;
-		this.height = height;
+		checkResized(width, height);
 	}
 
 	@Override

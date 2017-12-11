@@ -29,6 +29,7 @@ public class MainPanel extends JPanel {
 	public MainPanel(JFrame mainFrame) {
 		super(new BorderLayout());
 		this.mainFrame = mainFrame;
+
 		gamePanel = new GamePanel(g -> GameGuiManager.getGameState().drawOn(g), (width, height) -> GameGuiManager.setComponentSize(width.intValue(), height.intValue()));
 
 		gamePanel.setPreferredSize(new Dimension(BoardGameEngineMain.DEFAULT_WIDTH, BoardGameEngineMain.DEFAULT_HEIGHT));
@@ -45,7 +46,7 @@ public class MainPanel extends JPanel {
 
 		BoardGameEngineMain.setGameState(gameName, gameRunnerPanels.gameRunner);
 
-		JSplitPane analysisSplitPane = createSplitPane(gamePanel, gameRunnerPanels.analysisPanel, GameGuiManager.getComponentWidth() * 7 / 12, 1);
+		JSplitPane analysisSplitPane = createSplitPane(gamePanel, gameRunnerPanels.analysisPanel, GameGuiManager.getComponentWidth() * 15 / 24, 1);
 		JSplitPane gameSplitPane = createSplitPane(gameRunnerPanels.moveHistoryPanel, analysisSplitPane, GameGuiManager.getComponentWidth() / 6, 0);
 
 		gameRunnerPanels.playerControllerPanel.setBackAction(() -> {

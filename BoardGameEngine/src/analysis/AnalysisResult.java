@@ -86,6 +86,17 @@ public class AnalysisResult<M> {
 		return max == null ? null : max.move;
 	}
 
+	public List<M> getBestMoves() {
+		List<M> bestMoves = new ArrayList<>();
+		double maxScore = max.score;
+		for (MoveWithScore<M> moveWithScore : movesWithScore) {
+			if (maxScore == moveWithScore.score || isDraw(maxScore) && isDraw(moveWithScore.score)) {
+				bestMoves.add(moveWithScore.move);
+			}
+		}
+		return bestMoves;
+	}
+
 	public Set<MoveWithScore<M>> getDecidedMoves() {
 		return decidedMoves;
 	}
