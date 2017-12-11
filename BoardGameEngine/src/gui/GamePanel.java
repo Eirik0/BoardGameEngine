@@ -11,53 +11,29 @@ import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class GamePanel extends JPanel {
-	private final GameImage gameImage = new GameImage();
-	private final Consumer<Graphics2D> drawFunction;
-	private volatile boolean ignoreWait = false;
-	private volatile boolean paintComplete = false;
+	private final GamePanelController controller;
 
 	public GamePanel(Consumer<Graphics2D> drawFunction, BiConsumer<Integer, Integer> resizeFunction) {
-		this.drawFunction = drawFunction;
+		controller = new GamePanelController(drawFunction);
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				gameImage.checkResized(getWidth(), getHeight());
+				controller.gameImage.checkResized(getWidth(), getHeight());
 				resizeFunction.accept(Integer.valueOf(getWidth()), Integer.valueOf(getHeight()));
 			}
 		});
 	}
 
 	public void addToGameLoop(String name) {
-		FixedDurationGameLoop.addRunnable(name, () -> {
-			drawFunction.accept(gameImage.getGraphics());
-			repaintAndWait();
-		});
+		controller.addToGameLoop(name, this::repaint);
 	}
 
 	public void removeFromGameLoop(String name) {
-		FixedDurationGameLoop.removeRunnable(name);
-		synchronized (this) {
-			ignoreWait = true;
-			notify();
-		}
+		controller.removeFromGameLoop(name);
 	}
 
 	@Override
 	protected synchronized void paintComponent(Graphics g) {
-		g.drawImage(gameImage.getImage(), 0, 0, null);
-		paintComplete = true;
-		notify();
-	}
-
-	private synchronized void repaintAndWait() {
-		paintComplete = false;
-		repaint();
-		while (!ignoreWait && !paintComplete) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-		}
+		controller.drawOn(g);
 	}
 }

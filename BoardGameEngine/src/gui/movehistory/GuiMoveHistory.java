@@ -50,7 +50,7 @@ public class GuiMoveHistory<M> implements Drawable {
 	@Override
 	public void drawOn(Graphics2D graphics) {
 		graphics.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
-		graphics.setFont(BoardGameEngineMain.DEFAULT_FONT_SMALL);
+		graphics.setFont(BoardGameEngineMain.DEFAULT_SMALL_FONT);
 		int moveNum = 0;
 		do {
 			drawCenteredYString(graphics, (moveNum + 1) + ". ", 5, MOVE_Y_PADDING + moveNum * MOVE_HEIGHT + MOVE_HEIGHT / 2);
@@ -106,7 +106,7 @@ public class GuiMoveHistory<M> implements Drawable {
 
 		@Override
 		public void drawOn(Graphics2D graphics) {
-			drawCenteredString(graphics, BoardGameEngineMain.DEFAULT_FONT_SMALL, moveString, x0 + MOVE_WIDTH / 2, y0 + MOVE_HEIGHT / 2);
+			drawCenteredString(graphics, BoardGameEngineMain.DEFAULT_SMALL_FONT, moveString, x0 + MOVE_WIDTH / 2, y0 + MOVE_HEIGHT / 2);
 		}
 
 		public void highlightMove(Graphics2D graphics) {

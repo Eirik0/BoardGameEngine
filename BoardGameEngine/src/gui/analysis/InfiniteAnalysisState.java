@@ -19,12 +19,9 @@ import main.ComputerConfigurationPanel;
 import main.StartStopButton;
 
 public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAnalysisState<M, P> {
-	private int width;
-	private int height;
-
 	private P position;
 
-	private ComputerPlayerObserver observer;
+	private ComputerPlayerObserver observer = new ComputerPlayerObserver();
 	private ComputerPlayer computerPlayer;
 
 	volatile boolean isRunning = false;
@@ -50,8 +47,15 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 				computerConfiurationPanel.updateComputerPlayerInfo();
 				computerPlayer = (ComputerPlayer) GameRegistry.getPlayer(gameName, ComputerPlayer.NAME, computerPlayerInfo);
 
+				int oldWidth = observer.getWidth();
+				int oldHeight = observer.getHeight();
+				Runnable oldOnResize = observer.getOnResize();
+
 				observer = new ComputerPlayerObserver(computerPlayer, this.position.getCurrentPlayer(), name -> {
 				}, depth -> depthLabel.setText(depth));
+
+				observer.checkResized(oldWidth, oldHeight);
+				observer.setOnResize(oldOnResize);
 
 				startAnalysisThread();
 			}
@@ -107,9 +111,23 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 	}
 
 	@Override
-	public void componentResized(int width, int height) {
-		this.width = width;
-		this.height = height;
+	public void checkResized(int width, int height) {
+		observer.checkResized(width, height);
+	}
+
+	@Override
+	public int getWidth() {
+		return observer.getWidth();
+	}
+
+	@Override
+	public int getHeight() {
+		return observer.getHeight();
+	}
+
+	@Override
+	public void setOnResize(Runnable onResize) {
+		observer.setOnResize(onResize);
 	}
 
 	@Override
@@ -119,10 +137,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 
 	@Override
 	public void drawOn(Graphics2D graphics) {
-		fillRect(graphics, 0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
-		if (observer != null) {
-			observer.drawOn(graphics);
-		}
+		observer.drawOn(graphics);
 	}
 
 	@Override
@@ -148,9 +163,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 		if (computerPlayer != null) {
 			computerPlayer.notifyGameEnded();
 		}
-		if (observer != null) {
-			observer.stopObserving();
-		}
+		observer.stopObserving();
 		waitForRunningToBe(false);
 	}
 

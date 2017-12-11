@@ -12,9 +12,6 @@ import game.IPosition;
 import main.BoardGameEngineMain;
 
 public class ComputerPlayerObservationState<M, P extends IPosition<M, P>> implements IAnalysisState<M, P> {
-	private int width;
-	private int height;
-
 	private final JPanel titlePanel;
 	private final ComputerPlayerObserver observer;
 
@@ -37,9 +34,18 @@ public class ComputerPlayerObservationState<M, P extends IPosition<M, P>> implem
 	}
 
 	@Override
-	public void componentResized(int width, int height) {
-		this.width = width;
-		this.height = height;
+	public void checkResized(int width, int height) {
+		observer.checkResized(width, height);
+	}
+
+	@Override
+	public int getWidth() {
+		return observer.getWidth();
+	}
+
+	@Override
+	public int getHeight() {
+		return observer.getHeight();
 	}
 
 	@Override
@@ -49,8 +55,12 @@ public class ComputerPlayerObservationState<M, P extends IPosition<M, P>> implem
 
 	@Override
 	public void drawOn(Graphics2D graphics) {
-		fillRect(graphics, 0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
 		observer.drawOn(graphics);
+	}
+
+	@Override
+	public void setOnResize(Runnable onResize) {
+		observer.setOnResize(onResize);
 	}
 
 	@Override

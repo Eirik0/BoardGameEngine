@@ -42,7 +42,8 @@ public class BoardGameEngineMain {
 	public static final int DEFAULT_HEIGHT = 720;
 
 	public static final Font DEFAULT_FONT = new Font("consolas", Font.PLAIN, 24);
-	public static final Font DEFAULT_FONT_SMALL = new Font(Font.DIALOG, Font.PLAIN, 12);
+	public static final Font DEFAULT_SMALL_FONT = new Font(Font.DIALOG, Font.PLAIN, 12);
+	public static final int DEFAULT_SMALL_FONT_HEIGHT = 18;
 
 	public static final Color BACKGROUND_COLOR = DARK_THEME ? Color.BLACK : Color.WHITE;
 	public static final Color FOREGROUND_COLOR = DARK_THEME ? Color.WHITE : Color.BLACK;

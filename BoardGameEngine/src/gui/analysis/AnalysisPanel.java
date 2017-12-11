@@ -3,14 +3,17 @@ package gui.analysis;
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JViewport;
+import javax.swing.ScrollPaneConstants;
 
 import analysis.ComputerPlayer;
 import analysis.ComputerPlayerInfo;
 import game.IPlayer;
 import game.IPosition;
 import game.PositionChangedInfo;
-import gui.GamePanel;
 import gui.GameRegistry;
+import gui.ScrollableGamePanel;
 import main.BoardGameEngineMain;
 
 @SuppressWarnings("serial")
@@ -19,7 +22,7 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 
 	private final String gameName;
 	private final ComputerPlayerInfo<M, P> computerPlayerInfo;
-	private final GamePanel analysisPanel;
+	private final ScrollableGamePanel analysisPanel;
 	private IAnalysisState<M, P> analysisState;
 
 	private P position;
@@ -35,10 +38,16 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 
 		analysisState = new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo);
 
-		analysisPanel = new GamePanel(g -> analysisState.drawOn(g), (width, height) -> analysisState.componentResized(width.intValue(), height.intValue()));
+		JScrollPane scrollPane = BoardGameEngineMain.initComponent(new JScrollPane());
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		JViewport viewport = scrollPane.getViewport();
+		analysisPanel = new ScrollableGamePanel(viewport, analysisState, g -> analysisState.drawOn(g));
+		viewport.setView(analysisPanel);
+		analysisState.setOnResize(analysisPanel::checkResized);
 
 		add(analysisState.getTopPanel(), BorderLayout.NORTH);
-		add(analysisPanel, BorderLayout.CENTER);
+		add(scrollPane, BorderLayout.CENTER);
 	}
 
 	public void startDrawing() {
@@ -58,10 +67,12 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 	}
 
 	private void setAnalysisState(IAnalysisState<M, P> newAnalysisState) {
-		newAnalysisState.componentResized(getWidth(), getHeight());
-
 		remove(analysisState.getTopPanel());
 		add(newAnalysisState.getTopPanel(), BorderLayout.NORTH);
+
+		analysisPanel.setSizable(newAnalysisState);
+		newAnalysisState.setOnResize(analysisPanel::checkResized);
+
 		revalidate();
 
 		analysisState = newAnalysisState;
