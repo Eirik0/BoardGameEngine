@@ -2,16 +2,19 @@ package game.forkjoinexample;
 
 import game.IPosition;
 import game.MoveList;
+import game.TwoPlayers;
 
 public class ForkJoinExampleTree implements IPosition<ForkJoinExampleNode, ForkJoinExampleTree> {
 	private ForkJoinExampleNode currentNode;
+	private int currentPlayer;
 
 	public ForkJoinExampleTree(int depth, int branchingFactor) {
-		this(createTree(depth, branchingFactor, 0));
+		this(createTree(depth, branchingFactor, 0), TwoPlayers.PLAYER_1);
 	}
 
-	private ForkJoinExampleTree(ForkJoinExampleNode root) {
+	private ForkJoinExampleTree(ForkJoinExampleNode root, int currentPlayer) {
 		currentNode = root;
+		this.currentPlayer = currentPlayer;
 	}
 
 	public ForkJoinExampleNode getCurrentNode() {
@@ -20,27 +23,31 @@ public class ForkJoinExampleTree implements IPosition<ForkJoinExampleNode, ForkJ
 
 	@Override
 	public void getPossibleMoves(MoveList<ForkJoinExampleNode> moveList) {
-		moveList.setQuietMoves(currentNode.getChildren(), this);
+		for (ForkJoinExampleNode forkJoinExampleNode : currentNode.getChildren()) {
+			moveList.addQuietMove(forkJoinExampleNode, this);
+		}
 	}
 
 	@Override
 	public int getCurrentPlayer() {
-		return 1;
+		return currentPlayer;
 	}
 
 	@Override
 	public void makeMove(ForkJoinExampleNode move) {
 		currentNode = move;
+		currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
 	}
 
 	@Override
 	public void unmakeMove(ForkJoinExampleNode move) {
 		currentNode = move.getParent();
+		currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
 	}
 
 	@Override
 	public ForkJoinExampleTree createCopy() {
-		return new ForkJoinExampleTree(currentNode);
+		return new ForkJoinExampleTree(currentNode, currentPlayer);
 	}
 
 	@Override

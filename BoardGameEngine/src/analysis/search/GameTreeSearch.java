@@ -155,6 +155,8 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		List<MoveWithResult<M>> movesWithResults = new ArrayList<>();
 		int expectedResults = unanalyzedMoves.size();
 
+		strategy.notifyForked(parentMove, unanalyzedMoves);
+
 		List<GameTreeSearch<M, P>> gameTreeSearches = new ArrayList<>();
 		synchronized (this) {
 			int i = 0;
@@ -166,8 +168,6 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 				++i;
 			} while (i < unanalyzedMoves.size());
 		}
-
-		strategy.notifyForked(parentMove, unanalyzedMoves);
 
 		return gameTreeSearches;
 	}

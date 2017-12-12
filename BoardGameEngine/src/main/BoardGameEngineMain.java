@@ -20,6 +20,7 @@ import game.chess.ChessPositionEvaluator;
 import game.forkjoinexample.ForkJoinExampleGame;
 import game.forkjoinexample.ForkJoinExampleGameRenderer;
 import game.forkjoinexample.ForkJoinExampleStraregy;
+import game.forkjoinexample.ForkJoinMoveList;
 import game.gomoku.GomokuGame;
 import game.gomoku.GomokuGameRenderer;
 import game.gomoku.GomokuMoveList;
@@ -109,7 +110,7 @@ public class BoardGameEngineMain {
 				.registerComputer(5000, defaultMaxWorkers)
 				.registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(GameRegistry.getMoveListFactory(SudokuGame.NAME), new SudokuPositionEvaluator()));
 
-		GameRegistry.registerGame(new ForkJoinExampleGame(), ForkJoinExampleGameRenderer.class)
+		GameRegistry.registerGame(new ForkJoinExampleGame(), ForkJoinExampleGameRenderer.class, ForkJoinMoveList.class)
 				.registerComputer(Long.MAX_VALUE, 100)
 				.registerStrategy("ForkJoinExample", () -> new ForkJoinExampleStraregy(GameRegistry.getMoveListFactory(ForkJoinExampleGame.NAME)));
 	}

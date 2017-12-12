@@ -3,53 +3,34 @@ package game.forkjoinexample;
 import java.util.List;
 
 import analysis.AnalysisResult;
-import analysis.MoveWithScore;
 import analysis.search.MoveWithResult;
 import analysis.strategy.AbstractDepthBasedStrategy;
 import analysis.strategy.IDepthBasedStrategy;
+import analysis.strategy.MinimaxStrategy;
 import game.MoveList;
 import game.MoveListFactory;
 
 public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> {
+	private final IDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> strategy;
+
 	public ForkJoinExampleStraregy(MoveListFactory<ForkJoinExampleNode> moveListFactory) {
+		this(moveListFactory, new MinimaxStrategy<>(moveListFactory, new ForkJoinPositionEvaluator()));
+	}
+
+	public ForkJoinExampleStraregy(MoveListFactory<ForkJoinExampleNode> moveListFactory, IDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> strategy) {
 		super(moveListFactory);
+		this.strategy = strategy;
 	}
 
 	@Override
 	public double evaluate(ForkJoinExampleTree position, int plies) {
-		visitNodes(position, plies);
-		return 0;
+		return strategy.evaluate(position, plies);
 	}
 
-	private void visitNodes(ForkJoinExampleTree position, int plies) {
-		if (searchCanceled) {
-			return;
-		}
-		ForkJoinExampleNode currentNode = position.getCurrentNode();
-		ForkJoinExampleThreadTracker.branchVisited(currentNode.getParent(), currentNode, ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
-		int numChildren = position.getCurrentNode().getChildren().length;
-		if (plies == 0 || numChildren == 0) {
-			if (searchCanceled) {
-				return;
-			}
-			ForkJoinExampleThreadTracker.evaluateNode(currentNode);
-			return;
-		} else {
-			MoveList<ForkJoinExampleNode> moveList = getMoveList(plies);
-			position.getPossibleMoves(moveList);
-
-			int i = 0;
-			while (i < numChildren) {
-				ForkJoinExampleNode move = moveList.get(i);
-				if (searchCanceled) {
-					return;
-				}
-				position.makeMove(move);
-				visitNodes(position, plies - 1);
-				position.unmakeMove(move);
-				++i;
-			}
-		}
+	@Override
+	public void stopSearch() {
+		strategy.stopSearch();
+		super.stopSearch();
 	}
 
 	@Override
@@ -63,24 +44,14 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 			parentMove = ForkJoinExampleThreadTracker.getRoot();
 		}
 		ForkJoinExampleThreadTracker.setForked(parentMove);
-		int i = 0;
-		while (i < unanalyzedMoves.size()) {
-			ForkJoinExampleNode move = unanalyzedMoves.get(i);
-			ForkJoinExampleThreadTracker.branchVisited(parentMove, move, ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
-			++i;
-		}
 	}
 
 	@Override
 	public void join(ForkJoinExampleTree parentPosition, int parentPlayer, int currentPlayer, AnalysisResult<ForkJoinExampleNode> partialResult,
 			List<MoveWithResult<ForkJoinExampleNode>> movesWithResults) {
+		strategy.join(parentPosition, parentPlayer, currentPlayer, partialResult, movesWithResults);
 		for (MoveWithResult<ForkJoinExampleNode> moveWithResult : movesWithResults) {
 			ForkJoinExampleThreadTracker.branchVisited(parentPosition.getCurrentNode(), moveWithResult.move, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
-			MoveWithScore<ForkJoinExampleNode> moveWithScore = moveWithResult.result.getMax();
-			if (moveWithScore == null) {
-				continue;
-			}
-			partialResult.addMoveWithScore(moveWithResult.move, moveWithScore.score);
 		}
 		ForkJoinExampleThreadTracker.setJoined(parentPosition.getCurrentNode());
 	}
@@ -92,6 +63,6 @@ public class ForkJoinExampleStraregy extends AbstractDepthBasedStrategy<ForkJoin
 
 	@Override
 	public IDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> createCopy() {
-		return new ForkJoinExampleStraregy(moveListFactory);
+		return new ForkJoinExampleStraregy(moveListFactory, strategy.createCopy());
 	}
 }

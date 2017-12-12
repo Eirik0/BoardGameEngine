@@ -2,9 +2,11 @@ package game.forkjoinexample;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class ForkJoinExampleNode {
 	private final Integer number;
+	public final double score = new Random().nextDouble() * 10 - 5;
 
 	private ForkJoinExampleNode parent;
 	private final ForkJoinExampleNode[] children;
