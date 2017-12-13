@@ -109,12 +109,18 @@ public class ForkJoinExampleThreadTracker {
 	}
 
 	public static void setThreadName(ForkJoinExampleNode node) {
-		nodeToInfoMap.get(node).setThreadName();
+		ForkJoinExampleNodeInfo nodeInfo = nodeToInfoMap.get(node);
+		if (nodeInfo != null) {
+			nodeInfo.setThreadName();
+		}
 	}
 
 	public static void evaluateNode(ForkJoinExampleNode node) {
-		sleep(SLEEP_PER_EVAL);
-		nodeToInfoMap.get(node).evaluate();
+		ForkJoinExampleNodeInfo nodeInfo = nodeToInfoMap.get(node);
+		if (nodeInfo != null) {
+			sleep(SLEEP_PER_EVAL);
+			nodeInfo.evaluate();
+		}
 	}
 
 	static void incrementNodesEvaluated() {
@@ -138,16 +144,25 @@ public class ForkJoinExampleThreadTracker {
 	}
 
 	public static void setForked(ForkJoinExampleNode parentMove) {
-		nodeToInfoMap.get(parentMove).setForked();
+		ForkJoinExampleNodeInfo parentInfo = nodeToInfoMap.get(parentMove);
+		if (parentInfo != null) {
+			parentInfo.setForked();
+		}
 	}
 
 	public static void setJoined(ForkJoinExampleNode currentNode) {
-		nodeToInfoMap.get(currentNode).setThreadName();
+		ForkJoinExampleNodeInfo nodeInfo = nodeToInfoMap.get(currentNode);
+		if (nodeInfo != null) {
+			nodeInfo.setThreadName();
+		}
 	}
 
 	public static void branchVisited(ForkJoinExampleNode parent, ForkJoinExampleNode child, long sleep) {
-		sleep(sleep);
-		nodeToInfoMap.get(parent).addChild(child);
+		ForkJoinExampleNodeInfo parentInfo = nodeToInfoMap.get(parent);
+		if (parentInfo != null) {
+			sleep(sleep);
+			parentInfo.addChild(child);
+		}
 	}
 
 	static void sleep(long sleep) {
