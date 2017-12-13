@@ -102,10 +102,8 @@ public class MainPanel extends JPanel {
 
 			GameObserver<M, P> gameObserver = new GameObserver<>();
 			gameObserver.setPositionChangedAction(positionChangedInfo -> {
-				SwingUtilities.invokeLater(() -> {
-					moveHistoryPanel.setMoveHistory(positionChangedInfo.moveHistory);
-					analysisPanel.positionChanged(positionChangedInfo);
-				});
+				moveHistoryPanel.setMoveHistory(positionChangedInfo.moveHistory);
+				analysisPanel.positionChanged(positionChangedInfo);
 			});
 
 			gameRunner = new GameRunner<>(game, gameObserver, moveListFactory);
@@ -114,9 +112,9 @@ public class MainPanel extends JPanel {
 
 			gameObserver.setGameRunningAction(() -> playerControllerPanel.gameStarted());
 
-			gameObserver.setGamePausedAction(() -> {
+			gameObserver.setGameStoppedAction(() -> {
 				playerControllerPanel.gameEnded();
-				analysisPanel.gamePaused();
+				analysisPanel.gameStopped();
 			});
 		}
 	}

@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 
 import analysis.AnalysisResult;
 import analysis.MoveWithScore;
@@ -153,18 +151,12 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 	}
 
 	private AnalysisResult<M> search(P position, int plies) {
-		BlockingQueue<AnalysisResult<M>> resultQueue = new SynchronousQueue<>();
+		ResultTransfer<M> resultTransfer = new ResultTransfer<>();
 
 		MoveList<M> searchMoveList = new SearchMoveList<>(moveListFactory.newAnalysisMoveList(), result == null ? Collections.emptySet() : result.getDecidedMoves());
 		position.getPossibleMoves(searchMoveList);
 
-		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(null, position, searchMoveList, moveListFactory, plies, strategy, moveResult -> {
-			try {
-				resultQueue.put(moveResult.result);
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-		});
+		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(null, position, searchMoveList, moveListFactory, plies, strategy, moveResult -> resultTransfer.putResult(moveResult.result));
 
 		treeSearchRoot = new TreeSearchRoot<>(rootTreeSearch);
 		treeSearchesToAnalyze.addAll(treeSearchRoot.getBranches());
@@ -190,16 +182,18 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			}
 		}
 
-		try {
-			AnalysisResult<M> result = resultQueue.take();
-			synchronized (this) { // All workers must become available before we return
-				while (availableWorkers.size() < numWorkers) {
-					wait();
-				}
+		AnalysisResult<M> result = resultTransfer.awaitResult();
+		waitForAvailableWorkers(); // All workers must become available before we return
+		return result;
+	}
+
+	private synchronized void waitForAvailableWorkers() {
+		while (availableWorkers.size() < numWorkers) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
 			}
-			return result;
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
 		}
 	}
 

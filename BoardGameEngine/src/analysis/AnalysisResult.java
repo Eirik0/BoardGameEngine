@@ -57,7 +57,7 @@ public class AnalysisResult<M> {
 		return searchComplete;
 	}
 
-	public AnalysisResult<M> mergeWith(AnalysisResult<M> resultToMerge) {
+	public synchronized AnalysisResult<M> mergeWith(AnalysisResult<M> resultToMerge) {
 		AnalysisResult<M> mergedResult = new AnalysisResult<>();
 		Map<M, Double> mergedMoveMap = new HashMap<>();
 		for (MoveWithScore<M> moveWithScore : movesWithScore) {
@@ -82,11 +82,11 @@ public class AnalysisResult<M> {
 		return max != null && isDraw(max.score) && !isDecided() ? new MoveWithScore<>(max.move, 0.0) : max;
 	}
 
-	public M getBestMove() {
+	public synchronized M getBestMove() {
 		return max == null ? null : max.move;
 	}
 
-	public List<M> getBestMoves() {
+	public synchronized List<M> getBestMoves() {
 		List<M> bestMoves = new ArrayList<>();
 		double maxScore = max.score;
 		for (MoveWithScore<M> moveWithScore : movesWithScore) {
@@ -97,15 +97,15 @@ public class AnalysisResult<M> {
 		return bestMoves;
 	}
 
-	public Set<MoveWithScore<M>> getDecidedMoves() {
+	public synchronized Set<MoveWithScore<M>> getDecidedMoves() {
 		return decidedMoves;
 	}
 
-	public boolean isWin() {
+	public synchronized boolean isWin() {
 		return max != null && max.score == AnalysisResult.WIN;
 	}
 
-	public boolean isLoss() {
+	public synchronized boolean isLoss() {
 		return max != null && max.score == AnalysisResult.LOSS;
 	}
 
@@ -113,7 +113,7 @@ public class AnalysisResult<M> {
 		return max != null && movesWithScore.size() == numLost + 1;
 	}
 
-	public boolean isDecided() {
+	public synchronized boolean isDecided() {
 		return decidedMoves.size() == movesWithScore.size();
 	}
 

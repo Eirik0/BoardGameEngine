@@ -65,7 +65,7 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 		analysisState.stopAnalysis();
 	}
 
-	public void gamePaused() {
+	public void gameStopped() {
 		if (!(analysisState instanceof InfiniteAnalysisState<?, ?>)) {
 			analysisState.stopAnalysis();
 			setAnalysisState(new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo));

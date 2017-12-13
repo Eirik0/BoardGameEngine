@@ -16,7 +16,6 @@ import main.BoardGameEngineMain;
 public class ComputerPlayerObserver implements Drawable, Sizable {
 	public static final String NAME = "Computer Observer";
 
-	private int width;
 	private int height;
 	private int componentWidth;
 	private int componentHeight;
@@ -65,7 +64,7 @@ public class ComputerPlayerObserver implements Drawable, Sizable {
 
 	@Override
 	public int getWidth() {
-		return Math.max(width, componentWidth);
+		return componentWidth;
 	}
 
 	@Override

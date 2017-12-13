@@ -10,9 +10,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import util.Pair;
 
 public class ForkJoinExampleThreadTracker {
-	static int SLEEP_PER_EVAL = 128;
-	static int SLEEP_PER_BRANCH = 32;
-	static int SLEEP_PER_MERGE = 16;
+	static long SLEEP_PER_EVAL = 128;
+	static long SLEEP_PER_BRANCH = 32;
+	static long SLEEP_PER_MERGE = 16;
 
 	private static List<List<ForkJoinExampleNode>> nodesByDepth = new ArrayList<>();
 	private static Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> nodeToInfoMap = new HashMap<>();
@@ -33,7 +33,7 @@ public class ForkJoinExampleThreadTracker {
 		nodeToInfoMap = newNodeInfoMap;
 	}
 
-	public static void setSleepTimes(int eval, int branch, int merge) {
+	public static void setSleepTimes(long eval, long branch, long merge) {
 		SLEEP_PER_EVAL = eval;
 		SLEEP_PER_BRANCH = branch;
 		SLEEP_PER_MERGE = merge;

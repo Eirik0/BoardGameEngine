@@ -11,6 +11,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 
 	private volatile boolean stopRequested = false;
 	private volatile boolean isRunning = false;
+	private volatile boolean isSettingPosition = false;
 
 	private final GameObserver<M, P> gameObserver;
 	private IPositionObserver<M, P> positionObserver;
@@ -78,14 +79,14 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		setPositionCopy(NO_PLAYER, null, true);
 	}
 
-	public void setPlayersAndResume(List<IPlayer> players) {
+	public synchronized void setPlayersAndResume(List<IPlayer> players) {
 		this.players = players;
 		resumeGame();
 	}
 
 	public synchronized void resumeGame() {
 		if (possibleMovesCopy.size() == 0) {
-			notifyGameEnded(players);
+			notifyGameEnded();
 			return;
 		}
 
@@ -115,7 +116,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 					}
 				}
 			} finally {
-				notifyGameEnded(players);
+				notifyGameEnded();
 			}
 		}, "Game_Runner_Thread_" + ThreadNumber.getThreadNum(getClass())).start();
 
@@ -131,7 +132,7 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		if (isRunning) {
 			waitForRunningToBe(false);
 		} else if (notifyObserver) {
-			gameObserver.notifyGamePaused();
+			gameObserver.notifyGameStopped();
 		}
 		stopRequested = false;
 	}
@@ -147,7 +148,9 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	}
 
 	public synchronized void setPositionFromHistory(int moveNumToFind, int playerNumToFind) {
+		isSettingPosition = true;
 		pauseGame(false);
+		isSettingPosition = false;
 		P newPosition = game.newInitialPosition();
 		lastMove = moveHistory.setPositionFromHistory(newPosition, moveNumToFind, playerNumToFind);
 		position = newPosition;
@@ -158,11 +161,14 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 		}
 	}
 
-	private synchronized void notifyGameEnded(List<IPlayer> players) {
+	private synchronized void notifyGameEnded() {
 		for (IPlayer player : players) {
 			player.notifyGameEnded();
 		}
-		gameObserver.notifyGamePaused();
+		// If we are setting the position from history we are about to resume the game, unless there are no moves
+		if (!isSettingPosition || possibleMovesCopy.size() == 0) {
+			gameObserver.notifyGameStopped();
+		}
 		isRunning = false;
 		currentPlayer = null;
 		notify();

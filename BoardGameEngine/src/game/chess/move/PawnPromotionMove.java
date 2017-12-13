@@ -1,5 +1,7 @@
 package game.chess.move;
 
+import java.util.Locale;
+
 import game.chess.ChessFunctions;
 import game.chess.ChessPosition;
 import game.chess.fen.ForsythEdwardsNotation;
@@ -88,6 +90,6 @@ public class PawnPromotionMove implements IChessMove {
 
 	@Override
 	public String toString() {
-		return basicMove.toString() + ForsythEdwardsNotation.getPieceString(promotion).toLowerCase();
+		return basicMove.toString() + ForsythEdwardsNotation.getPieceString(promotion).toLowerCase(Locale.ENGLISH);
 	}
 }

@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,7 +130,7 @@ public class ChessPositionPerfTest {
 
 	private static List<PerfTest> loadPerfTests() {
 		List<PerfTest> perfTests = new ArrayList<>();
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(ChessPositionPerfTest.class.getResourceAsStream("/game/chess/perftsuite.epd")))) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(ChessPositionPerfTest.class.getResourceAsStream("/game/chess/perftsuite.epd"), StandardCharsets.UTF_8))) {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				perfTests.add(new PerfTest(line));

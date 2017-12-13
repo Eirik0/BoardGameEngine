@@ -111,15 +111,13 @@ public class PlayerControllerPanel extends JPanel {
 			for (JButton button : buttons) {
 				button.setEnabled(false);
 			}
-			new Thread(() -> {
-				try {
-					r.run();
-				} finally {
-					for (JButton button : buttons) {
-						button.setEnabled(true);
-					}
+			try {
+				r.run();
+			} finally {
+				for (JButton button : buttons) {
+					button.setEnabled(true);
 				}
-			}, "Enabke_Disable_Button_Thread").start();
+			}
 		};
 	}
 }
