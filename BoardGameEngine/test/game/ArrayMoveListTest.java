@@ -18,7 +18,7 @@ public class ArrayMoveListTest {
 	@Test
 	public void testSet() {
 		MoveList<String> moveList = new ArrayMoveList<>(2);
-		moveList.setQuietMoves(new String[] { "test1", "test2" }, null);
+		moveList.addAllQuietMoves(new String[] { "test1", "test2" }, null);
 		assertEquals(2, moveList.size());
 		assertEquals("test1", moveList.get(0));
 		assertEquals("test2", moveList.get(1));
@@ -27,13 +27,15 @@ public class ArrayMoveListTest {
 	}
 
 	@Test
-	public void testAddOneThenSet() {
+	public void testAddOneThenAddAll() {
 		MoveList<String> moveList = new ArrayMoveList<>(3);
 		moveList.addQuietMove("test0", null);
-		moveList.setQuietMoves(new String[] { "test1", "test2" }, null);
-		assertEquals(2, moveList.size());
-		assertEquals("test1", moveList.get(0));
-		assertEquals("test2", moveList.get(1));
+		moveList.addAllQuietMoves(new String[] { "test1", "test2" }, null);
+		assertEquals(3, moveList.size());
+		assertEquals("test0", moveList.get(0));
+		assertEquals("test1", moveList.get(1));
+		assertEquals("test2", moveList.get(2));
+		assertTrue(moveList.contains("test0"));
 		assertTrue(moveList.contains("test1"));
 		assertTrue(moveList.contains("test2"));
 	}

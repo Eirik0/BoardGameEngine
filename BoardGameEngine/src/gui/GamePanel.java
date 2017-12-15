@@ -9,11 +9,14 @@ import java.util.function.Consumer;
 
 import javax.swing.JPanel;
 
+import main.BoardGameEngineMain;
+
 @SuppressWarnings("serial")
 public class GamePanel extends JPanel {
 	private final GamePanelController controller;
 
 	public GamePanel(Consumer<Graphics2D> drawFunction, BiConsumer<Integer, Integer> resizeFunction) {
+		setBackground(BoardGameEngineMain.BACKGROUND_COLOR);
 		controller = new GamePanelController(drawFunction);
 		addComponentListener(new ComponentAdapter() {
 			@Override

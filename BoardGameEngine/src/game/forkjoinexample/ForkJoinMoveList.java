@@ -12,11 +12,6 @@ public class ForkJoinMoveList implements MoveList<ForkJoinExampleNode> {
 	}
 
 	@Override
-	public <P extends IPosition<ForkJoinExampleNode, P>> void setQuietMoves(ForkJoinExampleNode[] moves, P position) {
-		arrayMoveList.setQuietMoves(moves, position);
-	}
-
-	@Override
 	public <P extends IPosition<ForkJoinExampleNode, P>> void addDynamicMove(ForkJoinExampleNode move, P position) {
 		ForkJoinExampleThreadTracker.branchVisited(move.getParent(), move, ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
 		arrayMoveList.addDynamicMove(move, position);
@@ -26,6 +21,15 @@ public class ForkJoinMoveList implements MoveList<ForkJoinExampleNode> {
 	public <P extends IPosition<ForkJoinExampleNode, P>> void addQuietMove(ForkJoinExampleNode move, P position) {
 		ForkJoinExampleThreadTracker.branchVisited(move.getParent(), move, ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
 		arrayMoveList.addQuietMove(move, position);
+	}
+
+	@Override
+	public <P extends IPosition<ForkJoinExampleNode, P>> void addAllQuietMoves(ForkJoinExampleNode[] moves, P position) {
+		int i = 0;
+		while (i < moves.length) {
+			addQuietMove(moves[i], position);
+			++i;
+		}
 	}
 
 	@Override

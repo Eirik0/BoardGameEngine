@@ -7,14 +7,13 @@ import java.awt.Graphics2D;
 import game.Coordinate;
 import game.MoveList;
 import game.ultimatetictactoe.UltimateTicTacToeGameRenderer;
-import game.ultimatetictactoe.UltimateTicTacToeUtilities;
 import gui.GameGuiManager;
 import gui.gamestate.BoardSizer;
 import gui.gamestate.GameState.UserInput;
 import gui.gamestate.IGameRenderer;
 import main.BoardGameEngineMain;
 
-public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosition> {
+public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosition>, SudokuConstants {
 	private BoardSizer sizer;
 	private double smallBoardWidth = 0;
 
@@ -23,7 +22,7 @@ public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosit
 		int imageWidth = GameGuiManager.getComponentWidth();
 		int imageHeight = GameGuiManager.getComponentHeight();
 
-		sizer = new BoardSizer(imageWidth, imageHeight, SudokuPosition.BOARD_WIDTH);
+		sizer = new BoardSizer(imageWidth, imageHeight, NUM_DIGITS);
 
 		smallBoardWidth = sizer.boardWidth / 3.0;
 
@@ -44,12 +43,14 @@ public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosit
 	@Override
 	public void drawPosition(Graphics2D g, SudokuPosition position, MoveList<SudokuMove> possibleMoves, SudokuMove lastMove) {
 		Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, round(sizer.cellWidth * 0.33));
-		for (int n = 0; n < SudokuPosition.BOARD_WIDTH; ++n) {
-			for (int m = 0; m < SudokuPosition.BOARD_WIDTH; ++m) {
-				if (position.squares[n][m] != SudokuPosition.UNPLAYED) {
-					Coordinate boardXY = UltimateTicTacToeUtilities.getBoardXY(n, m);
-					g.setColor(lastMove != null && boardXY.equals(lastMove.coordinate) ? Color.GREEN : BoardGameEngineMain.FOREGROUND_COLOR);
-					drawCenteredString(g, smallFont, Integer.toString(position.squares[n][m]), sizer.getCenterX(boardXY.x), sizer.getCenterY(boardXY.y));
+		for (int n = 0; n < NUM_DIGITS; ++n) {
+			for (int m = 0; m < NUM_DIGITS; ++m) {
+				int i = 0;
+				while (i < position.numDecided) {
+					int cellIndex = position.decidedCells[i++];
+					Coordinate coordinate = SudokuConstants.getCoordinate(cellIndex);
+					g.setColor(lastMove != null && cellIndex == lastMove.location ? Color.GREEN : BoardGameEngineMain.FOREGROUND_COLOR);
+					drawCenteredString(g, smallFont, position.cells[cellIndex].toString(), sizer.getCenterX(coordinate.x), sizer.getCenterY(coordinate.y));
 				}
 			}
 		}

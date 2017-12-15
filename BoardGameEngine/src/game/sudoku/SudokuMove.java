@@ -1,20 +1,30 @@
 package game.sudoku;
 
-import game.Coordinate;
+public class SudokuMove implements SudokuConstants {
+	public final int location;
+	public final int digit;
 
-public class SudokuMove {
-	public final Coordinate coordinate;
-	public final int number;
+	private static final SudokuMove[] sudokuMoves = new SudokuMove[MAX_MOVES];
 
-	public SudokuMove(Coordinate coordinate, int number) {
-		this.coordinate = coordinate;
-		this.number = number;
+	public static SudokuMove valueOf(int location, int digit) {
+		int index = location * NUM_DIGITS + SudokuConstants.mapDigit(digit);
+		SudokuMove move = sudokuMoves[index];
+		if (move == null) {
+			move = new SudokuMove(location, digit);
+			sudokuMoves[index] = move;
+		}
+		return move;
+	}
+
+	private SudokuMove(int location, int digit) {
+		this.location = location;
+		this.digit = digit;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		return prime * (prime + coordinate.hashCode()) + number;
+		return prime * (prime + location) + digit;
 	}
 
 	@Override
@@ -25,11 +35,11 @@ public class SudokuMove {
 			return false;
 		}
 		SudokuMove other = (SudokuMove) obj;
-		return coordinate.equals(other.coordinate) && number == other.number;
+		return location == other.location && digit == other.digit;
 	}
 
 	@Override
 	public String toString() {
-		return coordinate.toString() + ": " + number;
+		return SudokuConstants.getCoordinate(location).toString() + ": " + Integer.toString(SudokuConstants.mapDigit(digit) + 1);
 	}
 }

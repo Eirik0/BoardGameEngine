@@ -14,11 +14,6 @@ public class GomokuMoveList implements MoveList<Coordinate> {
 	}
 
 	@Override
-	public <P extends IPosition<Coordinate, P>> void setQuietMoves(Coordinate[] moves, P position) {
-		arrayMoveList.setQuietMoves(moves, position);
-	}
-
-	@Override
 	public <P extends IPosition<Coordinate, P>> void addDynamicMove(Coordinate move, P position) {
 		if (hasNeighbors(((GomokuPosition) position).board, move.x, move.y)) {
 			arrayMoveList.addDynamicMove(move, position);
@@ -29,6 +24,15 @@ public class GomokuMoveList implements MoveList<Coordinate> {
 	public <P extends IPosition<Coordinate, P>> void addQuietMove(Coordinate move, P position) {
 		if (hasNeighbors(((GomokuPosition) position).board, move.x, move.y)) {
 			arrayMoveList.addQuietMove(move, position);
+		}
+	}
+
+	@Override
+	public <P extends IPosition<Coordinate, P>> void addAllQuietMoves(Coordinate[] moves, P position) {
+		int i = 0;
+		while (i < moves.length) {
+			addQuietMove(moves[i], position);
+			++i;
 		}
 	}
 

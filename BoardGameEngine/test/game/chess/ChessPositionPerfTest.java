@@ -14,9 +14,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import game.ArrayMoveList;
+import game.IPosition;
 import game.MoveList;
 import game.chess.fen.ForsythEdwardsNotation;
 import game.chess.move.IChessMove;
+import game.sudoku.SudokuGame;
 
 public class ChessPositionPerfTest {
 	@Test
@@ -62,8 +64,9 @@ public class ChessPositionPerfTest {
 		long start = System.currentTimeMillis();
 		long totalPositions = 0;
 		for (PerfTest perfTest : perfTests) {
+			ChessPosition position = perfTest.position;
 			long startPos = System.currentTimeMillis();
-			long countPositions = countPositions(perfTest.position, depth);
+			long countPositions = countPositions(position, depth);
 			if (verbose) {
 				long posTime = System.currentTimeMillis() - startPos;
 				long posPerSec = (long) (((double) countPositions / posTime) * 1000);
@@ -71,7 +74,7 @@ public class ChessPositionPerfTest {
 			}
 			if (perfTest.expectedPositions[depth] != countPositions) {
 				System.out.println(depth + ": " + countPositions + " != " + perfTest.expectedPositions[depth] + " " + perfTest.fen);
-				System.out.println(ChessPositionTest.getBoardStr(perfTest.position));
+				System.out.println(ChessPositionTest.getBoardStr(position));
 			}
 			assertEquals(depth + ": " + perfTest.fen, perfTest.expectedPositions[depth], countPositions);
 			totalPositions += countPositions;
@@ -81,8 +84,8 @@ public class ChessPositionPerfTest {
 		System.out.println("Count Positions: depth= " + depth + ", totalPositions= " + totalPositions + ", time= " + time + "ms, pps= " + posPerSec);
 	}
 
-	private static long countPositions(ChessPosition position, int depth) {
-		MoveList<IChessMove> possibleMoves = new ArrayMoveList<>(ChessGame.MAX_MOVES);
+	public static <M, P extends IPosition<M, P>> long countPositions(P position, int depth) {
+		MoveList<M> possibleMoves = new ArrayMoveList<>(SudokuGame.MAX_MOVES);
 		position.getPossibleMoves(possibleMoves);
 		if (depth == 0) {
 			return possibleMoves.size();
@@ -90,7 +93,7 @@ public class ChessPositionPerfTest {
 		long sum = 0;
 		int i = 0;
 		while (i < possibleMoves.size()) {
-			IChessMove move = possibleMoves.get(i);
+			M move = possibleMoves.get(i);
 			position.makeMove(move);
 			sum += countPositions(position, depth - 1);
 			position.unmakeMove(move);

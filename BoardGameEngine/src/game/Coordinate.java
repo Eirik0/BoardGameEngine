@@ -4,7 +4,7 @@ public class Coordinate {
 	private static final int BOARD_SHIFT = 5;
 	private static final int MAX_BOARD_WIDTH = 1 << BOARD_SHIFT; // = 2 ^ BOARD_SHIFT
 
-	private static Coordinate[] coordinates = new Coordinate[MAX_BOARD_WIDTH * MAX_BOARD_WIDTH];
+	private static final Coordinate[] coordinates = new Coordinate[MAX_BOARD_WIDTH * MAX_BOARD_WIDTH];
 
 	public final int x;
 	public final int y;

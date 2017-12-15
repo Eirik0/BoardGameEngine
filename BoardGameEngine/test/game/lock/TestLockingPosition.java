@@ -17,7 +17,7 @@ public class TestLockingPosition implements IPosition<TestLockingNode, TestLocki
 
 	@Override
 	public void getPossibleMoves(MoveList<TestLockingNode> possibleMoves) {
-		possibleMoves.setQuietMoves(currentNode.getPossibleMoves(), this);
+		possibleMoves.addAllQuietMoves(currentNode.getPossibleMoves(), this);
 	}
 
 	@Override

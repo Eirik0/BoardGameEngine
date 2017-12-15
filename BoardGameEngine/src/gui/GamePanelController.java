@@ -15,12 +15,6 @@ public class GamePanelController {
 		this.drawFunction = drawFunction;
 	}
 
-	public synchronized void drawOn(Graphics g) {
-		g.drawImage(gameImage.getImage(), 0, 0, null);
-		paintComplete = true;
-		notify();
-	}
-
 	public void addToGameLoop(String name, Runnable repaintRunnable) {
 		FixedDurationGameLoop.addRunnable(name, () -> {
 			drawFunction.accept(gameImage.getGraphics());
@@ -46,5 +40,11 @@ public class GamePanelController {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	public synchronized void drawOn(Graphics g) {
+		g.drawImage(gameImage.getImage(), 0, 0, null);
+		paintComplete = true;
+		notify();
 	}
 }

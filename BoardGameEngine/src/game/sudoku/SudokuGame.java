@@ -2,9 +2,8 @@ package game.sudoku;
 
 import game.IGame;
 
-public class SudokuGame implements IGame<SudokuMove, SudokuPosition> {
+public class SudokuGame implements IGame<SudokuMove, SudokuPosition>, SudokuConstants {
 	public static final String NAME = "Sudoku Generator";
-	public static final int MAX_MOVES = SudokuPosition.BOARD_WIDTH * SudokuPosition.BOARD_WIDTH * SudokuPosition.BOARD_WIDTH;
 
 	@Override
 	public String getName() {

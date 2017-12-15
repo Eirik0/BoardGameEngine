@@ -115,6 +115,7 @@ public class TicTacToeTreeSearchTest {
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher(2);
 		for (int i = 0; i < 1000; ++i) {
 			AnalysisResult<Coordinate> result = treeSearcher.startSearch(position, 11, true);
+			assertEquals(2, treeSearcher.getPlies());
 			String assertMessage = "search " + String.valueOf(i) + ": " + Arrays.toString(result.getMovesWithScore().toArray());
 			assertEquals(assertMessage, 2, result.getMovesWithScore().size());
 			assertTrue(assertMessage, result.getMovesWithScore().contains(new MoveWithScore<>(Coordinate.valueOf(2, 2), AnalysisResult.DRAW)));

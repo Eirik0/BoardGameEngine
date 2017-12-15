@@ -28,6 +28,7 @@ public class MainPanel extends JPanel {
 
 	public MainPanel(JFrame mainFrame) {
 		super(new BorderLayout());
+		setBackground(BoardGameEngineMain.BACKGROUND_COLOR);
 		this.mainFrame = mainFrame;
 
 		gamePanel = new GamePanel(g -> GameGuiManager.getGameState().drawOn(g), (width, height) -> GameGuiManager.setComponentSize(width.intValue(), height.intValue()));

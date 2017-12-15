@@ -22,6 +22,7 @@ public class ScrollableGamePanel extends JPanel implements Scrollable {
 	private final GamePanelController controller;
 
 	public ScrollableGamePanel(JViewport viewport, Sizable sizable, Consumer<Graphics2D> drawFunction) {
+		setBackground(BoardGameEngineMain.BACKGROUND_COLOR);
 		controller = new GamePanelController(drawFunction);
 		this.viewport = viewport;
 		this.sizable = sizable;
@@ -38,15 +39,15 @@ public class ScrollableGamePanel extends JPanel implements Scrollable {
 	}
 
 	public void checkResized() {
-		sizable.checkResized(viewport.getWidth(), viewport.getHeight());
-		controller.gameImage.checkResized(sizable.getWidth(), sizable.getHeight());
-		Dimension newPreferredSize = new Dimension(sizable.getWidth(), sizable.getHeight());
-		if (!getPreferredSize().equals(newPreferredSize)) {
-			SwingUtilities.invokeLater(() -> {
+		SwingUtilities.invokeLater(() -> {
+			sizable.checkResized(viewport.getWidth(), viewport.getHeight());
+			controller.gameImage.checkResized(sizable.getWidth(), sizable.getHeight());
+			Dimension newPreferredSize = new Dimension(sizable.getWidth(), sizable.getHeight());
+			if (!getPreferredSize().equals(newPreferredSize)) {
 				setPreferredSize(newPreferredSize);
 				viewport.revalidate();
-			});
-		}
+			}
+		});
 	}
 
 	public void addToGameLoop(String name) {

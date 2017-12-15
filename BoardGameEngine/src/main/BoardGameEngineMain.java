@@ -12,7 +12,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import analysis.strategy.AlphaBetaStrategy;
+import analysis.strategy.AlphaBetaQStrategy;
 import game.GameRunner;
 import game.chess.ChessGame;
 import game.chess.ChessGameRenderer;
@@ -107,8 +107,8 @@ public class BoardGameEngineMain {
 				.registerMinimaxStrategies(new GomokuPositionEvaluator());
 
 		GameRegistry.registerGame(new SudokuGame(), SudokuGameRenderer.class)
-				.registerComputer(5000, defaultMaxWorkers)
-				.registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(GameRegistry.getMoveListFactory(SudokuGame.NAME), new SudokuPositionEvaluator()));
+				.registerComputer(1000, defaultMaxWorkers)
+				.registerStrategy("AlphaBetaQ", () -> new AlphaBetaQStrategy<>(GameRegistry.getMoveListFactory(SudokuGame.NAME), new SudokuPositionEvaluator()));
 
 		GameRegistry.registerGame(new ForkJoinExampleGame(), ForkJoinExampleGameRenderer.class, ForkJoinMoveList.class)
 				.registerComputer(Long.MAX_VALUE, 100)
@@ -122,6 +122,7 @@ public class BoardGameEngineMain {
 
 	private static JFrame createMainFrame() {
 		JFrame mainFrame = new JFrame(TITLE);
+		mainFrame.setBackground(BoardGameEngineMain.BACKGROUND_COLOR);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setFocusable(false);
 		return mainFrame;
