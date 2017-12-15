@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 
 import main.BoardGameEngineMain;
 
-public class GameImage {
+public class GameImage implements DrawingMethods {
 	private BufferedImage image;
 	private Graphics2D graphics;
 
@@ -22,10 +22,14 @@ public class GameImage {
 	}
 
 	private void resizeImage(int width, int height) {
-		BufferedImage oldImage = image;
-		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		graphics = image.createGraphics();
-		graphics.drawImage(oldImage, 0, 0, width, height, null);
+		BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics2D newGraphics = newImage.createGraphics();
+		fillRect(newGraphics, 0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
+		if (image != null) {
+			newGraphics.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
+		}
+		image = newImage;
+		graphics = newGraphics;
 	}
 
 	public void checkResized(int width, int height) {
