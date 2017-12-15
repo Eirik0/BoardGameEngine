@@ -164,7 +164,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		int removeIndex = 0;
 		while (availableWorkers.size() > treeSearchesToAnalyze.size() && removeIndex < treeSearchesToAnalyze.size() && !searchStopped) {
 			GameTreeSearch<M, P> treeSearch = treeSearchesToAnalyze.get(removeIndex);
-			if (treeSearch.getPlies() > 0 && treeSearch.getRemainingBranches() > 0) {
+			if (treeSearch.isForkable()) {
 				treeSearchesToAnalyze.addAll(treeSearchesToAnalyze.remove(removeIndex).fork());
 				removeIndex = 0;
 			} else {
@@ -219,7 +219,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		for (Entry<TreeSearchWorker<M, P>, GameTreeSearch<M, P>> treeSearchInProgress : treeSearchesInProgress.entrySet()) {
 			treeSearchInProgress.getKey().waitForSearchToStart();
 			GameTreeSearch<M, P> treeSearch = treeSearchInProgress.getValue();
-			if (treeSearch.getPlies() == 0 || treeSearch.getRemainingBranches() == 0) {
+			if (!treeSearch.isForkable()) {
 				continue;
 			}
 			if (treeSearchToFork == null

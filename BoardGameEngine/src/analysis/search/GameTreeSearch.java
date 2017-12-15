@@ -119,6 +119,10 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		return movesToSearch.size() - branchIndex.get();
 	}
 
+	public boolean isForkable() {
+		return plies > 0 && (plies == 1 ? getRemainingBranches() > 1 : getRemainingBranches() > 0);
+	}
+
 	public List<GameTreeSearch<M, P>> fork() {
 		forked = true;
 		MoveList<M> unanalyzedMoves;
@@ -177,10 +181,10 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		position.getPossibleMoves(subMoves);
 		GameTreeSearch<M, P> treeSearch = new GameTreeSearch<>(move, position, subMoves, moveListFactory, plies - 1, strategy);
 		treeSearch.setResultConsumer(moveWithResult -> {
-			if (consumedResult.get()) {
-				return;
-			}
 			synchronized (this) {
+				if (consumedResult.get()) {
+					return;
+				}
 				movesWithResults.add(moveWithResult);
 				if (treeSearch.searchCanceled && !treeSearch.forked) {
 					join(treeSearch.player, partialResult, movesWithResults);

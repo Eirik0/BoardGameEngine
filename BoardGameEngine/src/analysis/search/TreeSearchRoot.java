@@ -19,7 +19,7 @@ public class TreeSearchRoot<M, P extends IPosition<M, P>> {
 
 	public TreeSearchRoot(GameTreeSearch<M, P> rootTreeSearch) {
 		// Always fork once so we can keep track of the searches in progress
-		if (rootTreeSearch.getPlies() > 0 && rootTreeSearch.getRemainingBranches() > 0) {
+		if (rootTreeSearch.isForkable()) {
 			branches = rootTreeSearch.fork();
 			max = new boolean[branches.size()];
 			int i = 0;
