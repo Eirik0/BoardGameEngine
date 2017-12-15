@@ -77,7 +77,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 			strategy.notifyPlyStarted(result);
 			AnalysisResult<M> search = search(position, plies);
 			if (searchStopped && result != null) { // merge only when the search is stopped
-				result.mergeWith(search);
+				result = result.mergeWith(search);
 			} else {
 				// add back decided moves
 				if (result != null) {
@@ -86,14 +86,14 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 					}
 				}
 				// return the previous result if the current is a loss for longevity
-				if (result != null && escapeEarly && search.isLoss()) {
+				if (escapeEarly && result != null && search.isLoss()) {
 					break;
 				}
 				result = search;
 			}
 			strategy.notifyPlyComplete(searchStopped);
 			if (escapeEarly && (result.isWin() || result.onlyOneMove()) || result.isDecided()) {
-				break; // when escaping early, break if the game is won, drawn, or there is only one move; or if all moves are decided
+				break; // when escaping early, break if the game is won, or there is only one move; or if all moves are decided
 			}
 		} while (!searchStopped && plies < maxPlies);
 
