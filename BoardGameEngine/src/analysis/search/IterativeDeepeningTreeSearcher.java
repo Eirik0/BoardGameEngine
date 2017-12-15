@@ -111,7 +111,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 
 	public void clearResult() {
 		result = null;
-		treeSearchRoot.clear();
+		treeSearchRoot = new TreeSearchRoot<>();
 	}
 
 	public void stopSearch(boolean joinWorkerThreads) {

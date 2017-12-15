@@ -53,8 +53,4 @@ public class TreeSearchRoot<M, P extends IPosition<M, P>> {
 		}
 		return movesWithScore;
 	}
-
-	public void clear() {
-		branches.clear();
-	}
 }
