@@ -30,7 +30,7 @@ public class GameTreeSearchTest {
 		MinimaxStrategy<M, P> strategy = new MinimaxStrategy<>(moveListFactory, positionEvaluator);
 		MoveList<M> moveList = moveListFactory.newAnalysisMoveList();
 		position.getPossibleMoves(moveList);
-		return new GameTreeSearch<M, P>(null, position, moveList, moveListFactory, plies, strategy, moveWithResult -> results.add(moveWithResult.result));
+		return new GameTreeSearch<M, P>(null, position, moveList, moveListFactory, plies, strategy, (canceled, player, moveWithResult) -> results.add(moveWithResult.result));
 	}
 
 	@Test

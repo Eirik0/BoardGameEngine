@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -15,9 +16,13 @@ import game.MoveListFactory;
 
 public class ForkJoinExmpleGameTreeSearchTest {
 	@BeforeClass
-	public static void clear() {
+	public static void setSleepTimes() {
+		ForkJoinExampleThreadTracker.setSleepTimes(1, 0, 0);
+	}
+
+	@Before
+	public void clear() {
 		ForkJoinExampleThreadTracker.searchStarted();
-		ForkJoinExampleThreadTracker.setSleepTimes(0, 0, 0);
 	}
 
 	@Test
@@ -32,7 +37,7 @@ public class ForkJoinExmpleGameTreeSearchTest {
 
 	@Test
 	public void testSearch_FourNodesThreeWorkers() {
-		assertSearch(3, 3, 2, 3, 9, 3);
+		assertSearch(3, 2, 2, 3, 4, 3);
 	}
 
 	private static void assertSearch(int treeDepth, int branchingFactor, int searchDepth, int numWorkers, int expectedNodes, int expectedWorkers) {
@@ -50,7 +55,7 @@ public class ForkJoinExmpleGameTreeSearchTest {
 			assertNotNull("Thread name shoud not be null", threadName);
 			threadNames.add(threadName);
 		}
-		assertEquals(expectedWorkers, threadNames.size());
+		assertEquals("Unexpected num workers, reevaluated = " + ForkJoinExampleThreadTracker.getNodesReevaluated(), expectedWorkers, threadNames.size());
 		treeSearcher.stopSearch(true);
 	}
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,7 +15,7 @@ public class AnalysisResult<M> {
 	public static final double LOSS = Double.NEGATIVE_INFINITY;
 	public static final double DRAW = Double.NaN;
 
-	private final List<MoveWithScore<M>> movesWithScore = new ArrayList<>();
+	private final Set<MoveWithScore<M>> movesWithScore = new LinkedHashSet<>();
 	private final Set<MoveWithScore<M>> decidedMoves = new HashSet<>();
 	private int numLost = 0;
 

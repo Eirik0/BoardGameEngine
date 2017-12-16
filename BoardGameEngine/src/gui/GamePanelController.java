@@ -30,21 +30,25 @@ public class GamePanelController {
 		}
 	}
 
-	private synchronized void repaintAndWait(Runnable repaintRunnable) {
+	private void repaintAndWait(Runnable repaintRunnable) {
 		paintComplete = false;
 		repaintRunnable.run();
-		while (!ignoreWait && !paintComplete) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
+		synchronized (this) {
+			while (!ignoreWait && !paintComplete) {
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 	}
 
-	public synchronized void drawOn(Graphics g) {
+	public void drawOn(Graphics g) {
 		g.drawImage(gameImage.getImage(), 0, 0, null);
-		paintComplete = true;
-		notify();
+		synchronized (this) {
+			paintComplete = true;
+			notify();
+		}
 	}
 }

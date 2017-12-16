@@ -1,10 +1,10 @@
 package analysis.strategy;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import analysis.AnalysisResult;
 import analysis.MoveWithScore;
-import analysis.search.MoveWithResult;
 import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
@@ -53,14 +53,16 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 	}
 
 	@Override
-	public void join(P parentPosition, int parentPlayer, int currentPlayer, AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults) {
-		for (MoveWithResult<M> moveWithResult : movesWithResults) {
+	public void join(P parentPosition, int parentPlayer, int currentPlayer, AnalysisResult<M> partialResult, Map<M, AnalysisResult<M>> movesWithResults) {
+		for (Entry<M, AnalysisResult<M>> moveWithResult : movesWithResults.entrySet()) {
+			M move = moveWithResult.getKey();
+			AnalysisResult<M> result = moveWithResult.getValue();
 			// Player and position come from the parent game tree search, so we are looking for the min for the current player
-			MoveWithScore<M> moveWithScore = moveWithResult.result.getMax();
+			MoveWithScore<M> moveWithScore = result.getMax();
 			if (moveWithScore == null) {
 				continue;
 			}
-			partialResult.addMoveWithScore(moveWithResult.move, parentPlayer == currentPlayer ? moveWithScore.score : -moveWithScore.score, moveWithResult.result.isSeachComplete());
+			partialResult.addMoveWithScore(move, parentPlayer == currentPlayer ? moveWithScore.score : -moveWithScore.score, result.isSeachComplete());
 		}
 	}
 

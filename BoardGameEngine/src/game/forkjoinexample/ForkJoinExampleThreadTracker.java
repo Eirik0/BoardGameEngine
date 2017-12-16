@@ -129,6 +129,11 @@ public class ForkJoinExampleThreadTracker {
 
 	static void incrementNodesReevaluated() {
 		nodesReevaluated.incrementAndGet();
+		nodesReevaluated.incrementAndGet();
+	}
+
+	public static int getNodesReevaluated() {
+		return nodesReevaluated.get();
 	}
 
 	public static double getNodesEvaluatedPerSecond() {

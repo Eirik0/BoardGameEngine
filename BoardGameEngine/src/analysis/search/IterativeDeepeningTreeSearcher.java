@@ -156,7 +156,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M, P>> {
 		MoveList<M> searchMoveList = new SearchMoveList<>(moveListFactory.newAnalysisMoveList(), result == null ? Collections.emptySet() : result.getDecidedMoves());
 		position.getPossibleMoves(searchMoveList);
 
-		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(null, position, searchMoveList, moveListFactory, plies, strategy, moveResult -> resultTransfer.putResult(moveResult.result));
+		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<M, P>(null, position, searchMoveList, moveListFactory, plies, strategy,
+				(canceled, player, moveWithResult) -> resultTransfer.putResult(moveWithResult.result));
 
 		treeSearchRoot = new TreeSearchRoot<>(rootTreeSearch);
 		treeSearchesToAnalyze.addAll(treeSearchRoot.getBranches());

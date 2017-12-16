@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 import analysis.AnalysisResult;
 import analysis.strategy.IDepthBasedStrategy;
@@ -17,28 +16,25 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	public final M parentMove;
 	private final P position;
 	public final int player;
-	private MoveListFactory<M> moveListFactory;
+	private final MoveListFactory<M> moveListFactory;
 	private final MoveList<M> movesToSearch;
-	private AtomicInteger branchIndex;
+	private final AtomicInteger branchIndex;
 	private final int plies;
 
 	private final IDepthBasedStrategy<M, P> strategy;
-	private Consumer<MoveWithResult<M>> resultConsumer;
+	private final IGameTreeSearchJoin<M, P> treeSearchJoin;
 
 	private volatile AnalysisResult<M> result = null;
 
 	private volatile boolean searchStarted = false;
 	private volatile boolean searchCanceled = false;
-	private volatile boolean forked = false;
-	private final AtomicBoolean consumedResult = new AtomicBoolean(false);
+
+	private final Object forkJoinLock = new Object();
+	private final AtomicBoolean forked = new AtomicBoolean(false);
+	private final AtomicBoolean joined = new AtomicBoolean(false);
 
 	public GameTreeSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy,
-			Consumer<MoveWithResult<M>> resultConsumer) {
-		this(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
-		setResultConsumer(resultConsumer);
-	}
-
-	private GameTreeSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
+			IGameTreeSearchJoin<M, P> treeSearchJoin) {
 		this.parentMove = parentMove;
 		this.position = position.createCopy();
 		this.player = this.position.getCurrentPlayer();
@@ -47,36 +43,29 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 		branchIndex = new AtomicInteger(0);
 		this.plies = plies;
 		this.strategy = strategy.createCopy();
-	}
-
-	private void setResultConsumer(Consumer<MoveWithResult<M>> resultConsumer) {
-		this.resultConsumer = resultConsumer;
+		this.treeSearchJoin = treeSearchJoin;
 	}
 
 	public synchronized void search() {
 		searchStarted = true;
-		consumedResult.set(false);
-		if (plies == 0 || movesToSearch.size() == 0) {
+		if (!isForkable()) {
 			result = new AnalysisResult<>(parentMove, strategy.evaluate(position, plies));
 			result.searchCompleted();
-			maybeConsumeResult(new MoveWithResult<>(parentMove, result));
+			treeSearchJoin.accept(false, position.getCurrentPlayer(), new MoveWithResult<>(parentMove, result));
 		} else {
 			result = searchWithStrategy();
 			notify();
-			if (!forked) {
-				maybeConsumeResult(new MoveWithResult<>(parentMove, result));
+			if (!forked.get()) {
+				joined.set(true);
+				treeSearchJoin.accept(searchCanceled, position.getCurrentPlayer(), new MoveWithResult<>(parentMove, result));
 			}
 		}
 	}
 
-	private AnalysisResult<M> searchWithStrategy() {
+	private synchronized AnalysisResult<M> searchWithStrategy() {
 		AnalysisResult<M> analysisResult = new AnalysisResult<>();
-
 		do {
 			M move = movesToSearch.get(branchIndex.get());
-			if (searchCanceled && !forked) {
-				return analysisResult;
-			}
 			position.makeMove(move);
 			strategy.preSearch(analysisResult, player == position.getCurrentPlayer());
 			double evaluate = strategy.evaluate(position, plies - 1);
@@ -88,22 +77,16 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 				analysisResult.addMoveWithScore(move, score);
 			}
 		} while (branchIndex.incrementAndGet() < movesToSearch.size());
+
 		if (!searchCanceled) {
 			analysisResult.searchCompleted();
 		}
+
 		return analysisResult;
 	}
 
 	public AnalysisResult<M> getResult() {
 		return result;
-	}
-
-	private synchronized void maybeConsumeResult(MoveWithResult<M> moveWithResult) {
-		if (consumedResult.getAndSet(true)) {
-			return;
-		}
-		resultConsumer.accept(moveWithResult);
-		notify();
 	}
 
 	public void stopSearch() {
@@ -120,89 +103,67 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	}
 
 	public boolean isForkable() {
-		return plies > 0 && (plies == 1 ? getRemainingBranches() > 1 : getRemainingBranches() > 0);
+		return plies > 0 && getRemainingBranches() > 0;
 	}
 
 	public List<GameTreeSearch<M, P>> fork() {
-		forked = true;
-		MoveList<M> unanalyzedMoves;
+		synchronized (forkJoinLock) {
+			if (joined.get()) {
+				return Collections.emptyList();
+			}
+			forked.set(true);
 
-		if (searchStarted) {
-			stopSearch();
+			MoveList<M> unanalyzedMoves;
 
-			synchronized (this) {
-				while (result == null) {
-					try {
-						wait();
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
+			if (searchStarted) {
+				stopSearch();
+
+				synchronized (this) {
+					while (result == null) {
+						try {
+							wait();
+						} catch (InterruptedException e) {
+							throw new RuntimeException(e);
+						}
 					}
 				}
-			}
 
-			unanalyzedMoves = movesToSearch.subList(result.getMovesWithScore().size());
-		} else {
-			unanalyzedMoves = movesToSearch;
-			if (movesToSearch.size() == 0) {
-				result = new AnalysisResult<>(parentMove, strategy.evaluate(position, plies));
+				unanalyzedMoves = movesToSearch.subList(result.getMovesWithScore().size());
 			} else {
-				result = new AnalysisResult<>();
-			}
-		}
-
-		if (unanalyzedMoves.size() == 0) {
-			result.searchCompleted();
-			maybeConsumeResult(new MoveWithResult<>(parentMove, result));
-			return Collections.emptyList();
-		}
-
-		List<MoveWithResult<M>> movesWithResults = new ArrayList<>();
-		int expectedResults = unanalyzedMoves.size();
-
-		strategy.notifyForked(parentMove, unanalyzedMoves);
-
-		List<GameTreeSearch<M, P>> gameTreeSearches = new ArrayList<>();
-		synchronized (this) {
-			int i = 0;
-			do {
-				M move = unanalyzedMoves.get(i);
-				position.makeMove(move);
-				gameTreeSearches.add(createFork(move, result, movesWithResults, expectedResults));
-				position.unmakeMove(move);
-				++i;
-			} while (i < unanalyzedMoves.size());
-		}
-
-		return gameTreeSearches;
-	}
-
-	private GameTreeSearch<M, P> createFork(M move, AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults, int expectedResults) {
-		MoveList<M> subMoves = moveListFactory.newAnalysisMoveList();
-		position.getPossibleMoves(subMoves);
-		GameTreeSearch<M, P> treeSearch = new GameTreeSearch<>(move, position, subMoves, moveListFactory, plies - 1, strategy);
-		treeSearch.setResultConsumer(moveWithResult -> {
-			synchronized (this) {
-				if (consumedResult.get()) {
-					return;
-				}
-				movesWithResults.add(moveWithResult);
-				if (treeSearch.searchCanceled && !treeSearch.forked) {
-					join(treeSearch.player, partialResult, movesWithResults);
-				} else if (!moveWithResult.result.isSeachComplete()) {
-					join(treeSearch.player, partialResult, movesWithResults);
+				unanalyzedMoves = movesToSearch;
+				if (movesToSearch.size() == 0) {
+					result = new AnalysisResult<>(parentMove, strategy.evaluate(position, plies));
 				} else {
-					if (movesWithResults.size() == expectedResults) {
-						partialResult.searchCompleted();
-						join(treeSearch.player, partialResult, movesWithResults);
-					}
+					result = new AnalysisResult<>();
 				}
 			}
-		});
-		return treeSearch;
-	}
 
-	private synchronized void join(int currentPlayer, AnalysisResult<M> partialResult, List<MoveWithResult<M>> movesWithResults) {
-		strategy.join(position, player, currentPlayer, partialResult, movesWithResults);
-		maybeConsumeResult(new MoveWithResult<>(parentMove, partialResult));
+			if (unanalyzedMoves.size() == 0) {
+				joined.set(true);
+				result.searchCompleted();
+				treeSearchJoin.accept(false, player, new MoveWithResult<>(parentMove, result));
+				return Collections.emptyList();
+			}
+
+			int expectedResults = unanalyzedMoves.size();
+
+			strategy.notifyForked(parentMove, unanalyzedMoves);
+
+			List<GameTreeSearch<M, P>> gameTreeSearches = new ArrayList<>();
+			synchronized (this) {
+				GameTreeSearchJoin<M, P> forkJoin = new GameTreeSearchJoin<>(treeSearchJoin, parentMove, position, player, strategy, result, expectedResults);
+				int i = 0;
+				do {
+					M move = unanalyzedMoves.get(i);
+					position.makeMove(move);
+					MoveList<M> subMoves = moveListFactory.newAnalysisMoveList();
+					position.getPossibleMoves(subMoves);
+					gameTreeSearches.add(new GameTreeSearch<>(move, position, subMoves, moveListFactory, plies - 1, strategy, forkJoin));
+					position.unmakeMove(move);
+					++i;
+				} while (i < unanalyzedMoves.size());
+			}
+			return gameTreeSearches;
+		}
 	}
 }

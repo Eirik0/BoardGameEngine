@@ -32,9 +32,9 @@ public class TreeSearchWorkerTest {
 		TestGamePosition position = TestGamePosition.createTestPosition();
 		MoveList<TestGameNode> moveList = moveListFactory.newAnalysisMoveList();
 		position.getPossibleMoves(moveList);
-		worker.workOn(new GameTreeSearch<>(null, position, moveList, moveListFactory, 0, new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator()), result -> {
+		worker.workOn(new GameTreeSearch<>(null, position, moveList, moveListFactory, 0, new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator()), (canceled, player, moveWithResult) -> {
 			try {
-				resultQueue.put(result.result);
+				resultQueue.put(moveWithResult.result);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -51,9 +51,9 @@ public class TreeSearchWorkerTest {
 		MoveList<TestGameNode> moveList = moveListFactory.newAnalysisMoveList();
 		position.getPossibleMoves(moveList);
 		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = new GameTreeSearch<>(null, position, moveList, moveListFactory, 0,
-				new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator()), result -> {
+				new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator()), (canceled, player, moveWithResult) -> {
 					synchronized (this) {
-						resultList.add(result.result);
+						resultList.add(moveWithResult.result);
 						notify();
 					}
 				});
