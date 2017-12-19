@@ -15,7 +15,7 @@ import gui.GameRegistry;
 @SuppressWarnings("serial")
 public class PlayerSelectionPanel extends JPanel {
 	private final JComboBox<PlayerSelectionItem> comboBox;
-	private final ComputerConfigurationDialog<?, ?> computerConfigurationDialog;
+	private final ComputerConfigurationDialog computerConfigurationDialog;
 	private final JButton configureButton;
 
 	public PlayerSelectionPanel(String[] availablePlayers, String gameName) {
@@ -29,7 +29,7 @@ public class PlayerSelectionPanel extends JPanel {
 
 		comboBox = createPlayerComboBox(availablePlayers, computerPlayerInfo);
 
-		computerConfigurationDialog = new ComputerConfigurationDialog<>(comboBox, gameName, computerPlayerInfo, computerPlayerInfo.infiniteTimeOnly);
+		computerConfigurationDialog = new ComputerConfigurationDialog(comboBox, gameName, computerPlayerInfo, computerPlayerInfo.infiniteTimeOnly);
 
 		configureButton.addActionListener(e -> computerConfigurationDialog.show());
 

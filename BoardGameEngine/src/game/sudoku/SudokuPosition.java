@@ -3,7 +3,7 @@ package game.sudoku;
 import game.IPosition;
 import game.MoveList;
 
-public class SudokuPosition implements IPosition<SudokuMove, SudokuPosition>, SudokuConstants {
+public class SudokuPosition implements IPosition<SudokuMove>, SudokuConstants {
 	final SudokuCell[] cells;
 	final int[] undecidedCells;
 	int numUndecided;

@@ -6,7 +6,7 @@ import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
 
-public class MinimaxStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
+public class MinimaxStrategy<M, P extends IPosition<M>> extends AbstractDepthBasedStrategy<M, P> {
 	private final IPositionEvaluator<M, P> positionEvaluator;
 
 	public MinimaxStrategy(MoveListFactory<M> moveListFactory, IPositionEvaluator<M, P> positionEvaluator) {

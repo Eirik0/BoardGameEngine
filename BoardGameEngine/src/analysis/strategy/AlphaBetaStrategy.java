@@ -6,7 +6,7 @@ import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
 
-public class AlphaBetaStrategy<M, P extends IPosition<M, P>> extends AbstractDepthBasedStrategy<M, P> {
+public class AlphaBetaStrategy<M, P extends IPosition<M>> extends AbstractDepthBasedStrategy<M, P> {
 	private final IPositionEvaluator<M, P> positionEvaluator;
 
 	private AlphaBetaPreSearch preSearch = new AlphaBetaPreSearch(new AnalysisResult<>(), true);

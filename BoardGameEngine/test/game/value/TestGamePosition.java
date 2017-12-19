@@ -3,7 +3,7 @@ package game.value;
 import game.IPosition;
 import game.MoveList;
 
-public class TestGamePosition implements IPosition<TestGameNode, TestGamePosition> {
+public class TestGamePosition implements IPosition<TestGameNode> {
 	private TestGameNode previousNode;
 	private TestGameNode currentNode;
 

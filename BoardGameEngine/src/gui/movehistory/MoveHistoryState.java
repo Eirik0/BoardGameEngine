@@ -11,19 +11,19 @@ import gui.gamestate.GameState;
 import gui.movehistory.GuiMoveHistory.MoveMenuItem;
 import main.BoardGameEngineMain;
 
-public class MoveHistoryState<M, P extends IPosition<M, P>> implements Sizable, GameState {
+public class MoveHistoryState<M> implements Sizable, GameState {
 	int width;
 	int height;
 
 	public final MouseTracker mouseTracker = new MouseTracker(this::handleUserInput);
-	private GameRunner<M, P> gameRunner;
+	private GameRunner<M, IPosition<M>> gameRunner;
 	private GuiMoveHistory<M> guiMoveHistory;
 
 	public MoveHistoryState() {
 		guiMoveHistory = new GuiMoveHistory<>(new MoveHistory<>(1), mouseTracker);
 	}
 
-	public void setGameRunner(GameRunner<M, P> gameRunner) {
+	public void setGameRunner(GameRunner<M, IPosition<M>> gameRunner) {
 		this.gameRunner = gameRunner;
 	}
 
@@ -49,7 +49,7 @@ public class MoveHistoryState<M, P extends IPosition<M, P>> implements Sizable, 
 		guiMoveHistory.drawOn(graphics);
 	}
 
-	public void setMoveHistory(MoveHistory<M, P> moveHistory) {
+	public void setMoveHistory(MoveHistory<M> moveHistory) {
 		guiMoveHistory = new GuiMoveHistory<>(moveHistory, mouseTracker);
 	}
 

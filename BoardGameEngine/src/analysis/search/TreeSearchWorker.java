@@ -4,12 +4,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
 
-import game.IPosition;
-
-public class TreeSearchWorker<M, P extends IPosition<M, P>> {
+public class TreeSearchWorker {
 	private final String name;
 
-	private final Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer;
+	private final Consumer<TreeSearchWorker> completedWorkerConsumer;
 
 	private Thread thread;
 	private volatile boolean notShutdown = true;
@@ -17,11 +15,11 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 
 	private final BlockingQueue<Runnable> runnableQueue = new ArrayBlockingQueue<>(1);
 
-	public TreeSearchWorker(Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer) {
+	public TreeSearchWorker(Consumer<TreeSearchWorker> completedWorkerConsumer) {
 		this("Worker_" + ThreadNumber.getThreadNum("Worker"), completedWorkerConsumer);
 	}
 
-	public TreeSearchWorker(String name, Consumer<TreeSearchWorker<M, P>> completedWorkerConsumer) {
+	public TreeSearchWorker(String name, Consumer<TreeSearchWorker> completedWorkerConsumer) {
 		this.name = name;
 		this.completedWorkerConsumer = completedWorkerConsumer;
 	}
@@ -58,7 +56,7 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 		}
 	}
 
-	public void workOn(GameTreeSearch<M, P> treeSearch) {
+	public void workOn(GameTreeSearch<?, ?> treeSearch) {
 		treeSearchSet = false;
 		maybeInitThread();
 		try {
@@ -97,7 +95,7 @@ public class TreeSearchWorker<M, P extends IPosition<M, P>> {
 		} else if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		TreeSearchWorker<?, ?> other = (TreeSearchWorker<?, ?>) obj;
+		TreeSearchWorker other = (TreeSearchWorker) obj;
 		return name.equals(other.name);
 	}
 

@@ -17,10 +17,10 @@ import gui.analysis.AnalysisPanel;
 import main.BoardGameEngineMain;
 
 @SuppressWarnings("serial")
-public class MoveHistoryPanel<M, P extends IPosition<M, P>> extends JPanel {
+public class MoveHistoryPanel<M> extends JPanel {
 	private static final String NAME = "Move History";
 
-	private final MoveHistoryState<M, P> moveHistoryState;
+	private final MoveHistoryState<M> moveHistoryState;
 	private final ScrollableGamePanel moveHistoryPanel;
 
 	public MoveHistoryPanel() {
@@ -45,11 +45,11 @@ public class MoveHistoryPanel<M, P extends IPosition<M, P>> extends JPanel {
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
-	public void setGameRunner(GameRunner<M, P> gameRunner) {
+	public void setGameRunner(GameRunner<M, IPosition<M>> gameRunner) {
 		moveHistoryState.setGameRunner(gameRunner);
 	}
 
-	public void setMoveHistory(MoveHistory<M, P> moveHistory) {
+	public void setMoveHistory(MoveHistory<M> moveHistory) {
 		moveHistoryState.setMoveHistory(moveHistory);
 		moveHistoryPanel.checkResized();
 	}

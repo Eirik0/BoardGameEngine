@@ -8,8 +8,8 @@ import analysis.AnalysisResult;
 import analysis.strategy.IDepthBasedStrategy;
 import game.IPosition;
 
-public class GameTreeSearchJoin<M, P extends IPosition<M, P>> implements IGameTreeSearchJoin<M, P> {
-	private final IGameTreeSearchJoin<M, P> parentJoin;
+public class GameTreeSearchJoin<M, P extends IPosition<M>> implements IGameTreeSearchJoin<M> {
+	private final IGameTreeSearchJoin<M> parentJoin;
 	private final M parentMove;
 	private final P parentPosition;
 	private final int parentPlayer;
@@ -22,7 +22,7 @@ public class GameTreeSearchJoin<M, P extends IPosition<M, P>> implements IGameTr
 
 	private final AtomicBoolean parentAwaitingJoin = new AtomicBoolean(true);
 
-	public GameTreeSearchJoin(IGameTreeSearchJoin<M, P> parentJoin, M parentMove, P parentPosition, int parentPlayer, IDepthBasedStrategy<M, P> strategy, AnalysisResult<M> partialResult,
+	public GameTreeSearchJoin(IGameTreeSearchJoin<M> parentJoin, M parentMove, P parentPosition, int parentPlayer, IDepthBasedStrategy<M, P> strategy, AnalysisResult<M> partialResult,
 			int expectedResults) {
 		this.parentJoin = parentJoin;
 		this.parentMove = parentMove;

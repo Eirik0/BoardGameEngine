@@ -11,7 +11,7 @@ import analysis.ComputerPlayer;
 import game.IPosition;
 import main.BoardGameEngineMain;
 
-public class ComputerPlayerObservationState<M, P extends IPosition<M, P>> implements IAnalysisState<M, P> {
+public class ComputerPlayerObservationState<M> implements IAnalysisState<M> {
 	private final JPanel titlePanel;
 	private final ComputerPlayerObserver observer;
 
@@ -64,7 +64,7 @@ public class ComputerPlayerObservationState<M, P extends IPosition<M, P>> implem
 	}
 
 	@Override
-	public void setPosition(P position) {
+	public void setPosition(IPosition<M> position) {
 		// do nothing
 	}
 

@@ -12,7 +12,7 @@ import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
 
-public class GameTreeSearch<M, P extends IPosition<M, P>> {
+public class GameTreeSearch<M, P extends IPosition<M>> {
 	public final M parentMove;
 	private final P position;
 	public final int player;
@@ -22,7 +22,7 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private final int plies;
 
 	private final IDepthBasedStrategy<M, P> strategy;
-	private final IGameTreeSearchJoin<M, P> treeSearchJoin;
+	private final IGameTreeSearchJoin<M> treeSearchJoin;
 
 	private volatile AnalysisResult<M> result = null;
 
@@ -33,10 +33,11 @@ public class GameTreeSearch<M, P extends IPosition<M, P>> {
 	private final AtomicBoolean forked = new AtomicBoolean(false);
 	private final AtomicBoolean joined = new AtomicBoolean(false);
 
+	@SuppressWarnings("unchecked")
 	public GameTreeSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy,
-			IGameTreeSearchJoin<M, P> treeSearchJoin) {
+			IGameTreeSearchJoin<M> treeSearchJoin) {
 		this.parentMove = parentMove;
-		this.position = position.createCopy();
+		this.position = (P) position.createCopy();
 		this.player = this.position.getCurrentPlayer();
 		this.moveListFactory = moveListFactory;
 		this.movesToSearch = movesToSearch;

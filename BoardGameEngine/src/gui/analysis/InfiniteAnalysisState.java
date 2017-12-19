@@ -18,8 +18,8 @@ import main.BoardGameEngineMain;
 import main.ComputerConfigurationPanel;
 import main.StartStopButton;
 
-public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAnalysisState<M, P> {
-	private P position;
+public class InfiniteAnalysisState<M> implements IAnalysisState<M> {
+	private IPosition<M> position;
 
 	private ComputerPlayerObserver observer = new ComputerPlayerObserver();
 	private ComputerPlayer computerPlayer;
@@ -31,12 +31,12 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 	private final StartStopButton analyzeButton;
 	private final JLabel depthLabel;
 
-	public InfiniteAnalysisState(String gameName, P position, ComputerPlayerInfo<M, P> computerPlayerInfo) {
+	public InfiniteAnalysisState(String gameName, IPosition<M> position, ComputerPlayerInfo<M, IPosition<M>> computerPlayerInfo) {
 		this.position = position;
 
 		optionsPanel = BoardGameEngineMain.initComponent(new JPanel(new BorderLayout()));
 
-		ComputerConfigurationPanel<?, ?> computerConfiurationPanel = new ComputerConfigurationPanel<>(gameName, computerPlayerInfo, true);
+		ComputerConfigurationPanel computerConfiurationPanel = new ComputerConfigurationPanel(gameName, computerPlayerInfo, true);
 
 		depthLabel = BoardGameEngineMain.initComponent(new JLabel(String.format("depth = %-3d", Integer.valueOf(0))));
 
@@ -141,7 +141,7 @@ public class InfiniteAnalysisState<M, P extends IPosition<M, P>> implements IAna
 	}
 
 	@Override
-	public synchronized void setPosition(P position) {
+	public synchronized void setPosition(IPosition<M> position) {
 		this.position = position;
 		if (isRunning) {
 			keepRunning.set(true);

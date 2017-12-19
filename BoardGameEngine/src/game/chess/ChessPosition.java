@@ -24,7 +24,7 @@ import game.chess.move.IChessMove;
 import game.chess.move.KingMove;
 import game.chess.move.PawnPromotionMove;
 
-public class ChessPosition implements IPosition<IChessMove, ChessPosition>, ChessConstants {
+public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
 	public final int[] squares;
 
 	public final ChessPositionHistory positionHistory;

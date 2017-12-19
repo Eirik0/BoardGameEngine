@@ -3,7 +3,7 @@ package game;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoveHistory<M, P extends IPosition<M, P>> {
+public class MoveHistory<M> {
 	private final int numberOfPlayers;
 
 	public MoveIndex selectedMoveIndex = new MoveIndex(0, 0);
@@ -59,7 +59,7 @@ public class MoveHistory<M, P extends IPosition<M, P>> {
 		return new ArrayList<>(moveHistoryList);
 	}
 
-	public M setPositionFromHistory(P position, int moveNumToFind, int playerNumToFind) {
+	public M setPositionFromHistory(IPosition<M> position, int moveNumToFind, int playerNumToFind) {
 		int moveNum = 0;
 		while (moveNum < moveNumToFind) {
 			HistoryMove<M> historyMove = moveHistoryList.get(moveNum);
@@ -71,7 +71,7 @@ public class MoveHistory<M, P extends IPosition<M, P>> {
 		return makeMoves(position, lastHistoryMove, playerNumToFind);
 	}
 
-	private M makeMoves(P position, HistoryMove<M> historyMove, int maxPlayer) {
+	private M makeMoves(IPosition<M> position, HistoryMove<M> historyMove, int maxPlayer) {
 		M lastMove;
 		int playerNum = 0;
 		do {

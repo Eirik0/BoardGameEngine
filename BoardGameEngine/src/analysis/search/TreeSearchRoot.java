@@ -8,7 +8,7 @@ import analysis.AnalysisResult;
 import analysis.MoveWithScore;
 import game.IPosition;
 
-public class TreeSearchRoot<M, P extends IPosition<M, P>> {
+public class TreeSearchRoot<M, P extends IPosition<M>> {
 	private final List<GameTreeSearch<M, P>> branches;
 	private boolean[] max;
 

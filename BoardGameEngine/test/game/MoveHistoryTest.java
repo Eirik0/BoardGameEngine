@@ -11,14 +11,14 @@ import game.chess.ChessPosition;
 import game.chess.move.IChessMove;
 
 public class MoveHistoryTest {
-	private static MoveHistory<IChessMove, ChessPosition> createMoveHistory(int movesToMake) {
+	private static MoveHistory<IChessMove> createMoveHistory(int movesToMake) {
 		ChessPosition chessPosition = new ChessPosition();
-		MoveHistory<IChessMove, ChessPosition> moveHistory = new MoveHistory<>(TwoPlayers.NUMBER_OF_PLAYERS);
+		MoveHistory<IChessMove> moveHistory = new MoveHistory<>(TwoPlayers.NUMBER_OF_PLAYERS);
 		makeMoves(chessPosition, moveHistory, ChessGame.MAX_MOVES, movesToMake);
 		return moveHistory;
 	}
 
-	private static <M, P extends IPosition<M, P>> void makeMoves(P position, MoveHistory<M, P> moveHistory, int maxMoves, int movesToMake) {
+	private static <M> void makeMoves(IPosition<M> position, MoveHistory<M> moveHistory, int maxMoves, int movesToMake) {
 		moveHistory.addMove(null, -1);
 		for (int i = 0; i < movesToMake; ++i) {
 			int playerNum = position.getCurrentPlayer();
@@ -28,27 +28,27 @@ public class MoveHistoryTest {
 		}
 	}
 
-	private static <P extends IPosition<M, P>, M> M getMove(P position, int index, int maxMoves) {
+	private static <M> M getMove(IPosition<M> position, int index, int maxMoves) {
 		MoveList<M> moveList = new ArrayMoveList<>(maxMoves);
 		position.getPossibleMoves(moveList);
 		M move = moveList.get(index);
 		return move;
 	}
 
-	private static <M, P extends IPosition<M, P>> void checkMove(MoveHistory<M, P> moveHistory, int index, boolean p1Expected, boolean p2Expected) {
+	private static <M> void checkMove(MoveHistory<M> moveHistory, int index, boolean p1Expected, boolean p2Expected) {
 		M[] moves = moveHistory.getMoveHistoryListCopy().get(index).moves;
 		assertTrue("P1", p1Expected == (moves[0] != null));
 		assertTrue("P2", p2Expected == (moves[1] != null));
 	}
 
-	private static <M, P extends IPosition<M, P>> void checkIndex(MoveHistory<M, P> moveHistory, MoveIndex expectedSelectedMoveIndex, MoveIndex expectedMaxMoveIndex) {
+	private static <M> void checkIndex(MoveHistory<M> moveHistory, MoveIndex expectedSelectedMoveIndex, MoveIndex expectedMaxMoveIndex) {
 		assertEquals(expectedSelectedMoveIndex, moveHistory.selectedMoveIndex);
 		assertEquals(expectedMaxMoveIndex, moveHistory.maxMoveIndex);
 	}
 
 	@Test
 	public void testAddOneMove() {
-		MoveHistory<IChessMove, ChessPosition> moveHistory = createMoveHistory(1);
+		MoveHistory<IChessMove> moveHistory = createMoveHistory(1);
 		assertEquals(1, moveHistory.getMoveHistoryListCopy().size());
 		checkMove(moveHistory, 0, true, false);
 		checkIndex(moveHistory, new MoveIndex(0, 0), new MoveIndex(0, 0));
@@ -56,7 +56,7 @@ public class MoveHistoryTest {
 
 	@Test
 	public void testAddTwoMove() {
-		MoveHistory<IChessMove, ChessPosition> moveHistory = createMoveHistory(2);
+		MoveHistory<IChessMove> moveHistory = createMoveHistory(2);
 		assertEquals(1, moveHistory.getMoveHistoryListCopy().size());
 		checkMove(moveHistory, 0, true, true);
 		checkIndex(moveHistory, new MoveIndex(0, 1), new MoveIndex(0, 1));
@@ -64,7 +64,7 @@ public class MoveHistoryTest {
 
 	@Test
 	public void testAddThreeMove() {
-		MoveHistory<IChessMove, ChessPosition> moveHistory = createMoveHistory(3);
+		MoveHistory<IChessMove> moveHistory = createMoveHistory(3);
 		assertEquals(2, moveHistory.getMoveHistoryListCopy().size());
 		checkMove(moveHistory, 0, true, true);
 		checkMove(moveHistory, 1, true, false);
@@ -73,7 +73,7 @@ public class MoveHistoryTest {
 
 	@Test
 	public void testSelectMove() {
-		MoveHistory<IChessMove, ChessPosition> moveHistory = createMoveHistory(5);
+		MoveHistory<IChessMove> moveHistory = createMoveHistory(5);
 		assertEquals(3, moveHistory.getMoveHistoryListCopy().size());
 		moveHistory.setPositionFromHistory(new ChessPosition(), 1, 1);
 		checkMove(moveHistory, 0, true, true);
@@ -84,7 +84,7 @@ public class MoveHistoryTest {
 
 	@Test
 	public void testSelectMoveAndMakeSameMove() {
-		MoveHistory<IChessMove, ChessPosition> moveHistory = createMoveHistory(5);
+		MoveHistory<IChessMove> moveHistory = createMoveHistory(5);
 		assertEquals(3, moveHistory.getMoveHistoryListCopy().size());
 		ChessPosition position = new ChessPosition();
 		moveHistory.setPositionFromHistory(position, 1, 0);
@@ -99,7 +99,7 @@ public class MoveHistoryTest {
 
 	@Test
 	public void testSelectMoveAndMakeDifferentMove() {
-		MoveHistory<IChessMove, ChessPosition> moveHistory = createMoveHistory(5);
+		MoveHistory<IChessMove> moveHistory = createMoveHistory(5);
 		assertEquals(3, moveHistory.getMoveHistoryListCopy().size());
 		ChessPosition position = new ChessPosition();
 		moveHistory.setPositionFromHistory(position, 1, 0);

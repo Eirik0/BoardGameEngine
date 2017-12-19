@@ -20,21 +20,21 @@ public class SearchMoveList<M> implements MoveList<M> {
 	}
 
 	@Override
-	public <P extends IPosition<M, P>> void addDynamicMove(M move, P position) {
+	public void addDynamicMove(M move, IPosition<M> position) {
 		if (!decidedMoves.contains(move)) {
 			moveList.addDynamicMove(move, position);
 		}
 	}
 
 	@Override
-	public <P extends IPosition<M, P>> void addQuietMove(M move, P position) {
+	public void addQuietMove(M move, IPosition<M> position) {
 		if (!decidedMoves.contains(move)) {
 			moveList.addQuietMove(move, position);
 		}
 	}
 
 	@Override
-	public <P extends IPosition<M, P>> void addAllQuietMoves(M[] moves, P position) {
+	public void addAllQuietMoves(M[] moves, IPosition<M> position) {
 		moveList.addAllQuietMoves(moves, position);
 	}
 

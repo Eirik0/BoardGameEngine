@@ -5,7 +5,7 @@ import game.IPosition;
 import game.MoveList;
 import game.TwoPlayers;
 
-public class TicTacToePosition implements IPosition<Coordinate, TicTacToePosition> {
+public class TicTacToePosition implements IPosition<Coordinate> {
 	public static final int BOARD_WIDTH = 3;
 
 	int board;

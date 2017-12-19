@@ -3,7 +3,7 @@ package game.lock;
 import game.IPosition;
 import game.MoveList;
 
-public class TestLockingPosition implements IPosition<TestLockingNode, TestLockingPosition> {
+public class TestLockingPosition implements IPosition<TestLockingNode> {
 	private TestLockingNode previousNode;
 	private TestLockingNode currentNode;
 

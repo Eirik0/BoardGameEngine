@@ -17,15 +17,15 @@ import gui.ScrollableGamePanel;
 import main.BoardGameEngineMain;
 
 @SuppressWarnings("serial")
-public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
+public class AnalysisPanel<M> extends JPanel {
 	private static final String NAME = "Analysis";
 
 	private final String gameName;
-	private final ComputerPlayerInfo<M, P> computerPlayerInfo;
+	private final ComputerPlayerInfo<M, IPosition<M>> computerPlayerInfo;
 	private final ScrollableGamePanel analysisPanel;
-	private IAnalysisState<M, P> analysisState;
+	private IAnalysisState<M> analysisState;
 
-	private P position;
+	private IPosition<M> position;
 
 	public AnalysisPanel(String gameName) {
 		this.gameName = gameName;
@@ -66,13 +66,13 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 	}
 
 	public void gameStopped() {
-		if (!(analysisState instanceof InfiniteAnalysisState<?, ?>)) {
+		if (!(analysisState instanceof InfiniteAnalysisState<?>)) {
 			analysisState.stopAnalysis();
 			setAnalysisState(new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo));
 		}
 	}
 
-	private void setAnalysisState(IAnalysisState<M, P> newAnalysisState) {
+	private void setAnalysisState(IAnalysisState<M> newAnalysisState) {
 		remove(analysisState.getTopPanel());
 		add(newAnalysisState.getTopPanel(), BorderLayout.NORTH);
 
@@ -84,13 +84,13 @@ public class AnalysisPanel<M, P extends IPosition<M, P>> extends JPanel {
 		analysisState = newAnalysisState;
 	}
 
-	public void positionChanged(PositionChangedInfo<M, P> positionChangedInfo) {
+	public void positionChanged(PositionChangedInfo<M> positionChangedInfo) {
 		this.position = positionChangedInfo.position;
 		IPlayer player = positionChangedInfo.currentPlayer;
 		if (player != null && player instanceof ComputerPlayer) {
 			analysisState.stopAnalysis();
 			setAnalysisState(new ComputerPlayerObservationState<>((ComputerPlayer) player, position.getCurrentPlayer()));
-		} else if (!(analysisState instanceof InfiniteAnalysisState<?, ?>)) {
+		} else if (!(analysisState instanceof InfiniteAnalysisState<?>)) {
 			analysisState.stopAnalysis();
 			setAnalysisState(new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo));
 			analysisState.setPosition(position);

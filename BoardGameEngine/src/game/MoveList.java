@@ -1,11 +1,11 @@
 package game;
 
 public interface MoveList<M> {
-	public <P extends IPosition<M, P>> void addDynamicMove(M move, P position);
+	public void addDynamicMove(M move, IPosition<M> position);
 
-	public <P extends IPosition<M, P>> void addQuietMove(M move, P position);
+	public void addQuietMove(M move, IPosition<M> position);
 
-	public <P extends IPosition<M, P>> void addAllQuietMoves(M[] moves, P position);
+	public void addAllQuietMoves(M[] moves, IPosition<M> position);
 
 	public M get(int index);
 

@@ -20,17 +20,17 @@ public class ArrayMoveList<M> implements MoveList<M> {
 	}
 
 	@Override
-	public <P extends IPosition<M, P>> void addDynamicMove(M move, P position) {
+	public void addDynamicMove(M move, IPosition<M> position) {
 		dynamicMoveArray[dynamicArraySize++] = move;
 	}
 
 	@Override
-	public <P extends IPosition<M, P>> void addQuietMove(M move, P position) {
+	public void addQuietMove(M move, IPosition<M> position) {
 		quietMoveArray[quietArraySize++] = move;
 	}
 
 	@Override
-	public <P extends IPosition<M, P>> void addAllQuietMoves(M[] moves, P position) {
+	public void addAllQuietMoves(M[] moves, IPosition<M> position) {
 		System.arraycopy(moves, 0, quietMoveArray, quietArraySize, moves.length);
 		quietArraySize += moves.length;
 	}

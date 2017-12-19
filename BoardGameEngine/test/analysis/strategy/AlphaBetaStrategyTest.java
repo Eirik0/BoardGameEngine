@@ -31,7 +31,7 @@ public class AlphaBetaStrategyTest {
 		compareStrategies(new UltimateTicTacToePosition(), moveListFactory, minmaxStrategy, alphabetaStrategy, 4, 6);
 	}
 
-	public static <M, P extends IPosition<M, P>> void compareStrategies(P position, MoveListFactory<M> moveListFactory, IDepthBasedStrategy<M, P> strat1, IDepthBasedStrategy<M, P> strat2,
+	public static <M, P extends IPosition<M>> void compareStrategies(P position, MoveListFactory<M> moveListFactory, IDepthBasedStrategy<M, P> strat1, IDepthBasedStrategy<M, P> strat2,
 			int numThreads, int maxPlies) {
 		IterativeDeepeningTreeSearcher<M, P> s1 = new IterativeDeepeningTreeSearcher<>(strat1, moveListFactory, numThreads);
 		IterativeDeepeningTreeSearcher<M, P> s2 = new IterativeDeepeningTreeSearcher<>(strat2, moveListFactory, numThreads);

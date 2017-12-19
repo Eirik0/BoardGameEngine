@@ -43,7 +43,7 @@ public class MainPanel extends JPanel {
 	}
 
 	public void loadGame(String gameName) {
-		GameRunnerPanels<?, ?> gameRunnerPanels = new GameRunnerPanels<>(gameName);
+		GameRunnerPanels<?> gameRunnerPanels = new GameRunnerPanels<>(gameName);
 
 		BoardGameEngineMain.setGameState(gameName, gameRunnerPanels.gameRunner);
 
@@ -88,20 +88,20 @@ public class MainPanel extends JPanel {
 		mainFrame.pack();
 	}
 
-	static class GameRunnerPanels<M, P extends IPosition<M, P>> {
-		final AnalysisPanel<M, P> analysisPanel;
-		final MoveHistoryPanel<M, P> moveHistoryPanel;
+	static class GameRunnerPanels<M> {
+		final AnalysisPanel<M> analysisPanel;
+		final MoveHistoryPanel<M> moveHistoryPanel;
 		final PlayerControllerPanel playerControllerPanel;
-		final GameRunner<M, P> gameRunner;
+		final GameRunner<M, IPosition<M>> gameRunner;
 
 		public GameRunnerPanels(String gameName) {
-			IGame<M, P> game = GameRegistry.getGame(gameName);
+			IGame<M, IPosition<M>> game = GameRegistry.getGame(gameName);
 			MoveListFactory<M> moveListFactory = GameRegistry.getMoveListFactory(game.getName());
 
 			moveHistoryPanel = new MoveHistoryPanel<>();
 			analysisPanel = new AnalysisPanel<>(gameName);
 
-			GameObserver<M, P> gameObserver = new GameObserver<>();
+			GameObserver<M> gameObserver = new GameObserver<>();
 			gameObserver.setPositionChangedAction(positionChangedInfo -> {
 				moveHistoryPanel.setMoveHistory(positionChangedInfo.moveHistory);
 				analysisPanel.positionChanged(positionChangedInfo);

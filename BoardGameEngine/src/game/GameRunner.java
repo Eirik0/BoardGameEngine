@@ -6,21 +6,21 @@ import analysis.search.ThreadNumber;
 import gui.GuiPlayer;
 import gui.gamestate.IPositionObserver;
 
-public class GameRunner<M, P extends IPosition<M, P>> {
+public class GameRunner<M, P extends IPosition<M>> {
 	public static final int NO_PLAYER = -1;
 
 	private volatile boolean stopRequested = false;
 	private volatile boolean isRunning = false;
 	private volatile boolean isSettingPosition = false;
 
-	private final GameObserver<M, P> gameObserver;
+	private final GameObserver<M> gameObserver;
 	private IPositionObserver<M, P> positionObserver;
 
 	private final IGame<M, P> game;
 	private final MoveListFactory<M> moveListFactory;
 	private P position;
 
-	private final MoveHistory<M, P> moveHistory;
+	private final MoveHistory<M> moveHistory;
 	private P positionCopy;
 	private MoveList<M> possibleMovesCopy;
 	private M lastMove;
@@ -28,11 +28,11 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	private List<IPlayer> players;
 	private IPlayer currentPlayer;
 
-	public GameRunner(IGame<M, P> game, GameObserver<M, P> gameObserver, MoveListFactory<M> moveListFactory) {
+	public GameRunner(IGame<M, P> game, GameObserver<M> gameObserver, MoveListFactory<M> moveListFactory) {
 		this.game = game;
 		this.gameObserver = gameObserver;
 		this.moveListFactory = moveListFactory;
-		moveHistory = new MoveHistory<M, P>(game.getNumberOfPlayers());
+		moveHistory = new MoveHistory<M>(game.getNumberOfPlayers());
 		position = game.newInitialPosition();
 		setPositionCopy(NO_PLAYER, null, true);
 	}
@@ -54,7 +54,8 @@ public class GameRunner<M, P extends IPosition<M, P>> {
 	}
 
 	private synchronized void setPositionCopy(int playerWhoMoved, IPlayer currentPlayer, boolean updateHistory) {
-		P newPositionCopy = position.createCopy();
+		@SuppressWarnings("unchecked")
+		P newPositionCopy = (P) position.createCopy();
 		MoveList<M> newPossibleMoves = moveListFactory.newArrayMoveList();
 		newPositionCopy.getPossibleMoves(newPossibleMoves);
 		positionCopy = newPositionCopy;

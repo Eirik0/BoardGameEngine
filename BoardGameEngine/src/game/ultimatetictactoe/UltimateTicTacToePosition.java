@@ -9,7 +9,7 @@ import game.MoveList;
 import game.TwoPlayers;
 import game.tictactoe.TicTacToeUtilities;
 
-public class UltimateTicTacToePosition implements IPosition<Coordinate, UltimateTicTacToePosition> {
+public class UltimateTicTacToePosition implements IPosition<Coordinate> {
 	static final int BOARD_WIDTH = 9;
 
 	static final int ANY_BOARD = -1;

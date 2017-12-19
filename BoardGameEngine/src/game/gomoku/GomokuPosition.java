@@ -5,7 +5,7 @@ import game.IPosition;
 import game.MoveList;
 import game.TwoPlayers;
 
-public class GomokuPosition implements IPosition<Coordinate, GomokuPosition> {
+public class GomokuPosition implements IPosition<Coordinate> {
 	static final int BOARD_WIDTH = 19;
 
 	int currentPlayer;

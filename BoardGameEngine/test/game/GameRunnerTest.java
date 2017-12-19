@@ -115,7 +115,7 @@ public class GameRunnerTest {
 
 	static class AddToListTestPlayer implements IPlayer {
 		@Override
-		public <M, P extends IPosition<M, P>> M getMove(P position) {
+		public <M, P extends IPosition<M>> M getMove(P position) {
 			MoveList<M> possibleMoves = new ArrayMoveList<>(1);
 			position.getPossibleMoves(possibleMoves);
 			return possibleMoves.get(0);
@@ -130,7 +130,7 @@ public class GameRunnerTest {
 		}
 	}
 
-	static class AddToListPosition implements IPosition<Integer, AddToListPosition> {
+	static class AddToListPosition implements IPosition<Integer> {
 		int index;
 		final List<Integer> list;
 		final IntFunction<List<Integer>> possibleMovesFunction;

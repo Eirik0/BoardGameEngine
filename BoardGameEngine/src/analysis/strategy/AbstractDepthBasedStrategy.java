@@ -9,7 +9,7 @@ import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
 
-public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> implements IDepthBasedStrategy<M, P> {
+public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M>> implements IDepthBasedStrategy<M, P> {
 	protected static final int MAX_DEPTH = 64;
 
 	protected final MoveListFactory<M> moveListFactory;
@@ -57,7 +57,6 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M, P>> i
 		for (Entry<M, AnalysisResult<M>> moveWithResult : movesWithResults.entrySet()) {
 			M move = moveWithResult.getKey();
 			AnalysisResult<M> result = moveWithResult.getValue();
-			// Player and position come from the parent game tree search, so we are looking for the min for the current player
 			MoveWithScore<M> moveWithScore = result.getMax();
 			if (moveWithScore == null) {
 				continue;

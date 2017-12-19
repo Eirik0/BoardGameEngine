@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import analysis.strategy.IDepthBasedStrategy;
 import game.IPosition;
 
-public class ComputerPlayerInfo<M, P extends IPosition<M, P>> {
+public class ComputerPlayerInfo<M, P extends IPosition<M>> {
 	public String strategyName;
 	public Supplier<IDepthBasedStrategy<M, P>> strategySupplier;
 	public int numWorkers;

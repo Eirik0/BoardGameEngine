@@ -22,7 +22,7 @@ public class GuiMoveHistory<M> implements Drawable {
 	private final int maxMoves;
 	private final MouseTracker mouseTracker;
 
-	public GuiMoveHistory(MoveHistory<M, ?> moveHistory, MouseTracker mouseTracker) {
+	public GuiMoveHistory(MoveHistory<M> moveHistory, MouseTracker mouseTracker) {
 		this.mouseTracker = mouseTracker;
 		List<HistoryMove<M>> historyMoveList = moveHistory.getMoveHistoryListCopy();
 		MoveIndex selectedIndex = moveHistory.selectedMoveIndex;

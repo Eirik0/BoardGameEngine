@@ -18,7 +18,7 @@ import game.value.TestGamePosition;
 public class TreeSearchWorkerTest {
 	@Test
 	public void testJoinThread() {
-		TreeSearchWorker<TestGameNode, TestGamePosition> worker = new TreeSearchWorker<>("test", finishedWorker -> {
+		TreeSearchWorker worker = new TreeSearchWorker("test", finishedWorker -> {
 		});
 		worker.joinThread();
 	}
@@ -26,7 +26,7 @@ public class TreeSearchWorkerTest {
 	@Test
 	public void testDoWork() throws InterruptedException {
 		BlockingQueue<AnalysisResult<TestGameNode>> resultQueue = new SynchronousQueue<>();
-		TreeSearchWorker<TestGameNode, TestGamePosition> worker = new TreeSearchWorker<>("test", finishedWorker -> {
+		TreeSearchWorker worker = new TreeSearchWorker("test", finishedWorker -> {
 		});
 		MoveListFactory<TestGameNode> moveListFactory = new MoveListFactory<>(2);
 		TestGamePosition position = TestGamePosition.createTestPosition();
@@ -57,7 +57,7 @@ public class TreeSearchWorkerTest {
 						notify();
 					}
 				});
-		TreeSearchWorker<TestGameNode, TestGamePosition> worker = new TreeSearchWorker<>("test", finishedWorker -> {
+		TreeSearchWorker worker = new TreeSearchWorker("test", finishedWorker -> {
 			synchronized (this) {
 				if (resultList.size() < 2) {
 					finishedWorker.workOn(treeSearch);

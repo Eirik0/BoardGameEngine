@@ -8,17 +8,17 @@ import gui.GameGuiManager;
 import gui.GameImage;
 import gui.GuiPlayer;
 
-public class GameRunningState<M, P extends IPosition<M, P>> implements GameState {
-	private final GameRunner<M, P> gameRunner;
-	private final IGameRenderer<M, P> gameRenderer;
+public class GameRunningState<M> implements GameState {
+	private final GameRunner<M, IPosition<M>> gameRunner;
+	private final IGameRenderer<M, IPosition<M>> gameRenderer;
 	private final GameImage boardImage = new GameImage();
 
 	@SuppressWarnings("unchecked")
-	public GameRunningState(GameRunner<M, P> gameRunner, IGameRenderer<M, P> gameRenderer) {
+	public GameRunningState(GameRunner<M, IPosition<M>> gameRunner, IGameRenderer<M, IPosition<M>> gameRenderer) {
 		this.gameRunner = gameRunner;
 		this.gameRenderer = gameRenderer;
 		if (gameRenderer instanceof IPositionObserver<?, ?>) {
-			gameRunner.setPositionObserver((IPositionObserver<M, P>) gameRenderer);
+			gameRunner.setPositionObserver((IPositionObserver<M, IPosition<M>>) gameRenderer);
 		}
 		componentResized(GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
 	}

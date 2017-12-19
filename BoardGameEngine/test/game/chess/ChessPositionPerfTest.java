@@ -84,7 +84,7 @@ public class ChessPositionPerfTest {
 		System.out.println("Count Positions: depth= " + depth + ", totalPositions= " + totalPositions + ", time= " + time + "ms, pps= " + posPerSec);
 	}
 
-	public static <M, P extends IPosition<M, P>> long countPositions(P position, int depth) {
+	public static <M, P extends IPosition<M>> long countPositions(P position, int depth) {
 		MoveList<M> possibleMoves = new ArrayMoveList<>(SudokuGame.MAX_MOVES);
 		position.getPossibleMoves(possibleMoves);
 		if (depth == 0) {

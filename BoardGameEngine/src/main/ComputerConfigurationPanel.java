@@ -9,20 +9,19 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import analysis.ComputerPlayerInfo;
-import game.IPosition;
 import gui.GameRegistry;
 
 @SuppressWarnings("serial")
-public class ComputerConfigurationPanel<M, P extends IPosition<M, P>> extends JPanel {
+public class ComputerConfigurationPanel extends JPanel {
 	private final String gameName;
-	private final ComputerPlayerInfo<M, P> computerPlayerInfo;
+	private final ComputerPlayerInfo<?, ?> computerPlayerInfo;
 	private final boolean infiniteTimeOnly;
 
 	private final JComboBox<String> strategyComboBox;
 	private final JTextField numWorkersField;
 	private JTextField msPerMoveField;
 
-	public ComputerConfigurationPanel(String gameName, ComputerPlayerInfo<M, P> computerPlayerInfo, boolean infiniteTimeOnly) {
+	public ComputerConfigurationPanel(String gameName, ComputerPlayerInfo<?, ?> computerPlayerInfo, boolean infiniteTimeOnly) {
 		this.gameName = gameName;
 		this.computerPlayerInfo = computerPlayerInfo;
 		this.infiniteTimeOnly = infiniteTimeOnly;
@@ -77,7 +76,7 @@ public class ComputerConfigurationPanel<M, P extends IPosition<M, P>> extends JP
 		GameRegistry.updateComputerPlayerInfo(computerPlayerInfo, gameName, strategyName, numWorkers, msPerMove);
 	}
 
-	public ComputerPlayerInfo<M, P> getComputerPlayerInfo() {
+	public ComputerPlayerInfo<?, ?> getComputerPlayerInfo() {
 		return computerPlayerInfo;
 	}
 }

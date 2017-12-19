@@ -24,7 +24,7 @@ import game.value.TestGameNode;
 import game.value.TestGamePosition;
 
 public class GameTreeSearchTest {
-	private static <M, P extends IPosition<M, P>> GameTreeSearch<M, P> newGameTreeSearch(P position, int plies, int maxMoves, IPositionEvaluator<M, P> positionEvaluator,
+	private static <M, P extends IPosition<M>> GameTreeSearch<M, P> newGameTreeSearch(P position, int plies, int maxMoves, IPositionEvaluator<M, P> positionEvaluator,
 			List<AnalysisResult<M>> results) {
 		MoveListFactory<M> moveListFactory = new MoveListFactory<>(maxMoves);
 		MinimaxStrategy<M, P> strategy = new MinimaxStrategy<>(moveListFactory, positionEvaluator);

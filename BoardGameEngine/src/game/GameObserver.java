@@ -2,8 +2,8 @@ package game;
 
 import java.util.function.Consumer;
 
-public class GameObserver<M, P extends IPosition<M, P>> {
-	private Consumer<PositionChangedInfo<M, P>> positionChangedConsumer;
+public class GameObserver<M> {
+	private Consumer<PositionChangedInfo<M>> positionChangedConsumer;
 	private Runnable gameStoppedRunnable;
 	private Runnable gameRunningRunnable;
 
@@ -16,11 +16,11 @@ public class GameObserver<M, P extends IPosition<M, P>> {
 		};
 	}
 
-	public void setPositionChangedAction(Consumer<PositionChangedInfo<M, P>> positionChangedConsumer) {
+	public void setPositionChangedAction(Consumer<PositionChangedInfo<M>> positionChangedConsumer) {
 		this.positionChangedConsumer = positionChangedConsumer;
 	}
 
-	public void notifyPositionChanged(PositionChangedInfo<M, P> positionChangedInfo) {
+	public void notifyPositionChanged(PositionChangedInfo<M> positionChangedInfo) {
 		positionChangedConsumer.accept(positionChangedInfo);
 	}
 

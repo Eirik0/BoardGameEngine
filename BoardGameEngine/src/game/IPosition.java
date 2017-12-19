@@ -1,6 +1,6 @@
 package game;
 
-public interface IPosition<M, P extends IPosition<M, P>> {
+public interface IPosition<M> {
 	public void getPossibleMoves(MoveList<M> moveList);
 
 	public int getCurrentPlayer();
@@ -9,5 +9,5 @@ public interface IPosition<M, P extends IPosition<M, P>> {
 
 	public void unmakeMove(M move);
 
-	public P createCopy();
+	public IPosition<M> createCopy();
 }

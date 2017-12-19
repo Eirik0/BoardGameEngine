@@ -6,8 +6,8 @@ import game.IPosition;
 import gui.Sizable;
 import gui.gamestate.GameState;
 
-public interface IAnalysisState<M, P extends IPosition<M, P>> extends Sizable, GameState {
-	public void setPosition(P position);
+public interface IAnalysisState<M> extends Sizable, GameState {
+	public void setPosition(IPosition<M> position);
 
 	public void stopAnalysis();
 

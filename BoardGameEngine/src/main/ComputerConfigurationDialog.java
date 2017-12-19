@@ -12,17 +12,16 @@ import javax.swing.SwingUtilities;
 
 import analysis.ComputerPlayer;
 import analysis.ComputerPlayerInfo;
-import game.IPosition;
 import main.PlayerSelectionPanel.PlayerSelectionItem;
 
-public class ComputerConfigurationDialog<M, P extends IPosition<M, P>> {
-	private final ComputerConfigurationPanel<M, P> configurationPanel;
+public class ComputerConfigurationDialog {
+	private final ComputerConfigurationPanel configurationPanel;
 
 	private final JFrame configurationFrame;
 	private final JPanel configurationDialogPanel;
 
-	public ComputerConfigurationDialog(JComboBox<PlayerSelectionPanel.PlayerSelectionItem> playerComboBox, String gameName, ComputerPlayerInfo<M, P> computerPlayerInfo, boolean infiniteTimeOnly) {
-		configurationPanel = new ComputerConfigurationPanel<>(gameName, computerPlayerInfo, infiniteTimeOnly);
+	public ComputerConfigurationDialog(JComboBox<PlayerSelectionPanel.PlayerSelectionItem> playerComboBox, String gameName, ComputerPlayerInfo<?, ?> computerPlayerInfo, boolean infiniteTimeOnly) {
+		configurationPanel = new ComputerConfigurationPanel(gameName, computerPlayerInfo, infiniteTimeOnly);
 
 		JButton okButton = BoardGameEngineMain.initComponent(new JButton("Ok"));
 		okButton.addActionListener(e -> {
@@ -64,7 +63,7 @@ public class ComputerConfigurationDialog<M, P extends IPosition<M, P>> {
 		});
 	}
 
-	public ComputerPlayerInfo<M, P> getComputerPlayerInfo() {
+	public ComputerPlayerInfo<?, ?> getComputerPlayerInfo() {
 		return configurationPanel.getComputerPlayerInfo();
 	}
 }

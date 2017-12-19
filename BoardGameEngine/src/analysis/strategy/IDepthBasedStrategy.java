@@ -6,7 +6,7 @@ import analysis.AnalysisResult;
 import game.IPosition;
 import game.MoveList;
 
-public interface IDepthBasedStrategy<M, P extends IPosition<M, P>> {
+public interface IDepthBasedStrategy<M, P extends IPosition<M>> {
 	public void preSearch(AnalysisResult<M> currentResult, boolean isCurrentPlayer);
 
 	public double evaluate(P position, int plies);

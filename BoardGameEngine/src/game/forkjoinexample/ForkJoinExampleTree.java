@@ -4,7 +4,7 @@ import game.IPosition;
 import game.MoveList;
 import game.TwoPlayers;
 
-public class ForkJoinExampleTree implements IPosition<ForkJoinExampleNode, ForkJoinExampleTree> {
+public class ForkJoinExampleTree implements IPosition<ForkJoinExampleNode> {
 	private ForkJoinExampleNode currentNode;
 	private int currentPlayer;
 

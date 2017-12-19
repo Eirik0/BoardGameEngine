@@ -32,7 +32,7 @@ public class ComputerPlayer implements IPlayer {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public synchronized <M, P extends IPosition<M, P>> M getMove(P position) {
+	public synchronized <M, P extends IPosition<M>> M getMove(P position) {
 		long start = System.currentTimeMillis();
 		((IterativeDeepeningTreeSearcher<M, P>) treeSearcher).searchForever(position, escapeEarly);
 		while (treeSearcher.isSearching() && msPerMove > System.currentTimeMillis() - start) {

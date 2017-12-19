@@ -27,11 +27,11 @@ public class GameRegistry {
 	private static final Map<String, GameRegistryItem<?, ?>> gameMap = new LinkedHashMap<>();
 
 	@SuppressWarnings("unchecked")
-	public static <M, P extends IPosition<M, P>> GameRegistryItem<M, P> registerGame(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass) {
+	public static <M, P extends IPosition<M>> GameRegistryItem<M, P> registerGame(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass) {
 		return registerGame(game, gameRendererClass, (Class<? extends MoveList<M>>) ArrayMoveList.class);
 	}
 
-	public static <M, P extends IPosition<M, P>> GameRegistryItem<M, P> registerGame(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass,
+	public static <M, P extends IPosition<M>> GameRegistryItem<M, P> registerGame(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass,
 			Class<? extends MoveList<M>> moveListClass) {
 		GameRegistryItem<M, P> gameRegistryItem = new GameRegistryItem<>(game, gameRendererClass, moveListClass);
 		gameMap.put(game.getName(), gameRegistryItem);
@@ -43,12 +43,12 @@ public class GameRegistry {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <M, P extends IPosition<M, P>> IGame<M, P> getGame(String gameName) {
+	public static <M, P extends IPosition<M>> IGame<M, P> getGame(String gameName) {
 		return (IGame<M, P>) gameMap.get(gameName).game;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <M, P extends IPosition<M, P>> IGameRenderer<M, P> newGameRenderer(String gameName) {
+	public static <M, P extends IPosition<M>> IGameRenderer<M, P> newGameRenderer(String gameName) {
 		try {
 			return (IGameRenderer<M, P>) gameMap.get(gameName).gameRendererClass.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
@@ -70,7 +70,7 @@ public class GameRegistry {
 		return gameMap.get(gameName).playerMap.get(playerName).apply(computerPlayerInfo);
 	}
 
-	public static <M, P extends IPosition<M, P>> ComputerPlayerInfo<M, P> newDefaultComputerPlayerInfo(String gameName) {
+	public static <M, P extends IPosition<M>> ComputerPlayerInfo<M, P> newDefaultComputerPlayerInfo(String gameName) {
 		@SuppressWarnings("unchecked")
 		GameRegistryItem<M, P> gameRegistryItem = (GameRegistryItem<M, P>) gameMap.get(gameName);
 		int numWorkers = Math.min(Math.max(1, gameRegistryItem.maxWorkers), 4);
@@ -82,24 +82,23 @@ public class GameRegistry {
 		return gameMap.get(gameName).strategySupplierMap.keySet();
 	}
 
-	public static <M, P extends IPosition<M, P>> void updateComputerPlayerInfo(ComputerPlayerInfo<M, P> infoToUpdate, String gameName, String strategyName, int numWorkers,
-			long msPerMove) {
+	public static <M, P extends IPosition<M>> void updateComputerPlayerInfo(ComputerPlayerInfo<M, P> infoToUpdate, String gameName, String strategyName, int numWorkers, long msPerMove) {
 		@SuppressWarnings("unchecked")
 		GameRegistryItem<M, P> gameRegistryItem = (GameRegistryItem<M, P>) gameMap.get(gameName);
 		infoToUpdate.setValues(strategyName, gameRegistryItem.strategySupplierMap.get(strategyName), numWorkers, msPerMove);
 	}
 
-	public static <M, P extends IPosition<M, P>> Supplier<IDepthBasedStrategy<M, P>> getStrategySupplier(String gameName, String strategyName) {
+	public static <M, P extends IPosition<M>> Supplier<IDepthBasedStrategy<M, P>> getStrategySupplier(String gameName, String strategyName) {
 		@SuppressWarnings("unchecked")
 		GameRegistryItem<M, P> gameRegistryItem = (GameRegistryItem<M, P>) gameMap.get(gameName);
 		return gameRegistryItem.strategySupplierMap.get(strategyName);
 	}
 
-	public static class GameRegistryItem<M, P extends IPosition<M, P>> {
-		private final IGame<M, P> game;
+	public static class GameRegistryItem<M, P extends IPosition<M>> {
+		final IGame<M, P> game;
 		final Class<? extends IGameRenderer<M, P>> gameRendererClass;
-		final Map<String, Function<ComputerPlayerInfo<M, P>, IPlayer>> playerMap = new LinkedHashMap<>(); // The first player is the default player
 		final MoveListFactory<M> moveListFactory;
+		final Map<String, Function<ComputerPlayerInfo<M, P>, IPlayer>> playerMap = new LinkedHashMap<>(); // The first player is the default player
 		final Map<String, Supplier<IDepthBasedStrategy<M, P>>> strategySupplierMap = new LinkedHashMap<>();
 		long defaultMsPerMove = 3000;
 		int maxWorkers = 1;
