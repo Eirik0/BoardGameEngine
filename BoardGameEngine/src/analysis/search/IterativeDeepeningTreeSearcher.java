@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import analysis.AnalysisResult;
-import analysis.MoveWithScore;
+import analysis.MoveAnalysis;
 import analysis.strategy.IDepthBasedStrategy;
 import game.IPosition;
 import game.MoveList;
@@ -81,8 +81,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 			} else {
 				// add back decided moves
 				if (result != null) {
-					for (MoveWithScore<M> moveWithScore : result.getDecidedMoves()) {
-						search.addMoveWithScore(moveWithScore.move, moveWithScore.score);
+					for (Entry<M, MoveAnalysis> moveWithScore : result.getDecidedMoves().entrySet()) {
+						search.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue().score);
 					}
 				}
 				// return the previous result if the current is a loss for longevity
@@ -146,14 +146,14 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		return result;
 	}
 
-	public List<MoveWithScore<M>> getPartialResult() {
+	public Map<M, MoveAnalysis> getPartialResult() {
 		return treeSearchRoot.getPartialResult();
 	}
 
 	private AnalysisResult<M> search(P position, int plies) {
 		ResultTransfer<M> resultTransfer = new ResultTransfer<>();
 
-		MoveList<M> searchMoveList = new SearchMoveList<>(moveListFactory.newAnalysisMoveList(), result == null ? Collections.emptySet() : result.getDecidedMoves());
+		MoveList<M> searchMoveList = new SearchMoveList<>(moveListFactory.newAnalysisMoveList(), result == null ? Collections.emptySet() : result.getDecidedMoves().keySet());
 		position.getPossibleMoves(searchMoveList);
 
 		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(null, position, searchMoveList, moveListFactory, plies, strategy,

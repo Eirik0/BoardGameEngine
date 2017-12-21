@@ -25,7 +25,7 @@ public class ComputerPlayerObserver implements Drawable, Sizable {
 	private final Consumer<String> nameConsumer;
 	private final Consumer<String> currentDepthConsumer;
 
-	private ComputerPlayerResult currentResult = new ComputerPlayerResult(null, Collections.emptyList(), 0);
+	private ComputerPlayerResult currentResult = new ComputerPlayerResult(null, Collections.emptyMap(), 0);
 
 	private Runnable onResize;
 

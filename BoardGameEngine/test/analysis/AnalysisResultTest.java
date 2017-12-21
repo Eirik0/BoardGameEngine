@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -18,12 +19,14 @@ public class AnalysisResultTest {
 		AnalysisResult<Integer> result2 = createResult(Arrays.asList(Pair.valueOf(1, 2.0), Pair.valueOf(2, 0.5)));
 		AnalysisResult<Integer> mergedRestult = result1.mergeWith(result2);
 		assertEquals(4, result1.getMovesWithScore().size());
-		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(Integer.valueOf(1), 2.0)));
-		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(Integer.valueOf(2), 0.5)));
-		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(Integer.valueOf(3), 1.0)));
-		assertTrue(mergedRestult.getMovesWithScore().contains(new MoveWithScore<>(Integer.valueOf(4), 1.0)));
-		assertEquals(2.0, mergedRestult.getMax().score, 0.001);
-		assertEquals(Integer.valueOf(1), mergedRestult.getBestMove());
+		Map<Integer, MoveAnalysis> movesWithScore = mergedRestult.getMovesWithScore();
+		assertEquals(2.0, movesWithScore.get(Integer.valueOf(1)).score, 0.0);
+		assertEquals(0.5, movesWithScore.get(Integer.valueOf(2)).score, 0.0);
+		assertEquals(1.0, movesWithScore.get(Integer.valueOf(3)).score, 0.0);
+		assertEquals(1.0, movesWithScore.get(Integer.valueOf(4)).score, 0.0);
+		AnalyzedMove<Integer> bestMove = mergedRestult.getBestMove(true);
+		assertEquals(2.0, bestMove.analysis.score, 0.0);
+		assertEquals(Integer.valueOf(1), bestMove.move);
 	}
 
 	private static AnalysisResult<Integer> createResult(List<Pair<Integer, Double>> movesWithScore) {
@@ -38,7 +41,7 @@ public class AnalysisResultTest {
 	public void testFindBestMoveEvenIfLost() {
 		AnalysisResult<String> result = new AnalysisResult<>();
 		result.addMoveWithScore("1", Double.NEGATIVE_INFINITY);
-		assertEquals("1", result.getBestMove());
+		assertEquals("1", result.getBestMove(true).move);
 	}
 
 	@Test

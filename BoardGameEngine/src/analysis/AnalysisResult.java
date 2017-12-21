@@ -1,10 +1,11 @@
 package analysis;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,11 +16,12 @@ public class AnalysisResult<M> {
 	public static final double LOSS = Double.NEGATIVE_INFINITY;
 	public static final double DRAW = Double.NaN;
 
-	private final Set<MoveWithScore<M>> movesWithScore = new LinkedHashSet<>();
-	private final Set<MoveWithScore<M>> decidedMoves = new HashSet<>();
-	private int numLost = 0;
+	private final Map<M, MoveAnalysis> allValidMoves = new LinkedHashMap<>();
+	private final Map<M, MoveAnalysis> wonAndDrawnMoves = new HashMap<>();
+	private final Map<M, MoveAnalysis> lostMoves = new HashMap<>();
+	private final Set<M> invalidMoves = new HashSet<>();
 
-	private MoveWithScore<M> max;
+	private AnalyzedMove<M> bestMove;
 
 	private boolean searchComplete = false;
 
@@ -35,18 +37,19 @@ public class AnalysisResult<M> {
 	}
 
 	public synchronized void addMoveWithScore(M move, double score, boolean isValid) {
-		MoveWithScore<M> moveWithScore = new MoveWithScore<>(move, score, isValid);
-		movesWithScore.add(moveWithScore);
 		if (isValid) {
-			if (isGameOver(score)) {
-				decidedMoves.add(moveWithScore);
-				if (LOSS == score) {
-					++numLost;
-				}
+			MoveAnalysis analysis = new MoveAnalysis(score);
+			allValidMoves.put(move, analysis);
+			if (bestMove == null || AnalysisResult.isGreater(score, bestMove.analysis.score)) {
+				bestMove = new AnalyzedMove<>(move, score);
 			}
-			if (max == null || isGreater(score, max.score)) {
-				max = moveWithScore;
+			if (AnalysisResult.WIN == score || AnalysisResult.isDraw(score)) {
+				wonAndDrawnMoves.put(move, analysis);
+			} else if (AnalysisResult.LOSS == score) {
+				lostMoves.put(move, analysis);
 			}
+		} else {
+			invalidMoves.add(move);
 		}
 	}
 
@@ -60,76 +63,64 @@ public class AnalysisResult<M> {
 
 	public synchronized AnalysisResult<M> mergeWith(AnalysisResult<M> resultToMerge) {
 		AnalysisResult<M> mergedResult = new AnalysisResult<>();
-		Map<M, Double> mergedMoveMap = new HashMap<>();
-		for (MoveWithScore<M> moveWithScore : movesWithScore) {
-			mergedMoveMap.put(moveWithScore.move, Double.valueOf(moveWithScore.score));
-		}
-		for (MoveWithScore<M> moveWithScore : resultToMerge.movesWithScore) {
-			if (moveWithScore.isValid()) {
-				mergedMoveMap.put(moveWithScore.move, Double.valueOf(moveWithScore.score));
-			}
-		}
-		for (Entry<M, Double> moveWithScore : mergedMoveMap.entrySet()) {
-			mergedResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue().doubleValue());
+		Map<M, MoveAnalysis> mergedMoveMap = new HashMap<>(allValidMoves);
+		mergedMoveMap.putAll(resultToMerge.allValidMoves);
+		for (Entry<M, MoveAnalysis> moveWithScore : mergedMoveMap.entrySet()) {
+			mergedResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue().score);
 		}
 		return mergedResult;
 	}
 
-	public synchronized List<MoveWithScore<M>> getMovesWithScore() {
-		return new ArrayList<>(movesWithScore);
+	public synchronized Map<M, MoveAnalysis> getMovesWithScore() {
+		return new LinkedHashMap<>(allValidMoves);
 	}
 
-	public synchronized MoveWithScore<M> getMax() {
-		return max != null && isDraw(max.score) && !isDecided() ? new MoveWithScore<>(max.move, 0.0) : max;
-	}
-
-	public synchronized M getBestMove() {
-		return max == null ? null : max.move;
+	public synchronized AnalyzedMove<M> getBestMove(boolean isCurrentPlayer) {
+		if (bestMove == null) {
+			return null;
+		}
+		return isDraw(bestMove.analysis.score) && !isDecided() ? new AnalyzedMove<>(bestMove.move, 0.0) : bestMove.transform(isCurrentPlayer);
 	}
 
 	public synchronized List<M> getBestMoves() {
+		if (bestMove == null) {
+			return Collections.emptyList();
+		}
 		List<M> bestMoves = new ArrayList<>();
-		double maxScore = max.score;
-		for (MoveWithScore<M> moveWithScore : movesWithScore) {
-			if (maxScore == moveWithScore.score || isDraw(maxScore) && isDraw(moveWithScore.score)) {
-				bestMoves.add(moveWithScore.move);
+		double maxScore = bestMove.analysis.score;
+		for (Entry<M, MoveAnalysis> moveWithScore : allValidMoves.entrySet()) {
+			double score = moveWithScore.getValue().score;
+			if (maxScore == score || isDraw(maxScore) && isDraw(score)) {
+				bestMoves.add(moveWithScore.getKey());
 			}
 		}
 		return bestMoves;
 	}
 
-	public synchronized Set<MoveWithScore<M>> getDecidedMoves() {
+	public synchronized Map<M, MoveAnalysis> getDecidedMoves() {
+		Map<M, MoveAnalysis> decidedMoves = new HashMap<>(wonAndDrawnMoves);
+		decidedMoves.putAll(lostMoves);
 		return decidedMoves;
 	}
 
+	public synchronized Set<M> getInvalidMoves() {
+		return invalidMoves;
+	}
+
 	public synchronized boolean isWin() {
-		return max != null && max.score == AnalysisResult.WIN;
+		return bestMove != null && bestMove.analysis.score == AnalysisResult.WIN;
 	}
 
 	public synchronized boolean isLoss() {
-		return max != null && max.score == AnalysisResult.LOSS;
+		return bestMove != null && bestMove.analysis.score == AnalysisResult.LOSS;
 	}
 
 	public synchronized boolean onlyOneMove() {
-		return max != null && movesWithScore.size() == numLost + 1;
+		return  allValidMoves.size() == lostMoves.size() + 1;
 	}
 
 	public synchronized boolean isDecided() {
-		return decidedMoves.size() == movesWithScore.size();
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		Iterator<MoveWithScore<M>> moveScoreIter = movesWithScore.iterator();
-		while (moveScoreIter.hasNext()) {
-			MoveWithScore<M> scoreMoved = moveScoreIter.next();
-			sb.append(scoreMoved.toString());
-			if (moveScoreIter.hasNext()) {
-				sb.append("\n");
-			}
-		}
-		return sb.toString();
+		return allValidMoves.size() > 0 && wonAndDrawnMoves.size() + lostMoves.size() == allValidMoves.size();
 	}
 
 	public static boolean isGreater(double l, double r) {
@@ -142,5 +133,19 @@ public class AnalysisResult<M> {
 
 	public static boolean isGameOver(double d) {
 		return Double.isInfinite(d) || isDraw(d);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		Iterator<Entry<M, MoveAnalysis>> moveScoreIter = allValidMoves.entrySet().iterator();
+		while (moveScoreIter.hasNext()) {
+			Entry<M, MoveAnalysis> moveWithScore = moveScoreIter.next();
+			sb.append(AnalyzedMove.toString(moveWithScore.getKey(), moveWithScore.getValue()));
+			if (moveScoreIter.hasNext()) {
+				sb.append("\n");
+			}
+		}
+		return sb.toString();
 	}
 }

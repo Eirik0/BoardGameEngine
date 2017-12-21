@@ -1,11 +1,13 @@
 package analysis.search;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import analysis.AnalysisResult;
-import analysis.MoveWithScore;
+import analysis.AnalyzedMove;
+import analysis.MoveAnalysis;
 import game.IPosition;
 
 public class TreeSearchRoot<M, P extends IPosition<M>> {
@@ -37,16 +39,16 @@ public class TreeSearchRoot<M, P extends IPosition<M>> {
 		return branches;
 	}
 
-	public List<MoveWithScore<M>> getPartialResult() {
-		List<MoveWithScore<M>> movesWithScore = new ArrayList<>();
+	public Map<M, MoveAnalysis> getPartialResult() {
+		Map<M, MoveAnalysis> movesWithScore = new HashMap<>();
 		int i = 0;
 		while (i < branches.size()) {
 			GameTreeSearch<M, P> branch = branches.get(i);
 			AnalysisResult<M> partialResult = branch.getResult();
 			if (partialResult != null && partialResult.isSeachComplete()) {
-				MoveWithScore<M> maxMoveWithScore = partialResult.getMax();
+				AnalyzedMove<M> maxMoveWithScore = partialResult.getBestMove(max[i]);
 				if (maxMoveWithScore != null) {
-					movesWithScore.add(new MoveWithScore<>(branch.parentMove, max[i] ? maxMoveWithScore.score : -maxMoveWithScore.score));
+					movesWithScore.put(branch.parentMove, maxMoveWithScore.analysis);
 				}
 			}
 			++i;

@@ -5,16 +5,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import analysis.AnalysisResult;
-import analysis.MoveWithScore;
+import analysis.MoveAnalysis;
 
 public class ComputerPlayerResult {
 	final List<ObservedMoveWithScore> moves;
 	final Integer depth;
 	final boolean isDecided;
 
-	public ComputerPlayerResult(AnalysisResult<Object> analysisResult, List<MoveWithScore<Object>> partialResults, int depth) {
+	public ComputerPlayerResult(AnalysisResult<Object> analysisResult, Map<Object, MoveAnalysis> partialResults, int depth) {
 		if (analysisResult == null && partialResults.size() == 0) {
 			moves = null;
 			isDecided = false;
@@ -43,10 +44,10 @@ public class ComputerPlayerResult {
 		this.depth = Integer.valueOf(depth);
 	}
 
-	private static void addMovesToMap(Map<String, ObservedMoveWithScore> moveMap, List<MoveWithScore<Object>> movesWithScore, boolean partial) {
-		for (MoveWithScore<Object> moveWithScore : movesWithScore) {
-			String moveString = moveWithScore.move == null ? "-" : moveWithScore.move.toString();
-			moveMap.put(moveString, new ObservedMoveWithScore(moveString, moveWithScore.score, partial));
+	private static void addMovesToMap(Map<String, ObservedMoveWithScore> moveMap, Map<Object, MoveAnalysis> movesWithScore, boolean partial) {
+		for (Entry<Object, MoveAnalysis> moveWithScore : movesWithScore.entrySet()) {
+			String moveString = moveWithScore.getKey() == null ? "-" : moveWithScore.getKey().toString();
+			moveMap.put(moveString, new ObservedMoveWithScore(moveString, moveWithScore.getValue().score, partial));
 		}
 	}
 }

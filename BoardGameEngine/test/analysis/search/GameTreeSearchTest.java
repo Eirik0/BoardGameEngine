@@ -1,8 +1,6 @@
 package analysis.search;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +9,6 @@ import org.junit.Test;
 
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
-import analysis.MoveWithScore;
 import analysis.strategy.MinimaxStrategy;
 import game.IPosition;
 import game.MoveList;
@@ -191,10 +188,9 @@ public class GameTreeSearchTest {
 		pos4.search();
 		pos3.stopSearch();
 		pos3.search(); // consumes the result
-		List<MoveWithScore<TestGameNode>> movesWithScore = results.get(0).getMovesWithScore();
-		assertEquals(2, movesWithScore.size());
-		assertTrue(movesWithScore.get(0).isValid());
-		assertFalse(movesWithScore.get(1).isValid());
+		AnalysisResult<TestGameNode> analysisResult = results.get(0);
+		assertEquals(1, analysisResult.getMovesWithScore().size());
+		assertEquals(1, analysisResult.getInvalidMoves().size());
 	}
 
 	@Test
@@ -217,9 +213,8 @@ public class GameTreeSearchTest {
 		pos9.search();
 		pos10.stopSearch();
 		pos10.search(); // consumes the result
-		List<MoveWithScore<TestGameNode>> movesWithScore = results.get(0).getMovesWithScore();
-		assertEquals(2, movesWithScore.size());
-		assertTrue(movesWithScore.get(0).isValid());
-		assertFalse(movesWithScore.get(1).isValid());
+		AnalysisResult<TestGameNode> analysisResult = results.get(0);
+		assertEquals(1, analysisResult.getMovesWithScore().size());
+		assertEquals(1, analysisResult.getInvalidMoves().size());
 	}
 }

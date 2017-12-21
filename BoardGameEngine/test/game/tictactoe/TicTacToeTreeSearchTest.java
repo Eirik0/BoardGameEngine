@@ -1,14 +1,14 @@
 package game.tictactoe;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.Test;
 
 import analysis.AnalysisResult;
-import analysis.MoveWithScore;
+import analysis.MoveAnalysis;
 import analysis.search.IterativeDeepeningTreeSearcher;
 import analysis.strategy.MinimaxStrategy;
 import game.Coordinate;
@@ -29,7 +29,7 @@ public class TicTacToeTreeSearchTest {
 		TicTacToePosition position = new TicTacToePosition();
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
 		AnalysisResult<Coordinate> search = treeSearcher.startSearch(position, 1, true);
-		assertEquals(Coordinate.valueOf(0, 0), search.getBestMove());
+		assertEquals(Coordinate.valueOf(0, 0), search.getBestMove(true).move);
 		treeSearcher.stopSearch(true);
 	}
 
@@ -39,7 +39,7 @@ public class TicTacToeTreeSearchTest {
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
 		AnalysisResult<Coordinate> result = treeSearcher.startSearch(position, 2, true);
 		treeSearcher.stopSearch(true);
-		assertEquals(Coordinate.valueOf(0, 0), result.getBestMove());
+		assertEquals(Coordinate.valueOf(0, 0), result.getBestMoves().get(0));
 	}
 
 	@Test
@@ -61,7 +61,7 @@ public class TicTacToeTreeSearchTest {
 
 	private static void searchAndMove(IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher, TicTacToePosition position, int plies) {
 		AnalysisResult<Coordinate> search = treeSearcher.startSearch(position, plies, true);
-		position.makeMove(search.getBestMove());
+		position.makeMove(search.getBestMove(true).move);
 	}
 
 	@Test
@@ -69,8 +69,8 @@ public class TicTacToeTreeSearchTest {
 		TicTacToePosition position = new TicTacToePosition();
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
 		AnalysisResult<Coordinate> search = treeSearcher.startSearch(position, 9, true);
-		for (MoveWithScore<Coordinate> moveWithScore : search.getMovesWithScore()) {
-			assertEquals(AnalysisResult.DRAW, moveWithScore.score, 0.0);
+		for (Entry<Coordinate, MoveAnalysis> moveWithScore : search.getMovesWithScore().entrySet()) {
+			assertEquals(AnalysisResult.DRAW, moveWithScore.getValue().score, 0.0);
 		}
 		treeSearcher.stopSearch(true);
 	}
@@ -83,8 +83,8 @@ public class TicTacToeTreeSearchTest {
 		IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
 		AnalysisResult<Coordinate> search = treeSearcher.startSearch(position, 9, true);
 		Coordinate draw = Coordinate.valueOf(2, 1);
-		for (MoveWithScore<Coordinate> moveWithScore : search.getMovesWithScore()) {
-			assertEquals(moveWithScore.move.toString(), moveWithScore.move.equals(draw) ? 0.0 : Double.POSITIVE_INFINITY, moveWithScore.score, 0.0);
+		for (Entry<Coordinate, MoveAnalysis> moveWithScore : search.getMovesWithScore().entrySet()) {
+			assertEquals(moveWithScore.getKey().toString(), moveWithScore.getKey().equals(draw) ? 0.0 : Double.POSITIVE_INFINITY, moveWithScore.getValue().score, 0.0);
 		}
 		treeSearcher.stopSearch(true);
 	}
@@ -116,10 +116,11 @@ public class TicTacToeTreeSearchTest {
 		for (int i = 0; i < 1000; ++i) {
 			AnalysisResult<Coordinate> result = treeSearcher.startSearch(position, 11, true);
 			assertEquals(2, treeSearcher.getPlies());
-			String assertMessage = "search " + String.valueOf(i) + ": " + Arrays.toString(result.getMovesWithScore().toArray());
-			assertEquals(assertMessage, 2, result.getMovesWithScore().size());
-			assertTrue(assertMessage, result.getMovesWithScore().contains(new MoveWithScore<>(Coordinate.valueOf(2, 2), AnalysisResult.DRAW)));
-			assertTrue(assertMessage, result.getMovesWithScore().contains(new MoveWithScore<>(Coordinate.valueOf(0, 2), AnalysisResult.LOSS)));
+			Map<Coordinate, MoveAnalysis> movesWithScore = result.getMovesWithScore();
+			String assertMessage = "search " + String.valueOf(i) + ":\n" + result.toString();
+			assertEquals(assertMessage, 2, movesWithScore.size());
+			assertEquals(assertMessage, AnalysisResult.DRAW, movesWithScore.get(Coordinate.valueOf(2, 2)).score, 0.0);
+			assertEquals(assertMessage, AnalysisResult.LOSS, movesWithScore.get(Coordinate.valueOf(0, 2)).score, 0.0);
 		}
 		treeSearcher.stopSearch(true);
 	}

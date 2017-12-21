@@ -29,7 +29,6 @@ public class GameTreeSearch<M, P extends IPosition<M>> {
 	private volatile boolean searchStarted = false;
 	private volatile boolean searchCanceled = false;
 
-	private final Object forkJoinLock = new Object();
 	private final AtomicBoolean forked = new AtomicBoolean(false);
 	private final AtomicBoolean joined = new AtomicBoolean(false);
 
@@ -48,12 +47,12 @@ public class GameTreeSearch<M, P extends IPosition<M>> {
 	}
 
 	public synchronized void search() {
-		searchStarted = true;
 		if (!isForkable()) {
 			result = new AnalysisResult<>(parentMove, strategy.evaluate(position, plies));
 			result.searchCompleted();
 			treeSearchJoin.accept(false, position.getCurrentPlayer(), new MoveWithResult<>(parentMove, result));
-		} else {
+		} else if (!forked.get()) {
+			searchStarted = true;
 			result = searchWithStrategy();
 			notify();
 			if (!forked.get()) {
@@ -108,63 +107,64 @@ public class GameTreeSearch<M, P extends IPosition<M>> {
 	}
 
 	public List<GameTreeSearch<M, P>> fork() {
-		synchronized (forkJoinLock) {
-			if (joined.get()) {
-				return Collections.emptyList();
-			}
-			forked.set(true);
+		forked.set(true);
+		if (joined.get()) {
+			return Collections.emptyList();
+		}
 
-			MoveList<M> unanalyzedMoves;
+		stopSearch();
 
-			if (searchStarted) {
-				stopSearch();
+		MoveList<M> unanalyzedMoves;
 
-				synchronized (this) {
-					while (result == null) {
-						try {
-							wait();
-						} catch (InterruptedException e) {
-							throw new RuntimeException(e);
-						}
+		if (searchStarted) {
+			synchronized (this) {
+				while (result == null) {
+					try {
+						wait();
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
 					}
 				}
-
-				unanalyzedMoves = movesToSearch.subList(result.getMovesWithScore().size());
-			} else {
-				unanalyzedMoves = movesToSearch;
-				if (movesToSearch.size() == 0) {
-					result = new AnalysisResult<>(parentMove, strategy.evaluate(position, plies));
-				} else {
-					result = new AnalysisResult<>();
-				}
 			}
 
-			if (unanalyzedMoves.size() == 0) {
-				joined.set(true);
-				result.searchCompleted();
-				treeSearchJoin.accept(false, player, new MoveWithResult<>(parentMove, result));
+			unanalyzedMoves = movesToSearch.subList(result.getMovesWithScore().size());
+		} else {
+			unanalyzedMoves = movesToSearch;
+			if (movesToSearch.size() == 0) {
+				result = new AnalysisResult<>(parentMove, strategy.evaluate(position, plies));
+			} else {
+				result = new AnalysisResult<>();
+			}
+		}
+
+		if (unanalyzedMoves.size() == 0) {
+			synchronized (this) {
+				if (!joined.getAndSet(true)) {
+					result.searchCompleted();
+					treeSearchJoin.accept(false, player, new MoveWithResult<>(parentMove, result));
+				}
 				return Collections.emptyList();
 			}
-
-			int expectedResults = unanalyzedMoves.size();
-
-			strategy.notifyForked(parentMove, unanalyzedMoves);
-
-			List<GameTreeSearch<M, P>> gameTreeSearches = new ArrayList<>();
-			synchronized (this) {
-				GameTreeSearchJoin<M, P> forkJoin = new GameTreeSearchJoin<>(treeSearchJoin, parentMove, position, player, strategy, result, expectedResults);
-				int i = 0;
-				do {
-					M move = unanalyzedMoves.get(i);
-					position.makeMove(move);
-					MoveList<M> subMoves = moveListFactory.newAnalysisMoveList();
-					position.getPossibleMoves(subMoves);
-					gameTreeSearches.add(new GameTreeSearch<>(move, position, subMoves, moveListFactory, plies - 1, strategy, forkJoin));
-					position.unmakeMove(move);
-					++i;
-				} while (i < unanalyzedMoves.size());
-			}
-			return gameTreeSearches;
 		}
+
+		int expectedResults = unanalyzedMoves.size();
+
+		strategy.notifyForked(parentMove, unanalyzedMoves);
+
+		List<GameTreeSearch<M, P>> gameTreeSearches = new ArrayList<>();
+		synchronized (this) {
+			GameTreeSearchJoin<M, P> forkJoin = new GameTreeSearchJoin<>(treeSearchJoin, parentMove, position, player, strategy, result, expectedResults);
+			int i = 0;
+			do {
+				M move = unanalyzedMoves.get(i);
+				position.makeMove(move);
+				MoveList<M> subMoves = moveListFactory.newAnalysisMoveList();
+				position.getPossibleMoves(subMoves);
+				gameTreeSearches.add(new GameTreeSearch<>(move, position, subMoves, moveListFactory, plies - 1, strategy, forkJoin));
+				position.unmakeMove(move);
+				++i;
+			} while (i < unanalyzedMoves.size());
+		}
+		return gameTreeSearches;
 	}
 }

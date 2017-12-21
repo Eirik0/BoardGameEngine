@@ -2,6 +2,7 @@ package analysis;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import analysis.search.IterativeDeepeningTreeSearcher;
@@ -76,7 +77,7 @@ public class ComputerPlayer implements IPlayer {
 
 	@SuppressWarnings("unchecked")
 	public ComputerPlayerResult getCurrentResult() {
-		List<?> partialResult = treeSearcher.getPartialResult();
-		return new ComputerPlayerResult((AnalysisResult<Object>) treeSearcher.getResult(), (List<MoveWithScore<Object>>) partialResult, treeSearcher.getPlies());
+		Map<?, MoveAnalysis> partialResult = treeSearcher.getPartialResult();
+		return new ComputerPlayerResult((AnalysisResult<Object>) treeSearcher.getResult(), (Map<Object, MoveAnalysis>) partialResult, treeSearcher.getPlies());
 	}
 }

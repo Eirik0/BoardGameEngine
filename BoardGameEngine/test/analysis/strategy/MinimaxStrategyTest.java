@@ -8,11 +8,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.Test;
 
 import analysis.AnalysisResult;
-import analysis.MoveWithScore;
+import analysis.MoveAnalysis;
 import analysis.search.GameTreeSearch;
 import game.ArrayMoveList;
 import game.IPosition;
@@ -56,7 +57,7 @@ public class MinimaxStrategyTest {
 		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 0);
 
 		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
-		assertNull(result.getBestMove());
+		assertNull(result.getBestMoves().get(0));
 		assertEquals("null move: 0.0", result.toString());
 	}
 
@@ -68,7 +69,7 @@ public class MinimaxStrategyTest {
 		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 1);
 
 		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
-		assertEquals(-2, result.getBestMove().getValue());
+		assertEquals(-2, result.getBestMoves().get(0).getValue());
 		assertEquals("-1 -> [6, 5]: 1.0\n"
 				+ "-2 -> [4, 3]: 2.0", result.toString());
 	}
@@ -81,7 +82,7 @@ public class MinimaxStrategyTest {
 		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 2);
 
 		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
-		assertEquals(-1, result.getBestMove().getValue());
+		assertEquals(-1, result.getBestMoves().get(0).getValue());
 		assertEquals("-1 -> [6, 5]: 5.0\n"
 				+ "-2 -> [4, 3]: 3.0", result.toString());
 	}
@@ -94,7 +95,7 @@ public class MinimaxStrategyTest {
 		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 3);
 
 		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
-		assertEquals(-2, result.getBestMove().getValue());
+		assertEquals(-2, result.getBestMoves().get(0).getValue());
 		assertEquals("-1 -> [6, 5]: 8.0\n"
 				+ "-2 -> [4, 3]: 12.0", result.toString());
 	}
@@ -107,7 +108,7 @@ public class MinimaxStrategyTest {
 		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 4);
 
 		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
-		assertEquals(-1, result.getBestMove().getValue());
+		assertEquals(-1, result.getBestMoves().get(0).getValue());
 		assertEquals("-1 -> [6, 5]: 25.0\n"
 				+ "-2 -> [4, 3]: 17.0", result.toString());
 	}
@@ -120,7 +121,7 @@ public class MinimaxStrategyTest {
 		AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 5);
 
 		assertEquals("0 -> [-1, -2]", testGamePosition.toString());
-		assertEquals(-1, result.getBestMove().getValue());
+		assertEquals(-1, result.getBestMoves().get(0).getValue());
 		assertEquals("-1 -> [6, 5]: 25.0\n"
 				+ "-2 -> [4, 3]: 17.0", result.toString());
 	}
@@ -189,10 +190,10 @@ public class MinimaxStrategyTest {
 	public void testJoin_MovesWithScore() {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new MoveListFactory<>(2), new TestGameEvaluator());
-		List<MoveWithScore<TestGameNode>> movesWithScore = search(minimaxStrategy, testGamePosition, 4).getMovesWithScore();
+		Map<TestGameNode, MoveAnalysis> movesWithScore = search(minimaxStrategy, testGamePosition, 4).getMovesWithScore();
 		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>();
-		for (MoveWithScore<TestGameNode> moveWithScore : movesWithScore) {
-			partialResult.addMoveWithScore(moveWithScore.move, moveWithScore.score);
+		for (Entry<TestGameNode, MoveAnalysis> moveWithScore : movesWithScore.entrySet()) {
+			partialResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue().score);
 		}
 		minimaxStrategy.join(testGamePosition, 0, 0, partialResult, Collections.emptyMap());
 		assertEquals("-1 -> [6, 5]: 25.0\n"
@@ -204,8 +205,8 @@ public class MinimaxStrategyTest {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new MoveListFactory<>(2), new TestGameEvaluator());
 
-		MoveWithScore<TestGameNode> moveWithScore = search(minimaxStrategy, testGamePosition, 4).getMovesWithScore().get(0);
-		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(moveWithScore.move, moveWithScore.score);
+		Entry<TestGameNode, MoveAnalysis> moveWithScore = search(minimaxStrategy, testGamePosition, 4).getMovesWithScore().entrySet().iterator().next();
+		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(moveWithScore.getKey(), moveWithScore.getValue().score);
 
 		MoveList<TestGameNode> possibleMoves = new ArrayMoveList<>(2);
 		testGamePosition.getPossibleMoves(possibleMoves);

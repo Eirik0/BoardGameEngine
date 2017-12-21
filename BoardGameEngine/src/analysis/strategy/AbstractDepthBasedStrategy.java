@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import analysis.AnalysisResult;
-import analysis.MoveWithScore;
+import analysis.AnalyzedMove;
 import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
@@ -57,11 +57,11 @@ public abstract class AbstractDepthBasedStrategy<M, P extends IPosition<M>> impl
 		for (Entry<M, AnalysisResult<M>> moveWithResult : movesWithResults.entrySet()) {
 			M move = moveWithResult.getKey();
 			AnalysisResult<M> result = moveWithResult.getValue();
-			MoveWithScore<M> moveWithScore = result.getMax();
+			AnalyzedMove<M> moveWithScore = result.getBestMove(parentPlayer == currentPlayer);
 			if (moveWithScore == null) {
 				continue;
 			}
-			partialResult.addMoveWithScore(move, parentPlayer == currentPlayer ? moveWithScore.score : -moveWithScore.score, result.isSeachComplete());
+			partialResult.addMoveWithScore(move, moveWithScore.analysis.score, result.isSeachComplete());
 		}
 	}
 

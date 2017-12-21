@@ -33,6 +33,23 @@ public class TestGameNode {
 	}
 
 	@Override
+	public int hashCode() {
+		int prime = 31;
+		return prime + value;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		} else if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
+		TestGameNode other = (TestGameNode) obj;
+		return value == other.value;
+	}
+
+	@Override
 	public String toString() {
 		int[] movesArr = new int[moves.length];
 		for (int i = 0; i < movesArr.length; i++) {

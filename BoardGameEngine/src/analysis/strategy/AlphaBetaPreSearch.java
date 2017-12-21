@@ -1,22 +1,17 @@
 package analysis.strategy;
 
 import analysis.AnalysisResult;
-import analysis.MoveWithScore;
+import analysis.AnalyzedMove;
 
 public class AlphaBetaPreSearch {
 	public final double alpha;
 	public final double beta;
 
 	public AlphaBetaPreSearch(AnalysisResult<?> currentResult, boolean samePlayer) {
-		MoveWithScore<?> max = currentResult.getMax();
+		AnalyzedMove<?> max = currentResult.getBestMove(samePlayer);
 		if (max != null) {
-			if (samePlayer) {
-				alpha = max.score;
-				beta = Double.POSITIVE_INFINITY;
-			} else {
-				alpha = Double.NEGATIVE_INFINITY;
-				beta = -max.score;
-			}
+			alpha = samePlayer ? max.analysis.score : Double.NEGATIVE_INFINITY;
+			beta = samePlayer ? Double.POSITIVE_INFINITY : max.analysis.score;
 		} else {
 			alpha = Double.NEGATIVE_INFINITY;
 			beta = Double.POSITIVE_INFINITY;
