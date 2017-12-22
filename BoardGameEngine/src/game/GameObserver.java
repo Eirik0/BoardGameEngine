@@ -4,13 +4,13 @@ import java.util.function.Consumer;
 
 public class GameObserver<M> {
 	private Consumer<PositionChangedInfo<M>> positionChangedConsumer;
-	private Runnable gameStoppedRunnable;
+	private Consumer<Boolean> gamePausedConsumer;
 	private Runnable gameRunningRunnable;
 
 	public GameObserver() {
 		positionChangedConsumer = p -> {
 		};
-		gameStoppedRunnable = () -> {
+		gamePausedConsumer = b -> {
 		};
 		gameRunningRunnable = () -> {
 		};
@@ -32,11 +32,11 @@ public class GameObserver<M> {
 		gameRunningRunnable.run();
 	}
 
-	public void setGameStoppedAction(Runnable gameStoppedRunnable) {
-		this.gameStoppedRunnable = gameStoppedRunnable;
+	public void setGamePausedAction(Consumer<Boolean> gamePausedConsumer) {
+		this.gamePausedConsumer = gamePausedConsumer;
 	}
 
-	public void notifyGameStopped() {
-		gameStoppedRunnable.run();
+	public void notifyGamePaused(boolean gameEnded) {
+		gamePausedConsumer.accept(Boolean.valueOf(gameEnded));
 	}
 }

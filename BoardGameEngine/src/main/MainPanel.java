@@ -113,9 +113,11 @@ public class MainPanel extends JPanel {
 
 			gameObserver.setGameRunningAction(() -> playerControllerPanel.gameStarted());
 
-			gameObserver.setGameStoppedAction(() -> {
-				playerControllerPanel.gameEnded();
-				analysisPanel.gameStopped();
+			gameObserver.setGamePausedAction(gameEnded -> {
+				playerControllerPanel.gamePaused();
+				if (gameEnded.booleanValue()) {
+					analysisPanel.gameEnded();
+				}
 			});
 		}
 	}

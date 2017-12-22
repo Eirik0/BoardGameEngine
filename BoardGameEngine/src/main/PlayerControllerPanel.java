@@ -93,7 +93,7 @@ public class PlayerControllerPanel extends JPanel {
 		pausePlayButton.notifyStarted();
 	}
 
-	public void gameEnded() {
+	public void gamePaused() {
 		gameLabel.setText(gameName);
 		pausePlayButton.notifyStopped();
 	}

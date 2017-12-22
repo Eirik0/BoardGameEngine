@@ -125,16 +125,15 @@ public class GameRunner<M, P extends IPosition<M>> {
 		gameObserver.notifyGameRunning();
 	}
 
-	public synchronized void pauseGame(boolean notifyObserver) {
+	public synchronized void pauseGame(boolean gameEnded) {
 		stopRequested = true;
 		if (currentPlayer != null) {
 			currentPlayer.notifyGameEnded();
 		}
 		if (isRunning) {
 			waitForRunningToBe(false);
-		} else if (notifyObserver) {
-			gameObserver.notifyGameStopped();
 		}
+		gameObserver.notifyGamePaused(gameEnded);
 		stopRequested = false;
 	}
 
@@ -168,7 +167,7 @@ public class GameRunner<M, P extends IPosition<M>> {
 		}
 		// If we are setting the position from history we are about to resume the game, unless there are no moves
 		if (!isSettingPosition || possibleMovesCopy.size() == 0) {
-			gameObserver.notifyGameStopped();
+			gameObserver.notifyGamePaused(true);
 		}
 		isRunning = false;
 		currentPlayer = null;
