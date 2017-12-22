@@ -13,6 +13,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import analysis.strategy.AlphaBetaQStrategy;
+import analysis.strategy.MoveListProvider;
 import game.GameRunner;
 import game.chess.ChessGame;
 import game.chess.ChessGameRenderer;
@@ -108,11 +109,11 @@ public class BoardGameEngineMain {
 
 		GameRegistry.registerGame(new SudokuGame(), SudokuGameRenderer.class)
 				.registerComputer(1000, defaultMaxWorkers)
-				.registerStrategy("AlphaBetaQ", () -> new AlphaBetaQStrategy<>(GameRegistry.getMoveListFactory(SudokuGame.NAME), new SudokuPositionEvaluator()));
+				.registerStrategy("AlphaBetaQ", () -> new AlphaBetaQStrategy<>(new SudokuPositionEvaluator(), new MoveListProvider<>(GameRegistry.getMoveListFactory(SudokuGame.NAME))));
 
 		GameRegistry.registerGame(new ForkJoinExampleGame(), ForkJoinExampleGameRenderer.class, ForkJoinMoveList.class)
 				.registerComputer(Long.MAX_VALUE, 100)
-				.registerStrategy("ForkJoinExample", () -> new ForkJoinExampleStraregy(GameRegistry.getMoveListFactory(ForkJoinExampleGame.NAME)));
+				.registerStrategy("ForkJoinExample", () -> new ForkJoinExampleStraregy(new MoveListProvider<>(GameRegistry.getMoveListFactory(ForkJoinExampleGame.NAME))));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

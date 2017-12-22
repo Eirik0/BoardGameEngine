@@ -43,16 +43,12 @@ public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosit
 	@Override
 	public void drawPosition(Graphics2D g, SudokuPosition position, MoveList<SudokuMove> possibleMoves, SudokuMove lastMove) {
 		Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, round(sizer.cellWidth * 0.33));
-		for (int n = 0; n < NUM_DIGITS; ++n) {
-			for (int m = 0; m < NUM_DIGITS; ++m) {
-				int i = 0;
-				while (i < position.numDecided) {
-					int cellIndex = position.decidedCells[i++];
-					Coordinate coordinate = SudokuConstants.getCoordinate(cellIndex);
-					g.setColor(lastMove != null && cellIndex == lastMove.location ? Color.GREEN : BoardGameEngineMain.FOREGROUND_COLOR);
-					drawCenteredString(g, smallFont, position.cells[cellIndex].toString(), sizer.getCenterX(coordinate.x), sizer.getCenterY(coordinate.y));
-				}
-			}
+		int i = 0;
+		while (i < position.numDecided) {
+			int cellIndex = position.decidedCells[i++];
+			Coordinate coordinate = SudokuConstants.getCoordinate(cellIndex);
+			g.setColor(lastMove != null && cellIndex == lastMove.location ? Color.GREEN : BoardGameEngineMain.FOREGROUND_COLOR);
+			drawCenteredString(g, smallFont, position.cells[cellIndex].toString(), sizer.getCenterX(coordinate.x), sizer.getCenterY(coordinate.y));
 		}
 	}
 

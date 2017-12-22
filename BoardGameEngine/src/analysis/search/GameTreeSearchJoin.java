@@ -37,9 +37,7 @@ public class GameTreeSearchJoin<M, P extends IPosition<M>> implements IGameTreeS
 	@Override
 	public synchronized void accept(boolean searchCanceled, int currentPlayer, MoveWithResult<M> moveWithResult) {
 		movesWithResults.put(moveWithResult.move, moveWithResult.result);
-		if (searchCanceled) {
-			joinParent(searchCanceled, currentPlayer);
-		} else if (!moveWithResult.result.isSeachComplete()) {
+		if (searchCanceled || !moveWithResult.result.isSearchComplete()) {
 			joinParent(searchCanceled, currentPlayer);
 		} else if (movesWithResults.size() == expectedResults) {
 			partialResult.searchCompleted();

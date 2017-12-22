@@ -26,7 +26,7 @@ public class TreeSearchRoot<M, P extends IPosition<M>> {
 			max = new boolean[branches.size()];
 			int i = 0;
 			do {
-				max[i] = rootTreeSearch.player == branches.get(i).player;
+				max[i] = rootTreeSearch.getPlayer() == branches.get(i).getPlayer();
 				++i;
 			} while (i < max.length);
 		} else {
@@ -45,10 +45,10 @@ public class TreeSearchRoot<M, P extends IPosition<M>> {
 		while (i < branches.size()) {
 			GameTreeSearch<M, P> branch = branches.get(i);
 			AnalysisResult<M> partialResult = branch.getResult();
-			if (partialResult != null && partialResult.isSeachComplete()) {
+			if (partialResult != null && partialResult.isSearchComplete()) {
 				AnalyzedMove<M> maxMoveWithScore = partialResult.getBestMove(max[i]);
 				if (maxMoveWithScore != null) {
-					movesWithScore.put(branch.parentMove, maxMoveWithScore.analysis);
+					movesWithScore.put(branch.getParentMove(), maxMoveWithScore.analysis);
 				}
 			}
 			++i;

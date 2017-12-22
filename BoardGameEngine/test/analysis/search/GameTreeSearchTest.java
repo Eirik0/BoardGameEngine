@@ -10,6 +10,7 @@ import org.junit.Test;
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
 import analysis.strategy.MinimaxStrategy;
+import analysis.strategy.MoveListProvider;
 import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
@@ -24,10 +25,11 @@ public class GameTreeSearchTest {
 	private static <M, P extends IPosition<M>> GameTreeSearch<M, P> newGameTreeSearch(P position, int plies, int maxMoves, IPositionEvaluator<M, P> positionEvaluator,
 			List<AnalysisResult<M>> results) {
 		MoveListFactory<M> moveListFactory = new MoveListFactory<>(maxMoves);
-		MinimaxStrategy<M, P> strategy = new MinimaxStrategy<>(moveListFactory, positionEvaluator);
+		MoveListProvider<M> moveListProvider = new MoveListProvider<>(moveListFactory);
+		MinimaxStrategy<M, P> strategy = new MinimaxStrategy<>(positionEvaluator, moveListProvider);
 		MoveList<M> moveList = moveListFactory.newAnalysisMoveList();
 		position.getPossibleMoves(moveList);
-		return new GameTreeSearch<M, P>(null, position, moveList, moveListFactory, plies, strategy, (canceled, player, moveWithResult) -> results.add(moveWithResult.result));
+		return new GameTreeSearch<M, P>(strategy.newForkableSearch(null, position, moveList, moveListFactory, plies), (canceled, player, moveWithResult) -> results.add(moveWithResult.result));
 	}
 
 	@Test

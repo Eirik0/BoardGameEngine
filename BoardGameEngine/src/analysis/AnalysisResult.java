@@ -57,7 +57,7 @@ public class AnalysisResult<M> {
 		searchComplete = true;
 	}
 
-	public boolean isSeachComplete() {
+	public boolean isSearchComplete() {
 		return searchComplete;
 	}
 
@@ -116,7 +116,7 @@ public class AnalysisResult<M> {
 	}
 
 	public synchronized boolean onlyOneMove() {
-		return  allValidMoves.size() == lostMoves.size() + 1;
+		return allValidMoves.size() == lostMoves.size() + 1;
 	}
 
 	public synchronized boolean isDecided() {

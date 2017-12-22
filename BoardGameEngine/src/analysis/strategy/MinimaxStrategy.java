@@ -1,34 +1,51 @@
 package analysis.strategy;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import analysis.AnalysisResult;
+import analysis.AnalyzedMove;
 import analysis.IPositionEvaluator;
 import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
 
-public class MinimaxStrategy<M, P extends IPosition<M>> extends AbstractDepthBasedStrategy<M, P> {
+public class MinimaxStrategy<M, P extends IPosition<M>> implements IDepthBasedStrategy<M, P> {
 	private final IPositionEvaluator<M, P> positionEvaluator;
+	private final MoveListProvider<M> moveListProvider;
 
-	public MinimaxStrategy(MoveListFactory<M> moveListFactory, IPositionEvaluator<M, P> positionEvaluator) {
-		super(moveListFactory);
+	private volatile boolean searchCanceled = false;
+
+	public MinimaxStrategy(IPositionEvaluator<M, P> positionEvaluator, MoveListProvider<M> moveListProvider) {
 		this.positionEvaluator = positionEvaluator;
+		this.moveListProvider = moveListProvider;
+	}
+
+	@Override
+	public IForkable<M, P> newForkableSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
+		return new MinimaxSearch<>(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
+	}
+
+	@Override
+	public void preSearch(AnalysisResult<M> currentResult, boolean isCurrentPlayer) {
+		// do nothing
 	}
 
 	@Override
 	public double evaluate(P position, int plies) {
-		return negamax(position, 0, plies);
+		return negamax(position, plies);
 	}
 
-	private double negamax(P position, int ply, int maxPly) {
+	private double negamax(P position, int depth) {
 		if (searchCanceled) {
 			return 0;
 		}
 
-		MoveList<M> possibleMoves = getMoveList(ply);
+		MoveList<M> possibleMoves = moveListProvider.getMoveList(depth);
 		position.getPossibleMoves(possibleMoves);
 		int numMoves = possibleMoves.size();
 
-		if (numMoves == 0 || ply == maxPly) {
+		if (numMoves == 0 || depth == 0) {
 			return positionEvaluator.evaluate(position, possibleMoves);
 		}
 
@@ -40,7 +57,7 @@ public class MinimaxStrategy<M, P extends IPosition<M>> extends AbstractDepthBas
 		do {
 			M move = possibleMoves.get(i);
 			position.makeMove(move);
-			double score = parentPlayer == position.getCurrentPlayer() ? negamax(position, ply + 1, maxPly) : -negamax(position, ply + 1, maxPly);
+			double score = parentPlayer == position.getCurrentPlayer() ? negamax(position, depth - 1) : -negamax(position, depth - 1);
 			position.unmakeMove(move);
 
 			gameOver = gameOver && AnalysisResult.isGameOver(score);
@@ -58,7 +75,29 @@ public class MinimaxStrategy<M, P extends IPosition<M>> extends AbstractDepthBas
 	}
 
 	@Override
+	public void stopSearch() {
+		searchCanceled = true;
+	}
+
+	@Override
+	public void join(P parentPosition, int parentPlayer, int currentPlayer, AnalysisResult<M> partialResult, Map<M, AnalysisResult<M>> movesWithResults) {
+		joinSearch(parentPlayer, currentPlayer, partialResult, movesWithResults);
+	}
+
+	public static <M> void joinSearch(int parentPlayer, int currentPlayer, AnalysisResult<M> partialResult, Map<M, AnalysisResult<M>> movesWithResults) {
+		for (Entry<M, AnalysisResult<M>> moveWithResult : movesWithResults.entrySet()) {
+			M move = moveWithResult.getKey();
+			AnalysisResult<M> result = moveWithResult.getValue();
+			AnalyzedMove<M> moveWithScore = result.getBestMove(parentPlayer == currentPlayer);
+			if (moveWithScore == null) {
+				continue;
+			}
+			partialResult.addMoveWithScore(move, moveWithScore.analysis.score, result.isSearchComplete());
+		}
+	}
+
+	@Override
 	public IDepthBasedStrategy<M, P> createCopy() {
-		return new MinimaxStrategy<>(moveListFactory, positionEvaluator);
+		return new MinimaxStrategy<>(positionEvaluator, moveListProvider.createCopy());
 	}
 }

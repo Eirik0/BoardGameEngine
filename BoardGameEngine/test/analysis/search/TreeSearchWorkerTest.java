@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import analysis.AnalysisResult;
 import analysis.strategy.MinimaxStrategy;
+import analysis.strategy.MoveListProvider;
 import game.MoveList;
 import game.MoveListFactory;
 import game.value.TestGameEvaluator;
@@ -23,16 +24,21 @@ public class TreeSearchWorkerTest {
 		worker.joinThread();
 	}
 
+	private static GameTreeSearch<TestGameNode, TestGamePosition> newGameTreeSearch(IGameTreeSearchJoin<TestGameNode> join) {
+		MoveListFactory<TestGameNode> moveListFactory = new MoveListFactory<>(2);
+		TestGamePosition position = TestGamePosition.createTestPosition();
+		MoveList<TestGameNode> moveList = moveListFactory.newAnalysisMoveList();
+		position.getPossibleMoves(moveList);
+		MinimaxStrategy<TestGameNode, TestGamePosition> strategy = new MinimaxStrategy<>(new TestGameEvaluator(), new MoveListProvider<>(moveListFactory));
+		return new GameTreeSearch<>(strategy.newForkableSearch(null, position, moveList, moveListFactory, 0), join);
+	}
+
 	@Test
 	public void testDoWork() throws InterruptedException {
 		BlockingQueue<AnalysisResult<TestGameNode>> resultQueue = new SynchronousQueue<>();
 		TreeSearchWorker worker = new TreeSearchWorker("test", finishedWorker -> {
 		});
-		MoveListFactory<TestGameNode> moveListFactory = new MoveListFactory<>(2);
-		TestGamePosition position = TestGamePosition.createTestPosition();
-		MoveList<TestGameNode> moveList = moveListFactory.newAnalysisMoveList();
-		position.getPossibleMoves(moveList);
-		worker.workOn(new GameTreeSearch<>(null, position, moveList, moveListFactory, 0, new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator()), (canceled, player, moveWithResult) -> {
+		worker.workOn(newGameTreeSearch((canceled, player, moveWithResult) -> {
 			try {
 				resultQueue.put(moveWithResult.result);
 			} catch (Exception e) {
@@ -46,17 +52,12 @@ public class TreeSearchWorkerTest {
 	@Test
 	public void testRescheduleWorkOnComplete() throws InterruptedException {
 		List<AnalysisResult<TestGameNode>> resultList = new ArrayList<>();
-		MoveListFactory<TestGameNode> moveListFactory = new MoveListFactory<>(2);
-		TestGamePosition position = TestGamePosition.createTestPosition();
-		MoveList<TestGameNode> moveList = moveListFactory.newAnalysisMoveList();
-		position.getPossibleMoves(moveList);
-		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = new GameTreeSearch<>(null, position, moveList, moveListFactory, 0,
-				new MinimaxStrategy<>(moveListFactory, new TestGameEvaluator()), (canceled, player, moveWithResult) -> {
-					synchronized (this) {
-						resultList.add(moveWithResult.result);
-						notify();
-					}
-				});
+		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = newGameTreeSearch((canceled, player, moveWithResult) -> {
+			synchronized (this) {
+				resultList.add(moveWithResult.result);
+				notify();
+			}
+		});
 		TreeSearchWorker worker = new TreeSearchWorker("test", finishedWorker -> {
 			synchronized (this) {
 				if (resultList.size() < 2) {

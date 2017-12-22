@@ -11,6 +11,7 @@ import analysis.AnalysisResult;
 import analysis.MoveAnalysis;
 import analysis.search.IterativeDeepeningTreeSearcher;
 import analysis.strategy.MinimaxStrategy;
+import analysis.strategy.MoveListProvider;
 import game.Coordinate;
 import game.MoveListFactory;
 
@@ -21,7 +22,7 @@ public class TicTacToeTreeSearchTest {
 
 	private static IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> newTreeSearcher(int numWorkers) {
 		MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(TicTacToeGame.MAX_MOVES);
-		return new IterativeDeepeningTreeSearcher<>(new MinimaxStrategy<>(moveListFactory, new TicTacToePositionEvaluator()), moveListFactory, numWorkers);
+		return new IterativeDeepeningTreeSearcher<>(new MinimaxStrategy<>(new TicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory)), moveListFactory, numWorkers);
 	}
 
 	@Test

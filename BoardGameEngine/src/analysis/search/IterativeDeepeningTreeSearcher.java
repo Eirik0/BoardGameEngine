@@ -9,7 +9,9 @@ import java.util.Map.Entry;
 
 import analysis.AnalysisResult;
 import analysis.MoveAnalysis;
+import analysis.strategy.ForkJoinObserver;
 import analysis.strategy.IDepthBasedStrategy;
+import analysis.strategy.IForkable;
 import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
@@ -64,6 +66,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public AnalysisResult<M> startSearch(P position, int maxPlies, boolean escapeEarly) {
 		synchronized (searchStartedLock) {
 			searchStopped = false;
@@ -74,7 +77,9 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		plies = 0;
 		do {
 			++plies;
-			strategy.notifyPlyStarted(result);
+			if (strategy instanceof ForkJoinObserver<?>) {
+				((ForkJoinObserver<M>) strategy).notifyPlyStarted(result);
+			}
 			AnalysisResult<M> search = search(position, plies);
 			if (searchStopped && result != null) { // merge only when the search is stopped
 				result = result.mergeWith(search);
@@ -91,7 +96,9 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 				}
 				result = search;
 			}
-			strategy.notifyPlyComplete(searchStopped);
+			if (strategy instanceof ForkJoinObserver<?>) {
+				((ForkJoinObserver<M>) strategy).notifyPlyComplete(searchStopped);
+			}
 			if (escapeEarly && (result.isWin() || result.onlyOneMove()) || result.isDecided()) {
 				break; // when escaping early, break if the game is won, or there is only one move; or if all moves are decided
 			}
@@ -156,8 +163,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		MoveList<M> searchMoveList = new SearchMoveList<>(moveListFactory.newAnalysisMoveList(), result == null ? Collections.emptySet() : result.getDecidedMoves().keySet());
 		position.getPossibleMoves(searchMoveList);
 
-		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(null, position, searchMoveList, moveListFactory, plies, strategy,
-				(canceled, player, moveWithResult) -> resultTransfer.putResult(moveWithResult.result));
+		IForkable<M, P> forkableSearch = strategy.newForkableSearch(null, position, searchMoveList, moveListFactory, plies);
+		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(forkableSearch, (canceled, player, moveWithResult) -> resultTransfer.putResult(moveWithResult.result));
 
 		treeSearchRoot = new TreeSearchRoot<>(rootTreeSearch);
 		treeSearchesToAnalyze.addAll(treeSearchRoot.getBranches());

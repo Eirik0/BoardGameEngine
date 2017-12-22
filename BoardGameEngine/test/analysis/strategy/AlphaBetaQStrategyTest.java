@@ -13,8 +13,8 @@ public class AlphaBetaQStrategyTest {
 	public void testAlphaBetaQNegaMax() {
 		MoveListFactory<IChessMove> moveListFactory = new MoveListFactory<>(ChessGame.MAX_MOVES);
 
-		AlphaBetaQTestStrategy<IChessMove, ChessPosition> minmaxStrategy = new AlphaBetaQTestStrategy<>(moveListFactory, new ChessPositionEvaluator());
-		AlphaBetaQStrategy<IChessMove, ChessPosition> alphabetaStrategy = new AlphaBetaQStrategy<>(moveListFactory, new ChessPositionEvaluator());
+		AlphaBetaQTestStrategy<IChessMove, ChessPosition> minmaxStrategy = new AlphaBetaQTestStrategy<>(new ChessPositionEvaluator(), new MoveListProvider<>(moveListFactory));
+		AlphaBetaQStrategy<IChessMove, ChessPosition> alphabetaStrategy = new AlphaBetaQStrategy<>(new ChessPositionEvaluator(), new MoveListProvider<>(moveListFactory));
 
 		AlphaBetaStrategyTest.compareStrategies(new ChessPosition(), moveListFactory, minmaxStrategy, alphabetaStrategy, 4, 5);
 	}

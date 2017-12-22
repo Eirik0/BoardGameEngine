@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import analysis.ComputerPlayer;
 import analysis.strategy.MinimaxStrategy;
+import analysis.strategy.MoveListProvider;
 import game.Coordinate;
 import game.MoveListFactory;
 
@@ -51,6 +52,6 @@ public class UTTTComputerPlayerTest {
 
 	private static ComputerPlayer newComputerPlayer(int numWorkers, long toWait) {
 		MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
-		return new ComputerPlayer("MinMax", new MinimaxStrategy<>(moveListFactory, new UltimateTicTacToePositionEvaluator()), moveListFactory, numWorkers, toWait, true);
+		return new ComputerPlayer("MinMax", new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory)), moveListFactory, numWorkers, toWait, true);
 	}
 }

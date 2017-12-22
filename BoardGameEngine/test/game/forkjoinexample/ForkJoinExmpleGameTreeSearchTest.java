@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import analysis.search.IterativeDeepeningTreeSearcher;
+import analysis.strategy.MoveListProvider;
 import game.MoveListFactory;
 
 public class ForkJoinExmpleGameTreeSearchTest {
@@ -42,8 +43,8 @@ public class ForkJoinExmpleGameTreeSearchTest {
 
 	private static void assertSearch(int treeDepth, int branchingFactor, int searchDepth, int numWorkers, int expectedNodes, int expectedWorkers) {
 		MoveListFactory<ForkJoinExampleNode> moveListFactory = new MoveListFactory<>(ForkJoinExampleGame.MAX_MOVES);
-		IterativeDeepeningTreeSearcher<ForkJoinExampleNode, ForkJoinExampleTree> treeSearcher = new IterativeDeepeningTreeSearcher<>(new ForkJoinExampleStraregy(moveListFactory),
-				moveListFactory, numWorkers);
+		ForkJoinExampleStraregy strategy = new ForkJoinExampleStraregy(new MoveListProvider<>(moveListFactory));
+		IterativeDeepeningTreeSearcher<ForkJoinExampleNode, ForkJoinExampleTree> treeSearcher = new IterativeDeepeningTreeSearcher<>(strategy, moveListFactory, numWorkers);
 		ForkJoinExampleTree position = new ForkJoinExampleTree(treeDepth, branchingFactor);
 		ForkJoinExampleThreadTracker.init(position);
 		treeSearcher.startSearch(position, searchDepth, false);
