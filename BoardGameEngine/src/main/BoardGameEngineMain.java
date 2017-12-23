@@ -13,6 +13,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import analysis.strategy.AlphaBetaQStrategy;
+import analysis.strategy.AlphaBetaStrategy;
+import analysis.strategy.MinimaxStrategy;
 import analysis.strategy.MoveListProvider;
 import game.GameRunner;
 import game.chess.ChessGame;
@@ -22,6 +24,7 @@ import game.forkjoinexample.ForkJoinExampleGame;
 import game.forkjoinexample.ForkJoinExampleGameRenderer;
 import game.forkjoinexample.ForkJoinExampleStraregy;
 import game.forkjoinexample.ForkJoinMoveList;
+import game.forkjoinexample.ForkJoinPositionEvaluator;
 import game.gomoku.GomokuGame;
 import game.gomoku.GomokuGameRenderer;
 import game.gomoku.GomokuMoveList;
@@ -113,7 +116,10 @@ public class BoardGameEngineMain {
 
 		GameRegistry.registerGame(new ForkJoinExampleGame(), ForkJoinExampleGameRenderer.class, ForkJoinMoveList.class)
 				.registerComputer(Long.MAX_VALUE, 100)
-				.registerStrategy("ForkJoinExample", () -> new ForkJoinExampleStraregy(new MoveListProvider<>(GameRegistry.getMoveListFactory(ForkJoinExampleGame.NAME))));
+				.registerStrategy("MinMax",
+						() -> new ForkJoinExampleStraregy(new MinimaxStrategy<>(new ForkJoinPositionEvaluator(), new MoveListProvider<>(GameRegistry.getMoveListFactory(ForkJoinExampleGame.NAME)))))
+				.registerStrategy("AlphaBeta",
+						() -> new ForkJoinExampleStraregy(new AlphaBetaStrategy<>(new ForkJoinPositionEvaluator(), new MoveListProvider<>(GameRegistry.getMoveListFactory(ForkJoinExampleGame.NAME)))));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

@@ -52,13 +52,6 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 				Color color = nodeInfo.getThreadName() != null ? getColorFromThreadName(nodeInfo.getThreadName()) : BoardGameEngineMain.FOREGROUND_COLOR;
 				double nodeX = nodeInfo.fractionX * width;
 				double nodeY = nodeInfo.fractionY * height;
-				// draw lines to children
-
-				for (Pair<ForkJoinExampleNodeInfo, String> child : nodeInfo.getChildren()) {
-					g.setColor(getColorFromThreadName(child.getSecond()));
-					ForkJoinExampleNodeInfo childInfo = child.getFirst();
-					g.drawLine(round(nodeX), round(nodeY), round(childInfo.fractionX * width), round(childInfo.fractionY * height));
-				}
 				// draw node
 				if (nodeInfo.isForked()) {
 					g.setColor(color);
@@ -70,6 +63,12 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 					if (nodeInfo.getThreadName() != null) {
 						fillCircle(g, nodeX, nodeY, nodeRadius * 2);
 					}
+				}
+				// draw lines to children
+				for (Pair<ForkJoinExampleNodeInfo, String> child : nodeInfo.getChildren()) {
+					g.setColor(getColorFromThreadName(child.getSecond()));
+					ForkJoinExampleNodeInfo childInfo = child.getFirst();
+					g.drawLine(round(nodeX), round(nodeY), round(childInfo.fractionX * width), round(childInfo.fractionY * height));
 				}
 			}
 		}

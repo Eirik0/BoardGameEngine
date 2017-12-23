@@ -4,21 +4,16 @@ import java.util.Map;
 
 import analysis.AnalysisResult;
 import analysis.strategy.ForkJoinObserver;
+import analysis.strategy.IAlphaBetaStrategy;
 import analysis.strategy.IDepthBasedStrategy;
 import analysis.strategy.IForkable;
-import analysis.strategy.MinimaxStrategy;
-import analysis.strategy.MoveListProvider;
 import game.MoveList;
 import game.MoveListFactory;
 
-public class ForkJoinExampleStraregy implements IDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree>, ForkJoinObserver<ForkJoinExampleNode> {
-	private final IDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> strategy;
+public class ForkJoinExampleStraregy implements IAlphaBetaStrategy<ForkJoinExampleNode, ForkJoinExampleTree>, ForkJoinObserver<ForkJoinExampleNode> {
+	private final IAlphaBetaStrategy<ForkJoinExampleNode, ForkJoinExampleTree> strategy;
 
-	public ForkJoinExampleStraregy(MoveListProvider<ForkJoinExampleNode> moveListProvider) {
-		this(new MinimaxStrategy<>(new ForkJoinPositionEvaluator(), moveListProvider));
-	}
-
-	public ForkJoinExampleStraregy(IDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> strategy) {
+	public ForkJoinExampleStraregy(IAlphaBetaStrategy<ForkJoinExampleNode, ForkJoinExampleTree> strategy) {
 		this.strategy = strategy;
 	}
 
@@ -29,13 +24,13 @@ public class ForkJoinExampleStraregy implements IDepthBasedStrategy<ForkJoinExam
 	}
 
 	@Override
-	public void preSearch(AnalysisResult<ForkJoinExampleNode> currentResult, boolean isCurrentPlayer) {
-		// do nothing
+	public double evaluate(ForkJoinExampleTree position, int plies) {
+		return strategy.evaluate(position, plies);
 	}
 
 	@Override
-	public double evaluate(ForkJoinExampleTree position, int plies) {
-		return strategy.evaluate(position, plies);
+	public double evaluate(ForkJoinExampleTree position, int plies, double alpha, double beta) {
+		return strategy.evaluate(position, plies, alpha, beta);
 	}
 
 	@Override
@@ -55,7 +50,7 @@ public class ForkJoinExampleStraregy implements IDepthBasedStrategy<ForkJoinExam
 
 	@Override
 	public IDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> createCopy() {
-		return new ForkJoinExampleStraregy(strategy.createCopy());
+		return new ForkJoinExampleStraregy((IAlphaBetaStrategy<ForkJoinExampleNode, ForkJoinExampleTree>) strategy.createCopy());
 	}
 
 	@Override

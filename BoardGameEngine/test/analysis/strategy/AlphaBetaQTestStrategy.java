@@ -8,7 +8,7 @@ import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
 
-public class AlphaBetaQTestStrategy<M, P extends IPosition<M>> implements IDepthBasedStrategy<M, P> {
+public class AlphaBetaQTestStrategy<M, P extends IPosition<M>> implements IAlphaBetaStrategy<M, P> {
 	private final IPositionEvaluator<M, P> positionEvaluator;
 	private final MoveListProvider<M> moveListProvider;
 
@@ -21,16 +21,11 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M>> implements IDepth
 
 	@Override
 	public IForkable<M, P> newForkableSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
-		return new MinimaxSearch<>(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
+		return new AlphaBetaSearch<>(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
 	}
 
 	@Override
-	public void preSearch(AnalysisResult<M> currentResult, boolean isCurrentPlayer) {
-		// do nothing
-	}
-
-	@Override
-	public double evaluate(P position, int plies) {
+	public double evaluate(P position, int plies, double alpha, double beta) {
 		return max(position, 0, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 

@@ -14,8 +14,6 @@ public interface IDepthBasedStrategy<M, P extends IPosition<M>> {
 
 	public IForkable<M, P> newForkableSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy);
 
-	public void preSearch(AnalysisResult<M> currentResult, boolean isCurrentPlayer);
-
 	public double evaluate(P position, int plies);
 
 	public void stopSearch();

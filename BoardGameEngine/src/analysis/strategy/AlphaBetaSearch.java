@@ -5,14 +5,14 @@ import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
 
-public class MinimaxSearch<M, P extends IPosition<M>> extends AbstractAlphaBetaSearch<M, P> {
-	public MinimaxSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
+public class AlphaBetaSearch<M, P extends IPosition<M>> extends AbstractAlphaBetaSearch<M, P> {
+	public AlphaBetaSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
 		super(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
 	}
 
 	@Override
-	protected MinimaxSearch<M, P> newSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
-		return new MinimaxSearch<>(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
+	protected AlphaBetaSearch<M, P> newSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
+		return new AlphaBetaSearch<>(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
 	}
 
 	@Override
@@ -24,17 +24,25 @@ public class MinimaxSearch<M, P extends IPosition<M>> extends AbstractAlphaBetaS
 
 	@Override
 	protected AnalysisResult<M> searchWithStrategy() {
+		double alpha = Double.NEGATIVE_INFINITY;
+		double beta = Double.POSITIVE_INFINITY;
 		AnalysisResult<M> analysisResult = new AnalysisResult<>();
 		do {
 			M move = movesToSearch.get(branchIndex.get());
 			position.makeMove(move);
-			double evaluate = strategy.evaluate(position, plies - 1);
-			double score = searchCanceled ? 0 : player == position.getCurrentPlayer() ? evaluate : -evaluate;
+			double score = player == position.getCurrentPlayer() ? strategy.evaluate(position, plies - 1, alpha, beta) : -strategy.evaluate(position, plies - 1, -beta, -alpha);
 			position.unmakeMove(move);
 			if (searchCanceled) { // we need to check search canceled after making the call to evaluate
 				break;
 			} else {
 				analysisResult.addMoveWithScore(move, score);
+				if (AnalysisResult.isGreater(score, alpha)) {
+					alpha = score;
+				}
+				if (!AnalysisResult.isGreater(beta, alpha)) { // alpha >= beta
+					branchIndex.set(movesToSearch.size()); // force search complete
+					break;
+				}
 			}
 		} while (branchIndex.incrementAndGet() < movesToSearch.size());
 

@@ -10,7 +10,7 @@ import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
 
-public class MinimaxStrategy<M, P extends IPosition<M>> implements IDepthBasedStrategy<M, P> {
+public class MinimaxStrategy<M, P extends IPosition<M>> implements IAlphaBetaStrategy<M, P> {
 	private final IPositionEvaluator<M, P> positionEvaluator;
 	private final MoveListProvider<M> moveListProvider;
 
@@ -27,8 +27,8 @@ public class MinimaxStrategy<M, P extends IPosition<M>> implements IDepthBasedSt
 	}
 
 	@Override
-	public void preSearch(AnalysisResult<M> currentResult, boolean isCurrentPlayer) {
-		// do nothing
+	public double evaluate(P position, int plies, double alpha, double beta) {
+		return evaluate(position, plies);
 	}
 
 	@Override

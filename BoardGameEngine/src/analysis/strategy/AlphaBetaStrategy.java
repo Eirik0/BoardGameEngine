@@ -8,13 +8,11 @@ import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
 
-public class AlphaBetaStrategy<M, P extends IPosition<M>> implements IDepthBasedStrategy<M, P> {
+public class AlphaBetaStrategy<M, P extends IPosition<M>> implements IAlphaBetaStrategy<M, P> {
 	private final IPositionEvaluator<M, P> positionEvaluator;
 	private final MoveListProvider<M> moveListProvider;
 
 	private volatile boolean searchCanceled = false;
-
-	private AlphaBetaPreSearch preSearch = new AlphaBetaPreSearch(new AnalysisResult<>(), true);
 
 	public AlphaBetaStrategy(IPositionEvaluator<M, P> positionEvaluator, MoveListProvider<M> moveListProvider) {
 		this.positionEvaluator = positionEvaluator;
@@ -23,29 +21,24 @@ public class AlphaBetaStrategy<M, P extends IPosition<M>> implements IDepthBased
 
 	@Override
 	public IForkable<M, P> newForkableSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
-		return new MinimaxSearch<>(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
+		return new AlphaBetaSearch<>(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
 	}
 
 	@Override
-	public void preSearch(AnalysisResult<M> currentResult, boolean isCurrentPlayer) {
-		preSearch = new AlphaBetaPreSearch(currentResult, isCurrentPlayer);
+	public double evaluate(P position, int plies, double alpha, double beta) {
+		return alphaBeta(position, plies, alpha, beta);
 	}
 
-	@Override
-	public double evaluate(P position, int plies) {
-		return alphaBeta(position, 0, plies, preSearch.alpha, preSearch.beta);
-	}
-
-	private double alphaBeta(P position, int ply, int maxPly, double alpha, double beta) {
+	private double alphaBeta(P position, int depth, double alpha, double beta) {
 		if (searchCanceled) {
 			return 0;
 		}
 
-		MoveList<M> possibleMoves = moveListProvider.getMoveList(ply);
+		MoveList<M> possibleMoves = moveListProvider.getMoveList(depth);
 		position.getPossibleMoves(possibleMoves);
 		int numMoves = possibleMoves.size();
 
-		if (numMoves == 0 || ply == maxPly) {
+		if (numMoves == 0 || depth == 0) {
 			return positionEvaluator.evaluate(position, possibleMoves);
 		}
 
@@ -57,7 +50,7 @@ public class AlphaBetaStrategy<M, P extends IPosition<M>> implements IDepthBased
 		do {
 			M move = possibleMoves.get(i);
 			position.makeMove(move);
-			double score = parentPlayer == position.getCurrentPlayer() ? alphaBeta(position, ply + 1, maxPly, alpha, beta) : -alphaBeta(position, ply + 1, maxPly, -beta, -alpha);
+			double score = parentPlayer == position.getCurrentPlayer() ? alphaBeta(position, depth - 1, alpha, beta) : -alphaBeta(position, depth - 1, -beta, -alpha);
 			position.unmakeMove(move);
 
 			gameOver = gameOver && AnalysisResult.isGameOver(score);

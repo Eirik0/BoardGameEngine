@@ -8,13 +8,11 @@ import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
 
-public class AlphaBetaQStrategy<M, P extends IPosition<M>> implements IDepthBasedStrategy<M, P> {
+public class AlphaBetaQStrategy<M, P extends IPosition<M>> implements IAlphaBetaStrategy<M, P> {
 	private final IPositionEvaluator<M, P> positionEvaluator;
 	private final MoveListProvider<M> moveListProvider;
 
 	private volatile boolean searchCanceled = false;
-
-	private AlphaBetaPreSearch preSearch = new AlphaBetaPreSearch(new AnalysisResult<>(), true);
 
 	public AlphaBetaQStrategy(IPositionEvaluator<M, P> positionEvaluator, MoveListProvider<M> moveListProvider) {
 		this.positionEvaluator = positionEvaluator;
@@ -23,17 +21,12 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M>> implements IDepthBase
 
 	@Override
 	public IForkable<M, P> newForkableSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
-		return new MinimaxSearch<>(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
+		return new AlphaBetaSearch<>(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
 	}
 
 	@Override
-	public void preSearch(AnalysisResult<M> currentResult, boolean isCurrentPlayer) {
-		preSearch = new AlphaBetaPreSearch(currentResult, isCurrentPlayer);
-	}
-
-	@Override
-	public double evaluate(P position, int plies) {
-		return alphaBeta(position, 0, plies, preSearch.alpha, preSearch.beta, false);
+	public double evaluate(P position, int plies, double alpha, double beta) {
+		return alphaBeta(position, 0, plies, alpha, beta, false);
 	}
 
 	private double alphaBeta(P position, int ply, int maxPly, double alpha, double beta, boolean quiescent) {
