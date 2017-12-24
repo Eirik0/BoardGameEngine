@@ -12,8 +12,6 @@ public interface IForkable<M, P extends IPosition<M>> {
 
 	public void stopSearch();
 
-	public int getPlayer();
-
 	public M getParentMove();
 
 	public int getPlies();

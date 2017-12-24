@@ -39,9 +39,8 @@ public class ForkJoinExampleStraregy implements IAlphaBetaStrategy<ForkJoinExamp
 	}
 
 	@Override
-	public void join(ForkJoinExampleTree parentPosition, int parentPlayer, int currentPlayer, AnalysisResult<ForkJoinExampleNode> partialResult,
-			Map<ForkJoinExampleNode, AnalysisResult<ForkJoinExampleNode>> movesWithResults) {
-		strategy.join(parentPosition, parentPlayer, currentPlayer, partialResult, movesWithResults);
+	public void join(ForkJoinExampleTree parentPosition, AnalysisResult<ForkJoinExampleNode> partialResult, Map<ForkJoinExampleNode, AnalysisResult<ForkJoinExampleNode>> movesWithResults) {
+		strategy.join(parentPosition, partialResult, movesWithResults);
 		for (ForkJoinExampleNode move : movesWithResults.keySet()) {
 			ForkJoinExampleThreadTracker.branchVisited(parentPosition.getCurrentNode(), move, ForkJoinExampleThreadTracker.SLEEP_PER_MERGE);
 		}

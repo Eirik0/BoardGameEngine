@@ -1,6 +1,7 @@
 package analysis.strategy;
 
 import analysis.AnalysisResult;
+import analysis.MoveAnalysis;
 import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
@@ -17,25 +18,26 @@ public class AlphaBetaSearch<M, P extends IPosition<M>> extends AbstractAlphaBet
 
 	@Override
 	protected AnalysisResult<M> searchNonForkable() {
-		AnalysisResult<M> result = new AnalysisResult<>(parentMove, strategy.evaluate(position, plies));
+		AnalysisResult<M> result = new AnalysisResult<>(position.getCurrentPlayer(), parentMove, strategy.evaluate(position, plies));
 		result.searchCompleted();
 		return result;
 	}
 
 	@Override
 	protected AnalysisResult<M> searchWithStrategy() {
+		int parentPlayer = position.getCurrentPlayer();
 		double alpha = Double.NEGATIVE_INFINITY;
 		double beta = Double.POSITIVE_INFINITY;
-		AnalysisResult<M> analysisResult = new AnalysisResult<>();
+		AnalysisResult<M> analysisResult = new AnalysisResult<>(parentPlayer);
 		do {
 			M move = movesToSearch.get(branchIndex.get());
 			position.makeMove(move);
-			double score = player == position.getCurrentPlayer() ? strategy.evaluate(position, plies - 1, alpha, beta) : -strategy.evaluate(position, plies - 1, -beta, -alpha);
+			double score = parentPlayer == position.getCurrentPlayer() ? strategy.evaluate(position, plies - 1, alpha, beta) : -strategy.evaluate(position, plies - 1, -beta, -alpha);
 			position.unmakeMove(move);
 			if (searchCanceled) { // we need to check search canceled after making the call to evaluate
 				break;
 			} else {
-				analysisResult.addMoveWithScore(move, score);
+				analysisResult.addMoveWithScore(move, new MoveAnalysis(score));
 				if (AnalysisResult.isGreater(score, alpha)) {
 					alpha = score;
 				}

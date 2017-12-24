@@ -1,9 +1,9 @@
 package analysis.search;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 
 import analysis.AnalysisResult;
 import analysis.AnalyzedMove;
@@ -11,27 +11,22 @@ import analysis.MoveAnalysis;
 import game.IPosition;
 
 public class TreeSearchRoot<M, P extends IPosition<M>> {
+	private final AnalysisResult<M> partialResult;
+
 	private final List<GameTreeSearch<M, P>> branches;
-	private boolean[] max;
 
 	public TreeSearchRoot() {
 		branches = Collections.emptyList();
-		max = new boolean[] {};
+		partialResult = new AnalysisResult<>(1);
 	}
 
-	public TreeSearchRoot(GameTreeSearch<M, P> rootTreeSearch) {
+	public TreeSearchRoot(GameTreeSearch<M, P> rootTreeSearch, int player) {
+		partialResult = new AnalysisResult<>(player);
 		// Always fork once so we can keep track of the searches in progress
 		if (rootTreeSearch.isForkable()) {
 			branches = rootTreeSearch.fork();
-			max = new boolean[branches.size()];
-			int i = 0;
-			do {
-				max[i] = rootTreeSearch.getPlayer() == branches.get(i).getPlayer();
-				++i;
-			} while (i < max.length);
 		} else {
 			branches = Collections.singletonList(rootTreeSearch);
-			max = new boolean[] { true };
 		}
 	}
 
@@ -39,20 +34,25 @@ public class TreeSearchRoot<M, P extends IPosition<M>> {
 		return branches;
 	}
 
-	public Map<M, MoveAnalysis> getPartialResult() {
-		Map<M, MoveAnalysis> movesWithScore = new HashMap<>();
-		int i = 0;
-		while (i < branches.size()) {
-			GameTreeSearch<M, P> branch = branches.get(i);
-			AnalysisResult<M> partialResult = branch.getResult();
-			if (partialResult != null && partialResult.isSearchComplete()) {
-				AnalyzedMove<M> maxMoveWithScore = partialResult.getBestMove(max[i]);
-				if (maxMoveWithScore != null) {
-					movesWithScore.put(branch.getParentMove(), maxMoveWithScore.analysis);
-				}
-			}
-			++i;
+	public AnalysisResult<M> getPartialResult() {
+		updatePartialResult();
+		AnalysisResult<M> partialResultCopy = new AnalysisResult<>(partialResult.getPlayer());
+		for (Entry<M, MoveAnalysis> moveWithScore : partialResult.getMovesWithScore().entrySet()) {
+			partialResultCopy.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue());
 		}
-		return movesWithScore;
+		return partialResultCopy;
+	}
+
+	private synchronized void updatePartialResult() {
+		Iterator<GameTreeSearch<M, P>> branchIterator = branches.iterator();
+		while (branchIterator.hasNext()) {
+			GameTreeSearch<M, P> branch = branchIterator.next();
+			AnalysisResult<M> branchResult = branch.getResult();
+			if (branchResult != null && branchResult.isSearchComplete()) {
+				AnalyzedMove<M> bestMove = branchResult.getBestMove(partialResult.getPlayer());
+				partialResult.addMoveWithScore(branch.getParentMove(), bestMove.analysis);
+				branchIterator.remove();
+			}
+		}
 	}
 }

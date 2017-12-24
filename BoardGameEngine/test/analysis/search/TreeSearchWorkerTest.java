@@ -38,7 +38,7 @@ public class TreeSearchWorkerTest {
 		BlockingQueue<AnalysisResult<TestGameNode>> resultQueue = new SynchronousQueue<>();
 		TreeSearchWorker worker = new TreeSearchWorker("test", finishedWorker -> {
 		});
-		worker.workOn(newGameTreeSearch((canceled, player, moveWithResult) -> {
+		worker.workOn(newGameTreeSearch((canceled, moveWithResult) -> {
 			try {
 				resultQueue.put(moveWithResult.result);
 			} catch (Exception e) {
@@ -52,7 +52,7 @@ public class TreeSearchWorkerTest {
 	@Test
 	public void testRescheduleWorkOnComplete() throws InterruptedException {
 		List<AnalysisResult<TestGameNode>> resultList = new ArrayList<>();
-		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = newGameTreeSearch((canceled, player, moveWithResult) -> {
+		GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = newGameTreeSearch((canceled, moveWithResult) -> {
 			synchronized (this) {
 				resultList.add(moveWithResult.result);
 				notify();

@@ -79,8 +79,8 @@ public class AlphaBetaStrategy<M, P extends IPosition<M>> implements IAlphaBetaS
 	}
 
 	@Override
-	public void join(P parentPosition, int parentPlayer, int currentPlayer, AnalysisResult<M> partialResult, Map<M, AnalysisResult<M>> movesWithResults) {
-		MinimaxStrategy.joinSearch(parentPlayer, currentPlayer, partialResult, movesWithResults);
+	public void join(P parentPosition, AnalysisResult<M> partialResult, Map<M, AnalysisResult<M>> movesWithResults) {
+		MinimaxStrategy.joinSearch(partialResult, movesWithResults);
 	}
 
 	@Override

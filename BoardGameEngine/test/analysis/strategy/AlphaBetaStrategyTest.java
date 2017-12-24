@@ -43,8 +43,8 @@ public class AlphaBetaStrategyTest {
 			long start2 = System.currentTimeMillis();
 			AnalysisResult<M> s2Result = s2.startSearch(position, plies, true);
 			long s2Time = System.currentTimeMillis() - start2;
-			System.out.println("S1: " + s1Time + "ms, S2: " + s2Time + "ms, depth: " + plies + ", " + s1Result.getBestMove(true).toString());
-			assertEquals("Comparing score " + plies, s1Result.getBestMove(true).analysis.score, s2Result.getBestMove(true).analysis.score, 0.001);
+			System.out.println("S1: " + s1Time + "ms, S2: " + s2Time + "ms, depth: " + plies + ", " + s1Result.getBestMove(s1Result.getPlayer()).toString());
+			assertEquals("Comparing score " + plies, s1Result.getBestMove(s1Result.getPlayer()).analysis.score, s2Result.getBestMove(s2Result.getPlayer()).analysis.score, 0.001);
 			Map<M, MoveAnalysis> s2MoveMap = s2Result.getMovesWithScore();
 			for (Entry<M, MoveAnalysis> moveWithScore : s1Result.getMovesWithScore().entrySet()) {
 				if (!(Math.abs(moveWithScore.getValue().score - s2MoveMap.get(moveWithScore.getKey()).score) < 0.001)) {

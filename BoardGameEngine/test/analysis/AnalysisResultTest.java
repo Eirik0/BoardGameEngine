@@ -24,24 +24,24 @@ public class AnalysisResultTest {
 		assertEquals(0.5, movesWithScore.get(Integer.valueOf(2)).score, 0.0);
 		assertEquals(1.0, movesWithScore.get(Integer.valueOf(3)).score, 0.0);
 		assertEquals(1.0, movesWithScore.get(Integer.valueOf(4)).score, 0.0);
-		AnalyzedMove<Integer> bestMove = mergedRestult.getBestMove(true);
+		AnalyzedMove<Integer> bestMove = mergedRestult.getBestMove(mergedRestult.getPlayer());
 		assertEquals(2.0, bestMove.analysis.score, 0.0);
 		assertEquals(Integer.valueOf(1), bestMove.move);
 	}
 
 	private static AnalysisResult<Integer> createResult(List<Pair<Integer, Double>> movesWithScore) {
-		AnalysisResult<Integer> result = new AnalysisResult<>();
+		AnalysisResult<Integer> result = new AnalysisResult<>(1);
 		for (Pair<Integer, Double> moveWithScore : movesWithScore) {
-			result.addMoveWithScore(moveWithScore.getFirst(), moveWithScore.getSecond().doubleValue());
+			result.addMoveWithScore(moveWithScore.getFirst(), new MoveAnalysis(moveWithScore.getSecond().doubleValue()));
 		}
 		return result;
 	}
 
 	@Test
 	public void testFindBestMoveEvenIfLost() {
-		AnalysisResult<String> result = new AnalysisResult<>();
-		result.addMoveWithScore("1", Double.NEGATIVE_INFINITY);
-		assertEquals("1", result.getBestMove(true).move);
+		AnalysisResult<String> result = new AnalysisResult<>(1);
+		result.addMoveWithScore("1", new MoveAnalysis(AnalysisResult.LOSS));
+		assertEquals("1", result.getBestMove(result.getPlayer()).move);
 	}
 
 	@Test

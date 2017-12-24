@@ -12,7 +12,6 @@ public class GameTreeSearchJoin<M, P extends IPosition<M>> implements IGameTreeS
 	private final IGameTreeSearchJoin<M> parentJoin;
 	private final M parentMove;
 	private final P parentPosition;
-	private final int parentPlayer;
 	private final IDepthBasedStrategy<M, P> strategy;
 
 	private final AnalysisResult<M> partialResult;
@@ -22,12 +21,11 @@ public class GameTreeSearchJoin<M, P extends IPosition<M>> implements IGameTreeS
 
 	private final AtomicBoolean parentAwaitingJoin = new AtomicBoolean(true);
 
-	public GameTreeSearchJoin(IGameTreeSearchJoin<M> parentJoin, M parentMove, P parentPosition, int parentPlayer, IDepthBasedStrategy<M, P> strategy, AnalysisResult<M> partialResult,
+	public GameTreeSearchJoin(IGameTreeSearchJoin<M> parentJoin, M parentMove, P parentPosition, IDepthBasedStrategy<M, P> strategy, AnalysisResult<M> partialResult,
 			int expectedResults) {
 		this.parentJoin = parentJoin;
 		this.parentMove = parentMove;
 		this.parentPosition = parentPosition;
-		this.parentPlayer = parentPlayer;
 		this.strategy = strategy;
 		this.partialResult = partialResult;
 		this.expectedResults = expectedResults;
@@ -35,20 +33,20 @@ public class GameTreeSearchJoin<M, P extends IPosition<M>> implements IGameTreeS
 	}
 
 	@Override
-	public synchronized void accept(boolean searchCanceled, int currentPlayer, MoveWithResult<M> moveWithResult) {
+	public synchronized void accept(boolean searchCanceled, MoveWithResult<M> moveWithResult) {
 		movesWithResults.put(moveWithResult.move, moveWithResult.result);
 		if (searchCanceled || !moveWithResult.result.isSearchComplete()) {
-			joinParent(searchCanceled, currentPlayer);
+			joinParent(searchCanceled);
 		} else if (movesWithResults.size() == expectedResults) {
 			partialResult.searchCompleted();
-			joinParent(searchCanceled, currentPlayer);
+			joinParent(searchCanceled);
 		}
 	}
 
-	private synchronized void joinParent(boolean searchCanceled, int currentPlayer) {
+	private synchronized void joinParent(boolean searchCanceled) {
 		if (parentAwaitingJoin.getAndSet(false)) {
-			strategy.join(parentPosition, parentPlayer, currentPlayer, partialResult, movesWithResults);
-			parentJoin.accept(searchCanceled, parentPlayer, new MoveWithResult<>(parentMove, partialResult));
+			strategy.join(parentPosition, partialResult, movesWithResults);
+			parentJoin.accept(searchCanceled, new MoveWithResult<>(parentMove, partialResult));
 		}
 	}
 }

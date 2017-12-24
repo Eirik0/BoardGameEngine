@@ -16,6 +16,8 @@ public class AnalysisResult<M> {
 	public static final double LOSS = Double.NEGATIVE_INFINITY;
 	public static final double DRAW = Double.NaN;
 
+	private final int player;
+
 	private final Map<M, MoveAnalysis> allValidMoves = new LinkedHashMap<>();
 	private final Map<M, MoveAnalysis> wonAndDrawnMoves = new HashMap<>();
 	private final Map<M, MoveAnalysis> lostMoves = new HashMap<>();
@@ -25,32 +27,42 @@ public class AnalysisResult<M> {
 
 	private boolean searchComplete = false;
 
-	public AnalysisResult() {
+	public AnalysisResult(int player) {
+		this.player = player;
 	}
 
-	public AnalysisResult(M move, double score) {
-		addMoveWithScore(move, score, true);
+	public AnalysisResult(int player, M move, double score) {
+		this(player);
+		addMoveWithScore(move, new MoveAnalysis(score), true);
 	}
 
 	public void addMoveWithScore(M move, double score) {
-		addMoveWithScore(move, score, true);
+		addMoveWithScore(move, new MoveAnalysis(score), true);
 	}
 
-	public synchronized void addMoveWithScore(M move, double score, boolean isValid) {
+	public void addMoveWithScore(M move, MoveAnalysis moveAnalysis, boolean isValid) {
 		if (isValid) {
-			MoveAnalysis analysis = new MoveAnalysis(score);
-			allValidMoves.put(move, analysis);
-			if (bestMove == null || AnalysisResult.isGreater(score, bestMove.analysis.score)) {
-				bestMove = new AnalyzedMove<>(move, score);
-			}
-			if (AnalysisResult.WIN == score || AnalysisResult.isDraw(score)) {
-				wonAndDrawnMoves.put(move, analysis);
-			} else if (AnalysisResult.LOSS == score) {
-				lostMoves.put(move, analysis);
-			}
+			addMoveWithScore(move, moveAnalysis);
 		} else {
 			invalidMoves.add(move);
 		}
+	}
+
+	public synchronized void addMoveWithScore(M move, MoveAnalysis moveAnalysis) {
+		MoveAnalysis analysis = moveAnalysis;
+		allValidMoves.put(move, analysis);
+		if (bestMove == null || AnalysisResult.isGreater(moveAnalysis.score, bestMove.analysis.score)) {
+			bestMove = new AnalyzedMove<>(move, moveAnalysis.score);
+		}
+		if (AnalysisResult.WIN == moveAnalysis.score || AnalysisResult.isDraw(moveAnalysis.score)) {
+			wonAndDrawnMoves.put(move, analysis);
+		} else if (AnalysisResult.LOSS == moveAnalysis.score) {
+			lostMoves.put(move, analysis);
+		}
+	}
+
+	public int getPlayer() {
+		return player;
 	}
 
 	public void searchCompleted() {
@@ -62,11 +74,11 @@ public class AnalysisResult<M> {
 	}
 
 	public synchronized AnalysisResult<M> mergeWith(AnalysisResult<M> resultToMerge) {
-		AnalysisResult<M> mergedResult = new AnalysisResult<>();
+		AnalysisResult<M> mergedResult = new AnalysisResult<>(player);
 		Map<M, MoveAnalysis> mergedMoveMap = new HashMap<>(allValidMoves);
 		mergedMoveMap.putAll(resultToMerge.allValidMoves);
 		for (Entry<M, MoveAnalysis> moveWithScore : mergedMoveMap.entrySet()) {
-			mergedResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue().score);
+			mergedResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue());
 		}
 		return mergedResult;
 	}
@@ -75,11 +87,11 @@ public class AnalysisResult<M> {
 		return new LinkedHashMap<>(allValidMoves);
 	}
 
-	public synchronized AnalyzedMove<M> getBestMove(boolean isCurrentPlayer) {
+	public synchronized AnalyzedMove<M> getBestMove(int currentPlayer) {
 		if (bestMove == null) {
 			return null;
 		}
-		return isDraw(bestMove.analysis.score) && !isDecided() ? new AnalyzedMove<>(bestMove.move, 0.0) : bestMove.transform(isCurrentPlayer);
+		return isDraw(bestMove.analysis.score) && !isDecided() ? new AnalyzedMove<>(bestMove.move, 0.0) : bestMove.transform(player == currentPlayer);
 	}
 
 	public synchronized List<M> getBestMoves() {

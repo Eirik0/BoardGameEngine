@@ -15,7 +15,6 @@ import game.MoveListFactory;
 public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> implements IForkable<M, P> {
 	protected final M parentMove;
 	protected final P position;
-	protected final int player;
 	protected final MoveListFactory<M> moveListFactory;
 	protected final MoveList<M> movesToSearch;
 	protected final AtomicInteger branchIndex;
@@ -29,7 +28,6 @@ public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> impleme
 	public AbstractAlphaBetaSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy) {
 		this.parentMove = parentMove;
 		this.position = (P) position.createCopy();
-		this.player = this.position.getCurrentPlayer();
 		this.movesToSearch = movesToSearch;
 		branchIndex = new AtomicInteger(0);
 		this.moveListFactory = moveListFactory;
@@ -55,11 +53,6 @@ public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> impleme
 	}
 
 	@Override
-	public int getPlayer() {
-		return player;
-	}
-
-	@Override
 	public M getParentMove() {
 		return parentMove;
 	}
@@ -78,7 +71,7 @@ public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> impleme
 	@Override
 	public List<GameTreeSearch<M, P>> fork(IGameTreeSearchJoin<M> parentJoin, AnalysisResult<M> partialResult) {
 		if (partialResult == null) {
-			partialResult = new AnalysisResult<>();
+			partialResult = new AnalysisResult<>(position.getCurrentPlayer());
 		}
 
 		MoveList<M> unanalyzedMoves = movesToSearch.subList(partialResult.getMovesWithScore().size());
@@ -89,7 +82,7 @@ public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> impleme
 		}
 
 		List<GameTreeSearch<M, P>> gameTreeSearches = new ArrayList<>();
-		GameTreeSearchJoin<M, P> forkJoin = new GameTreeSearchJoin<>(parentJoin, parentMove, position, player, strategy, partialResult, expectedResults);
+		GameTreeSearchJoin<M, P> forkJoin = new GameTreeSearchJoin<>(parentJoin, parentMove, position, strategy, partialResult, expectedResults);
 
 		int i = 0;
 		do {

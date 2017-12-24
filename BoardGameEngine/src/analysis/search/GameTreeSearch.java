@@ -29,14 +29,14 @@ public class GameTreeSearch<M, P extends IPosition<M>> {
 	public synchronized void search() {
 		if (!isForkable()) {
 			result = forkable.search();
-			treeSearchJoin.accept(false, forkable.getPlayer(), new MoveWithResult<>(forkable.getParentMove(), result));
+			treeSearchJoin.accept(false, new MoveWithResult<>(forkable.getParentMove(), result));
 		} else if (!forked.get()) {
 			searchStarted = true;
 			result = forkable.search();
 			notify();
 			if (!forked.get()) {
 				joined.set(true);
-				treeSearchJoin.accept(searchCanceled, forkable.getPlayer(), new MoveWithResult<>(forkable.getParentMove(), result));
+				treeSearchJoin.accept(searchCanceled, new MoveWithResult<>(forkable.getParentMove(), result));
 			}
 		}
 	}
@@ -48,10 +48,6 @@ public class GameTreeSearch<M, P extends IPosition<M>> {
 	public void stopSearch() {
 		searchCanceled = true;
 		forkable.stopSearch();
-	}
-
-	public int getPlayer() {
-		return forkable.getPlayer();
 	}
 
 	public M getParentMove() {
@@ -93,7 +89,7 @@ public class GameTreeSearch<M, P extends IPosition<M>> {
 		if (forkable.getRemainingBranches() == 0) {
 			synchronized (this) {
 				if (!joined.getAndSet(true)) {
-					treeSearchJoin.accept(false, forkable.getPlayer(), new MoveWithResult<>(forkable.getParentMove(), result));
+					treeSearchJoin.accept(false, new MoveWithResult<>(forkable.getParentMove(), result));
 				}
 				return Collections.emptyList();
 			}

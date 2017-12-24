@@ -33,7 +33,7 @@ public class MinimaxStrategyTest {
 		MoveList<M> moveList = moveListFactory.newAnalysisMoveList();
 		testGamePosition.getPossibleMoves(moveList);
 		GameTreeSearch<M, P> gameTreeSearch = new GameTreeSearch<>(new MinimaxSearch<>(null, testGamePosition, moveList, moveListFactory, plies, minimaxStrategy),
-				(canceled, player, moveWithResult) -> {
+				(canceled, moveWithResult) -> {
 					synchronized (this) {
 						result.add(moveWithResult.result);
 						notify();
@@ -142,7 +142,7 @@ public class MinimaxStrategyTest {
 		testLockingPosition.getPossibleMoves(moveList);
 		List<AnalysisResult<TestLockingNode>> result = new ArrayList<>();
 		GameTreeSearch<TestLockingNode, TestLockingPosition> gameTreeSearch = new GameTreeSearch<>(new MinimaxSearch<>(null, testLockingPosition, moveList, moveListFactory, 1,
-				new MinimaxStrategy<>(new TestLockingEvaluator(), new MoveListProvider<>(moveListFactory))), (canceled, player, moveWithResult) -> result.add(moveWithResult.result));
+				new MinimaxStrategy<>(new TestLockingEvaluator(), new MoveListProvider<>(moveListFactory))), (canceled, moveWithResult) -> result.add(moveWithResult.result));
 
 		Thread thread = new Thread(() -> gameTreeSearch.search());
 		thread.start();
@@ -181,8 +181,8 @@ public class MinimaxStrategyTest {
 			testGamePosition.unmakeMove(move);
 			++i;
 		}
-		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>();
-		minimaxStrategy.join(testGamePosition, 0, 1, partialResult, movesWithScore);
+		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(testGamePosition.getCurrentPlayer());
+		minimaxStrategy.join(testGamePosition, partialResult, movesWithScore);
 		assertEquals("-1 -> [6, 5]: 25.0\n"
 				+ "-2 -> [4, 3]: 17.0", partialResult.toString());
 	}
@@ -192,11 +192,11 @@ public class MinimaxStrategyTest {
 		TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new TestGameEvaluator(), new MoveListProvider<>(new MoveListFactory<>(2)));
 		Map<TestGameNode, MoveAnalysis> movesWithScore = search(minimaxStrategy, testGamePosition, 4).getMovesWithScore();
-		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>();
+		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(testGamePosition.getCurrentPlayer());
 		for (Entry<TestGameNode, MoveAnalysis> moveWithScore : movesWithScore.entrySet()) {
-			partialResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue().score);
+			partialResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue());
 		}
-		minimaxStrategy.join(testGamePosition, 0, 0, partialResult, Collections.emptyMap());
+		minimaxStrategy.join(testGamePosition, partialResult, Collections.emptyMap());
 		assertEquals("-1 -> [6, 5]: 25.0\n"
 				+ "-2 -> [4, 3]: 17.0", partialResult.toString());
 	}
@@ -207,7 +207,7 @@ public class MinimaxStrategyTest {
 		MinimaxStrategy<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxStrategy<>(new TestGameEvaluator(), new MoveListProvider<>(new MoveListFactory<>(2)));
 
 		Entry<TestGameNode, MoveAnalysis> moveWithScore = search(minimaxStrategy, testGamePosition, 4).getMovesWithScore().entrySet().iterator().next();
-		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(moveWithScore.getKey(), moveWithScore.getValue().score);
+		AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(testGamePosition.getCurrentPlayer(), moveWithScore.getKey(), moveWithScore.getValue().score);
 
 		MoveList<TestGameNode> possibleMoves = new ArrayMoveList<>(2);
 		testGamePosition.getPossibleMoves(possibleMoves);
@@ -218,7 +218,7 @@ public class MinimaxStrategyTest {
 		testGamePosition.unmakeMove(move);
 
 		Map<TestGameNode, AnalysisResult<TestGameNode>> secondResult = Collections.singletonMap(move, score);
-		minimaxStrategy.join(testGamePosition, 0, 1, partialResult, secondResult);
+		minimaxStrategy.join(testGamePosition, partialResult, secondResult);
 		assertEquals("-1 -> [6, 5]: 25.0\n"
 				+ "-2 -> [4, 3]: 17.0", partialResult.toString());
 	}

@@ -205,8 +205,8 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M>> implements IAlpha
 	}
 
 	@Override
-	public void join(P parentPosition, int parentPlayer, int currentPlayer, AnalysisResult<M> partialResult, Map<M, AnalysisResult<M>> movesWithResults) {
-		MinimaxStrategy.joinSearch(parentPlayer, currentPlayer, partialResult, movesWithResults);
+	public void join(P parentPosition, AnalysisResult<M> partialResult, Map<M, AnalysisResult<M>> movesWithResults) {
+		MinimaxStrategy.joinSearch(partialResult, movesWithResults);
 	}
 
 	@Override

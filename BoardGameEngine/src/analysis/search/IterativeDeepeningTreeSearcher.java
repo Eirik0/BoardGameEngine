@@ -50,10 +50,11 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		searchForever(position, Integer.MAX_VALUE, escapeEarly);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void searchForever(P position, int maxPlies, boolean escapeEarly) {
 		searchStopped = true;
 		searchComplete = false;
-		treeSearchThread = new Thread(() -> startSearch(position, maxPlies, escapeEarly), "Tree_Search_Thread_" + ThreadNumber.getThreadNum(getClass()));
+		treeSearchThread = new Thread(() -> startSearch((P) position.createCopy(), maxPlies, escapeEarly), "Tree_Search_Thread_" + ThreadNumber.getThreadNum(getClass()));
 		treeSearchThread.start();
 		synchronized (searchStartedLock) {
 			while (searchStopped && !searchComplete) {
@@ -87,7 +88,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 				// add back decided moves
 				if (result != null) {
 					for (Entry<M, MoveAnalysis> moveWithScore : result.getDecidedMoves().entrySet()) {
-						search.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue().score);
+						search.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue());
 					}
 				}
 				// return the previous result if the current is a loss for longevity
@@ -154,7 +155,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 	}
 
 	public Map<M, MoveAnalysis> getPartialResult() {
-		return treeSearchRoot.getPartialResult();
+		return treeSearchRoot.getPartialResult().getMovesWithScore();
 	}
 
 	private AnalysisResult<M> search(P position, int plies) {
@@ -164,9 +165,9 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		position.getPossibleMoves(searchMoveList);
 
 		IForkable<M, P> forkableSearch = strategy.newForkableSearch(null, position, searchMoveList, moveListFactory, plies);
-		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(forkableSearch, (canceled, player, moveWithResult) -> resultTransfer.putResult(moveWithResult.result));
+		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(forkableSearch, (canceled, moveWithResult) -> resultTransfer.putResult(moveWithResult.result));
 
-		treeSearchRoot = new TreeSearchRoot<>(rootTreeSearch);
+		treeSearchRoot = new TreeSearchRoot<>(rootTreeSearch, position.getCurrentPlayer());
 		treeSearchesToAnalyze.addAll(treeSearchRoot.getBranches());
 
 		int removeIndex = 0;
@@ -181,7 +182,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		}
 
 		if (searchStopped) {
-			return new AnalysisResult<>();
+			return new AnalysisResult<>(position.getCurrentPlayer());
 		}
 
 		synchronized (this) { // To prevent workers from completing before we have finished assigning work

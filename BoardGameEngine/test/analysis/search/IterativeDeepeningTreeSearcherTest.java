@@ -22,7 +22,7 @@ public class IterativeDeepeningTreeSearcherTest {
 		Thread.sleep(50);
 		iterativeDeepeningStrategy.stopSearch(true);
 		AnalysisResult<Coordinate> result = iterativeDeepeningStrategy.getResult();
-		System.out.println(numThreads + " workers, plies: " + iterativeDeepeningStrategy.getPlies() + ", bestMove = " + result.getBestMove(true).toString());
+		System.out.println(numThreads + " workers, plies: " + iterativeDeepeningStrategy.getPlies() + ", bestMove = " + result.getBestMove(result.getPlayer()).toString());
 	}
 
 	@Test

@@ -80,19 +80,19 @@ public class MinimaxStrategy<M, P extends IPosition<M>> implements IAlphaBetaStr
 	}
 
 	@Override
-	public void join(P parentPosition, int parentPlayer, int currentPlayer, AnalysisResult<M> partialResult, Map<M, AnalysisResult<M>> movesWithResults) {
-		joinSearch(parentPlayer, currentPlayer, partialResult, movesWithResults);
+	public void join(P parentPosition, AnalysisResult<M> partialResult, Map<M, AnalysisResult<M>> movesWithResults) {
+		joinSearch(partialResult, movesWithResults);
 	}
 
-	public static <M> void joinSearch(int parentPlayer, int currentPlayer, AnalysisResult<M> partialResult, Map<M, AnalysisResult<M>> movesWithResults) {
+	public static <M> void joinSearch(AnalysisResult<M> partialResult, Map<M, AnalysisResult<M>> movesWithResults) {
 		for (Entry<M, AnalysisResult<M>> moveWithResult : movesWithResults.entrySet()) {
 			M move = moveWithResult.getKey();
 			AnalysisResult<M> result = moveWithResult.getValue();
-			AnalyzedMove<M> moveWithScore = result.getBestMove(parentPlayer == currentPlayer);
+			AnalyzedMove<M> moveWithScore = result.getBestMove(partialResult.getPlayer());
 			if (moveWithScore == null) {
 				continue;
 			}
-			partialResult.addMoveWithScore(move, moveWithScore.analysis.score, result.isSearchComplete());
+			partialResult.addMoveWithScore(move, moveWithScore.analysis, result.isSearchComplete());
 		}
 	}
 
