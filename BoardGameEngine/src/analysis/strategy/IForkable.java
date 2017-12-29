@@ -8,7 +8,7 @@ import analysis.search.IGameTreeSearchJoin;
 import game.IPosition;
 
 public interface IForkable<M, P extends IPosition<M>> {
-	public AnalysisResult<M> search();
+	public AnalysisResult<M> search(IGameTreeSearchJoin<M> join);
 
 	public void stopSearch();
 

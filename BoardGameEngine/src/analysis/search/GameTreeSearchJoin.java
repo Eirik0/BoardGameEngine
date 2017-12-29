@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import analysis.AnalysisResult;
+import analysis.AnalyzedMove;
 import analysis.strategy.IDepthBasedStrategy;
 import game.IPosition;
 
@@ -18,6 +19,7 @@ public class GameTreeSearchJoin<M, P extends IPosition<M>> implements IGameTreeS
 	private final int expectedResults;
 
 	private final Map<M, AnalysisResult<M>> movesWithResults;
+	private final AnalysisResult<M> remainderResult;
 
 	private final AtomicBoolean parentAwaitingJoin = new AtomicBoolean(true);
 
@@ -30,11 +32,16 @@ public class GameTreeSearchJoin<M, P extends IPosition<M>> implements IGameTreeS
 		this.partialResult = partialResult;
 		this.expectedResults = expectedResults;
 		movesWithResults = new LinkedHashMap<>();
+		remainderResult = new AnalysisResult<M>(partialResult.getPlayer()).mergeWith(partialResult);
 	}
 
 	@Override
 	public synchronized void accept(boolean searchCanceled, MoveWithResult<M> moveWithResult) {
 		movesWithResults.put(moveWithResult.move, moveWithResult.result);
+		AnalyzedMove<M> bestMove = moveWithResult.result.getBestMove(remainderResult.getPlayer());
+		if (bestMove != null) {
+			remainderResult.addMoveWithScore(moveWithResult.move, bestMove.analysis);
+		}
 		if (searchCanceled || !moveWithResult.result.isSearchComplete()) {
 			joinParent(searchCanceled);
 		} else if (movesWithResults.size() == expectedResults) {
@@ -48,5 +55,15 @@ public class GameTreeSearchJoin<M, P extends IPosition<M>> implements IGameTreeS
 			strategy.join(parentPosition, partialResult, movesWithResults);
 			parentJoin.accept(searchCanceled, new MoveWithResult<>(parentMove, partialResult));
 		}
+	}
+
+	@Override
+	public synchronized AnalysisResult<M> getPartialResult() {
+		return remainderResult;
+	}
+
+	@Override
+	public IGameTreeSearchJoin<M> getParent() {
+		return parentJoin;
 	}
 }

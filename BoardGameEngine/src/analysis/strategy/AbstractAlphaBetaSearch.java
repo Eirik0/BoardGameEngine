@@ -38,13 +38,13 @@ public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> impleme
 	protected abstract AbstractAlphaBetaSearch<M, P> newSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies, IDepthBasedStrategy<M, P> strategy);
 
 	@Override
-	public AnalysisResult<M> search() {
-		return isForkable() ? searchWithStrategy() : searchNonForkable();
+	public AnalysisResult<M> search(IGameTreeSearchJoin<M> join) {
+		return isForkable() ? searchWithStrategy(join) : searchNonForkable(join);
 	}
 
-	protected abstract AnalysisResult<M> searchNonForkable();
+	protected abstract AnalysisResult<M> searchNonForkable(IGameTreeSearchJoin<M> join);
 
-	protected abstract AnalysisResult<M> searchWithStrategy();
+	protected abstract AnalysisResult<M> searchWithStrategy(IGameTreeSearchJoin<M> join);
 
 	@Override
 	public void stopSearch() {
@@ -69,12 +69,12 @@ public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> impleme
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<GameTreeSearch<M, P>> fork(IGameTreeSearchJoin<M> parentJoin, AnalysisResult<M> partialResult) {
+	public synchronized List<GameTreeSearch<M, P>> fork(IGameTreeSearchJoin<M> parentJoin, AnalysisResult<M> partialResult) {
 		if (partialResult == null) {
 			partialResult = new AnalysisResult<>(position.getCurrentPlayer());
 		}
 
-		MoveList<M> unanalyzedMoves = movesToSearch.subList(partialResult.getMovesWithScore().size());
+		MoveList<M> unanalyzedMoves = movesToSearch.subList(branchIndex.get());
 		int expectedResults = unanalyzedMoves.size();
 
 		if (strategy instanceof ForkJoinObserver<?>) {

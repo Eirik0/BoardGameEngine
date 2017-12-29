@@ -1,7 +1,12 @@
 package analysis.strategy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import analysis.AnalysisResult;
+import analysis.AnalyzedMove;
 import analysis.MoveAnalysis;
+import analysis.search.IGameTreeSearchJoin;
 import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
@@ -17,14 +22,14 @@ public class AlphaBetaSearch<M, P extends IPosition<M>> extends AbstractAlphaBet
 	}
 
 	@Override
-	protected AnalysisResult<M> searchNonForkable() {
+	protected synchronized AnalysisResult<M> searchNonForkable(IGameTreeSearchJoin<M> join) {
 		AnalysisResult<M> result = new AnalysisResult<>(position.getCurrentPlayer(), parentMove, strategy.evaluate(position, plies));
 		result.searchCompleted();
 		return result;
 	}
 
 	@Override
-	protected AnalysisResult<M> searchWithStrategy() {
+	protected synchronized AnalysisResult<M> searchWithStrategy(IGameTreeSearchJoin<M> join) {
 		int parentPlayer = position.getCurrentPlayer();
 		double alpha = Double.NEGATIVE_INFINITY;
 		double beta = Double.POSITIVE_INFINITY;

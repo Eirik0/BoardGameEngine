@@ -28,11 +28,11 @@ public class GameTreeSearch<M, P extends IPosition<M>> {
 
 	public synchronized void search() {
 		if (!isForkable()) {
-			result = forkable.search();
+			result = forkable.search(treeSearchJoin);
 			treeSearchJoin.accept(false, new MoveWithResult<>(forkable.getParentMove(), result));
 		} else if (!forked.get()) {
 			searchStarted = true;
-			result = forkable.search();
+			result = forkable.search(treeSearchJoin);
 			notify();
 			if (!forked.get()) {
 				joined.set(true);

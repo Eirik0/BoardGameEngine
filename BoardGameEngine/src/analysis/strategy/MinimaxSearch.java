@@ -2,6 +2,7 @@ package analysis.strategy;
 
 import analysis.AnalysisResult;
 import analysis.MoveAnalysis;
+import analysis.search.IGameTreeSearchJoin;
 import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
@@ -17,14 +18,14 @@ public class MinimaxSearch<M, P extends IPosition<M>> extends AbstractAlphaBetaS
 	}
 
 	@Override
-	protected AnalysisResult<M> searchNonForkable() {
+	protected synchronized AnalysisResult<M> searchNonForkable(IGameTreeSearchJoin<M> join) {
 		AnalysisResult<M> result = new AnalysisResult<>(position.getCurrentPlayer(), parentMove, strategy.evaluate(position, plies));
 		result.searchCompleted();
 		return result;
 	}
 
 	@Override
-	protected AnalysisResult<M> searchWithStrategy() {
+	protected synchronized AnalysisResult<M> searchWithStrategy(IGameTreeSearchJoin<M> join) {
 		int parentPlayer = position.getCurrentPlayer();
 		AnalysisResult<M> analysisResult = new AnalysisResult<>(parentPlayer);
 		do {

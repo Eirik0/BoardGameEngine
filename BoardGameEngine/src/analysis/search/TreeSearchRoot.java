@@ -1,5 +1,6 @@
 package analysis.search;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +27,8 @@ public class TreeSearchRoot<M, P extends IPosition<M>> {
 		if (rootTreeSearch.isForkable()) {
 			branches = rootTreeSearch.fork();
 		} else {
-			branches = Collections.singletonList(rootTreeSearch);
+			branches = new ArrayList<>();
+			branches.add(rootTreeSearch);
 		}
 	}
 
