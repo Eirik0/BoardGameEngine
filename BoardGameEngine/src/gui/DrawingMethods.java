@@ -2,8 +2,8 @@ package gui;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
 import main.BoardGameEngineMain;
 
@@ -28,16 +28,16 @@ public interface DrawingMethods {
 
 	public default void drawCenteredString(Graphics2D g, Font font, String text, double x, double y) {
 		g.setFont(font);
-		FontMetrics metrics = g.getFontMetrics();
-		double height = metrics.getHeight();
-		double width = metrics.stringWidth(text);
-		g.drawString(text, round(x - width / 2), round(y + height / 3));
+		Rectangle glyphVector = g.getFont().createGlyphVector(g.getFontRenderContext(), text).getPixelBounds(null, 0, 0);
+		double width = glyphVector.getWidth();
+		double height = glyphVector.getHeight();
+		g.drawString(text, round(x - width / 2), round(y + height / 2));
 	}
 
 	public default void drawCenteredYString(Graphics2D g, String text, double x, double y) {
-		FontMetrics metrics = g.getFontMetrics();
-		double height = metrics.getHeight();
-		g.drawString(text, round(x), round(y + height / 3));
+		Rectangle glyphVector = g.getFont().createGlyphVector(g.getFontRenderContext(), text).getPixelBounds(null, 0, 0);
+		double height = glyphVector.getHeight();
+		g.drawString(text, round(x), round(y + height / 2));
 	}
 
 	public default void drawCircle(Graphics2D g, double x, double y, double radius) {

@@ -17,10 +17,12 @@ import gui.gamestate.IGameRenderer;
 import main.BoardGameEngineMain;
 
 public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, UltimateTicTacToePosition> {
-	private static final Color WOOD_COLOR = new Color(166, 128, 100);
+	private static final Color WOOD_COLOR = new Color(206, 168, 140);
 
 	private BoardSizer sizer;
-	private double smallBoardWidth = 0;
+	private double smallBoardWidth;
+	private Font smallFont;
+	private Font largeFont;
 
 	@Override
 	public void initializeAndDrawBoard(Graphics2D g) {
@@ -28,21 +30,13 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 		int imageHeight = GameGuiManager.getComponentHeight();
 
 		sizer = new BoardSizer(imageWidth, imageHeight, UltimateTicTacToePosition.BOARD_WIDTH);
-
 		smallBoardWidth = sizer.boardWidth / 3.0;
+		smallFont = new Font(Font.MONOSPACED, Font.BOLD, round(sizer.cellWidth * 0.75));
+		largeFont = new Font(Font.MONOSPACED, Font.BOLD, round(sizer.cellWidth * 4));
 
 		fillRect(g, 0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
 
 		fillRect(g, sizer.offsetX, sizer.offsetY, sizer.boardWidth, sizer.boardWidth, WOOD_COLOR);
-
-		g.setColor(Color.BLACK);
-		drawBoard(g, sizer.offsetX, sizer.offsetY, sizer.boardWidth, sizer.cellWidth * 0.05, 4);
-
-		for (int x = 0; x < 3; ++x) {
-			for (int y = 0; y < 3; ++y) {
-				drawBoard(g, sizer.offsetX + smallBoardWidth * x, sizer.offsetY + smallBoardWidth * y, smallBoardWidth, sizer.cellWidth * 0.1, 3);
-			}
-		}
 	}
 
 	public static void drawBoard(Graphics g, double x0, double y0, double width, double padding, int lineThickness) {
@@ -62,34 +56,10 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 
 	@Override
 	public void drawPosition(Graphics2D g, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves, Coordinate lastMove) {
-		drawMoves(g, position, lastMove);
 		highlightBoardInPlay(g, position, possibleMoves);
+		drawBoards(g);
+		drawMoves(g, position, lastMove);
 		drawMouseOn(g, possibleMoves);
-	}
-
-	private void drawMoves(Graphics2D g, UltimateTicTacToePosition position, Coordinate lastMove) {
-		Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, round(sizer.cellWidth * 0.33));
-		for (int n = 0; n < UltimateTicTacToePosition.BOARD_WIDTH; ++n) {
-			for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
-				int playerInt = (position.boards[n] >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
-				if (playerInt != TwoPlayers.UNPLAYED) {
-					Coordinate boardXY = UltimateTicTacToeUtilities.getBoardXY(n, m);
-					g.setColor(lastMove != null && n == lastMove.x && m == lastMove.y ? Color.WHITE : Color.BLACK);
-					String player = playerInt == TwoPlayers.PLAYER_1 ? "X" : "O";
-					drawCenteredString(g, smallFont, player, sizer.getCenterX(boardXY.x), sizer.getCenterY(boardXY.y));
-				}
-			}
-		}
-		Font largeFont = new Font(Font.SANS_SERIF, Font.PLAIN, round(sizer.cellWidth * 3));
-		for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
-			int wonBoardsInt = (position.wonBoards >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
-			if (wonBoardsInt != TwoPlayers.UNPLAYED) {
-				g.setColor(lastMove != null && lastMove.x == m ? Color.WHITE : Color.BLACK);
-				String player = wonBoardsInt == TwoPlayers.PLAYER_1 ? "X" : "O";
-				Coordinate intersection = UltimateTicTacToeUtilities.getBoardXY(m, 4); // 4 = the center square of that board
-				drawCenteredString(g, largeFont, player, sizer.getCenterX(intersection.x), sizer.getCenterY(intersection.y));
-			}
-		}
 	}
 
 	private void highlightBoardInPlay(Graphics2D g, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves) {
@@ -97,16 +67,58 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 			return;
 		}
 		// draw the current board in play
-		g.setColor(Color.BLUE);
-		double padding = sizer.cellWidth * 0.05;
+		g.setColor(getHighlightColor(position.getCurrentPlayer()));
 		if (position.currentBoard == UltimateTicTacToePosition.ANY_BOARD) {
-			int highlightWidth = round(sizer.boardWidth - 1.5 * padding);
-			g.drawRect(round(sizer.offsetX + padding), round(sizer.offsetY + padding), highlightWidth, highlightWidth);
+			int highlightWidth = round(sizer.boardWidth - 1.5);
+			g.fillRect(round(sizer.offsetX), round(sizer.offsetY), highlightWidth, highlightWidth);
 		} else {
 			Coordinate boardXY = UltimateTicTacToeUtilities.getBoardXY(position.currentBoard, 0); // 0 = upper left square
-			int highlightWidth = round(smallBoardWidth - 2 * padding);
-			g.drawRect(round(sizer.getSquareCornerX(boardXY.x) + padding), round(sizer.getSquareCornerY(boardXY.y) + padding), highlightWidth, highlightWidth);
+			int highlightWidth = round(smallBoardWidth - 2);
+			g.fillRect(round(sizer.getSquareCornerX(boardXY.x)), round(sizer.getSquareCornerY(boardXY.y)), highlightWidth, highlightWidth);
 		}
+	}
+
+	public Color getHighlightColor(int currentPlayer) {
+		return currentPlayer == TwoPlayers.PLAYER_1 ? new Color(220, 220, 255) : new Color(255, 220, 220);
+	}
+
+	private void drawBoards(Graphics2D g) {
+		g.setColor(Color.BLACK);
+		drawBoard(g, sizer.offsetX, sizer.offsetY, sizer.boardWidth, sizer.cellWidth * 0.05, 4);
+
+		for (int x = 0; x < 3; ++x) {
+			for (int y = 0; y < 3; ++y) {
+				drawBoard(g, sizer.offsetX + smallBoardWidth * x, sizer.offsetY + smallBoardWidth * y, smallBoardWidth, sizer.cellWidth * 0.1, 3);
+			}
+		}
+	}
+
+	private void drawMoves(Graphics2D g, UltimateTicTacToePosition position, Coordinate lastMove) {
+		for (int n = 0; n < UltimateTicTacToePosition.BOARD_WIDTH; ++n) {
+			for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
+				int playerInt = (position.boards[n] >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
+				if (playerInt != TwoPlayers.UNPLAYED) {
+					Coordinate boardXY = UltimateTicTacToeUtilities.getBoardXY(n, m);
+					g.setColor(getPlayerColor(playerInt, lastMove != null && n == lastMove.x && m == lastMove.y));
+					String player = playerInt == TwoPlayers.PLAYER_1 ? "X" : "O";
+					drawCenteredString(g, smallFont, player, sizer.getCenterX(boardXY.x), sizer.getCenterY(boardXY.y));
+				}
+			}
+		}
+		for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
+			int wonBoardsInt = (position.wonBoards >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
+			if (wonBoardsInt != TwoPlayers.UNPLAYED) {
+				String player = wonBoardsInt == TwoPlayers.PLAYER_1 ? "X" : "O";
+				g.setColor(getPlayerColor(wonBoardsInt, lastMove != null && lastMove.x == m));
+				Coordinate intersection = UltimateTicTacToeUtilities.getBoardXY(m, 4); // 4 = the center square of that board
+				drawCenteredString(g, largeFont, player, sizer.getCenterX(intersection.x), sizer.getCenterY(intersection.y));
+			}
+		}
+	}
+
+	private static Color getPlayerColor(int player, boolean lastMove) {
+		Color color = player == TwoPlayers.PLAYER_1 ? Color.BLUE : Color.RED;
+		return lastMove ? color.darker().darker() : color;
 	}
 
 	private void drawMouseOn(Graphics g, MoveList<Coordinate> possibleMoves) {

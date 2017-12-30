@@ -58,20 +58,4 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<Co
 					- WINS_PER_BOARD * opponentAcualWins - totalOpponentPossibleWins;
 		}
 	}
-
-	public boolean isQuiescent(UltimateTicTacToePosition position) {
-		if (position.currentBoard == -1) {
-			return true;
-		}
-		int board = position.boards[position.currentBoard];
-		int currentPlayer = position.currentPlayer;
-		int m = 0;
-		do {
-			if ((board & TicTacToeUtilities.POS[m]) == TwoPlayers.UNPLAYED && TicTacToeUtilities.winExists(board | TicTacToeUtilities.PLAYER_POS[currentPlayer][m], position.currentPlayer)) {
-				return false;
-			}
-			++m;
-		} while (m < UltimateTicTacToePosition.BOARD_WIDTH);
-		return true;
-	}
 }
