@@ -161,8 +161,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 	private AnalysisResult<M> search(P position, int plies) {
 		ResultTransfer<M> resultTransfer = new ResultTransfer<>();
 
-		MoveList<M> searchMoveList = new SearchMoveList<>(moveListFactory.newAnalysisMoveList(), result == null ? Collections.emptySet() : result.getDecidedMoves().keySet());
-		position.getPossibleMoves(searchMoveList);
+		MoveList<M> searchMoveList = buildMoveList(position);
 
 		IForkable<M, P> forkableSearch = strategy.newForkableSearch(null, position, searchMoveList, moveListFactory, plies);
 		GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(forkableSearch, (canceled, moveWithResult) -> resultTransfer.putResult(moveWithResult.result));
@@ -194,6 +193,27 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		AnalysisResult<M> result = resultTransfer.awaitResult();
 		waitForAvailableWorkers(); // All workers must become available before we return
 		return result;
+	}
+
+	private MoveList<M> buildMoveList(P position) {
+		MoveList<M> searchMoveList;
+		if (result == null) {
+			searchMoveList = moveListFactory.newAnalysisMoveList();
+			position.getPossibleMoves(searchMoveList);
+		} else {
+			List<Entry<M, MoveAnalysis>> undecidedMoves = new ArrayList<>();
+			for (Entry<M, MoveAnalysis> moveWithScore : result.getMovesWithScore().entrySet()) {
+				if (!AnalysisResult.isGameOver(moveWithScore.getValue().score)) {
+					undecidedMoves.add(moveWithScore);
+				}
+			}
+			Collections.sort(undecidedMoves, (m1, m2) -> Double.compare(m2.getValue().score, m1.getValue().score));
+			searchMoveList = moveListFactory.newArrayMoveList();
+			for (Entry<M, MoveAnalysis> entry : undecidedMoves) {
+				searchMoveList.addQuietMove(entry.getKey(), position);
+			}
+		}
+		return searchMoveList;
 	}
 
 	private synchronized void waitForAvailableWorkers() {
