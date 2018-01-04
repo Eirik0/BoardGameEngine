@@ -52,6 +52,9 @@ public class TreeSearchRoot<M, P extends IPosition<M>> {
 			AnalysisResult<M> branchResult = branch.getResult();
 			if (branchResult != null && branchResult.isSearchComplete()) {
 				AnalyzedMove<M> bestMove = branchResult.getBestMove(partialResult.getPlayer());
+				if (bestMove == null) {
+					continue;
+				}
 				partialResult.addMoveWithScore(branch.getParentMove(), bestMove.analysis);
 				branchIterator.remove();
 			}

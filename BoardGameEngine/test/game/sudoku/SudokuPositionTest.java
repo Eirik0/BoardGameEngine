@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import game.IPosition;
 import game.chess.ChessPositionPerfTest;
 
 public class SudokuPositionTest {
@@ -24,12 +25,12 @@ public class SudokuPositionTest {
 		countPos(new SudokuPosition(), 2, 342802044);
 	}
 
-	private static void countPos(SudokuPosition position, int depth, long expectedPositions) {
+	public static <M> void countPos(IPosition<M> position, int depth, long expectedPositions) {
 		long startPos = System.currentTimeMillis();
 		long countPositions = ChessPositionPerfTest.countPositions(position, depth);
 		long posTime = System.currentTimeMillis() - startPos;
 		long posPerSec = (long) (((double) countPositions / posTime) * 1000);
-		System.out.println("Sudoku; D" + (depth + 1) + " " + countPositions + ", " + posTime + "ms, pps= " + posPerSec);
+		System.out.println(position.getClass().getSimpleName() + "; D" + (depth + 1) + " " + countPositions + ", " + posTime + "ms, pps= " + posPerSec);
 		assertEquals(expectedPositions, countPositions);
 	}
 }

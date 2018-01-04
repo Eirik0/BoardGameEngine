@@ -75,12 +75,12 @@ public class BoardGameEngineMain {
 
 		GameGuiManager.setGameState(new MainMenuState());
 
-		mainFrame.pack();
-
-		mainPanel.gamePanel.addToGameLoop("Game");
-		FixedDurationGameLoop.startLoop();
-
 		SwingUtilities.invokeLater(() -> {
+			mainFrame.pack();
+
+			mainPanel.gamePanel.addToGameLoop("Game");
+			FixedDurationGameLoop.startLoop();
+
 			mainFrame.setLocationRelativeTo(null);
 			mainFrame.setVisible(true);
 			mainPanel.gamePanel.requestFocus();

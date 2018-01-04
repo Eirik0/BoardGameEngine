@@ -41,11 +41,14 @@ public class TicTacToeUtilities {
 	public static final int PLAYER_2_POS_7 = PLAYER_2_ALL_POS & POS_7;
 	public static final int PLAYER_2_POS_8 = PLAYER_2_ALL_POS & POS_8;
 
-	public static final int[][] PLAYER_POS = new int[][] {
-			{},
-			{ PLAYER_1_POS_0, PLAYER_1_POS_1, PLAYER_1_POS_2, PLAYER_1_POS_3, PLAYER_1_POS_4, PLAYER_1_POS_5, PLAYER_1_POS_6, PLAYER_1_POS_7, PLAYER_1_POS_8 },
-			{ PLAYER_2_POS_0, PLAYER_2_POS_1, PLAYER_2_POS_2, PLAYER_2_POS_3, PLAYER_2_POS_4, PLAYER_2_POS_5, PLAYER_2_POS_6, PLAYER_2_POS_7, PLAYER_2_POS_8 }
+	private static final int[] PLAYER_POS = {
+			PLAYER_1_POS_0, PLAYER_1_POS_1, PLAYER_1_POS_2, PLAYER_1_POS_3, PLAYER_1_POS_4, PLAYER_1_POS_5, PLAYER_1_POS_6, PLAYER_1_POS_7, PLAYER_1_POS_8,
+			PLAYER_2_POS_0, PLAYER_2_POS_1, PLAYER_2_POS_2, PLAYER_2_POS_3, PLAYER_2_POS_4, PLAYER_2_POS_5, PLAYER_2_POS_6, PLAYER_2_POS_7, PLAYER_2_POS_8
 	};
+
+	public static final int getPlayerAtPosition(int player, int pos) {
+		return PLAYER_POS[player == TwoPlayers.PLAYER_1 ? pos : pos + 9];
+	}
 
 	public static boolean winExists(int board, int player) {
 		boolean has0 = ((board >> 0) & player) == player;

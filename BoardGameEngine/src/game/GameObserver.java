@@ -21,7 +21,7 @@ public class GameObserver<M> {
 	}
 
 	public void notifyPositionChanged(PositionChangedInfo<M> positionChangedInfo) {
-		positionChangedConsumer.accept(positionChangedInfo);
+		executeAction(() -> positionChangedConsumer.accept(positionChangedInfo));
 	}
 
 	public void setGameRunningAction(Runnable gameRunningRunnable) {
@@ -29,7 +29,7 @@ public class GameObserver<M> {
 	}
 
 	public void notifyGameRunning() {
-		gameRunningRunnable.run();
+		executeAction(gameRunningRunnable);
 	}
 
 	public void setGamePausedAction(Consumer<Boolean> gamePausedConsumer) {
@@ -37,6 +37,10 @@ public class GameObserver<M> {
 	}
 
 	public void notifyGamePaused(boolean gameEnded) {
-		gamePausedConsumer.accept(Boolean.valueOf(gameEnded));
+		executeAction(() -> gamePausedConsumer.accept(Boolean.valueOf(gameEnded)));
+	}
+
+	private synchronized static void executeAction(Runnable runnable) {
+		runnable.run();
 	}
 }

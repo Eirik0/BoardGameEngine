@@ -18,6 +18,15 @@ public class ForkJoinMoveList implements MoveList<ForkJoinExampleNode> {
 	}
 
 	@Override
+	public void addAllDynamicMoves(ForkJoinExampleNode[] moves, IPosition<ForkJoinExampleNode> position) {
+		int i = 0;
+		while (i < moves.length) {
+			addDynamicMove(moves[i], position);
+			++i;
+		}
+	}
+
+	@Override
 	public void addQuietMove(ForkJoinExampleNode move, IPosition<ForkJoinExampleNode> position) {
 		ForkJoinExampleThreadTracker.branchVisited(move.getParent(), move, ForkJoinExampleThreadTracker.SLEEP_PER_BRANCH);
 		arrayMoveList.addQuietMove(move, position);

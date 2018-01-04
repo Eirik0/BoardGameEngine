@@ -13,6 +13,7 @@ import game.ArrayMoveList;
 import game.Coordinate;
 import game.MoveList;
 import game.TwoPlayers;
+import game.sudoku.SudokuPositionTest;
 import game.tictactoe.TicTacToeUtilities;
 
 public class UltimateTicTacToePositionTest {
@@ -82,5 +83,12 @@ public class UltimateTicTacToePositionTest {
 		position.makeMove(Coordinate.valueOf(5, 6));
 		position.makeMove(Coordinate.valueOf(6, 4));
 		assertEquals(UltimateTicTacToePosition.ANY_BOARD, position.currentBoard);
+	}
+
+	@Test
+	public void testCountPossibleMoves() {
+		SudokuPositionTest.countPos(new UltimateTicTacToePosition(), 0, 81);
+		SudokuPositionTest.countPos(new UltimateTicTacToePosition(), 1, 720);
+		SudokuPositionTest.countPos(new UltimateTicTacToePosition(), 5, 4020960);
 	}
 }

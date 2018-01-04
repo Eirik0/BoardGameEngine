@@ -128,9 +128,13 @@ public class GameRegistry {
 		}
 
 		public GameRegistryItem<M, P> registerMinimaxStrategies(IPositionEvaluator<M, P> positionEvaluator) {
-			registerStrategy("AlphaBetaQ", () -> new AlphaBetaQStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)));
-			registerStrategy("AlphaBeta", () -> new AlphaBetaStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)));
-			registerStrategy("MinMax", () -> new MinimaxStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)));
+			return registerMinimaxStrategies(positionEvaluator, null);
+		}
+
+		public GameRegistryItem<M, P> registerMinimaxStrategies(IPositionEvaluator<M, P> positionEvaluator, String name) {
+			registerStrategy("AlphaBetaQ" + (name == null ? "" : "_" + name), () -> new AlphaBetaQStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)));
+			registerStrategy("AlphaBeta" + (name == null ? "" : "_" + name), () -> new AlphaBetaStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)));
+			registerStrategy("MinMax" + (name == null ? "" : "_" + name), () -> new MinimaxStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)));
 			return this;
 		}
 	}

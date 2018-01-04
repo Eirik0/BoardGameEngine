@@ -25,6 +25,12 @@ public class ArrayMoveList<M> implements MoveList<M> {
 	}
 
 	@Override
+	public void addAllDynamicMoves(M[] moves, IPosition<M> position) {
+		System.arraycopy(moves, 0, dynamicMoveArray, dynamicArraySize, moves.length);
+		dynamicArraySize += moves.length;
+	}
+
+	@Override
 	public void addQuietMove(M move, IPosition<M> position) {
 		quietMoveArray[quietArraySize++] = move;
 	}

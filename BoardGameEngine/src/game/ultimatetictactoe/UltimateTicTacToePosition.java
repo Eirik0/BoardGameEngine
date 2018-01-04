@@ -41,7 +41,7 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate> {
 
 	@Override
 	public void getPossibleMoves(MoveList<Coordinate> possibleMoves) {
-		if (TicTacToeUtilities.winExists(wonBoards, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
+		if (UTTTConstants.winExists(wonBoards, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
 			return;
 		}
 		if (currentBoard == ANY_BOARD) {
@@ -58,17 +58,17 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate> {
 	}
 
 	private void addMovesFromBoard(MoveList<Coordinate> possibleMoves, int boardNum) {
-		int board = boards[boardNum];
-		int m = 0;
-		while (m < BOARD_WIDTH) {
-			if ((board & TicTacToeUtilities.POS[m]) == TwoPlayers.UNPLAYED) {
-				if (TicTacToeUtilities.winExists(board | TicTacToeUtilities.PLAYER_POS[currentPlayer][m], currentPlayer)) {
-					possibleMoves.addDynamicMove(Coordinate.valueOf(boardNum, m), this);
-				} else {
-					possibleMoves.addQuietMove(Coordinate.valueOf(boardNum, m), this);
-				}
-			}
-			++m;
+		int[] dynamicMoves = UTTTConstants.getDynamicMoves(boards[boardNum], currentPlayer);
+		int i = 0;
+		while (i < dynamicMoves.length) {
+			possibleMoves.addDynamicMove(Coordinate.valueOf(boardNum, dynamicMoves[i]), this);
+			++i;
+		}
+		int[] quietMoves = UTTTConstants.getQuietMoves(boards[boardNum], currentPlayer);
+		i = 0;
+		while (i < quietMoves.length) {
+			possibleMoves.addQuietMove(Coordinate.valueOf(boardNum, quietMoves[i]), this);
+			++i;
 		}
 	}
 
@@ -83,16 +83,15 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate> {
 
 		int boardNum = move.x;
 		int position = move.y;
-		boards[boardNum] |= TicTacToeUtilities.PLAYER_POS[currentPlayer][position];
-		if (TicTacToeUtilities.winExists(boards[boardNum], currentPlayer)) {
-			wonBoards |= TicTacToeUtilities.PLAYER_POS[currentPlayer][boardNum];
+		boards[boardNum] |= TicTacToeUtilities.getPlayerAtPosition(currentPlayer, position);
+		if (UTTTConstants.winExists(boards[boardNum], currentPlayer)) {
+			wonBoards |= TicTacToeUtilities.getPlayerAtPosition(currentPlayer, boardNum);
 		}
 
 		// Check if the new board is won
 		if ((wonBoards & TicTacToeUtilities.POS[position]) == TwoPlayers.UNPLAYED) { // not won
 			int boardToCheck = boards[position];
-			boolean isFull = (((boardToCheck << 1) | boardToCheck) & TicTacToeUtilities.PLAYER_2_ALL_POS) == TicTacToeUtilities.PLAYER_2_ALL_POS;
-			if (isFull) {
+			if ((((boardToCheck << 1) | boardToCheck) & TicTacToeUtilities.PLAYER_2_ALL_POS) == TicTacToeUtilities.PLAYER_2_ALL_POS) {
 				fullBoards |= TicTacToeUtilities.POS[boardNum];
 				currentBoard = ANY_BOARD;
 			} else {
