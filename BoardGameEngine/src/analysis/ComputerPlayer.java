@@ -2,14 +2,10 @@ package analysis;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
-import analysis.search.IterativeDeepeningTreeSearcher;
-import analysis.strategy.IDepthBasedStrategy;
 import game.IPlayer;
 import game.IPosition;
-import game.MoveListFactory;
 import gui.analysis.ComputerPlayerResult;
 
 public class ComputerPlayer implements IPlayer {
@@ -17,15 +13,14 @@ public class ComputerPlayer implements IPlayer {
 
 	private final String strategyName;
 
-	private final IterativeDeepeningTreeSearcher<?, ?> treeSearcher;
+	private final ITreeSearcher<?, ?> treeSearcher;
 	private final int numWorkers;
 	private final long msPerMove;
 	private final boolean escapeEarly;
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ComputerPlayer(String strategyName, IDepthBasedStrategy<?, ?> strategy, MoveListFactory<?> moveListFactory, int numWorkers, long msPerMove, boolean escapeEarly) {
+	public ComputerPlayer(String strategyName, ITreeSearcher<?, ?> treeSearcher, int numWorkers, long msPerMove, boolean escapeEarly) {
 		this.strategyName = strategyName;
-		treeSearcher = new IterativeDeepeningTreeSearcher(strategy, moveListFactory, numWorkers);
+		this.treeSearcher = treeSearcher;
 		this.numWorkers = numWorkers;
 		this.msPerMove = msPerMove;
 		this.escapeEarly = escapeEarly;
@@ -35,7 +30,7 @@ public class ComputerPlayer implements IPlayer {
 	@Override
 	public synchronized <M, P extends IPosition<M>> M getMove(P position) {
 		long start = System.currentTimeMillis();
-		((IterativeDeepeningTreeSearcher<M, P>) treeSearcher).searchForever(position, escapeEarly);
+		((ITreeSearcher<M, P>) treeSearcher).searchForever(position, escapeEarly);
 		while (treeSearcher.isSearching() && msPerMove > System.currentTimeMillis() - start) {
 			try {
 				wait(50);
@@ -77,7 +72,10 @@ public class ComputerPlayer implements IPlayer {
 
 	@SuppressWarnings("unchecked")
 	public ComputerPlayerResult getCurrentResult() {
-		Map<?, MoveAnalysis> partialResult = treeSearcher.getPartialResult();
-		return new ComputerPlayerResult((AnalysisResult<Object>) treeSearcher.getResult(), (Map<Object, MoveAnalysis>) partialResult, treeSearcher.getPlies());
+		if (treeSearcher instanceof PartialResultObservable) {
+			return ((PartialResultObservable) treeSearcher).getPartialResult();
+		} else {
+			return new ComputerPlayerResult((AnalysisResult<Object>) treeSearcher.getResult(), Collections.emptyMap(), 0);
+		}
 	}
 }

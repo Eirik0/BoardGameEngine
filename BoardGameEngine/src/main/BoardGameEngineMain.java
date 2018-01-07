@@ -12,19 +12,27 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import analysis.montecarlo.MonteCarloTreeSearcher;
+import analysis.search.IterativeDeepeningTreeSearcher;
 import analysis.strategy.AlphaBetaQStrategy;
 import analysis.strategy.AlphaBetaStrategy;
 import analysis.strategy.MinimaxStrategy;
 import analysis.strategy.MoveListProvider;
 import game.GameRunner;
+import game.MoveListFactory;
 import game.chess.ChessGame;
 import game.chess.ChessGameRenderer;
 import game.chess.ChessPositionEvaluator;
 import game.forkjoinexample.ForkJoinExampleGame;
 import game.forkjoinexample.ForkJoinExampleGameRenderer;
+import game.forkjoinexample.ForkJoinExampleNode;
 import game.forkjoinexample.ForkJoinExampleStraregy;
+import game.forkjoinexample.ForkJoinExampleThreadTracker;
+import game.forkjoinexample.ForkJoinExampleTree;
 import game.forkjoinexample.ForkJoinMoveList;
 import game.forkjoinexample.ForkJoinPositionEvaluator;
+import game.forkjoinexample.ForkObserver;
+import game.forkjoinexample.StartStopObserver;
 import game.gomoku.GomokuGame;
 import game.gomoku.GomokuGameRenderer;
 import game.gomoku.GomokuMoveList;
@@ -41,6 +49,7 @@ import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
 import gui.FixedDurationGameLoop;
 import gui.GameGuiManager;
 import gui.GameRegistry;
+import gui.GameRegistry.GameRegistryItem;
 import gui.gamestate.GameRunningState;
 import gui.gamestate.MainMenuState;
 
@@ -93,33 +102,53 @@ public class BoardGameEngineMain {
 		GameRegistry.registerGame(new ChessGame(), ChessGameRenderer.class)
 				.registerHuman()
 				.registerComputer(6000, defaultMaxWorkers)
-				.registerMinimaxStrategies(new ChessPositionEvaluator());
+				.registerMinimaxStrategies(new ChessPositionEvaluator())
+				.registerMonteCarloStrategy(new ChessPositionEvaluator(), 25);
 
 		GameRegistry.registerGame(new TicTacToeGame(), TicTacToeGameRenderer.class)
 				.registerHuman()
 				.registerComputer(500, defaultMaxWorkers)
-				.registerMinimaxStrategies(new TicTacToePositionEvaluator());
+				.registerMinimaxStrategies(new TicTacToePositionEvaluator())
+				.registerMonteCarloStrategy(new TicTacToePositionEvaluator(), 25);
 
 		GameRegistry.registerGame(new UltimateTicTacToeGame(), UltimateTicTacToeGameRenderer.class)
 				.registerHuman()
 				.registerComputer(3000, defaultMaxWorkers)
-				.registerMinimaxStrategies(new UltimateTicTacToePositionEvaluator());
+				.registerMinimaxStrategies(new UltimateTicTacToePositionEvaluator())
+				.registerMonteCarloStrategy(new UltimateTicTacToePositionEvaluator(), 25);
 
 		GameRegistry.registerGame(new GomokuGame(), GomokuGameRenderer.class, GomokuMoveList.class)
 				.registerHuman()
 				.registerComputer(6000, defaultMaxWorkers)
-				.registerMinimaxStrategies(new GomokuPositionEvaluator());
+				.registerMinimaxStrategies(new GomokuPositionEvaluator())
+				.registerMonteCarloStrategy(new GomokuPositionEvaluator(), 25);
 
 		GameRegistry.registerGame(new SudokuGame(), SudokuGameRenderer.class)
 				.registerComputer(1000, defaultMaxWorkers)
-				.registerStrategy("AlphaBetaQ", () -> new AlphaBetaQStrategy<>(new SudokuPositionEvaluator(), new MoveListProvider<>(GameRegistry.getMoveListFactory(SudokuGame.NAME))));
+				.registerTreeSearcher("AlphaBetaQ",
+						info -> new IterativeDeepeningTreeSearcher<>(new AlphaBetaQStrategy<>(new SudokuPositionEvaluator(), new MoveListProvider<>(GameRegistry.getMoveListFactory(SudokuGame.NAME))),
+								GameRegistry.getMoveListFactory(SudokuGame.NAME), info.numWorkers))
+				.registerMonteCarloStrategy(new SudokuPositionEvaluator(), 25);
 
-		GameRegistry.registerGame(new ForkJoinExampleGame(), ForkJoinExampleGameRenderer.class, ForkJoinMoveList.class)
-				.registerComputer(Long.MAX_VALUE, 100)
-				.registerStrategy("MinMax",
-						() -> new ForkJoinExampleStraregy(new MinimaxStrategy<>(new ForkJoinPositionEvaluator(), new MoveListProvider<>(GameRegistry.getMoveListFactory(ForkJoinExampleGame.NAME)))))
-				.registerStrategy("AlphaBeta",
-						() -> new ForkJoinExampleStraregy(new AlphaBetaStrategy<>(new ForkJoinPositionEvaluator(), new MoveListProvider<>(GameRegistry.getMoveListFactory(ForkJoinExampleGame.NAME)))));
+		registerForkJoinExample();
+	}
+
+	private static void registerForkJoinExample() {
+		GameRegistryItem<ForkJoinExampleNode, ForkJoinExampleTree> gameRegistryItem = GameRegistry.registerGame(new ForkJoinExampleGame(), ForkJoinExampleGameRenderer.class, ForkJoinMoveList.class)
+				.registerComputer(Long.MAX_VALUE, 100);
+
+		MoveListFactory<ForkJoinExampleNode> moveListFactory = GameRegistry.getMoveListFactory(ForkJoinExampleGame.NAME);
+		ForkJoinPositionEvaluator positionEvaluator = new ForkJoinPositionEvaluator();
+
+		MinimaxStrategy<ForkJoinExampleNode, ForkJoinExampleTree> minimaxStrategy = new MinimaxStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory));
+		AlphaBetaStrategy<ForkJoinExampleNode, ForkJoinExampleTree> alphaBetaStrategy = new AlphaBetaStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory));
+		AlphaBetaQStrategy<ForkJoinExampleNode, ForkJoinExampleTree> alphaBetaQStrategy = new AlphaBetaQStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory));
+		ForkObserver<ForkJoinExampleNode> expandObserver = node -> ForkJoinExampleThreadTracker.setForked(node);
+
+		gameRegistryItem.registerTreeSearcher("MinMax", info -> new IterativeDeepeningTreeSearcher<>(new ForkJoinExampleStraregy(minimaxStrategy), moveListFactory, info.numWorkers))
+				.registerTreeSearcher("AlphaBeta", info -> new IterativeDeepeningTreeSearcher<>(new ForkJoinExampleStraregy(alphaBetaStrategy), moveListFactory, info.numWorkers))
+				.registerTreeSearcher("AlphaBetaQ", info -> new IterativeDeepeningTreeSearcher<>(new ForkJoinExampleStraregy(alphaBetaQStrategy), moveListFactory, info.numWorkers))
+				.registerTreeSearcher("MonteCarlo", info -> new MonteCarloTreeSearcher<>(positionEvaluator, moveListFactory, 1, expandObserver, new StartStopObserver()));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

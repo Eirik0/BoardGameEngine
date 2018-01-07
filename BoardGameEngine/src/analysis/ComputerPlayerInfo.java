@@ -1,24 +1,23 @@
 package analysis;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 
-import analysis.strategy.IDepthBasedStrategy;
 import game.IPosition;
 
 public class ComputerPlayerInfo<M, P extends IPosition<M>> {
 	public String strategyName;
-	public Supplier<IDepthBasedStrategy<M, P>> strategySupplier;
+	public Function<ComputerPlayerInfo<M, P>, ITreeSearcher<M, P>> strategySupplier;
 	public int numWorkers;
 	public long msPerMove;
 	public boolean infiniteTimeOnly;
 	public int maxWorkers;
 
-	public ComputerPlayerInfo(String strategyName, Supplier<IDepthBasedStrategy<M, P>> strategySupplier, int numWorkers, long msPerMove, int maxWorkers) {
+	public ComputerPlayerInfo(String strategyName, Function<ComputerPlayerInfo<M, P>, ITreeSearcher<M, P>> strategySupplier, int numWorkers, long msPerMove, int maxWorkers) {
 		setValues(strategyName, strategySupplier, numWorkers, msPerMove);
 		this.maxWorkers = maxWorkers;
 	}
 
-	public void setValues(String strategyName, Supplier<IDepthBasedStrategy<M, P>> strategySupplier, int numWorkers, long msPerMove) {
+	public void setValues(String strategyName, Function<ComputerPlayerInfo<M, P>, ITreeSearcher<M, P>> strategySupplier, int numWorkers, long msPerMove) {
 		this.strategyName = strategyName;
 		this.strategySupplier = strategySupplier;
 		this.numWorkers = numWorkers;

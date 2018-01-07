@@ -11,6 +11,7 @@ import analysis.search.IGameTreeSearchJoin;
 import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
+import game.forkjoinexample.ForkObserver;
 
 public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> implements IForkable<M, P> {
 	protected final M parentMove;
@@ -77,8 +78,8 @@ public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> impleme
 		MoveList<M> unanalyzedMoves = movesToSearch.subList(branchIndex.get());
 		int expectedResults = unanalyzedMoves.size();
 
-		if (strategy instanceof ForkJoinObserver<?>) {
-			((ForkJoinObserver<M>) strategy).notifyForked(parentMove, unanalyzedMoves);
+		if (strategy instanceof ForkObserver<?>) {
+			((ForkObserver<M>) strategy).notifyForked(parentMove);
 		}
 
 		List<GameTreeSearch<M, P>> gameTreeSearches = new ArrayList<>();

@@ -2,21 +2,46 @@ package game.forkjoinexample;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+
+import game.TwoPlayers;
 
 public class ForkJoinExampleNode {
+	private final int player;
+
 	private final Integer number;
-	public final double score = new Random().nextDouble() * 10 - 5;
+	private double score = 0.0;
+	private boolean quiescent = false;
 
 	private ForkJoinExampleNode parent;
 	private final ForkJoinExampleNode[] children;
 
-	public ForkJoinExampleNode(int number, ForkJoinExampleNode[] children) {
+	public ForkJoinExampleNode(boolean playerOne, int number, ForkJoinExampleNode[] children) {
+		player = playerOne ? TwoPlayers.PLAYER_1 : TwoPlayers.PLAYER_2;
 		this.number = Integer.valueOf(number);
 		this.children = children;
 		for (ForkJoinExampleNode child : children) {
 			child.setParent(this);
 		}
+	}
+
+	public int getPlayer() {
+		return player;
+	}
+
+	public double getScore() {
+		return score;
+	}
+
+	public void setScore(double score) {
+		this.score = score;
+	}
+
+	public boolean isQuiescent() {
+		return quiescent;
+	}
+
+	public void setQuiescent(boolean quiescent) {
+		this.quiescent = quiescent;
 	}
 
 	public ForkJoinExampleNode getParent() {

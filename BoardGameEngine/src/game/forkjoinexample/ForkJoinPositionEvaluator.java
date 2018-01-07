@@ -7,6 +7,6 @@ public class ForkJoinPositionEvaluator implements IPositionEvaluator<ForkJoinExa
 	@Override
 	public double evaluate(ForkJoinExampleTree position, MoveList<ForkJoinExampleNode> possibleMoves) {
 		ForkJoinExampleThreadTracker.evaluateNode(position.getCurrentNode());
-		return position.getCurrentNode().score;
+		return position.getCurrentNode().getScore();
 	}
 }

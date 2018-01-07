@@ -3,14 +3,13 @@ package game.forkjoinexample;
 import java.util.Map;
 
 import analysis.AnalysisResult;
-import analysis.strategy.ForkJoinObserver;
 import analysis.strategy.IAlphaBetaStrategy;
 import analysis.strategy.IDepthBasedStrategy;
 import analysis.strategy.IForkable;
 import game.MoveList;
 import game.MoveListFactory;
 
-public class ForkJoinExampleStraregy implements IAlphaBetaStrategy<ForkJoinExampleNode, ForkJoinExampleTree>, ForkJoinObserver<ForkJoinExampleNode> {
+public class ForkJoinExampleStraregy implements IAlphaBetaStrategy<ForkJoinExampleNode, ForkJoinExampleTree>, IStartStopObserver, ForkObserver<ForkJoinExampleNode> {
 	private final IAlphaBetaStrategy<ForkJoinExampleNode, ForkJoinExampleTree> strategy;
 
 	public ForkJoinExampleStraregy(IAlphaBetaStrategy<ForkJoinExampleNode, ForkJoinExampleTree> strategy) {
@@ -53,12 +52,12 @@ public class ForkJoinExampleStraregy implements IAlphaBetaStrategy<ForkJoinExamp
 	}
 
 	@Override
-	public void notifyPlyStarted(AnalysisResult<ForkJoinExampleNode> lastResult) {
+	public void notifyPlyStarted() {
 		ForkJoinExampleThreadTracker.searchStarted();
 	}
 
 	@Override
-	public void notifyForked(ForkJoinExampleNode parentMove, MoveList<ForkJoinExampleNode> unanalyzedMoves) {
+	public void notifyForked(ForkJoinExampleNode parentMove) {
 		if (parentMove == null) {
 			parentMove = ForkJoinExampleThreadTracker.getRoot();
 		}

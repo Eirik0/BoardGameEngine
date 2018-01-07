@@ -6,6 +6,7 @@ import java.util.Random;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import analysis.search.IterativeDeepeningTreeSearcher;
 import analysis.strategy.MinimaxStrategy;
 import analysis.strategy.MoveListProvider;
 import game.Coordinate;
@@ -22,7 +23,8 @@ public class ComputerPlayerTest {
 	public void testDoNotWaitForAMoveIfFInishedSearching() throws InterruptedException {
 		TicTacToeGame game = new TicTacToeGame();
 		MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(TicTacToeGame.MAX_MOVES);
-		ComputerPlayer player = new ComputerPlayer("MinMax", new MinimaxStrategy<>(new TicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory)), moveListFactory, 2, 500, true);
+		ComputerPlayer player = new ComputerPlayer("MinMax",
+				new IterativeDeepeningTreeSearcher<>(new MinimaxStrategy<>(new TicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory)), moveListFactory, 2), 2, 500, true);
 		GameRunner<Coordinate, TicTacToePosition> gameRunner = new GameRunner<>(game, new GameObserver<>(), moveListFactory);
 		for (int i = 0; i < 100; ++i) {
 			gameRunner.createNewGame();

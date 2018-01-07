@@ -6,14 +6,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import analysis.ComputerPlayer;
 import analysis.ComputerPlayerInfo;
 import analysis.IPositionEvaluator;
+import analysis.ITreeSearcher;
+import analysis.montecarlo.MonteCarloTreeSearcher;
+import analysis.search.IterativeDeepeningTreeSearcher;
 import analysis.strategy.AlphaBetaQStrategy;
 import analysis.strategy.AlphaBetaStrategy;
-import analysis.strategy.IDepthBasedStrategy;
 import analysis.strategy.MinimaxStrategy;
 import analysis.strategy.MoveListProvider;
 import game.ArrayMoveList;
@@ -75,7 +76,7 @@ public class GameRegistry {
 		@SuppressWarnings("unchecked")
 		GameRegistryItem<M, P> gameRegistryItem = (GameRegistryItem<M, P>) gameMap.get(gameName);
 		int numWorkers = Math.min(Math.max(1, gameRegistryItem.maxWorkers), 4);
-		Entry<String, Supplier<IDepthBasedStrategy<M, P>>> strategySupplier = gameRegistryItem.strategySupplierMap.entrySet().iterator().next();
+		Entry<String, Function<ComputerPlayerInfo<M, P>, ITreeSearcher<M, P>>> strategySupplier = gameRegistryItem.strategySupplierMap.entrySet().iterator().next();
 		return new ComputerPlayerInfo<>(strategySupplier.getKey(), strategySupplier.getValue(), numWorkers, gameRegistryItem.defaultMsPerMove, gameRegistryItem.maxWorkers);
 	}
 
@@ -89,18 +90,12 @@ public class GameRegistry {
 		infoToUpdate.setValues(strategyName, gameRegistryItem.strategySupplierMap.get(strategyName), numWorkers, msPerMove);
 	}
 
-	public static <M, P extends IPosition<M>> Supplier<IDepthBasedStrategy<M, P>> getStrategySupplier(String gameName, String strategyName) {
-		@SuppressWarnings("unchecked")
-		GameRegistryItem<M, P> gameRegistryItem = (GameRegistryItem<M, P>) gameMap.get(gameName);
-		return gameRegistryItem.strategySupplierMap.get(strategyName);
-	}
-
 	public static class GameRegistryItem<M, P extends IPosition<M>> {
 		final IGame<M, P> game;
 		final Class<? extends IGameRenderer<M, P>> gameRendererClass;
 		final MoveListFactory<M> moveListFactory;
 		final Map<String, Function<ComputerPlayerInfo<M, P>, IPlayer>> playerMap = new LinkedHashMap<>(); // The first player is the default player
-		final Map<String, Supplier<IDepthBasedStrategy<M, P>>> strategySupplierMap = new LinkedHashMap<>();
+		final Map<String, Function<ComputerPlayerInfo<M, P>, ITreeSearcher<M, P>>> strategySupplierMap = new LinkedHashMap<>();
 		long defaultMsPerMove = 3000;
 		int maxWorkers = 1;
 
@@ -116,13 +111,13 @@ public class GameRegistry {
 		}
 
 		public GameRegistryItem<M, P> registerComputer(long defaultMsPerMove, int maxWorkers) {
-			playerMap.put(ComputerPlayer.NAME, info -> new ComputerPlayer(info.strategyName, info.strategySupplier.get(), moveListFactory, info.numWorkers, info.msPerMove, !info.infiniteTimeOnly));
+			playerMap.put(ComputerPlayer.NAME, info -> new ComputerPlayer(info.strategyName, info.strategySupplier.apply(info), info.numWorkers, info.msPerMove, !info.infiniteTimeOnly));
 			this.defaultMsPerMove = defaultMsPerMove;
 			this.maxWorkers = maxWorkers;
 			return this;
 		}
 
-		public GameRegistryItem<M, P> registerStrategy(String stratrgyName, Supplier<IDepthBasedStrategy<M, P>> strategySupplier) {
+		public GameRegistryItem<M, P> registerTreeSearcher(String stratrgyName, Function<ComputerPlayerInfo<M, P>, ITreeSearcher<M, P>> strategySupplier) {
 			strategySupplierMap.put(stratrgyName, strategySupplier);
 			return this;
 		}
@@ -132,9 +127,17 @@ public class GameRegistry {
 		}
 
 		public GameRegistryItem<M, P> registerMinimaxStrategies(IPositionEvaluator<M, P> positionEvaluator, String name) {
-			registerStrategy("AlphaBetaQ" + (name == null ? "" : "_" + name), () -> new AlphaBetaQStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)));
-			registerStrategy("AlphaBeta" + (name == null ? "" : "_" + name), () -> new AlphaBetaStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)));
-			registerStrategy("MinMax" + (name == null ? "" : "_" + name), () -> new MinimaxStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)));
+			registerTreeSearcher("AlphaBetaQ" + (name == null ? "" : "_" + name),
+					info -> new IterativeDeepeningTreeSearcher<>(new AlphaBetaQStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)), moveListFactory, info.numWorkers));
+			registerTreeSearcher("AlphaBeta" + (name == null ? "" : "_" + name),
+					info -> new IterativeDeepeningTreeSearcher<>(new AlphaBetaStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)), moveListFactory, info.numWorkers));
+			registerTreeSearcher("MinMax" + (name == null ? "" : "_" + name),
+					info -> new IterativeDeepeningTreeSearcher<>(new MinimaxStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)), moveListFactory, info.numWorkers));
+			return this;
+		}
+
+		public GameRegistryItem<M, P> registerMonteCarloStrategy(IPositionEvaluator<M, P> positionEvaluator, int numSimluations) {
+			registerTreeSearcher("MonteCarlo", info -> new MonteCarloTreeSearcher<>(positionEvaluator, moveListFactory, numSimluations));
 			return this;
 		}
 	}

@@ -8,15 +8,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import analysis.AnalysisResult;
+import analysis.ITreeSearcher;
 import analysis.MoveAnalysis;
-import analysis.strategy.ForkJoinObserver;
+import analysis.PartialResultObservable;
 import analysis.strategy.IDepthBasedStrategy;
 import analysis.strategy.IForkable;
 import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
+import game.forkjoinexample.IStartStopObserver;
+import gui.analysis.ComputerPlayerResult;
 
-public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
+public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implements ITreeSearcher<M, P>, PartialResultObservable {
 	private Thread treeSearchThread;
 
 	private final IDepthBasedStrategy<M, P> strategy;
@@ -46,6 +49,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		}
 	}
 
+	@Override
 	public void searchForever(P position, boolean escapeEarly) {
 		searchForever(position, Integer.MAX_VALUE, escapeEarly);
 	}
@@ -67,7 +71,6 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public AnalysisResult<M> startSearch(P position, int maxPlies, boolean escapeEarly) {
 		synchronized (searchStartedLock) {
 			searchStopped = false;
@@ -78,8 +81,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		plies = 0;
 		do {
 			++plies;
-			if (strategy instanceof ForkJoinObserver<?>) {
-				((ForkJoinObserver<M>) strategy).notifyPlyStarted(result);
+			if (strategy instanceof IStartStopObserver) {
+				((IStartStopObserver) strategy).notifyPlyStarted();
 			}
 			AnalysisResult<M> search = search(position, plies);
 			if (searchStopped && result != null) { // merge only when the search is stopped
@@ -97,8 +100,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 				}
 				result = search;
 			}
-			if (strategy instanceof ForkJoinObserver<?>) {
-				((ForkJoinObserver<M>) strategy).notifyPlyComplete(searchStopped);
+			if (strategy instanceof IStartStopObserver) {
+				((IStartStopObserver) strategy).notifyPlyComplete(searchStopped);
 			}
 			if (escapeEarly && (result.isWin() || result.onlyOneMove()) || result.isDecided()) {
 				break; // when escaping early, break if the game is won, or there is only one move; or if all moves are decided
@@ -113,15 +116,12 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		return result;
 	}
 
+	@Override
 	public boolean isSearching() {
-		return !searchStopped;
+		return !searchComplete;
 	}
 
-	public void clearResult() {
-		result = null;
-		treeSearchRoot = new TreeSearchRoot<>();
-	}
-
+	@Override
 	public void stopSearch(boolean joinWorkerThreads) {
 		stopWorkers();
 		try {
@@ -138,6 +138,17 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		}
 	}
 
+	@Override
+	public AnalysisResult<M> getResult() {
+		return result;
+	}
+
+	@Override
+	public void clearResult() {
+		result = null;
+		treeSearchRoot = new TreeSearchRoot<>();
+	}
+
 	private synchronized void stopWorkers() { // Stopping a worker will eventually remove it from treeSearchesInProgress
 		searchStopped = true;
 		for (Entry<TreeSearchWorker, GameTreeSearch<M, P>> searchInProgress : treeSearchesInProgress.entrySet()) {
@@ -150,12 +161,10 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 		return plies;
 	}
 
-	public AnalysisResult<M> getResult() {
-		return result;
-	}
-
-	public Map<M, MoveAnalysis> getPartialResult() {
-		return treeSearchRoot.getPartialResult().getMovesWithScore();
+	@SuppressWarnings("unchecked")
+	@Override
+	public ComputerPlayerResult getPartialResult() {
+		return new ComputerPlayerResult((AnalysisResult<Object>) result, (Map<Object, MoveAnalysis>) treeSearchRoot.getPartialResult().getMovesWithScore(), plies);
 	}
 
 	private AnalysisResult<M> search(P position, int plies) {
@@ -208,7 +217,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> {
 				}
 			}
 			Collections.sort(undecidedMoves, (m1, m2) -> Double.compare(m2.getValue().score, m1.getValue().score));
-			searchMoveList = moveListFactory.newArrayMoveList();
+			searchMoveList = moveListFactory.newAnalysisMoveList();
 			for (Entry<M, MoveAnalysis> entry : undecidedMoves) {
 				searchMoveList.addQuietMove(entry.getKey(), position);
 			}

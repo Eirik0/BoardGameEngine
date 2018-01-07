@@ -7,12 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import util.Pair;
-
 public class ForkJoinExampleThreadTracker {
-	static long SLEEP_PER_EVAL = 128;
-	static long SLEEP_PER_BRANCH = 32;
-	static long SLEEP_PER_MERGE = 16;
+	static long SLEEP_PER_EVAL = 100;
+	static long SLEEP_PER_BRANCH = 25;
+	static long SLEEP_PER_MERGE = 10;
 
 	private static List<List<ForkJoinExampleNode>> nodesByDepth = new ArrayList<>();
 	private static Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> nodeToInfoMap = new HashMap<>();
@@ -82,7 +80,7 @@ public class ForkJoinExampleThreadTracker {
 
 	private static Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> buildNodeInfoMap(List<List<ForkJoinExampleNode>> newNodesByDepth) {
 		Map<ForkJoinExampleNode, ForkJoinExampleNodeInfo> newNodeToInfoMap = new HashMap<>();
-		double fractionY = 1.0 / (ForkJoinExampleGame.DEPTH + 1); // + 1 for extra space
+		double fractionY = 1.0 / (ForkJoinExampleTree.DEPTH + 1); // + 1 for extra space
 		double currentFractionY = fractionY;
 		for (List<ForkJoinExampleNode> nodes : newNodesByDepth) {
 			double fractionX = 1.0 / (nodes.size() * 2);
@@ -192,7 +190,9 @@ public class ForkJoinExampleThreadTracker {
 		private boolean isForked = false;
 		private boolean isEvaluated = false;
 
-		private final Map<ForkJoinExampleNode, Pair<ForkJoinExampleNodeInfo, String>> childMap = new HashMap<>(); // child -> (info, thread name)
+		private long threadSetTime = 0;
+
+		private final Map<ForkJoinExampleNode, ChildInfo> childMap = new HashMap<>();
 
 		public ForkJoinExampleNodeInfo(double fractionX, double fractionY) {
 			this.fractionX = fractionX;
@@ -210,8 +210,13 @@ public class ForkJoinExampleThreadTracker {
 			return threadName;
 		}
 
+		public long getThreadSetTime() {
+			return threadSetTime;
+		}
+
 		public void setThreadName() {
 			threadName = Thread.currentThread().getName();
+			threadSetTime = System.nanoTime();
 		}
 
 		public synchronized void evaluate() {
@@ -233,12 +238,23 @@ public class ForkJoinExampleThreadTracker {
 			setThreadName();
 		}
 
-		public synchronized Collection<Pair<ForkJoinExampleNodeInfo, String>> getChildren() {
+		public synchronized Collection<ChildInfo> getChildren() {
 			return new ArrayList<>(childMap.values());
 		}
 
 		public synchronized void addChild(ForkJoinExampleNode child) {
-			childMap.put(child, Pair.valueOf(ForkJoinExampleThreadTracker.getForkJoinExampleNodeInfo(child), Thread.currentThread().getName()));
+			childMap.put(child, new ChildInfo(ForkJoinExampleThreadTracker.getForkJoinExampleNodeInfo(child), Thread.currentThread().getName()));
+		}
+	}
+
+	static class ChildInfo {
+		public final ForkJoinExampleNodeInfo childInfo;
+		public final String threadName;
+		public final long branchTime = System.nanoTime();
+
+		public ChildInfo(ForkJoinExampleNodeInfo childInfo, String threadName) {
+			this.childInfo = childInfo;
+			this.threadName = threadName;
 		}
 	}
 }

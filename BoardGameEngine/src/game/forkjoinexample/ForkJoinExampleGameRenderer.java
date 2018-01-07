@@ -8,15 +8,15 @@ import java.util.Map;
 import java.util.Random;
 
 import game.MoveList;
+import game.forkjoinexample.ForkJoinExampleThreadTracker.ChildInfo;
 import game.forkjoinexample.ForkJoinExampleThreadTracker.ForkJoinExampleNodeInfo;
 import gui.GameGuiManager;
 import gui.gamestate.GameState.UserInput;
 import gui.gamestate.IGameRenderer;
 import main.BoardGameEngineMain;
-import util.Pair;
 
 public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampleNode, ForkJoinExampleTree> {
-	private static final int BREDTH = (int) Math.round(Math.pow(ForkJoinExampleGame.DEPTH, ForkJoinExampleGame.BRANCHING_FACTOR));
+	private static final int BREDTH = (int) Math.round(Math.pow(ForkJoinExampleTree.DEPTH, ForkJoinExampleTree.BRANCHING_FACTOR));
 
 	private final Map<String, Color> threadColorMap = new HashMap<>();
 	private final Random random = new Random();
@@ -49,13 +49,13 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 				if (nodeInfo == null) {
 					continue;
 				}
-				Color color = nodeInfo.getThreadName() != null ? getColorFromThreadName(nodeInfo.getThreadName()) : BoardGameEngineMain.FOREGROUND_COLOR;
+				Color color = nodeInfo.getThreadName() != null ? getColorFromThreadName(nodeInfo.getThreadName(), nodeInfo.getThreadSetTime()) : BoardGameEngineMain.FOREGROUND_COLOR;
 				double nodeX = nodeInfo.fractionX * width;
 				double nodeY = nodeInfo.fractionY * height;
 				// draw node
 				if (nodeInfo.isForked()) {
 					g.setColor(color);
-					fillCircle(g, nodeX, nodeY, nodeRadius * 5);
+					fillCircle(g, nodeX, nodeY, nodeRadius * 2);
 				} else {
 					g.setColor(color);
 					drawCircle(g, nodeX, nodeY, nodeRadius);
@@ -65,22 +65,34 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 					}
 				}
 				// draw lines to children
-				for (Pair<ForkJoinExampleNodeInfo, String> child : nodeInfo.getChildren()) {
-					g.setColor(getColorFromThreadName(child.getSecond()));
-					ForkJoinExampleNodeInfo childInfo = child.getFirst();
+				for (ChildInfo child : nodeInfo.getChildren()) {
+					g.setColor(getColorFromThreadName(child.threadName, child.branchTime));
+					ForkJoinExampleNodeInfo childInfo = child.childInfo;
 					g.drawLine(round(nodeX), round(nodeY), round(childInfo.fractionX * width), round(childInfo.fractionY * height));
 				}
 			}
 		}
 	}
 
-	private Color getColorFromThreadName(String threadName) {
+	private Color getColorFromThreadName(String threadName, long lastUpdateTime) {
 		Color color = threadColorMap.get(threadName);
 		if (color == null) {
 			color = new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255));
 			threadColorMap.put(threadName, color);
 		}
-		return color;
+		return decayToColor(color, calculateDecay(lastUpdateTime));
+	}
+
+	private static Color decayToColor(Color mainColor, double percent) {
+		double red = percent * 255 + (1 - percent) * mainColor.getRed();
+		double green = percent * 255 + (1 - percent) * mainColor.getGreen();
+		double blue = percent * 255 + (1 - percent) * mainColor.getBlue();
+		return new Color((int) red, (int) green, (int) blue);
+	}
+
+	private static double calculateDecay(long lastUpdateTime) {
+		double secondsElapsed = (System.nanoTime() - lastUpdateTime) / 1000000000.0;
+		return Math.pow(Math.E, -secondsElapsed);
 	}
 
 	@Override
