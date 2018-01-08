@@ -6,6 +6,7 @@ import java.util.Random;
 
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
+import analysis.strategy.MoveListProvider;
 import game.IPosition;
 import game.MoveList;
 import game.MoveListFactory;
@@ -14,12 +15,11 @@ import game.forkjoinexample.ForkObserver;
 public class MonteCarloGameNode<M, P extends IPosition<M>> {
 	private static final Random RANDOM = new Random();
 
-	private final MonteCarloGameNode<M, P> parentNode;
-
 	private final P position;
 	final M parentMove;
 	private final IPositionEvaluator<M, P> positionEvaluator;
 	private final MoveListFactory<M> moveListFactory;
+	private MoveListProvider<M> moveListProdiver;
 	private final int numSimulations;
 
 	private final MoveList<M> moveList;
@@ -35,19 +35,18 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
 	private boolean isSearching = false;
 	private volatile boolean stopRequested = false;
 
-	public MonteCarloGameNode(MonteCarloGameNode<M, P> parentNode, M parentMove, P position, IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory, int numSumulations) {
-		this(parentNode, parentMove, position, positionEvaluator, moveListFactory, numSumulations, null);
+	public MonteCarloGameNode(M parentMove, P position, IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory, int numSumulations) {
+		this(parentMove, position, positionEvaluator, moveListFactory, numSumulations, null);
 	}
 
-	public MonteCarloGameNode(MonteCarloGameNode<M, P> parentNode, M parentMove, P position, IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory, int numSumulations,
-			ForkObserver<M> expandObserver) {
-		this.parentNode = parentNode;
+	public MonteCarloGameNode(M parentMove, P position, IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory, int numSumulations, ForkObserver<M> expandObserver) {
 		this.parentMove = parentMove;
 		this.position = position;
 		this.positionEvaluator = positionEvaluator;
 		this.moveListFactory = moveListFactory;
 		this.numSimulations = numSumulations;
 		this.expandObserver = expandObserver;
+		moveListProdiver = new MoveListProvider<>(moveListFactory);
 		moveList = moveListFactory.newAnalysisMoveList();
 		position.getPossibleMoves(moveList);
 		numUnexpanded = moveList.size();
@@ -56,19 +55,23 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
 
 	public void searchRoot() {
 		isSearching = true;
+		if (moveList.size() == 0) {
+			MonteCarloStatistics result = new MonteCarloStatistics(position.getCurrentPlayer());
+			result.addScore(positionEvaluator.evaluate(position, moveList));
+			statistics.updateWith(result);
+		} else {
+			initUnexpanded();
 
-		initUnexpanded();
-
-		do {
-			if (numUnexpanded == 0) {
-				MonteCarloStatistics result = select();
-				statistics.updateWith(result);
-			} else {
-				MonteCarloStatistics result = expand();
-				statistics.updateWith(result);
-			}
-		} while (!stopRequested);
-
+			do {
+				if (numUnexpanded == 0) {
+					MonteCarloStatistics result = select();
+					statistics.updateWith(result);
+				} else {
+					MonteCarloStatistics result = expand();
+					statistics.updateWith(result);
+				}
+			} while (!stopRequested);
+		}
 		synchronized (this) {
 			isSearching = false;
 			notify();
@@ -86,20 +89,14 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
 
 	private MonteCarloStatistics search() {
 		if (expandedChildren == null) {
-			if (parentNode.numUnexpanded == 0) {
-				if (moveList.size() == 0) {
-					MonteCarloStatistics result = new MonteCarloStatistics(position.getCurrentPlayer());
-					result.addScore(positionEvaluator.evaluate(position, moveList));
-					statistics.updateWith(result);
-					return result;
-				} else {
-					initUnexpanded();
-					MonteCarloStatistics result = expand();
-					statistics.updateWith(result);
-					return result;
-				}
+			if (moveList.size() == 0) {
+				MonteCarloStatistics result = new MonteCarloStatistics(position.getCurrentPlayer());
+				result.addScore(positionEvaluator.evaluate(position, moveList));
+				statistics.updateWith(result);
+				return result;
 			} else {
-				MonteCarloStatistics result = simulate();
+				initUnexpanded();
+				MonteCarloStatistics result = expand();
 				statistics.updateWith(result);
 				return result;
 			}
@@ -115,23 +112,27 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
 	}
 
 	public AnalysisResult<M> getResult() {
+		if (expandedChildren.isEmpty()) {
+			return null;
+		}
 		AnalysisResult<M> result = new AnalysisResult<>(statistics.player);
 		for (MonteCarloGameNode<M, P> childNode : expandedChildren) {
-			double score = childNode.statistics.getExpectedValue(statistics.nodesEvaluated);
+			double score = childNode.statistics.getMeanValue();
 			result.addMoveWithScore(childNode.parentMove, statistics.player == childNode.statistics.player ? score : -score);
 		}
 		return result;
 	}
 
 	private MonteCarloStatistics select() {
-		double bestExpectedValue = 0;
+		double bestExpectedValue = Double.NEGATIVE_INFINITY;
 		M move = null;
 		MonteCarloGameNode<M, P> childNode = null;
 
 		int i = 0;
 		do {
 			MonteCarloGameNode<M, P> child = expandedChildren.get(i);
-			double childExpectedValue = child.statistics.getExpectedValue(statistics.nodesEvaluated);
+			double meanValue = statistics.player == child.statistics.player ? child.statistics.getMeanValue() : -child.statistics.getMeanValue();
+			double childExpectedValue = meanValue + child.statistics.getUncertainty(statistics.nodesEvaluated);
 			if (move == null || childExpectedValue > bestExpectedValue) {
 				bestExpectedValue = childExpectedValue;
 				move = child.parentMove;
@@ -159,19 +160,20 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
 
 		position.makeMove(move);
 
-		MonteCarloGameNode<M, P> childNode = new MonteCarloGameNode<>(this, move, position, positionEvaluator, moveListFactory, numSimulations, expandObserver);
+		MonteCarloGameNode<M, P> childNode = new MonteCarloGameNode<>(move, position, positionEvaluator, moveListFactory, numSimulations, expandObserver);
 		expandedChildren.add(childNode);
 
-		MonteCarloStatistics search = childNode.search();
+		MonteCarloStatistics search = childNode.simulate();
 		position.unmakeMove(move);
 
+		statistics.updateWith(search);
 		return search;
 	}
 
 	private MonteCarloStatistics simulate() {
 		MonteCarloStatistics result = new MonteCarloStatistics(statistics.player);
 
-		MoveList<M> possibleMoves = moveListFactory.newAnalysisMoveList();
+		MoveList<M> possibleMoves = moveListProdiver.getMoveList(0);
 
 		int simulation = 0;
 		do {

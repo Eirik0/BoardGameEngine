@@ -14,7 +14,7 @@ public class MoveListProvider<M> {
 		this.moveListFactory = moveListFactory;
 	}
 
-	protected MoveList<M> getMoveList(int depth) {
+	public MoveList<M> getMoveList(int depth) {
 		MoveList<M> moveList = moveLists[depth];
 		if (moveList == null) {
 			moveList = moveListFactory.newAnalysisMoveList();

@@ -40,12 +40,12 @@ public class MonteCarloStatistics {
 		return getMeanValue() + getUncertainty(parentNodesEvaluated);
 	}
 
-	private double getUncertainty(int parentNodesEvaluated) {
+	public double getUncertainty(int parentNodesEvaluated) {
 		return Math.sqrt(2 * Math.log(parentNodesEvaluated) / nodesEvaluated);
 	}
 
 	public double getMeanValue() {
-		return (numWon + numDrawn * 0.5) / nodesEvaluated;
+		return nodesEvaluated == 0 ? 0.0 : (double) (numWon - numLost) / nodesEvaluated;
 	}
 
 	@Override

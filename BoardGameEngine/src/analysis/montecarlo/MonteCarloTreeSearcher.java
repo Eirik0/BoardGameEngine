@@ -1,15 +1,19 @@
 package analysis.montecarlo;
 
+import java.util.Collections;
+
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
 import analysis.ITreeSearcher;
+import analysis.PartialResultObservable;
 import analysis.search.ThreadNumber;
 import game.IPosition;
 import game.MoveListFactory;
 import game.forkjoinexample.ForkObserver;
 import game.forkjoinexample.StartStopObserver;
+import gui.analysis.ComputerPlayerResult;
 
-public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeSearcher<M, P> {
+public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeSearcher<M, P>, PartialResultObservable {
 	private final IPositionEvaluator<M, P> positionEvaluator;
 	private final MoveListFactory<M> moveListFactory;
 
@@ -49,7 +53,7 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 		if (startStopObserver != null) {
 			startStopObserver.notifyPlyStarted();
 		}
-		monteCarloNode = new MonteCarloGameNode<>(null, null, position, positionEvaluator, moveListFactory, numSimulations, expandObserver);
+		monteCarloNode = new MonteCarloGameNode<>(null, position, positionEvaluator, moveListFactory, numSimulations, expandObserver);
 		monteCarloNode.searchRoot();
 		result = monteCarloNode.getResult();
 		searchComplete = true;
@@ -87,5 +91,15 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 	@Override
 	public void clearResult() {
 		result = null;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ComputerPlayerResult getPartialResult() {
+		if (monteCarloNode != null) {
+			return new ComputerPlayerResult((AnalysisResult<Object>) monteCarloNode.getResult(), Collections.emptyMap(), monteCarloNode.statistics.nodesEvaluated);
+		} else {
+			return new ComputerPlayerResult(null, Collections.emptyMap(), 0);
+		}
 	}
 }
