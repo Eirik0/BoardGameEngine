@@ -34,9 +34,10 @@ public class GamePanelController {
 		paintComplete = false;
 		repaintRunnable.run();
 		synchronized (this) {
-			while (!ignoreWait && !paintComplete) {
+			int tries = 0;
+			while (!ignoreWait && !paintComplete && ++tries < 5) {
 				try {
-					wait();
+					wait(50);
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}

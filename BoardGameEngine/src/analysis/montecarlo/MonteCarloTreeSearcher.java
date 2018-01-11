@@ -53,7 +53,7 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 		if (startStopObserver != null) {
 			startStopObserver.notifyPlyStarted();
 		}
-		monteCarloNode = new MonteCarloGameNode<>(null, position, positionEvaluator, moveListFactory, numSimulations, expandObserver);
+		monteCarloNode = new MonteCarloGameNode<>(null, null, position, positionEvaluator, moveListFactory, numSimulations, expandObserver);
 		monteCarloNode.searchRoot();
 		result = monteCarloNode.getResult();
 		searchComplete = true;
@@ -66,7 +66,9 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 
 	@Override
 	public void stopSearch(boolean gameOver) {
-		monteCarloNode.stopSearch();
+		if (monteCarloNode != null) {
+			monteCarloNode.stopSearch();
+		}
 		if (startStopObserver != null) {
 			startStopObserver.notifyPlyComplete(true);
 		}

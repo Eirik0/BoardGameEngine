@@ -1,10 +1,6 @@
 package analysis.strategy;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import analysis.AnalysisResult;
-import analysis.AnalyzedMove;
 import analysis.MoveAnalysis;
 import analysis.search.IGameTreeSearchJoin;
 import game.IPosition;

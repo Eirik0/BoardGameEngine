@@ -10,11 +10,27 @@ public class MonteCarloStatistics {
 	int numDrawn = 0;
 	int numLost = 0;
 
+	boolean isDecided = false;
+
 	public MonteCarloStatistics(int player) {
 		this.player = player;
 	}
 
+	public MonteCarloStatistics(int player, double score) {
+		this.player = player;
+		nodesEvaluated = 1;
+		if (AnalysisResult.WIN == score) {
+			++numWon;
+		} else if (AnalysisResult.LOSS == score) {
+			++numLost;
+		} else {
+			++numDrawn;
+		}
+		isDecided = true;
+	}
+
 	public void addScore(double score) {
+		++nodesEvaluated;
 		if (AnalysisResult.WIN == score) {
 			++numWon;
 		} else if (AnalysisResult.LOSS == score) {
@@ -24,16 +40,41 @@ public class MonteCarloStatistics {
 		}
 	}
 
-	public void updateWith(MonteCarloStatistics statistics) {
-		nodesEvaluated += statistics.nodesEvaluated;
-		numDrawn += statistics.numDrawn;
-		if (player == statistics.player) {
-			numWon += statistics.numWon;
-			numLost += statistics.numLost;
+	public void updateWith(MonteCarloStatistics result) {
+		nodesEvaluated += result.nodesEvaluated;
+		numDrawn += result.numDrawn;
+		if (player == result.player) {
+			numWon += result.numWon;
+			numLost += result.numLost;
 		} else {
-			numWon += statistics.numLost;
-			numLost += statistics.numWon;
+			numWon += result.numLost;
+			numLost += result.numWon;
 		}
+	}
+
+	public void setResult(MonteCarloStatistics result) {
+		nodesEvaluated = result.nodesEvaluated;
+		numDrawn = result.numDrawn;
+		isDecided = result.isDecided;
+		if (player == result.player) {
+			numWon = result.numWon;
+			numLost = result.numLost;
+		} else {
+			numWon = result.numLost;
+			numLost = result.numWon;
+		}
+	}
+
+	public void clear() {
+		nodesEvaluated = 0;
+		numWon = 0;
+		numDrawn = 0;
+		numLost = 0;
+		isDecided = false;
+	}
+
+	public boolean isWin(int currentPlayer) {
+		return isDecided && ((player == currentPlayer && numWon == nodesEvaluated) || (player != currentPlayer && numLost == nodesEvaluated));
 	}
 
 	public double getExpectedValue(int parentNodesEvaluated) {
@@ -41,7 +82,7 @@ public class MonteCarloStatistics {
 	}
 
 	public double getUncertainty(int parentNodesEvaluated) {
-		return Math.sqrt(2 * Math.log(parentNodesEvaluated) / nodesEvaluated);
+		return isDecided ? 0.0 : Math.sqrt(2 * Math.log(parentNodesEvaluated) / nodesEvaluated);
 	}
 
 	public double getMeanValue() {
