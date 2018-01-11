@@ -52,17 +52,8 @@ public class MonteCarloStatistics {
 		}
 	}
 
-	public void setResult(MonteCarloStatistics result) {
-		nodesEvaluated = result.nodesEvaluated;
-		numDrawn = result.numDrawn;
-		isDecided = result.isDecided;
-		if (player == result.player) {
-			numWon = result.numWon;
-			numLost = result.numLost;
-		} else {
-			numWon = result.numLost;
-			numLost = result.numWon;
-		}
+	public void setDecided() {
+		isDecided = true;
 	}
 
 	public void clear() {
@@ -86,6 +77,9 @@ public class MonteCarloStatistics {
 	}
 
 	public double getMeanValue() {
+		if (isDecided) {
+			return numWon > 0 ? 1.0 : numDrawn > 0 ? 0.0 : -1.0;
+		}
 		return nodesEvaluated == 0 ? 0.0 : (double) (numWon - numLost) / nodesEvaluated;
 	}
 

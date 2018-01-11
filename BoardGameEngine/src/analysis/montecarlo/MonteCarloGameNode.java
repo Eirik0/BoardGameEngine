@@ -1,7 +1,6 @@
 package analysis.montecarlo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -63,7 +62,8 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
 	public void searchRoot() {
 		isSearching = true;
 		if (moveList.size() == 0) {
-			statistics.setResult(new MonteCarloStatistics(position.getCurrentPlayer(), positionEvaluator.evaluate(position, moveList)));
+			statistics.updateWith(new MonteCarloStatistics(position.getCurrentPlayer(), positionEvaluator.evaluate(position, moveList)));
+			statistics.setDecided();
 		} else {
 			initUnexpanded();
 
@@ -93,7 +93,7 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
 	private void search() {
 		if (expandedChildren == null) {
 			if (moveList.size() == 0) {
-				backPropagate(new MonteCarloStatistics(position.getCurrentPlayer(), positionEvaluator.evaluate(position, moveList)));
+				backPropagate(new MonteCarloStatistics(position.getCurrentPlayer(), positionEvaluator.evaluate(position, moveList)), true);
 			} else {
 				initUnexpanded();
 				expand();
@@ -165,7 +165,7 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
 		expandedChildren.add(childNode);
 
 		if (childNode.moveList.size() == 0) {
-			childNode.backPropagate(new MonteCarloStatistics(position.getCurrentPlayer(), positionEvaluator.evaluate(position, childNode.moveList)));
+			childNode.backPropagate(new MonteCarloStatistics(position.getCurrentPlayer(), positionEvaluator.evaluate(position, childNode.moveList)), true);
 		} else {
 			childNode.simulate();
 		}
@@ -200,14 +200,13 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
 			}
 		} while (!stopRequested && ++simulation < numSimulations);
 
-		backPropagate(result);
+		backPropagate(result, false);
 	}
 
-	private void backPropagate(MonteCarloStatistics result) {
-		if (result.isDecided) {
-			statistics.setResult(result);
-		} else {
-			statistics.updateWith(result);
+	private void backPropagate(MonteCarloStatistics result, boolean decided) {
+		statistics.updateWith(result);
+		if (decided) {
+			statistics.setDecided();
 		}
 		MonteCarloGameNode<M, P> parent = parentNode;
 		while (parent != null) {
@@ -218,36 +217,22 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
 
 	private void updateStatistics() {
 		boolean allChildrenDecided = numUnexpanded == 0;
-		double bestMeanValue = LOSS;
-		MonteCarloGameNode<M, P> bestChild = null;
 
 		statistics.clear();
 
 		int i = 0;
 		do {
 			MonteCarloGameNode<M, P> child = expandedChildren.get(i);
-			if (child.statistics.isWin(statistics.player)) {
-				statistics.setResult(child.statistics);
-				if (parentNode != null) {
-					expandedChildren = Collections.singletonList(child);
-				}
-				return;
-			} else if (child.statistics.isDecided) {
-				double meanValue = statistics.player == child.statistics.player ? child.statistics.getMeanValue() : -child.statistics.getMeanValue();
-				if (bestChild == null || meanValue > bestMeanValue) {
-					bestMeanValue = meanValue;
-					bestChild = child;
-				}
-			}
 			statistics.updateWith(child.statistics);
+			if (child.statistics.isWin(statistics.player)) {
+				statistics.setDecided();
+				return;
+			}
 			allChildrenDecided = allChildrenDecided && child.statistics.isDecided;
 		} while (++i < expandedChildren.size());
 
 		if (allChildrenDecided) {
-			statistics.setResult(bestChild.statistics);
-			if (parentNode != null) {
-				expandedChildren = Collections.singletonList(bestChild);
-			}
+			statistics.setDecided();
 		}
 	}
 
