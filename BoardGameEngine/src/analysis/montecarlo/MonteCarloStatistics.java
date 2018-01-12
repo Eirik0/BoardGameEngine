@@ -3,6 +3,10 @@ package analysis.montecarlo;
 import analysis.AnalysisResult;
 
 public class MonteCarloStatistics {
+	public static final double WIN = 1;
+	public static final double DRAW = 0;
+	public static final double LOSS = -1;
+
 	public final int player;
 
 	int nodesEvaluated = 0;
@@ -54,6 +58,16 @@ public class MonteCarloStatistics {
 
 	public void setDecided() {
 		isDecided = true;
+		if (numWon > 0) {
+			numWon = nodesEvaluated;
+			numDrawn = 0;
+			numLost = 0;
+		} else if (numDrawn > 0) {
+			numDrawn = nodesEvaluated;
+			numLost = 0;
+		} else {
+			numLost = nodesEvaluated;
+		}
 	}
 
 	public void clear() {
@@ -78,7 +92,7 @@ public class MonteCarloStatistics {
 
 	public double getMeanValue() {
 		if (isDecided) {
-			return numWon > 0 ? 1.0 : numDrawn > 0 ? 0.0 : -1.0;
+			return numWon > 0 ? WIN : numDrawn > DRAW ? 0.0 : LOSS;
 		}
 		return nodesEvaluated == 0 ? 0.0 : (double) (numWon - numLost) / nodesEvaluated;
 	}

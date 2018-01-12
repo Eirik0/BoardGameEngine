@@ -45,17 +45,17 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 	@Override
 	public void searchForever(P position, boolean escapeEarly) {
 		searchComplete = false;
-		treeSearchThread = new Thread(() -> startSearch((P) position.createCopy()), "Monte_Carlo_Search_Thread_" + ThreadNumber.getThreadNum(getClass()));
+		treeSearchThread = new Thread(() -> startSearch((P) position.createCopy(), escapeEarly), "Monte_Carlo_Search_Thread_" + ThreadNumber.getThreadNum(getClass()));
 		treeSearchThread.start();
 	}
 
-	private void startSearch(P position) {
+	private void startSearch(P position, boolean escapeEarly) {
 		if (startStopObserver != null) {
 			startStopObserver.notifyPlyStarted();
 		}
 		monteCarloNode = new MonteCarloGameNode<>(null, null, position, positionEvaluator, moveListFactory, numSimulations, expandObserver);
-		monteCarloNode.searchRoot();
-		result = monteCarloNode.getResult();
+		monteCarloNode.searchRoot(escapeEarly);
+		result = calculatePartialResult();
 		searchComplete = true;
 	}
 
@@ -86,6 +86,37 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 		return result;
 	}
 
+	private AnalysisResult<M> calculatePartialResult() {
+		if (monteCarloNode.expandedChildren == null && monteCarloNode.statistics.isDecided) {
+			AnalysisResult<M> result = new AnalysisResult<>(monteCarloNode.statistics.player);
+			result.addMoveWithScore(null, convertScore(monteCarloNode.statistics, true));
+			return result;
+		} else if (monteCarloNode.expandedChildren == null || monteCarloNode.expandedChildren.isEmpty()) {
+			return null;
+		}
+
+		AnalysisResult<M> result = new AnalysisResult<>(monteCarloNode.statistics.player);
+		int i = 0;
+		while (i < monteCarloNode.expandedChildren.size()) {
+			MonteCarloGameNode<M, P> childNode = monteCarloNode.expandedChildren.get(i++);
+			result.addMoveWithScore(childNode.parentMove, convertScore(childNode.statistics, monteCarloNode.statistics.player == childNode.statistics.player));
+		}
+		return result;
+	}
+
+	private static double convertScore(MonteCarloStatistics statistics, boolean isCurrentPlayer) {
+		double meanValue = isCurrentPlayer ? statistics.getMeanValue() : -statistics.getMeanValue();
+		if (statistics.isDecided) {
+			if (meanValue == MonteCarloStatistics.WIN) {
+				return AnalysisResult.WIN;
+			} else if (meanValue == MonteCarloStatistics.DRAW) {
+				return AnalysisResult.DRAW;
+			}
+			return AnalysisResult.LOSS;
+		}
+		return meanValue;
+	}
+
 	public MonteCarloGameNode<M, P> getRoot() {
 		return monteCarloNode;
 	}
@@ -93,13 +124,15 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 	@Override
 	public void clearResult() {
 		result = null;
+		monteCarloNode = null;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public ComputerPlayerResult getPartialResult() {
 		if (monteCarloNode != null) {
-			return new ComputerPlayerResult((AnalysisResult<Object>) monteCarloNode.getResult(), Collections.emptyMap(), monteCarloNode.statistics.nodesEvaluated);
+			AnalysisResult<M> partialResult = result == null ? calculatePartialResult() : result;
+			return new ComputerPlayerResult((AnalysisResult<Object>) partialResult, Collections.emptyMap(), monteCarloNode.statistics.nodesEvaluated);
 		} else {
 			return new ComputerPlayerResult(null, Collections.emptyMap(), 0);
 		}
