@@ -89,7 +89,9 @@ public class AnalysisPanel<M> extends JPanel {
 		IPlayer player = positionChangedInfo.currentPlayer;
 		if (player != null && player instanceof ComputerPlayer) {
 			analysisState.stopAnalysis();
-			setAnalysisState(new ComputerPlayerObservationState<>((ComputerPlayer) player, position.getCurrentPlayer()));
+			ComputerPlayerObservationState<M> computerObservationState = new ComputerPlayerObservationState<>((ComputerPlayer) player, position.getCurrentPlayer());
+			setAnalysisState(computerObservationState);
+			computerObservationState.checkResized(analysisPanel.getWidth(), analysisPanel.getHeight());
 		} else if (!(analysisState instanceof InfiniteAnalysisState<?>)) {
 			analysisState.stopAnalysis();
 			setAnalysisState(new InfiniteAnalysisState<>(gameName, position, computerPlayerInfo));

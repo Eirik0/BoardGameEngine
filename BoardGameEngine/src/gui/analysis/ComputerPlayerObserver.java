@@ -86,11 +86,11 @@ public class ComputerPlayerObserver implements Drawable, Sizable {
 
 	@Override
 	public void drawOn(Graphics2D graphics) {
-		fillRect(graphics, 0, 0, getWidth(), getHeight(), BoardGameEngineMain.BACKGROUND_COLOR);
 		List<ObservedMoveWithScore> currentMoves = currentResult.moves;
 		if (currentMoves == null) {
 			return;
 		}
+		fillRect(graphics, 0, 0, getWidth(), getHeight(), BoardGameEngineMain.BACKGROUND_COLOR);
 		graphics.setFont(BoardGameEngineMain.DEFAULT_SMALL_FONT);
 		int i = 0;
 		while (i < currentMoves.size()) {
