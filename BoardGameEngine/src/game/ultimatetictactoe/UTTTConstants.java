@@ -8,6 +8,8 @@ import game.tictactoe.TicTacToeUtilities;
 import util.Pair;
 
 public class UTTTConstants {
+	public static final int MAX_REASONABLE_DEPTH = 63;
+
 	private static final int MAX_BOARD_NUM = 1 << 18;
 
 	private static final int PLAYER_2_MASK = 1 << 19;

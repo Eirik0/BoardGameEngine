@@ -8,9 +8,11 @@ import org.junit.Test;
 import analysis.IPositionEvaluator;
 import game.IPosition;
 import game.MoveListFactory;
+import game.chess.ChessConstants;
 import game.chess.ChessGame;
 import game.chess.ChessPosition;
 import game.chess.ChessPositionEvaluator;
+import game.ultimatetictactoe.UTTTConstants;
 import game.ultimatetictactoe.UltimateTicTacToeGame;
 import game.ultimatetictactoe.UltimateTicTacToePosition;
 import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
@@ -18,16 +20,16 @@ import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
 public class MonteCarloGameNodeTest {
 	@Test
 	public void testMonteCarlo_UTTT() {
-		doSearch(new UltimateTicTacToePosition(), new UltimateTicTacToePositionEvaluator(), UltimateTicTacToeGame.MAX_MOVES);
+		doSearch(new UltimateTicTacToePosition(), new UltimateTicTacToePositionEvaluator(), UltimateTicTacToeGame.MAX_MOVES, UTTTConstants.MAX_REASONABLE_DEPTH);
 	}
 
 	@Test
 	public void testMonteCarlo_Chess() {
-		doSearch(new ChessPosition(), new ChessPositionEvaluator(), ChessGame.MAX_MOVES);
+		doSearch(new ChessPosition(), new ChessPositionEvaluator(), ChessGame.MAX_MOVES, ChessConstants.MAX_REASONABLE_DEPTH);
 	}
 
-	private static <M, P extends IPosition<M>> void doSearch(P position, IPositionEvaluator<M, P> positionEvaluator, int maxMoves) {
-		MonteCarloTreeSearcher<M, P> treeSearcher = new MonteCarloTreeSearcher<>(positionEvaluator, new MoveListFactory<>(maxMoves), 25);
+	private static <M, P extends IPosition<M>> void doSearch(P position, IPositionEvaluator<M, P> positionEvaluator, int maxMoves, int maxDepth) {
+		MonteCarloTreeSearcher<M, P> treeSearcher = new MonteCarloTreeSearcher<>(new RandomMonteCarloChildren<>(0), positionEvaluator, new MoveListFactory<>(maxMoves), 25, maxDepth);
 		treeSearcher.searchForever(position, false);
 		try {
 			Thread.sleep(1000);

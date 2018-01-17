@@ -10,6 +10,7 @@ public interface ChessConstants {
 	static final int BOARD_ARRAY_SIZE = 120;
 
 	static final int MAX_MOVES = 2048;
+	static final int MAX_REASONABLE_DEPTH = 256;
 	static final int MAX_PIECE_NUM = 10;
 
 	static final int A_FILE = 7;

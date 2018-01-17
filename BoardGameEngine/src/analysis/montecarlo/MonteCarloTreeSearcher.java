@@ -1,6 +1,7 @@
 package analysis.montecarlo;
 
 import java.util.Collections;
+import java.util.List;
 
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
@@ -14,6 +15,7 @@ import game.forkjoinexample.StartStopObserver;
 import gui.analysis.ComputerPlayerResult;
 
 public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeSearcher<M, P>, PartialResultObservable {
+	private final IMonteCarloChildren<M> monteCarloChildren;
 	private final IPositionEvaluator<M, P> positionEvaluator;
 	private final MoveListFactory<M> moveListFactory;
 
@@ -22,21 +24,24 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 	private StartStopObserver startStopObserver;
 
 	private final int numSimulations;
+	private final int maxDepth;
 	private MonteCarloGameNode<M, P> monteCarloNode;
 
 	private volatile boolean searchComplete = false;
 
 	private volatile AnalysisResult<M> result;
 
-	public MonteCarloTreeSearcher(IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory, int numSimulations) {
-		this(positionEvaluator, moveListFactory, numSimulations, null, null);
+	public MonteCarloTreeSearcher(IMonteCarloChildren<M> monteCarloChildren, IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory, int numSimulations, int maxDepth) {
+		this(monteCarloChildren, positionEvaluator, moveListFactory, numSimulations, maxDepth, null, null);
 	}
 
-	public MonteCarloTreeSearcher(IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory, int numSimulations, ForkObserver<M> expandObserver,
-			StartStopObserver startStopObserver) {
+	public MonteCarloTreeSearcher(IMonteCarloChildren<M> monteCarloChildren, IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory, int numSimulations, int maxDepth,
+			ForkObserver<M> expandObserver, StartStopObserver startStopObserver) {
+		this.monteCarloChildren = monteCarloChildren;
 		this.positionEvaluator = positionEvaluator;
 		this.moveListFactory = moveListFactory;
 		this.numSimulations = numSimulations;
+		this.maxDepth = maxDepth;
 		this.expandObserver = expandObserver;
 		this.startStopObserver = startStopObserver;
 	}
@@ -54,7 +59,7 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 			startStopObserver.notifyPlyStarted();
 		}
 		result = null;
-		monteCarloNode = new MonteCarloGameNode<>(null, null, position, positionEvaluator, moveListFactory, numSimulations, expandObserver);
+		monteCarloNode = new MonteCarloGameNode<>(null, null, position, monteCarloChildren, positionEvaluator, moveListFactory, numSimulations, maxDepth, expandObserver);
 		monteCarloNode.searchRoot(escapeEarly);
 		result = calculatePartialResult();
 		searchComplete = true;
@@ -88,34 +93,36 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 	}
 
 	private AnalysisResult<M> calculatePartialResult() {
-		if (monteCarloNode.expandedChildren == null && monteCarloNode.statistics.isDecided) {
+		List<MonteCarloGameNode<M, P>> expandedChildren = monteCarloNode.expandedChildren;
+		if (expandedChildren == null && monteCarloNode.statistics.isDecided) {
 			AnalysisResult<M> result = new AnalysisResult<>(monteCarloNode.statistics.player);
-			result.addMoveWithScore(null, convertScore(monteCarloNode.statistics, true));
+			result.addMoveWithScore(null, convertScore(monteCarloNode.statistics, true, monteCarloNode.statistics.nodesEvaluated));
 			return result;
-		} else if (monteCarloNode.expandedChildren == null || monteCarloNode.expandedChildren.isEmpty()) {
+		} else if (expandedChildren == null || expandedChildren.isEmpty()) {
 			return null;
 		}
 
 		AnalysisResult<M> result = new AnalysisResult<>(monteCarloNode.statistics.player);
 		int i = 0;
-		while (i < monteCarloNode.expandedChildren.size()) {
-			MonteCarloGameNode<M, P> childNode = monteCarloNode.expandedChildren.get(i++);
-			result.addMoveWithScore(childNode.parentMove, convertScore(childNode.statistics, monteCarloNode.statistics.player == childNode.statistics.player));
+		while (i < expandedChildren.size()) {
+			MonteCarloGameNode<M, P> childNode = expandedChildren.get(i++);
+			result.addMoveWithScore(childNode.parentMove,
+					convertScore(childNode.statistics, monteCarloNode.statistics.player == childNode.statistics.player, monteCarloNode.statistics.nodesEvaluated));
 		}
 		return result;
 	}
 
-	private static double convertScore(MonteCarloStatistics statistics, boolean isCurrentPlayer) {
+	private static double convertScore(MonteCarloStatistics statistics, boolean isCurrentPlayer, int parentNodesEvaluated) {
 		double meanValue = isCurrentPlayer ? statistics.getMeanValue() : -statistics.getMeanValue();
 		if (statistics.isDecided) {
 			if (meanValue == MonteCarloStatistics.WIN) {
 				return AnalysisResult.WIN;
-			} else if (meanValue == MonteCarloStatistics.DRAW) {
-				return AnalysisResult.DRAW;
+			} else if (meanValue == MonteCarloStatistics.LOSS) {
+				return AnalysisResult.LOSS;
 			}
-			return AnalysisResult.LOSS;
+			return AnalysisResult.DRAW;
 		}
-		return meanValue;
+		return meanValue - statistics.getUncertainty(parentNodesEvaluated) / 2;
 	}
 
 	public MonteCarloGameNode<M, P> getRoot() {

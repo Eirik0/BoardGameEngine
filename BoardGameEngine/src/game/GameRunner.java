@@ -3,7 +3,6 @@ package game;
 import java.util.List;
 
 import analysis.search.ThreadNumber;
-import gui.GuiPlayer;
 import gui.gamestate.IPositionObserver;
 
 public class GameRunner<M, P extends IPosition<M>> {
@@ -155,9 +154,6 @@ public class GameRunner<M, P extends IPosition<M>> {
 		lastMove = moveHistory.setPositionFromHistory(newPosition, moveNumToFind, playerNumToFind);
 		position = newPosition;
 		setPositionCopy(NO_PLAYER, currentPlayer, false);
-		if (players.get(position.getCurrentPlayer() - 1) instanceof GuiPlayer) {
-			resumeGame();
-		}
 	}
 
 	private synchronized void notifyGameEnded() {

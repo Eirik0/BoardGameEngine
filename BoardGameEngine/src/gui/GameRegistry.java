@@ -12,6 +12,8 @@ import analysis.ComputerPlayerInfo;
 import analysis.IPositionEvaluator;
 import analysis.ITreeSearcher;
 import analysis.montecarlo.MonteCarloTreeSearcher;
+import analysis.montecarlo.RandomMonteCarloChildren;
+import analysis.montecarlo.WeightedMonteCarloChildren;
 import analysis.search.IterativeDeepeningTreeSearcher;
 import analysis.strategy.AlphaBetaQStrategy;
 import analysis.strategy.AlphaBetaStrategy;
@@ -136,8 +138,11 @@ public class GameRegistry {
 			return this;
 		}
 
-		public GameRegistryItem<M, P> registerMonteCarloStrategy(IPositionEvaluator<M, P> positionEvaluator, int numSimluations) {
-			registerTreeSearcher("MonteCarlo", info -> new MonteCarloTreeSearcher<>(positionEvaluator, moveListFactory, numSimluations));
+		public GameRegistryItem<M, P> registerMonteCarloStrategy(IPositionEvaluator<M, P> positionEvaluator, int numSimluations, int maxDepth) {
+			registerTreeSearcher("MonteCarlo",
+					info -> new MonteCarloTreeSearcher<>(new RandomMonteCarloChildren<>(0), positionEvaluator, moveListFactory, numSimluations, maxDepth));
+			registerTreeSearcher("MonteCarloW",
+					info -> new MonteCarloTreeSearcher<>(new WeightedMonteCarloChildren<>(0), positionEvaluator, moveListFactory, numSimluations, maxDepth));
 			return this;
 		}
 	}

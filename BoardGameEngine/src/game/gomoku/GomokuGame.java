@@ -8,6 +8,8 @@ public class GomokuGame implements IGame<Coordinate, GomokuPosition> {
 	public static final String NAME = "Gomoku";
 	public static final int MAX_MOVES = GomokuPosition.BOARD_WIDTH * GomokuPosition.BOARD_WIDTH;
 
+	public static final int MAX_REASONABLE_DEPTH = 25;
+
 	@Override
 	public String getName() {
 		return NAME;
