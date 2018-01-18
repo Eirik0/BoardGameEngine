@@ -4,14 +4,14 @@ import java.lang.reflect.InvocationTargetException;
 
 public class MoveListFactory<M> {
 	final int maxMoves;
-	final Class<? extends MoveList<M>> analysisMoveListClass;
+	@SuppressWarnings("rawtypes")
+	final Class<? extends MoveList> analysisMoveListClass;
 
-	@SuppressWarnings("unchecked")
 	public MoveListFactory(int maxMoves) {
-		this(maxMoves, (Class<? extends MoveList<M>>) ArrayMoveList.class);
+		this(maxMoves, ArrayMoveList.class);
 	}
 
-	public MoveListFactory(int maxMoves, Class<? extends MoveList<M>> analysisMoveListClass) {
+	public MoveListFactory(int maxMoves, @SuppressWarnings("rawtypes") Class<? extends MoveList> analysisMoveListClass) {
 		this.maxMoves = maxMoves;
 		this.analysisMoveListClass = analysisMoveListClass;
 	}
@@ -20,6 +20,7 @@ public class MoveListFactory<M> {
 		return new ArrayMoveList<>(maxMoves);
 	}
 
+	@SuppressWarnings("unchecked")
 	public MoveList<M> newAnalysisMoveList() {
 		try {
 			return analysisMoveListClass.getDeclaredConstructor(Integer.TYPE).newInstance(Integer.valueOf(maxMoves));

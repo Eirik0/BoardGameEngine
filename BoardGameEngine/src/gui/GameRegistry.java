@@ -30,13 +30,13 @@ import gui.gamestate.IGameRenderer;
 public class GameRegistry {
 	private static final Map<String, GameRegistryItem<?, ?>> gameMap = new LinkedHashMap<>();
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	public static <M, P extends IPosition<M>> GameRegistryItem<M, P> registerGame(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass) {
-		return registerGame(game, gameRendererClass, (Class<? extends MoveList<M>>) ArrayMoveList.class);
+		return registerGame(game, gameRendererClass, (Class<? extends MoveList>) ArrayMoveList.class);
 	}
 
 	public static <M, P extends IPosition<M>> GameRegistryItem<M, P> registerGame(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass,
-			Class<? extends MoveList<M>> moveListClass) {
+			@SuppressWarnings("rawtypes") Class<? extends MoveList> moveListClass) {
 		GameRegistryItem<M, P> gameRegistryItem = new GameRegistryItem<>(game, gameRendererClass, moveListClass);
 		gameMap.put(game.getName(), gameRegistryItem);
 		return gameRegistryItem;
@@ -101,7 +101,7 @@ public class GameRegistry {
 		long defaultMsPerMove = 3000;
 		int maxWorkers = 1;
 
-		public GameRegistryItem(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass, Class<? extends MoveList<M>> analysisMoveListClass) {
+		public GameRegistryItem(IGame<M, P> game, Class<? extends IGameRenderer<M, P>> gameRendererClass, @SuppressWarnings("rawtypes") Class<? extends MoveList> analysisMoveListClass) {
 			this.game = game;
 			this.gameRendererClass = gameRendererClass;
 			moveListFactory = new MoveListFactory<>(game.getMaxMoves(), analysisMoveListClass);

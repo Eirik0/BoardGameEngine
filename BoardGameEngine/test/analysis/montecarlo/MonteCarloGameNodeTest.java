@@ -40,7 +40,7 @@ public class MonteCarloGameNodeTest {
 
 		MonteCarloGameNode<M, P> root = treeSearcher.getRoot();
 
-		int totalPositionsEvaluated = root.statistics.nodesEvaluated;
+		int totalPositionsEvaluated = root.statistics.getTotalNodesEvaluated();
 		System.out.println("Positions evaluated: " + totalPositionsEvaluated);
 
 		ArrayList<MonteCarloGameNode<M, P>> sortedChildren = new ArrayList<>(root.expandedChildren);

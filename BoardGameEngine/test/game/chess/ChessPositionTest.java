@@ -80,7 +80,7 @@ public class ChessPositionTest implements ChessConstants {
 	}
 
 	public static void assertPositionsEqual(ChessPosition expected, ChessPosition actual) {
-		assertEquals(getBoardStr(expected), getBoardStr(actual));
+		assertEquals(ChessFunctions.getBoardStr(expected), ChessFunctions.getBoardStr(actual));
 		assertEquals("Current player", expected.currentPlayer, actual.currentPlayer);
 		assertEquals("Castle state", expected.castleState, actual.castleState);
 		assertEquals("En passant square", expected.enPassantSquare, actual.enPassantSquare);
@@ -101,17 +101,6 @@ public class ChessPositionTest implements ChessConstants {
 			assertEquals("En passant Square " + i, expectedUndoMove.priorEnPassantSquare, actualUndoMove.priorEnPassantSquare);
 			assertEquals("Half move clock " + i, expectedUndoMove.priorHalfMoveClock, actualUndoMove.priorHalfMoveClock);
 		}
-	}
-
-	public static String getBoardStr(ChessPosition expected) {
-		StringBuilder sb = new StringBuilder();
-		for (int y = 0; y < BOARD_WIDTH; ++y) {
-			for (int x = 0; x < BOARD_WIDTH; ++x) {
-				sb.append(ForsythEdwardsNotation.getPieceString(expected.squares[SQUARE_64_TO_SQUARE[y][x]]));
-			}
-			sb.append("\n");
-		}
-		return sb.toString();
 	}
 
 	public static void makeMove(ChessPosition position, String moveString) {

@@ -74,7 +74,7 @@ public class ChessPositionPerfTest {
 			}
 			if (perfTest.expectedPositions[depth] != countPositions) {
 				System.out.println(depth + ": " + countPositions + " != " + perfTest.expectedPositions[depth] + " " + perfTest.fen);
-				System.out.println(ChessPositionTest.getBoardStr(position));
+				System.out.println(ChessFunctions.getBoardStr(position));
 			}
 			assertEquals(depth + ": " + perfTest.fen, perfTest.expectedPositions[depth], countPositions);
 			totalPositions += countPositions;

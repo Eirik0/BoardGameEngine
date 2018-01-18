@@ -119,7 +119,7 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
 				continue;
 			}
 			double meanValue = statistics.player == child.statistics.player ? child.statistics.getMeanValue() : -child.statistics.getMeanValue();
-			double childExpectedValue = meanValue + child.statistics.getUncertainty(statistics.nodesEvaluated);
+			double childExpectedValue = meanValue + child.statistics.getUncertainty(statistics.numUncertain);
 			if (bestChild == null || childExpectedValue > bestExpectedValue) {
 				bestExpectedValue = childExpectedValue;
 				bestChild = child;

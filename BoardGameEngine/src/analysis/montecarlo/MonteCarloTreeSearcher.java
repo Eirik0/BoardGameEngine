@@ -96,7 +96,7 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 		List<MonteCarloGameNode<M, P>> expandedChildren = monteCarloNode.expandedChildren;
 		if (expandedChildren == null && monteCarloNode.statistics.isDecided) {
 			AnalysisResult<M> result = new AnalysisResult<>(monteCarloNode.statistics.player);
-			result.addMoveWithScore(null, convertScore(monteCarloNode.statistics, true, monteCarloNode.statistics.nodesEvaluated));
+			result.addMoveWithScore(null, convertScore(monteCarloNode.statistics, true, monteCarloNode.statistics.numUncertain));
 			return result;
 		} else if (expandedChildren == null || expandedChildren.isEmpty()) {
 			return null;
@@ -107,12 +107,12 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 		while (i < expandedChildren.size()) {
 			MonteCarloGameNode<M, P> childNode = expandedChildren.get(i++);
 			result.addMoveWithScore(childNode.parentMove,
-					convertScore(childNode.statistics, monteCarloNode.statistics.player == childNode.statistics.player, monteCarloNode.statistics.nodesEvaluated));
+					convertScore(childNode.statistics, monteCarloNode.statistics.player == childNode.statistics.player, monteCarloNode.statistics.numUncertain));
 		}
 		return result;
 	}
 
-	private static double convertScore(MonteCarloStatistics statistics, boolean isCurrentPlayer, int parentNodesEvaluated) {
+	private static double convertScore(MonteCarloStatistics statistics, boolean isCurrentPlayer, int parentNumUncertain) {
 		double meanValue = isCurrentPlayer ? statistics.getMeanValue() : -statistics.getMeanValue();
 		if (statistics.isDecided) {
 			if (meanValue == MonteCarloStatistics.WIN) {
@@ -122,7 +122,7 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 			}
 			return AnalysisResult.DRAW;
 		}
-		return meanValue - statistics.getUncertainty(parentNodesEvaluated) / 2;
+		return meanValue - statistics.getUncertainty(parentNumUncertain) / 2;
 	}
 
 	public MonteCarloGameNode<M, P> getRoot() {
@@ -140,7 +140,7 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 	public ComputerPlayerResult getPartialResult() {
 		if (monteCarloNode != null) {
 			AnalysisResult<M> partialResult = result == null ? calculatePartialResult() : result;
-			return new ComputerPlayerResult((AnalysisResult<Object>) partialResult, Collections.emptyMap(), monteCarloNode.statistics.nodesEvaluated);
+			return new ComputerPlayerResult((AnalysisResult<Object>) partialResult, Collections.emptyMap(), monteCarloNode.statistics.getTotalNodesEvaluated());
 		} else {
 			return new ComputerPlayerResult(null, Collections.emptyMap(), 0);
 		}

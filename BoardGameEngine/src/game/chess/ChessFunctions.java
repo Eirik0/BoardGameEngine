@@ -1,6 +1,7 @@
 package game.chess;
 
 import game.TwoPlayers;
+import game.chess.fen.ForsythEdwardsNotation;
 
 public class ChessFunctions implements ChessConstants {
 	public static ChessPosition copyBoard(ChessPosition position) {
@@ -215,7 +216,7 @@ public class ChessFunctions implements ChessConstants {
 			for (int c : pawns) {
 				System.out.println(c);
 			}
-			throw new IllegalStateException("\n" + ChessPositionTest.getBoardStr(position) + "Pawn not found at " + from);
+			throw new IllegalStateException("\n" + getBoardStr(position) + "Pawn not found at " + from);
 		case KNIGHT:
 			int[] knights = position.knights[player];
 			int numKnights = position.numKnights[player];
@@ -267,6 +268,17 @@ public class ChessFunctions implements ChessConstants {
 		default:
 			throw new IllegalStateException("Unexpected piece: " + piece + " at " + from);
 		}
+	}
+
+	public static String getBoardStr(ChessPosition expected) {
+		StringBuilder sb = new StringBuilder();
+		for (int y = 0; y < BOARD_WIDTH; ++y) {
+			for (int x = 0; x < BOARD_WIDTH; ++x) {
+				sb.append(ForsythEdwardsNotation.getPieceString(expected.squares[SQUARE_64_TO_SQUARE[y][x]]));
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 
 	public static void addPiece(ChessPosition position, int captureSquare, int piece, int player) {

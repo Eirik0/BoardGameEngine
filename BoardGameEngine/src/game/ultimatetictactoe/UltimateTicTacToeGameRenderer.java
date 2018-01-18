@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import game.Coordinate;
 import game.MoveList;
 import game.TwoPlayers;
+import game.tictactoe.TicTacToeUtilities;
 import gui.DrawingMethods;
 import gui.GameGuiManager;
 import gui.gamestate.BoardSizer;
@@ -69,13 +70,21 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 		// draw the current board in play
 		g.setColor(getHighlightColor(position.getCurrentPlayer()));
 		if (position.currentBoard == UltimateTicTacToePosition.ANY_BOARD) {
-			int highlightWidth = round(sizer.boardWidth - 1.5);
-			g.fillRect(round(sizer.offsetX), round(sizer.offsetY), highlightWidth, highlightWidth);
+			int n = 0;
+			do {
+				if (((position.wonBoards | position.fullBoards) & TicTacToeUtilities.POS[n]) == TwoPlayers.UNPLAYED) {
+					highlightBoard(g, n);
+				}
+			} while (++n < UltimateTicTacToePosition.BOARD_WIDTH);
 		} else {
-			Coordinate boardXY = UltimateTicTacToeUtilities.getBoardXY(position.currentBoard, 0); // 0 = upper left square
-			int highlightWidth = round(smallBoardWidth - 2);
-			g.fillRect(round(sizer.getSquareCornerX(boardXY.x)), round(sizer.getSquareCornerY(boardXY.y)), highlightWidth, highlightWidth);
+			highlightBoard(g, position.currentBoard);
 		}
+	}
+
+	private void highlightBoard(Graphics2D g, int board) {
+		Coordinate boardXY = UltimateTicTacToeUtilities.getBoardXY(board, 0); // 0 = upper left square
+		int highlightWidth = round(smallBoardWidth - 2);
+		g.fillRect(round(sizer.getSquareCornerX(boardXY.x)), round(sizer.getSquareCornerY(boardXY.y)), highlightWidth, highlightWidth);
 	}
 
 	public Color getHighlightColor(int currentPlayer) {
