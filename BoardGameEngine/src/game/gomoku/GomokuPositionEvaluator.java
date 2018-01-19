@@ -41,7 +41,7 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Integer, Gomo
 							}
 							pos += dir;
 						}
-						boolean closedStart = i - dir < GomokuUtilities.START_BOARD_INDEX || board[i - dir] == opponent || i % 20 == 0;
+						boolean closedStart = i - dir < GomokuUtilities.START_BOARD_INDEX || board[i - dir] == opponent || (i - dir) % 20 == 0;
 						boolean closedEnd = pos > GomokuUtilities.FINAL_BOARD_INDEX || board[pos] == opponent || pos % 20 == 0;
 						if (closedStart && closedEnd) {
 							continue;
