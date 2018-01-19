@@ -1,12 +1,11 @@
 package game.gomoku;
 
-import game.Coordinate;
 import game.IGame;
 import game.TwoPlayers;
 
-public class GomokuGame implements IGame<Coordinate, GomokuPosition> {
+public class GomokuGame implements IGame<Integer, GomokuPosition> {
 	public static final String NAME = "Gomoku";
-	public static final int MAX_MOVES = GomokuPosition.BOARD_WIDTH * GomokuPosition.BOARD_WIDTH;
+	public static final int MAX_MOVES = GomokuUtilities.BOARD_WIDTH * GomokuUtilities.BOARD_WIDTH;
 
 	public static final int MAX_REASONABLE_DEPTH = 25;
 

@@ -14,7 +14,7 @@ import gui.gamestate.GuiPlayerHelper;
 import gui.gamestate.IGameRenderer;
 import main.BoardGameEngineMain;
 
-public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosition> {
+public class GomokuGameRenderer implements IGameRenderer<Integer, GomokuPosition> {
 	private static final Color BOARD_COLOR = new Color(155, 111, 111);
 	private static final Coordinate[] STAR_POINTS = new Coordinate[] {
 			Coordinate.valueOf(3, 3), Coordinate.valueOf(9, 3), Coordinate.valueOf(15, 3),
@@ -29,7 +29,7 @@ public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosit
 		int imageWidth = GameGuiManager.getComponentWidth();
 		int imageHeight = GameGuiManager.getComponentHeight();
 
-		sizer = new BoardSizer(imageWidth, imageHeight, GomokuPosition.BOARD_WIDTH);
+		sizer = new BoardSizer(imageWidth, imageHeight, GomokuUtilities.BOARD_WIDTH);
 
 		fillRect(g, 0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
 
@@ -37,14 +37,14 @@ public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosit
 
 		g.setColor(Color.BLACK);
 		// Bounds & Grid
-		for (int i = 0; i < GomokuPosition.BOARD_WIDTH; ++i) {
-			g.drawLine(sizer.getCenterX(i), sizer.getCenterY(0), sizer.getCenterX(i), sizer.getCenterY(GomokuPosition.BOARD_WIDTH - 1));
-			g.drawLine(sizer.getCenterX(0), sizer.getCenterY(i), sizer.getCenterX(GomokuPosition.BOARD_WIDTH - 1), sizer.getCenterY(i));
+		for (int i = 0; i < GomokuUtilities.BOARD_WIDTH; ++i) {
+			g.drawLine(sizer.getCenterX(i), sizer.getCenterY(0), sizer.getCenterX(i), sizer.getCenterY(GomokuUtilities.BOARD_WIDTH - 1));
+			g.drawLine(sizer.getCenterX(0), sizer.getCenterY(i), sizer.getCenterX(GomokuUtilities.BOARD_WIDTH - 1), sizer.getCenterY(i));
 		}
 		// Small Circles
 		double small = Math.min(2, sizer.boardWidth / 200.0);
-		for (int x = 0; x < GomokuPosition.BOARD_WIDTH; ++x) {
-			for (int y = 0; y < GomokuPosition.BOARD_WIDTH; ++y) {
+		for (int x = 0; x < GomokuUtilities.BOARD_WIDTH; ++x) {
+			for (int y = 0; y < GomokuUtilities.BOARD_WIDTH; ++y) {
 				fillCircle(g, sizer.getCenterX(x), sizer.getCenterY(y), small);
 				g.fillOval(round(-small), round(-small), round(2 * small), round(2 * small));
 			}
@@ -57,17 +57,17 @@ public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosit
 	}
 
 	@Override
-	public void drawPosition(Graphics2D g, GomokuPosition position, MoveList<Coordinate> possibleMoves, Coordinate lastMove) {
+	public void drawPosition(Graphics2D g, GomokuPosition position, MoveList<Integer> possibleMoves, Integer lastMove) {
 		drawMoves(g, position, lastMove);
 		drawMouseOn(g, possibleMoves);
 	}
 
-	private void drawMoves(Graphics2D g, GomokuPosition position, Coordinate lastMove) {
-		for (int y = 0; y < GomokuPosition.BOARD_WIDTH; y++) {
-			int[] row = position.board[y];
-			for (int x = 0; x < GomokuPosition.BOARD_WIDTH; x++) {
-				if (row[x] != TwoPlayers.UNPLAYED) {
-					Color color = row[x] == TwoPlayers.PLAYER_1 ? Color.WHITE : Color.BLACK;
+	private void drawMoves(Graphics2D g, GomokuPosition position, Integer lastMove) {
+		for (int y = 0; y < GomokuUtilities.BOARD_WIDTH; y++) {
+			for (int x = 0; x < GomokuUtilities.BOARD_WIDTH; x++) {
+				int move = GomokuUtilities.getMove(x, y).intValue();
+				if (position.board[move] != TwoPlayers.UNPLAYED) {
+					Color color = position.board[move] == TwoPlayers.PLAYER_1 ? Color.WHITE : Color.BLACK;
 					g.setColor(color);
 					fillCircle(g, sizer.getCenterX(x), sizer.getCenterY(y), sizer.cellWidth * 0.45);
 				}
@@ -75,23 +75,25 @@ public class GomokuGameRenderer implements IGameRenderer<Coordinate, GomokuPosit
 		}
 		if (lastMove != null) {
 			g.setColor(Color.RED);
-			drawCircle(g, sizer.getCenterX(lastMove.x), sizer.getCenterY(lastMove.y), sizer.cellWidth * 0.225);
+			Coordinate lastMoveCoord = GomokuUtilities.MOVE_COORDS[lastMove.intValue()];
+			drawCircle(g, sizer.getCenterX(lastMoveCoord.y), sizer.getCenterY(lastMoveCoord.x), sizer.cellWidth * 0.225);
 		}
 	}
 
-	private void drawMouseOn(Graphics g, MoveList<Coordinate> possibleMoves) {
+	private void drawMouseOn(Graphics g, MoveList<Integer> possibleMoves) {
 		if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
-			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, GomokuPosition.BOARD_WIDTH);
-			if (coordinate != null && possibleMoves.contains(coordinate)) {
+			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, GomokuUtilities.BOARD_WIDTH);
+			if (coordinate != null && possibleMoves.contains(GomokuUtilities.getMove(coordinate.x, coordinate.y))) {
 				GuiPlayerHelper.highlightCoordinate(g, sizer, 0.1);
 			}
 		}
 	}
 
 	@Override
-	public Coordinate maybeGetUserMove(UserInput input, GomokuPosition position, MoveList<Coordinate> possibleMoves) {
+	public Integer maybeGetUserMove(UserInput input, GomokuPosition position, MoveList<Integer> possibleMoves) {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
-			return GuiPlayerHelper.maybeGetCoordinate(sizer, GomokuPosition.BOARD_WIDTH);
+			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, GomokuUtilities.BOARD_WIDTH);
+			return GomokuUtilities.getMove(coordinate.x, coordinate.y);
 		}
 		return null;
 	}

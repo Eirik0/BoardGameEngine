@@ -2,17 +2,14 @@ package game.gomoku;
 
 import analysis.AnalysisResult;
 import analysis.IPositionEvaluator;
-import game.Coordinate;
 import game.MoveList;
 import game.TwoPlayers;
 
-public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, GomokuPosition> {
-	private static final int BOARD_WIDTH = GomokuPosition.BOARD_WIDTH;
-
+public class GomokuPositionEvaluator implements IPositionEvaluator<Integer, GomokuPosition> {
 	@Override
-	public double evaluate(GomokuPosition position, MoveList<Coordinate> possibleMoves) {
+	public double evaluate(GomokuPosition position, MoveList<Integer> possibleMoves) {
 		int opponent = TwoPlayers.otherPlayer(position.currentPlayer);
-		if (winExists(position.board, opponent)) {
+		if (position.gameOver) {
 			return AnalysisResult.LOSS;
 		} else if (possibleMoves.size() == 0) {
 			return AnalysisResult.DRAW;
@@ -20,100 +17,44 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Coordinate, G
 		return score(position.board, position.currentPlayer, opponent) - score(position.board, opponent, position.currentPlayer);
 	}
 
-	private static int score(int[][] board, int player, int opponent) {
+	private static int score(int[] board, int player, int opponent) {
 		int[] open = new int[4];
 		int[] closed = new int[4];
-		for (int y = 0; y < BOARD_WIDTH; ++y) {
-			for (int x = 0; x < BOARD_WIDTH; ++x) {
-				if (board[y][x] == player) {
-					int left = x > 0 ? board[y][x - 1] : opponent;
-					int upLeft = x > 0 && y > 0 ? board[y - 1][x - 1] : opponent;
-					int up = y > 0 ? board[y - 1][x] : opponent;
-					int upRight = x < BOARD_WIDTH - 1 && y > 0 ? board[y - 1][x + 1] : opponent;
-					int rightCount = 0;
-					while (x < BOARD_WIDTH - (rightCount + 1) && board[y][x + (rightCount + 1)] == player) {
-						++rightCount;
-					}
-					int downRightCount = 0;
-					while (x < BOARD_WIDTH - (downRightCount + 1) && y < BOARD_WIDTH - (downRightCount + 1) && board[y + (downRightCount + 1)][x + (downRightCount + 1)] == player) {
-						++downRightCount;
-					}
-					int downCount = 0;
-					while (y < BOARD_WIDTH - (downCount + 1) && board[y + (downCount + 1)][x] == player) {
-						++downCount;
-					}
-					int downLeftCount = 0;
-					while (x > downLeftCount && y < BOARD_WIDTH - (downLeftCount + 1) && board[y + (downLeftCount + 1)][x - (downLeftCount + 1)] == player) {
-						++downLeftCount;
-					}
-					int nextRight = x < BOARD_WIDTH - 1 ? board[y][x + 1] : opponent;
-					int nextDownRight = x < BOARD_WIDTH - 1 && y < BOARD_WIDTH - 1 ? board[y + 1][x + 1] : opponent;
-					int nextDown = y < BOARD_WIDTH - 1 ? board[y + 1][x] : opponent;
-					int nextDownLeft = x > 0 && y < BOARD_WIDTH - 1 ? board[y + 1][x - 1] : opponent;
-					if (rightCount == 0 && downRightCount == 0 && downCount == 0 && downLeftCount == 0) {
-						if (left == TwoPlayers.UNPLAYED && upLeft == TwoPlayers.UNPLAYED && up == TwoPlayers.UNPLAYED && upRight == TwoPlayers.UNPLAYED &&
-								nextRight == TwoPlayers.UNPLAYED && nextDownRight == TwoPlayers.UNPLAYED && nextDown == TwoPlayers.UNPLAYED && nextDownLeft == TwoPlayers.UNPLAYED) {
-							++open[0];
-						} else if (left == TwoPlayers.UNPLAYED || upLeft == TwoPlayers.UNPLAYED || up == TwoPlayers.UNPLAYED || upRight == TwoPlayers.UNPLAYED ||
-								nextRight == TwoPlayers.UNPLAYED || nextDownRight == TwoPlayers.UNPLAYED || nextDown == TwoPlayers.UNPLAYED || nextDownLeft == TwoPlayers.UNPLAYED) {
-							++closed[0];
+		int i = GomokuUtilities.START_BOARD_INDEX;
+		do {
+			int j = 0;
+			do {
+				if (board[i] == player) {
+					int dirIndex = 4;
+					do {
+						int inARow = 1;
+						int dir = GomokuUtilities.DIRECTIONS[dirIndex];
+						if (board[i - dir] == player) {
+							continue;
 						}
-						continue;
-					}
-					if (left == TwoPlayers.UNPLAYED && nextRight == TwoPlayers.UNPLAYED) {
-						++open[rightCount];
-					} else if (left == TwoPlayers.UNPLAYED || nextRight == TwoPlayers.UNPLAYED) {
-						if (left != player) {
-							++closed[rightCount];
+						int pos = i + dir;
+						while (pos < GomokuUtilities.FINAL_BOARD_INDEX) {
+							if (board[pos] == player) {
+								++inARow;
+							} else {
+								break;
+							}
+							pos += dir;
 						}
-					}
-					if (upLeft == TwoPlayers.UNPLAYED && nextDownRight == TwoPlayers.UNPLAYED) {
-						++open[downRightCount];
-					} else if (upLeft == TwoPlayers.UNPLAYED || nextDownRight == TwoPlayers.UNPLAYED) {
-						if (upLeft != player) {
-							++closed[downRightCount];
+						boolean closedStart = i - dir < GomokuUtilities.START_BOARD_INDEX || board[i - dir] == opponent || i % 20 == 0;
+						boolean closedEnd = pos > GomokuUtilities.FINAL_BOARD_INDEX || board[pos] == opponent || pos % 20 == 0;
+						if (closedStart && closedEnd) {
+							continue;
+						} else if (closedStart || closedEnd) {
+							++closed[inARow - 1];
+						} else {
+							++open[inARow - 1];
 						}
-					}
-					if (up == TwoPlayers.UNPLAYED && nextDown == TwoPlayers.UNPLAYED) {
-						++open[downCount];
-					} else if (up == TwoPlayers.UNPLAYED || nextDown == TwoPlayers.UNPLAYED) {
-						if (up != player) {
-							++closed[downCount];
-						}
-					}
-					if (upRight == TwoPlayers.UNPLAYED && nextDownLeft == TwoPlayers.UNPLAYED) {
-						++open[downLeftCount];
-					} else if (upRight == TwoPlayers.UNPLAYED || nextDownLeft == TwoPlayers.UNPLAYED) {
-						if (upRight != player) {
-							++closed[downLeftCount];
-						}
-					}
+					} while (++dirIndex < GomokuUtilities.NUM_DIRECTIONS);
 				}
-			}
-		}
+				++i;
+			} while (++j < GomokuUtilities.BOARD_WIDTH);
+		} while (++i < GomokuUtilities.FINAL_BOARD_INDEX);
 		return 16 * open[3] + 8 * (closed[3] + open[2]) + 4 * (closed[3] + open[2]) + 2 * (closed[1] + open[0]) + closed[0];
-	}
-
-	static boolean winExists(int[][] board, int player) {
-		for (int y = 0; y < BOARD_WIDTH; ++y) {
-			for (int x = 0; x < BOARD_WIDTH; ++x) {
-				if (board[y][x] == player) {
-					if (x < BOARD_WIDTH - 4 && board[y][x + 1] == player && board[y][x + 2] == player && board[y][x + 3] == player && board[y][x + 4] == player) {
-						return true;
-					}
-					if (y < BOARD_WIDTH - 4 && board[y + 1][x] == player && board[y + 2][x] == player && board[y + 3][x] == player && board[y + 4][x] == player) {
-						return true;
-					}
-					if (x < BOARD_WIDTH - 4 && y < BOARD_WIDTH - 4 && board[y + 1][x + 1] == player && board[y + 2][x + 2] == player && board[y + 3][x + 3] == player
-							&& board[y + 4][x + 4] == player) {
-						return true;
-					}
-					if (x > 3 && y < BOARD_WIDTH - 4 && board[y + 1][x - 1] == player && board[y + 2][x - 2] == player && board[y + 3][x - 3] == player && board[y + 4][x - 4] == player) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
 	}
 }

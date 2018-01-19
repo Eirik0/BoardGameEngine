@@ -1,27 +1,26 @@
 package game.gomoku;
 
 import game.ArrayMoveList;
-import game.Coordinate;
 import game.IPosition;
 import game.MoveList;
 import game.TwoPlayers;
 
-public class GomokuMoveList implements MoveList<Coordinate> {
-	private final ArrayMoveList<Coordinate> arrayMoveList;
+public class GomokuMoveList implements MoveList<Integer> {
+	private final ArrayMoveList<Integer> arrayMoveList;
 
 	public GomokuMoveList(int capacity) {
 		arrayMoveList = new ArrayMoveList<>(capacity);
 	}
 
 	@Override
-	public void addDynamicMove(Coordinate move, IPosition<Coordinate> position) {
-		if (hasNeighbors(((GomokuPosition) position).board, move.x, move.y)) {
+	public void addDynamicMove(Integer move, IPosition<Integer> position) {
+		if (hasNeighbors(((GomokuPosition) position).board, move.intValue())) {
 			arrayMoveList.addDynamicMove(move, position);
 		}
 	}
 
 	@Override
-	public void addAllDynamicMoves(Coordinate[] moves, IPosition<Coordinate> position) {
+	public void addAllDynamicMoves(Integer[] moves, IPosition<Integer> position) {
 		int i = 0;
 		while (i < moves.length) {
 			addDynamicMove(moves[i], position);
@@ -30,14 +29,14 @@ public class GomokuMoveList implements MoveList<Coordinate> {
 	}
 
 	@Override
-	public void addQuietMove(Coordinate move, IPosition<Coordinate> position) {
-		if (hasNeighbors(((GomokuPosition) position).board, move.x, move.y)) {
+	public void addQuietMove(Integer move, IPosition<Integer> position) {
+		if (hasNeighbors(((GomokuPosition) position).board, move.intValue())) {
 			arrayMoveList.addQuietMove(move, position);
 		}
 	}
 
 	@Override
-	public void addAllQuietMoves(Coordinate[] moves, IPosition<Coordinate> position) {
+	public void addAllQuietMoves(Integer[] moves, IPosition<Integer> position) {
 		int i = 0;
 		while (i < moves.length) {
 			addQuietMove(moves[i], position);
@@ -45,25 +44,25 @@ public class GomokuMoveList implements MoveList<Coordinate> {
 		}
 	}
 
-	private static boolean hasNeighbors(int[][] board, int x, int y) {
-		return (x == 9 && y == 9) ||
-				(y > 0 && x > 0 && board[y - 1][x - 1] != TwoPlayers.UNPLAYED) ||
-				(y > 0 && board[y - 1][x] != TwoPlayers.UNPLAYED) ||
-				(y > 0 && x < GomokuPosition.BOARD_WIDTH - 1 && board[y - 1][x + 1] != TwoPlayers.UNPLAYED) ||
-				(x > 0 && board[y][x - 1] != TwoPlayers.UNPLAYED) ||
-				(x < GomokuPosition.BOARD_WIDTH - 1 && board[y][x + 1] != TwoPlayers.UNPLAYED) ||
-				(y < GomokuPosition.BOARD_WIDTH - 1 && x > 0 && board[y + 1][x - 1] != TwoPlayers.UNPLAYED) ||
-				(y < GomokuPosition.BOARD_WIDTH - 1 && board[y + 1][x] != TwoPlayers.UNPLAYED) ||
-				(y < GomokuPosition.BOARD_WIDTH - 1 && x < GomokuPosition.BOARD_WIDTH - 1 && board[y + 1][x + 1] != TwoPlayers.UNPLAYED);
+	private static boolean hasNeighbors(int[] board, int move) {
+		return (move == 210) ||
+				(board[move + GomokuUtilities.DIRECTIONS[0]] != TwoPlayers.UNPLAYED) ||
+				(board[move + GomokuUtilities.DIRECTIONS[1]] != TwoPlayers.UNPLAYED) ||
+				(board[move + GomokuUtilities.DIRECTIONS[2]] != TwoPlayers.UNPLAYED) ||
+				(board[move + GomokuUtilities.DIRECTIONS[3]] != TwoPlayers.UNPLAYED) ||
+				(board[move + GomokuUtilities.DIRECTIONS[4]] != TwoPlayers.UNPLAYED) ||
+				(board[move + GomokuUtilities.DIRECTIONS[5]] != TwoPlayers.UNPLAYED) ||
+				(board[move + GomokuUtilities.DIRECTIONS[6]] != TwoPlayers.UNPLAYED) ||
+				(board[move + GomokuUtilities.DIRECTIONS[7]] != TwoPlayers.UNPLAYED);
 	}
 
 	@Override
-	public Coordinate get(int index) {
+	public Integer get(int index) {
 		return arrayMoveList.get(index);
 	}
 
 	@Override
-	public boolean contains(Coordinate move) {
+	public boolean contains(Integer move) {
 		return arrayMoveList.contains(move);
 	}
 
@@ -78,7 +77,7 @@ public class GomokuMoveList implements MoveList<Coordinate> {
 	}
 
 	@Override
-	public MoveList<Coordinate> subList(int beginIndex) {
+	public MoveList<Integer> subList(int beginIndex) {
 		return arrayMoveList.subList(beginIndex);
 	}
 
