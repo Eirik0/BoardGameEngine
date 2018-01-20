@@ -11,10 +11,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import game.chess.ChessConstants;
+
 public class AnalysisResult<M> {
 	public static final double WIN = Double.POSITIVE_INFINITY;
 	public static final double LOSS = Double.NEGATIVE_INFINITY;
 	public static final double DRAW = Double.NaN;
+	public static final double WIN_INT = Integer.MAX_VALUE;
+	public static final double LOSS_INT = -Integer.MAX_VALUE;
+
+	private static final int MAX_POSSIBLE_MOVES = ChessConstants.MAX_MOVES;
 
 	private final int player;
 
@@ -54,9 +60,9 @@ public class AnalysisResult<M> {
 		if (bestMove == null || AnalysisResult.isGreater(moveAnalysis.score, bestMove.analysis.score)) {
 			bestMove = new AnalyzedMove<>(move, moveAnalysis.score);
 		}
-		if (AnalysisResult.WIN == moveAnalysis.score || AnalysisResult.isDraw(moveAnalysis.score)) {
+		if (isWin(moveAnalysis.score) || isDraw(moveAnalysis.score)) {
 			wonAndDrawnMoves.put(move, analysis);
-		} else if (AnalysisResult.LOSS == moveAnalysis.score) {
+		} else if (isLoss(moveAnalysis.score)) {
 			lostMoves.put(move, analysis);
 		}
 	}
@@ -120,11 +126,11 @@ public class AnalysisResult<M> {
 	}
 
 	public synchronized boolean isWin() {
-		return bestMove != null && bestMove.analysis.score == AnalysisResult.WIN;
+		return bestMove != null && isWin(bestMove.analysis.score);
 	}
 
 	public synchronized boolean isLoss() {
-		return bestMove != null && bestMove.analysis.score == AnalysisResult.LOSS;
+		return bestMove != null && isLoss(bestMove.analysis.score);
 	}
 
 	public synchronized boolean onlyOneMove() {
@@ -139,12 +145,20 @@ public class AnalysisResult<M> {
 		return l > r || (r < 0 && isDraw(l)) || (l >= 0 && isDraw(r));
 	}
 
-	public static boolean isDraw(double d) {
-		return d != d;
+	public static boolean isWin(double score) {
+		return score == WIN || score > WIN_INT - MAX_POSSIBLE_MOVES;
 	}
 
-	public static boolean isGameOver(double d) {
-		return Double.isInfinite(d) || isDraw(d);
+	public static boolean isLoss(double score) {
+		return score == LOSS || score < LOSS_INT + MAX_POSSIBLE_MOVES;
+	}
+
+	public static boolean isDraw(double score) {
+		return score != score;
+	}
+
+	public static boolean isGameOver(double score) {
+		return isWin(score) || isLoss(score) || isDraw(score);
 	}
 
 	@Override

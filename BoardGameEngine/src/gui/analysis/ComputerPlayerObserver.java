@@ -107,9 +107,9 @@ public class ComputerPlayerObserver implements Drawable, Sizable {
 	private static String getScoreString(double score, boolean isPlayerOne) {
 		if (AnalysisResult.isDraw(score)) {
 			return "(Draw)";
-		} else if (AnalysisResult.WIN == score) {
+		} else if (AnalysisResult.isWin(score)) {
 			return "(Win)";
-		} else if (AnalysisResult.LOSS == score) {
+		} else if (AnalysisResult.isLoss(score)) {
 			return "(Loss)";
 		} else {
 			long playerScore = Math.round(100 * (isPlayerOne ? score : -score));

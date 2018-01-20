@@ -14,12 +14,21 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Integer, Gomo
 		} else if (possibleMoves.size() == 0) {
 			return AnalysisResult.DRAW;
 		}
-		return score(position.board, position.currentPlayer, opponent) - score(position.board, opponent, position.currentPlayer);
+		int[] playerOpen = new int[4];
+		int[] playerClosed = new int[4];
+		int[] opponentOpen = new int[4];
+		int[] opponentClosed = new int[4];
+		score(position.board, position.currentPlayer, opponent, playerOpen, playerClosed);
+		score(position.board, opponent, position.currentPlayer, opponentOpen, opponentClosed);
+		int playerScore = 16 * playerOpen[3] + 8 * (playerClosed[3] + playerOpen[2]) + 4 * (playerClosed[3] + playerOpen[2]) + 2 * playerClosed[1];
+		int opponentScore = 16 * opponentOpen[3] + 8 * (opponentClosed[3] + opponentOpen[2]) + 4 * (opponentClosed[3] + opponentOpen[2]) + 2 * opponentClosed[1];
+		if (playerOpen[3] > 0 || playerClosed[3] > 0) {
+			return AnalysisResult.WIN_INT - 1;
+		}
+		return playerScore - opponentScore;
 	}
 
-	private static int score(int[] board, int player, int opponent) {
-		int[] open = new int[4];
-		int[] closed = new int[4];
+	public static void score(int[] board, int player, int opponent, int open[], int closed[]) {
 		int i = GomokuUtilities.START_BOARD_INDEX;
 		do {
 			int j = 0;
@@ -55,6 +64,5 @@ public class GomokuPositionEvaluator implements IPositionEvaluator<Integer, Gomo
 				++i;
 			} while (++j < GomokuUtilities.BOARD_WIDTH);
 		} while (++i < GomokuUtilities.FINAL_BOARD_INDEX);
-		return 16 * open[3] + 8 * (closed[3] + open[2]) + 4 * (closed[3] + open[2]) + 2 * (closed[1] + open[0]) + closed[0];
 	}
 }

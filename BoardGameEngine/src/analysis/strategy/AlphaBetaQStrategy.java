@@ -54,7 +54,7 @@ public class AlphaBetaQStrategy<M, P extends IPosition<M>> implements IAlphaBeta
 		int parentPlayer = position.getCurrentPlayer();
 
 		boolean gameOver = numMoves == possibleMoves.size(); // only for quiescent searches that look at all moves
-		double bestScore = Double.NEGATIVE_INFINITY;
+		double bestScore = AnalysisResult.LOSS;
 		M move;
 		int i = 0;
 		do {

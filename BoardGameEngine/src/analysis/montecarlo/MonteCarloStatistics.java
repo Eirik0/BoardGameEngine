@@ -24,9 +24,9 @@ public class MonteCarloStatistics {
 	public MonteCarloStatistics(int player, double score) {
 		this.player = player;
 		numCertain = 1;
-		if (AnalysisResult.WIN == score) {
+		if (AnalysisResult.isWin(score)) {
 			numWon = 1;
-		} else if (AnalysisResult.LOSS == score) {
+		} else if (AnalysisResult.isLoss(score)) {
 			numLost = 1;
 		} else {
 			numDrawn = 1;
@@ -36,9 +36,9 @@ public class MonteCarloStatistics {
 
 	public void addScore(double score) {
 		++numUncertain;
-		if (AnalysisResult.WIN == score) {
+		if (AnalysisResult.isWin(score)) {
 			++numWon;
-		} else if (AnalysisResult.LOSS == score) {
+		} else if (AnalysisResult.isLoss(score)) {
 			++numLost;
 		} else {
 			++numDrawn;

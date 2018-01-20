@@ -26,7 +26,7 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M>> implements IAlpha
 
 	@Override
 	public double evaluate(P position, int plies, double alpha, double beta) {
-		return max(position, 0, plies, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+		return max(position, 0, plies, AnalysisResult.LOSS, AnalysisResult.WIN);
 	}
 
 	private double max(P position, int ply, int maxPly, double alpha, double beta) {
@@ -46,7 +46,7 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M>> implements IAlpha
 
 		int parentPlayer = position.getCurrentPlayer();
 
-		double bestScore = Double.NEGATIVE_INFINITY;
+		double bestScore = AnalysisResult.LOSS;
 		int i = 0;
 		do {
 			M move = possibleMoves.get(i);
@@ -86,7 +86,7 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M>> implements IAlpha
 
 		int parentPlayer = position.getCurrentPlayer();
 
-		double bestScore = Double.POSITIVE_INFINITY;
+		double bestScore = AnalysisResult.WIN;
 		int i = 0;
 		do {
 			M move = possibleMoves.get(i);
@@ -131,7 +131,7 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M>> implements IAlpha
 
 		int parentPlayer = position.getCurrentPlayer();
 
-		double bestScore = Double.NEGATIVE_INFINITY;
+		double bestScore = AnalysisResult.LOSS;
 		int i = 0;
 		do {
 			M move = possibleMoves.get(i);
@@ -176,7 +176,7 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M>> implements IAlpha
 
 		int parentPlayer = position.getCurrentPlayer();
 
-		double bestScore = Double.POSITIVE_INFINITY;
+		double bestScore = AnalysisResult.WIN;
 		int i = 0;
 		do {
 			M move = possibleMoves.get(i);

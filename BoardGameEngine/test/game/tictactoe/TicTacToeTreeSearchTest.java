@@ -85,7 +85,7 @@ public class TicTacToeTreeSearchTest {
 		AnalysisResult<Coordinate> search = treeSearcher.startSearch(position, 9, true);
 		Coordinate draw = Coordinate.valueOf(2, 1);
 		for (Entry<Coordinate, MoveAnalysis> moveWithScore : search.getMovesWithScore().entrySet()) {
-			assertEquals(moveWithScore.getKey().toString(), moveWithScore.getKey().equals(draw) ? 0.0 : Double.POSITIVE_INFINITY, moveWithScore.getValue().score, 0.0);
+			assertEquals(moveWithScore.getKey().toString(), moveWithScore.getKey().equals(draw) ? 0.0 : AnalysisResult.WIN, moveWithScore.getValue().score, 0.0);
 		}
 		treeSearcher.stopSearch(true);
 	}

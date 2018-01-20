@@ -45,7 +45,7 @@ public class AlphaBetaStrategy<M, P extends IPosition<M>> implements IAlphaBetaS
 		int parentPlayer = position.getCurrentPlayer();
 
 		boolean gameOver = true;
-		double bestScore = Double.NEGATIVE_INFINITY;
+		double bestScore = AnalysisResult.LOSS;
 		int i = 0;
 		do {
 			M move = possibleMoves.get(i);

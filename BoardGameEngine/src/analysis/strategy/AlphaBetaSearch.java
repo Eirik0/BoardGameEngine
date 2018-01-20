@@ -27,8 +27,8 @@ public class AlphaBetaSearch<M, P extends IPosition<M>> extends AbstractAlphaBet
 	@Override
 	protected synchronized AnalysisResult<M> searchWithStrategy(IGameTreeSearchJoin<M> join) {
 		int parentPlayer = position.getCurrentPlayer();
-		double alpha = Double.NEGATIVE_INFINITY;
-		double beta = Double.POSITIVE_INFINITY;
+		double alpha = AnalysisResult.LOSS;
+		double beta = AnalysisResult.WIN;
 		AnalysisResult<M> analysisResult = new AnalysisResult<>(parentPlayer);
 		do {
 			M move = movesToSearch.get(branchIndex.get());
