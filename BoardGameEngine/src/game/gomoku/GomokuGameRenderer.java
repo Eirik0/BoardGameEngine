@@ -46,7 +46,6 @@ public class GomokuGameRenderer implements IGameRenderer<Integer, GomokuPosition
 		for (int x = 0; x < GomokuUtilities.BOARD_WIDTH; ++x) {
 			for (int y = 0; y < GomokuUtilities.BOARD_WIDTH; ++y) {
 				fillCircle(g, sizer.getCenterX(x), sizer.getCenterY(y), small);
-				g.fillOval(round(-small), round(-small), round(2 * small), round(2 * small));
 			}
 		}
 		// Large
@@ -67,7 +66,7 @@ public class GomokuGameRenderer implements IGameRenderer<Integer, GomokuPosition
 			for (int x = 0; x < GomokuUtilities.BOARD_WIDTH; x++) {
 				int move = GomokuUtilities.getMove(x, y).intValue();
 				if (position.board[move] != TwoPlayers.UNPLAYED) {
-					Color color = position.board[move] == TwoPlayers.PLAYER_1 ? Color.WHITE : Color.BLACK;
+					Color color = position.board[move] == TwoPlayers.PLAYER_1 ? Color.BLACK : Color.WHITE;
 					g.setColor(color);
 					fillCircle(g, sizer.getCenterX(x), sizer.getCenterY(y), sizer.cellWidth * 0.45);
 				}
@@ -93,7 +92,9 @@ public class GomokuGameRenderer implements IGameRenderer<Integer, GomokuPosition
 	public Integer maybeGetUserMove(UserInput input, GomokuPosition position, MoveList<Integer> possibleMoves) {
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, GomokuUtilities.BOARD_WIDTH);
-			return GomokuUtilities.getMove(coordinate.x, coordinate.y);
+			if (coordinate != null) {
+				return GomokuUtilities.getMove(coordinate.x, coordinate.y);
+			}
 		}
 		return null;
 	}

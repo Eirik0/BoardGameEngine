@@ -27,7 +27,7 @@ public class MoveHistory<M> {
 			setIndex(new MoveIndex(-1, numberOfPlayers - 1));
 			return;
 		}
-		MoveIndex nextIndex = MoveIndex.nextIndex(selectedMoveIndex, numberOfPlayers);
+		MoveIndex nextIndex = MoveIndex.nextIndex(selectedMoveIndex, playerNum - 1, numberOfPlayers);
 		if (nextIndex.moveNumber == moveHistoryList.size()) {
 			HistoryMove<M> historyMove = new HistoryMove<>(numberOfPlayers);
 			historyMove.addMove(move, playerNum);
@@ -93,11 +93,14 @@ public class MoveHistory<M> {
 			this.playerNum = playerNum;
 		}
 
-		public static MoveIndex nextIndex(MoveIndex currentIndex, int numberOfPlayers) {
+		public static MoveIndex nextIndex(MoveIndex currentIndex, int playerNum, int numberOfPlayers) {
 			if (currentIndex.playerNum < numberOfPlayers - 1) {
-				return new MoveIndex(currentIndex.moveNumber, currentIndex.playerNum + 1);
+				if (currentIndex.playerNum == playerNum) {
+					return new MoveIndex(currentIndex.moveNumber + 1, playerNum);
+				}
+				return new MoveIndex(currentIndex.moveNumber, playerNum);
 			} else {
-				return new MoveIndex(currentIndex.moveNumber + 1, 0);
+				return new MoveIndex(currentIndex.moveNumber + 1, playerNum);
 			}
 		}
 

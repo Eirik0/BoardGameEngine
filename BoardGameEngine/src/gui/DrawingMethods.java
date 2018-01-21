@@ -1,9 +1,11 @@
 package gui;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Stroke;
 
 import main.BoardGameEngineMain;
 
@@ -48,6 +50,20 @@ public interface DrawingMethods {
 	public default void fillCircle(Graphics2D g, double x, double y, double radius) {
 		double height = 2 * radius;
 		g.fillOval(round(x - radius), round(y - radius), round(height), round(height));
+	}
+
+	public default void drawThickLine(Graphics2D g, double x0, double y0, double x1, double y1, float thickness, boolean round) {
+		Stroke oldStroke = g.getStroke();
+		g.setStroke(new BasicStroke(thickness, round ? BasicStroke.CAP_ROUND : BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND, 0));
+		g.drawLine(round(x0), round(y0), round(x1), round(y1));
+		g.setStroke(oldStroke);
+	}
+
+	public default Color decayToColor(Color mainColor, double percent) {
+		double red = percent * 255 + (1 - percent) * mainColor.getRed();
+		double green = percent * 255 + (1 - percent) * mainColor.getGreen();
+		double blue = percent * 255 + (1 - percent) * mainColor.getBlue();
+		return new Color((int) red, (int) green, (int) blue);
 	}
 
 	public static int roundS(double d) {

@@ -83,13 +83,6 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 		return decayToColor(color, calculateDecay(lastUpdateTime));
 	}
 
-	private static Color decayToColor(Color mainColor, double percent) {
-		double red = percent * 255 + (1 - percent) * mainColor.getRed();
-		double green = percent * 255 + (1 - percent) * mainColor.getGreen();
-		double blue = percent * 255 + (1 - percent) * mainColor.getBlue();
-		return new Color((int) red, (int) green, (int) blue);
-	}
-
 	private static double calculateDecay(long lastUpdateTime) {
 		double secondsElapsed = (System.nanoTime() - lastUpdateTime) / 1000000000.0;
 		return Math.pow(Math.E, -secondsElapsed);

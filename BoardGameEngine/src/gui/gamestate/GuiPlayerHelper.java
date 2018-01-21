@@ -21,10 +21,13 @@ public class GuiPlayerHelper {
 	}
 
 	public static void highlightCoordinate(Graphics g, BoardSizer sizer, double paddingFraction) {
-		g.setColor(Color.BLUE);
+		highlightCoordinate(g, sizer, paddingFraction, Color.BLUE);
+	}
+
+	public static void highlightCoordinate(Graphics g, BoardSizer sizer, double paddingFraction, Color color) {
+		g.setColor(color);
 		int coordinateX = sizer.getCoordinateX(GameGuiManager.getMouseX());
 		int coordinateY = sizer.getCoordinateY(GameGuiManager.getMouseY());
-
 		highlightCoordinate(g, sizer, coordinateX, coordinateY, paddingFraction);
 	}
 

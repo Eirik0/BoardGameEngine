@@ -40,6 +40,10 @@ import game.gomoku.GomokuGame;
 import game.gomoku.GomokuGameRenderer;
 import game.gomoku.GomokuMoveList;
 import game.gomoku.GomokuPositionEvaluator;
+import game.papersoccer.PaperSoccerGame;
+import game.papersoccer.PaperSoccerGameRenderer;
+import game.papersoccer.PaperSoccerPositionEvaluator;
+import game.papersoccer.PaperSoccerUtilities;
 import game.sudoku.SudokuConstants;
 import game.sudoku.SudokuGame;
 import game.sudoku.SudokuGameRenderer;
@@ -108,26 +112,32 @@ public class BoardGameEngineMain {
 		GameRegistry.registerGame(new ChessGame(), ChessGameRenderer.class)
 				.registerHuman()
 				.registerComputer(6000, defaultMaxWorkers)
-				.registerMinimaxStrategies(new ChessPositionEvaluator())
+				.registerMinimaxStrategies(new ChessPositionEvaluator(), true)
 				.registerMonteCarloStrategy(new ChessPositionEvaluator(), 1, ChessConstants.MAX_REASONABLE_DEPTH);
 
 		GameRegistry.registerGame(new TicTacToeGame(), TicTacToeGameRenderer.class)
 				.registerHuman()
 				.registerComputer(500, defaultMaxWorkers)
-				.registerMinimaxStrategies(new TicTacToePositionEvaluator())
+				.registerMinimaxStrategies(new TicTacToePositionEvaluator(), false)
 				.registerMonteCarloStrategy(new TicTacToePositionEvaluator(), 1, TicTacToePosition.BOARD_WIDTH * TicTacToePosition.BOARD_WIDTH);
 
 		GameRegistry.registerGame(new UltimateTicTacToeGame(), UltimateTicTacToeGameRenderer.class)
 				.registerHuman()
 				.registerComputer(3000, defaultMaxWorkers)
-				.registerMinimaxStrategies(new UltimateTicTacToePositionEvaluator())
+				.registerMinimaxStrategies(new UltimateTicTacToePositionEvaluator(), true)
 				.registerMonteCarloStrategy(new UltimateTicTacToePositionEvaluator(), 1, UTTTConstants.MAX_REASONABLE_DEPTH);
 
 		GameRegistry.registerGame(new GomokuGame(), GomokuGameRenderer.class, GomokuMoveList.class)
 				.registerHuman()
 				.registerComputer(6000, defaultMaxWorkers)
-				.registerMinimaxStrategies(new GomokuPositionEvaluator())
+				.registerMinimaxStrategies(new GomokuPositionEvaluator(), false)
 				.registerMonteCarloStrategy(new GomokuPositionEvaluator(), 1, GomokuGame.MAX_REASONABLE_DEPTH);
+
+		GameRegistry.registerGame(new PaperSoccerGame(), PaperSoccerGameRenderer.class)
+				.registerHuman()
+				.registerComputer(1000, defaultMaxWorkers)
+				.registerMinimaxStrategies(new PaperSoccerPositionEvaluator(), false)
+				.registerMonteCarloStrategy(new PaperSoccerPositionEvaluator(), 1, PaperSoccerUtilities.MAX_REASONABLE_DEPTH);
 
 		GameRegistry.registerGame(new SudokuGame(), SudokuGameRenderer.class)
 				.registerComputer(1000, defaultMaxWorkers)

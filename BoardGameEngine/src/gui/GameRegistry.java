@@ -124,13 +124,15 @@ public class GameRegistry {
 			return this;
 		}
 
-		public GameRegistryItem<M, P> registerMinimaxStrategies(IPositionEvaluator<M, P> positionEvaluator) {
-			return registerMinimaxStrategies(positionEvaluator, null);
+		public GameRegistryItem<M, P> registerMinimaxStrategies(IPositionEvaluator<M, P> positionEvaluator, boolean quiescent) {
+			return registerMinimaxStrategies(positionEvaluator, null, quiescent);
 		}
 
-		public GameRegistryItem<M, P> registerMinimaxStrategies(IPositionEvaluator<M, P> positionEvaluator, String name) {
-			registerTreeSearcher("AlphaBetaQ" + (name == null ? "" : "_" + name),
-					info -> new IterativeDeepeningTreeSearcher<>(new AlphaBetaQStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)), moveListFactory, info.numWorkers));
+		public GameRegistryItem<M, P> registerMinimaxStrategies(IPositionEvaluator<M, P> positionEvaluator, String name, boolean quiescent) {
+			if (quiescent) {
+				registerTreeSearcher("AlphaBetaQ" + (name == null ? "" : "_" + name),
+						info -> new IterativeDeepeningTreeSearcher<>(new AlphaBetaQStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)), moveListFactory, info.numWorkers));
+			}
 			registerTreeSearcher("AlphaBeta" + (name == null ? "" : "_" + name),
 					info -> new IterativeDeepeningTreeSearcher<>(new AlphaBetaStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory)), moveListFactory, info.numWorkers));
 			registerTreeSearcher("MinMax" + (name == null ? "" : "_" + name),
