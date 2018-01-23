@@ -18,6 +18,30 @@ import gui.gamestate.IGameRenderer;
 import main.BoardGameEngineMain;
 
 public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, UltimateTicTacToePosition> {
+	private static final Coordinate[] BOARD_NM = new Coordinate[] {
+			nm(0, 0), nm(0, 1), nm(0, 2), nm(1, 0), nm(1, 1), nm(1, 2), nm(2, 0), nm(2, 1), nm(2, 2),
+			nm(0, 3), nm(0, 4), nm(0, 5), nm(1, 3), nm(1, 4), nm(1, 5), nm(2, 3), nm(2, 4), nm(2, 5),
+			nm(0, 6), nm(0, 7), nm(0, 8), nm(1, 6), nm(1, 7), nm(1, 8), nm(2, 6), nm(2, 7), nm(2, 8),
+			nm(3, 0), nm(3, 1), nm(3, 2), nm(4, 0), nm(4, 1), nm(4, 2), nm(5, 0), nm(5, 1), nm(5, 2),
+			nm(3, 3), nm(3, 4), nm(3, 5), nm(4, 3), nm(4, 4), nm(4, 5), nm(5, 3), nm(5, 4), nm(5, 5),
+			nm(3, 6), nm(3, 7), nm(3, 8), nm(4, 6), nm(4, 7), nm(4, 8), nm(5, 6), nm(5, 7), nm(5, 8),
+			nm(6, 0), nm(6, 1), nm(6, 2), nm(7, 0), nm(7, 1), nm(7, 2), nm(8, 0), nm(8, 1), nm(8, 2),
+			nm(6, 3), nm(6, 4), nm(6, 5), nm(7, 3), nm(7, 4), nm(7, 5), nm(8, 3), nm(8, 4), nm(8, 5),
+			nm(6, 6), nm(6, 7), nm(6, 8), nm(7, 6), nm(7, 7), nm(7, 8), nm(8, 6), nm(8, 7), nm(8, 8) };
+
+	private static Coordinate nm(int n, int m) {
+		return Coordinate.valueOf(n, m);
+	}
+
+	public static Coordinate getBoardXY(int n, int m) {
+		Coordinate intersection = BOARD_NM[n * UltimateTicTacToePosition.BOARD_WIDTH + m];
+		return Coordinate.valueOf(intersection.y, intersection.x);
+	}
+
+	public static Coordinate getBoardNM(int x, int y) {
+		return BOARD_NM[y * UltimateTicTacToePosition.BOARD_WIDTH + x];
+	}
+
 	private static final Color WOOD_COLOR = new Color(206, 168, 140);
 
 	private BoardSizer sizer;
@@ -82,7 +106,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 	}
 
 	private void highlightBoard(Graphics2D g, int board) {
-		Coordinate boardXY = UltimateTicTacToeUtilities.getBoardXY(board, 0); // 0 = upper left square
+		Coordinate boardXY = getBoardXY(board, 0); // 0 = upper left square
 		int highlightWidth = round(smallBoardWidth - 2);
 		g.fillRect(round(sizer.getSquareCornerX(boardXY.x)), round(sizer.getSquareCornerY(boardXY.y)), highlightWidth, highlightWidth);
 	}
@@ -107,7 +131,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 			for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
 				int playerInt = (position.boards[n] >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
 				if (playerInt != TwoPlayers.UNPLAYED) {
-					Coordinate boardXY = UltimateTicTacToeUtilities.getBoardXY(n, m);
+					Coordinate boardXY = getBoardXY(n, m);
 					g.setColor(getPlayerColor(playerInt, lastMove != null && n == lastMove.x && m == lastMove.y));
 					String player = playerInt == TwoPlayers.PLAYER_1 ? "X" : "O";
 					drawCenteredString(g, smallFont, player, sizer.getCenterX(boardXY.x), sizer.getCenterY(boardXY.y));
@@ -119,7 +143,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 			if (wonBoardsInt != TwoPlayers.UNPLAYED) {
 				String player = wonBoardsInt == TwoPlayers.PLAYER_1 ? "X" : "O";
 				g.setColor(getPlayerColor(wonBoardsInt, lastMove != null && lastMove.x == m));
-				Coordinate intersection = UltimateTicTacToeUtilities.getBoardXY(m, 4); // 4 = the center square of that board
+				Coordinate intersection = getBoardXY(m, 4); // 4 = the center square of that board
 				drawCenteredString(g, largeFont, player, sizer.getCenterX(intersection.x), sizer.getCenterY(intersection.y));
 			}
 		}
@@ -134,7 +158,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 		if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
 			if (coordinate != null) {
-				Coordinate boardNM = UltimateTicTacToeUtilities.getBoardNM(coordinate.x, coordinate.y);
+				Coordinate boardNM = getBoardNM(coordinate.x, coordinate.y);
 				if (possibleMoves.contains(boardNM)) {
 					GuiPlayerHelper.highlightCoordinate(g, sizer, 0.1);
 				}
@@ -147,7 +171,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 		if (input == UserInput.LEFT_BUTTON_RELEASED) {
 			Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
 			if (coordinate != null) {
-				return UltimateTicTacToeUtilities.getBoardNM(coordinate.x, coordinate.y);
+				return getBoardNM(coordinate.x, coordinate.y);
 			}
 		}
 		return null;

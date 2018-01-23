@@ -11,9 +11,7 @@ import game.tictactoe.TicTacToeUtilities;
 
 public class UltimateTicTacToePosition implements IPosition<Coordinate> {
 	static final int BOARD_WIDTH = 9;
-
 	static final int ANY_BOARD = -1;
-
 	static final int MAX_MOVES = 81;
 
 	final int[] boards;
@@ -41,7 +39,7 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate> {
 
 	@Override
 	public void getPossibleMoves(MoveList<Coordinate> possibleMoves) {
-		if (UTTTConstants.winExists(wonBoards, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
+		if (UltimateTicTacToeUtilities.winExists(wonBoards, TwoPlayers.otherPlayer(currentPlayer))) { // We only need to check the last player who played
 			return;
 		}
 		if (currentBoard == ANY_BOARD) {
@@ -58,13 +56,13 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate> {
 	}
 
 	private void addMovesFromBoard(MoveList<Coordinate> possibleMoves, int boardNum) {
-		int[] dynamicMoves = UTTTConstants.getDynamicMoves(boards[boardNum], currentPlayer);
+		int[] dynamicMoves = UltimateTicTacToeUtilities.getDynamicMoves(boards[boardNum], currentPlayer);
 		int i = 0;
 		while (i < dynamicMoves.length) {
 			possibleMoves.addDynamicMove(Coordinate.valueOf(boardNum, dynamicMoves[i]), this);
 			++i;
 		}
-		int[] quietMoves = UTTTConstants.getQuietMoves(boards[boardNum], currentPlayer);
+		int[] quietMoves = UltimateTicTacToeUtilities.getQuietMoves(boards[boardNum], currentPlayer);
 		i = 0;
 		while (i < quietMoves.length) {
 			possibleMoves.addQuietMove(Coordinate.valueOf(boardNum, quietMoves[i]), this);
@@ -84,7 +82,7 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate> {
 		int boardNum = move.x;
 		int position = move.y;
 		int oldBoard = boards[boardNum] |= TicTacToeUtilities.getPlayerAtPosition(currentPlayer, position);
-		if (UTTTConstants.winExists(boards[boardNum], currentPlayer)) {
+		if (UltimateTicTacToeUtilities.winExists(boards[boardNum], currentPlayer)) {
 			wonBoards |= TicTacToeUtilities.getPlayerAtPosition(currentPlayer, boardNum);
 		}
 

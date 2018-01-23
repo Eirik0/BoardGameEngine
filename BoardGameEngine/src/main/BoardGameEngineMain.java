@@ -52,10 +52,11 @@ import game.tictactoe.TicTacToeGame;
 import game.tictactoe.TicTacToeGameRenderer;
 import game.tictactoe.TicTacToePosition;
 import game.tictactoe.TicTacToePositionEvaluator;
-import game.ultimatetictactoe.UTTTConstants;
+import game.ultimatetictactoe.UTTTProbabilityPositionEvaluator;
 import game.ultimatetictactoe.UltimateTicTacToeGame;
 import game.ultimatetictactoe.UltimateTicTacToeGameRenderer;
 import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
+import game.ultimatetictactoe.UltimateTicTacToeUtilities;
 import gui.FixedDurationGameLoop;
 import gui.GameGuiManager;
 import gui.GameRegistry;
@@ -125,7 +126,8 @@ public class BoardGameEngineMain {
 				.registerHuman()
 				.registerComputer(3000, defaultMaxWorkers)
 				.registerMinimaxStrategies(new UltimateTicTacToePositionEvaluator(), true)
-				.registerMonteCarloStrategy(new UltimateTicTacToePositionEvaluator(), 1, UTTTConstants.MAX_REASONABLE_DEPTH);
+				.registerMinimaxStrategies(new UTTTProbabilityPositionEvaluator(), "P", true)
+				.registerMonteCarloStrategy(new UTTTProbabilityPositionEvaluator(), 1, UltimateTicTacToeUtilities.MAX_REASONABLE_DEPTH);
 
 		GameRegistry.registerGame(new GomokuGame(), GomokuGameRenderer.class, GomokuMoveList.class)
 				.registerHuman()

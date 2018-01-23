@@ -12,7 +12,7 @@ import game.chess.ChessConstants;
 import game.chess.ChessGame;
 import game.chess.ChessPosition;
 import game.chess.ChessPositionEvaluator;
-import game.ultimatetictactoe.UTTTConstants;
+import game.ultimatetictactoe.UltimateTicTacToeUtilities;
 import game.ultimatetictactoe.UltimateTicTacToeGame;
 import game.ultimatetictactoe.UltimateTicTacToePosition;
 import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
@@ -20,7 +20,7 @@ import game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
 public class MonteCarloGameNodeTest {
 	@Test
 	public void testMonteCarlo_UTTT() {
-		doSearch(new UltimateTicTacToePosition(), new UltimateTicTacToePositionEvaluator(), UltimateTicTacToeGame.MAX_MOVES, UTTTConstants.MAX_REASONABLE_DEPTH);
+		doSearch(new UltimateTicTacToePosition(), new UltimateTicTacToePositionEvaluator(), UltimateTicTacToeGame.MAX_MOVES, UltimateTicTacToeUtilities.MAX_REASONABLE_DEPTH);
 	}
 
 	@Test

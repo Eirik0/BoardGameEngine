@@ -1,43 +1,68 @@
 package game.ultimatetictactoe;
 
-import game.Coordinate;
+import java.util.ArrayList;
+import java.util.List;
+
+import game.TwoPlayers;
+import game.tictactoe.TicTacToeUtilities;
+import util.Pair;
 
 public class UltimateTicTacToeUtilities {
-	//((0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2),
-	// (0, 3), (0, 4), (0, 5), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5),
-	// (0, 6), (0, 7), (0, 8), (1, 6), (1, 7), (1, 8), (2, 6), (2, 7), (2, 8),
-	// (3, 0), (3, 1), (3, 2), (4, 0), (4, 1), (4, 2), (5, 0), (5, 1), (5, 2),
-	// (3, 3), (3, 4), (3, 5), (4, 3), (4, 4), (4, 5), (5, 3), (5, 4), (5, 5),
-	// (3, 6), (3, 7), (3, 8), (4, 6), (4, 7), (4, 8), (5, 6), (5, 7), (5, 8),
-	// (6, 0), (6, 1), (6, 2), (7, 0), (7, 1), (7, 2), (8, 0), (8, 1), (8, 2),
-	// (6, 3), (6, 4), (6, 5), (7, 3), (7, 4), (7, 5), (8, 3), (8, 4), (8, 5),
-	// (6, 6), (6, 7), (6, 8), (7, 6), (7, 7), (7, 8), (8, 6), (8, 7), (8, 8))
+	public static final int MAX_REASONABLE_DEPTH = 63;
 
-	private static final Coordinate[] BOARD_NM = new Coordinate[] {
-			nm(0, 0), nm(0, 1), nm(0, 2), nm(1, 0), nm(1, 1), nm(1, 2), nm(2, 0), nm(2, 1), nm(2, 2),
-			nm(0, 3), nm(0, 4), nm(0, 5), nm(1, 3), nm(1, 4), nm(1, 5), nm(2, 3), nm(2, 4), nm(2, 5),
-			nm(0, 6), nm(0, 7), nm(0, 8), nm(1, 6), nm(1, 7), nm(1, 8), nm(2, 6), nm(2, 7), nm(2, 8),
-			nm(3, 0), nm(3, 1), nm(3, 2), nm(4, 0), nm(4, 1), nm(4, 2), nm(5, 0), nm(5, 1), nm(5, 2),
-			nm(3, 3), nm(3, 4), nm(3, 5), nm(4, 3), nm(4, 4), nm(4, 5), nm(5, 3), nm(5, 4), nm(5, 5),
-			nm(3, 6), nm(3, 7), nm(3, 8), nm(4, 6), nm(4, 7), nm(4, 8), nm(5, 6), nm(5, 7), nm(5, 8),
-			nm(6, 0), nm(6, 1), nm(6, 2), nm(7, 0), nm(7, 1), nm(7, 2), nm(8, 0), nm(8, 1), nm(8, 2),
-			nm(6, 3), nm(6, 4), nm(6, 5), nm(7, 3), nm(7, 4), nm(7, 5), nm(8, 3), nm(8, 4), nm(8, 5),
-			nm(6, 6), nm(6, 7), nm(6, 8), nm(7, 6), nm(7, 7), nm(7, 8), nm(8, 6), nm(8, 7), nm(8, 8) };
+	private static final int MAX_BOARD_NUM = 1 << 18;
 
-	private static Coordinate nm(int n, int m) {
-		return Coordinate.valueOf(n, m);
+	private static final int PLAYER_2_MASK = 1 << 19;
+
+	private static final boolean[] hasPossibleWins = new boolean[PLAYER_2_MASK | MAX_BOARD_NUM]; // player, board
+	private static final boolean[] winsExist = new boolean[PLAYER_2_MASK | MAX_BOARD_NUM]; // player, board
+
+	private static final int[] countPossibleWins = new int[PLAYER_2_MASK | MAX_BOARD_NUM]; // player, board
+	private static final int[][] dynamicMoves = new int[PLAYER_2_MASK | MAX_BOARD_NUM][]; // player, board
+	private static final int[][] quietMoves = new int[PLAYER_2_MASK | MAX_BOARD_NUM][]; // player, board
+
+	static {
+		for (int board = 0; board < MAX_BOARD_NUM; ++board) {
+			// We need has possible wins for "invalid" boards
+			hasPossibleWins[board] = calcHasPossibleWins(board, TwoPlayers.PLAYER_1);
+			hasPossibleWins[PLAYER_2_MASK | board] = calcHasPossibleWins(board, TwoPlayers.PLAYER_2);
+			if (!checkValidBoard(board)) {
+				continue;
+			}
+			winsExist[board] = TicTacToeUtilities.winExists(board, TwoPlayers.PLAYER_1);
+			winsExist[PLAYER_2_MASK | board] = TicTacToeUtilities.winExists(board, TwoPlayers.PLAYER_2);
+			countPossibleWins[board] = calcCountPossibleWins(board, TwoPlayers.PLAYER_1);
+			countPossibleWins[PLAYER_2_MASK | board] = calcCountPossibleWins(board, TwoPlayers.PLAYER_2);
+			Pair<List<Integer>, List<Integer>> p1Moves = calculatePossibleMoves(board, TwoPlayers.PLAYER_1);
+			Pair<List<Integer>, List<Integer>> p2Moves = calculatePossibleMoves(board, TwoPlayers.PLAYER_2);
+			List<Integer> p1DymanicMoves = p1Moves.getFirst();
+			List<Integer> p1QuietMoves = p1Moves.getSecond();
+			List<Integer> p2DymanicMoves = p2Moves.getFirst();
+			List<Integer> p2QuietMoves = p2Moves.getSecond();
+			int[] p1DynamicMovesCoords = new int[p1DymanicMoves.size()];
+			int[] p1QuietMovesCoords = new int[p1QuietMoves.size()];
+			int[] p2DynamicMovesCoords = new int[p2DymanicMoves.size()];
+			int[] p2QuietMovesCoords = new int[p2QuietMoves.size()];
+			for (int i = 0; i < p1DymanicMoves.size(); ++i) {
+				p1DynamicMovesCoords[i] = p1DymanicMoves.get(i).intValue();
+			}
+			for (int i = 0; i < p1QuietMoves.size(); ++i) {
+				p1QuietMovesCoords[i] = p1QuietMoves.get(i).intValue();
+			}
+			for (int i = 0; i < p2DymanicMoves.size(); ++i) {
+				p2DynamicMovesCoords[i] = p2DymanicMoves.get(i).intValue();
+			}
+			for (int i = 0; i < p2QuietMoves.size(); ++i) {
+				p2QuietMovesCoords[i] = p2QuietMoves.get(i).intValue();
+			}
+			dynamicMoves[board] = p1DynamicMovesCoords;
+			quietMoves[board] = p1QuietMovesCoords;
+			dynamicMoves[PLAYER_2_MASK | board] = p2DynamicMovesCoords;
+			quietMoves[PLAYER_2_MASK | board] = p2QuietMovesCoords;
+		}
 	}
 
-	public static Coordinate getBoardXY(int n, int m) {
-		Coordinate intersection = BOARD_NM[n * UltimateTicTacToePosition.BOARD_WIDTH + m];
-		return Coordinate.valueOf(intersection.y, intersection.x);
-	}
-
-	public static Coordinate getBoardNM(int x, int y) {
-		return BOARD_NM[y * UltimateTicTacToePosition.BOARD_WIDTH + x];
-	}
-
-	public static int countPossibleWins(int board, int otherPlayer) {
+	private static int calcCountPossibleWins(int board, int otherPlayer) {
 		boolean has0 = ((board >> 0) & otherPlayer) != otherPlayer;
 		boolean has1 = ((board >> 2) & otherPlayer) != otherPlayer;
 		boolean has2 = ((board >> 4) & otherPlayer) != otherPlayer;
@@ -57,7 +82,7 @@ public class UltimateTicTacToeUtilities {
 				(has2 && has4 && has6 ? 1 : 0);
 	}
 
-	public static boolean hasPossibleWins(int board, int otherPlayer) {
+	private static boolean calcHasPossibleWins(int board, int otherPlayer) {
 		boolean has0 = ((board >> 0) & otherPlayer) != otherPlayer;
 		boolean has1 = ((board >> 2) & otherPlayer) != otherPlayer;
 		boolean has2 = ((board >> 4) & otherPlayer) != otherPlayer;
@@ -75,5 +100,58 @@ public class UltimateTicTacToeUtilities {
 				(has2 && has5 && has8) ||
 				(has0 && has4 && has8) ||
 				(has2 && has4 && has6);
+	}
+
+	private UltimateTicTacToeUtilities() {
+	}
+
+	public static void initialize() {
+		// Do nothing
+	}
+
+	private static boolean checkValidBoard(int board) {
+		int i = 0;
+		do {
+			if ((board & TicTacToeUtilities.POS[i]) == TicTacToeUtilities.POS[i]) {
+				return false;
+			}
+		} while (++i < UltimateTicTacToePosition.BOARD_WIDTH);
+		return true;
+	}
+
+	private static Pair<List<Integer>, List<Integer>> calculatePossibleMoves(int board, int currentPlayer) {
+		List<Integer> dynamicMoves = new ArrayList<>();
+		List<Integer> quietMoves = new ArrayList<>();
+		int m = 0;
+		do {
+			if ((board & TicTacToeUtilities.POS[m]) == TwoPlayers.UNPLAYED) {
+				if (TicTacToeUtilities.winExists(board | TicTacToeUtilities.getPlayerAtPosition(currentPlayer, m), currentPlayer)) {
+					dynamicMoves.add(Integer.valueOf(m));
+				} else {
+					quietMoves.add(Integer.valueOf(m));
+				}
+			}
+		} while (++m < UltimateTicTacToePosition.BOARD_WIDTH);
+		return Pair.valueOf(dynamicMoves, quietMoves);
+	}
+
+	public static boolean winExists(int board, int player) {
+		return winsExist[player == TwoPlayers.PLAYER_1 ? board : PLAYER_2_MASK | board];
+	}
+
+	public static int countPossibleWins(int board, int otherPlayer) {
+		return countPossibleWins[otherPlayer == TwoPlayers.PLAYER_1 ? board : PLAYER_2_MASK | board];
+	}
+
+	public static boolean hasPossibleWins(int board, int otherPlayer) {
+		return hasPossibleWins[otherPlayer == TwoPlayers.PLAYER_1 ? board : PLAYER_2_MASK | board];
+	}
+
+	public static int[] getDynamicMoves(int board, int player) {
+		return dynamicMoves[player == TwoPlayers.PLAYER_1 ? board : PLAYER_2_MASK | board];
+	}
+
+	public static int[] getQuietMoves(int board, int player) {
+		return quietMoves[player == TwoPlayers.PLAYER_1 ? board : PLAYER_2_MASK | board];
 	}
 }
