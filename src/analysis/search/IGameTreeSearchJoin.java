@@ -4,13 +4,13 @@ import analysis.AnalysisResult;
 
 @FunctionalInterface
 public interface IGameTreeSearchJoin<M> {
-	public void accept(boolean searchCanceled, MoveWithResult<M> moveWithResult);
+    public void accept(boolean searchCanceled, MoveWithResult<M> moveWithResult);
 
-	public default AnalysisResult<M> getPartialResult() {
-		return null;
-	}
+    public default AnalysisResult<M> getPartialResult() {
+        return null;
+    }
 
-	public default IGameTreeSearchJoin<M> getParent() {
-		return null;
-	}
+    public default IGameTreeSearchJoin<M> getParent() {
+        return null;
+    }
 }

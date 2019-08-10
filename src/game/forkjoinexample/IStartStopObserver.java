@@ -1,7 +1,7 @@
 package game.forkjoinexample;
 
 public interface IStartStopObserver {
-	public void notifyPlyStarted();
+    public void notifyPlyStarted();
 
-	public void notifyPlyComplete(boolean searchStopped);
+    public void notifyPlyComplete(boolean searchStopped);
 }

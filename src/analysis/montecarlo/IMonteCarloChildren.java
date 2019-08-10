@@ -4,16 +4,16 @@ import game.IPosition;
 import game.MoveList;
 
 public interface IMonteCarloChildren<M> {
-	public IMonteCarloChildren<M> createNewWith(int numUnexpanded);
+    public IMonteCarloChildren<M> createNewWith(int numUnexpanded);
 
-	public <P extends IPosition<M>> boolean initUnexpanded(MonteCarloGameNode<M, P> parentNode);
+    public <P extends IPosition<M>> boolean initUnexpanded(MonteCarloGameNode<M, P> parentNode);
 
-	public int getNumUnexpanded();
+    public int getNumUnexpanded();
 
-	public void setNumUnexpanded(int numUnexpanded);
+    public void setNumUnexpanded(int numUnexpanded);
 
-	public int getNextNodeIndex();
+    public int getNextNodeIndex();
 
-	public int getNextMoveIndex(MoveList<M> moveList);
+    public int getNextMoveIndex(MoveList<M> moveList);
 
 }
