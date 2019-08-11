@@ -171,6 +171,8 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
 
         private int previousLastTouchedPlayerRoundsRemaining;
 
+        private boolean returnedToPlayerBoard = false;
+
         public Upgrade(Coordinate coordinate) {
             this.coordinate = coordinate;
         }
@@ -183,6 +185,11 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
             tile.lastTouchedPlayerRoundsRemaining = position.playerRoundsRemaining;
 
             final PlayerBoard playerBoard = position.playerBoards[position.currentPlayer];
+
+            if (playerBoard.buy[tile.level] < PRICES[tile.level].length) {
+                playerBoard.buy[tile.level]++;
+                returnedToPlayerBoard = true;
+            }
 
             playerBoard.lightPoints -= ++tile.level;
 
@@ -225,6 +232,10 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
             }
 
             playerBoard.lightPoints += tile.level + 1;
+
+            if (returnedToPlayerBoard) {
+                playerBoard.buy[tile.level]--;
+            }
         }
     }
 
