@@ -9,14 +9,14 @@ import bge.game.MoveList;
 
 public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
     // Game constants
-    private static final int[][] SCORING_TOKENS = new int[][] {
+    static final int[][] SCORING_TOKENS = new int[][] {
             new int[] { 12, 12, 12, 12, 13, 13, 13, 14, 14 },
             new int[] { 13, 13, 14, 14, 16, 16, 17 },
             new int[] { 17, 17, 18, 18, 19 },
             new int[] { 20, 20, 21 }
     };
 
-    private static final int[][] PRICES = new int[][] {
+    static final int[][] PRICES = new int[][] {
             new int[] { 2, 2, 1, 1 },
             new int[] { 3, 3, 2, 2 },
             new int[] { 4, 3, 3 },
@@ -234,7 +234,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
     }
 
     public static class Setup implements IPhotosynthesisMove {
-        private final Coordinate coordinate;
+        final Coordinate coordinate;
 
         public Setup(Coordinate coordinate) {
             this.coordinate = coordinate;
@@ -305,6 +305,8 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
                 if (tileRewardColumn > -1) {
                     playerBoard.victoryPoints += SCORING_TOKENS[tileRewardColumn][--position.scoringTokensRemaining[tileRewardColumn]];
                 }
+            } else {
+                playerBoard.available[tile.level]--;
             }
         }
 
@@ -325,6 +327,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
                     playerBoard.victoryPoints -= SCORING_TOKENS[tileRewardColumn][position.scoringTokensRemaining[tileRewardColumn]++];
                 }
             } else {
+                playerBoard.available[tile.level]++;
                 tile.level--;
             }
 
@@ -337,7 +340,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
     }
 
     public static class Buy implements IPhotosynthesisMove {
-        private final int buyColumn;
+        final int buyColumn;
 
         public Buy(int buyColumn) {
             this.buyColumn = buyColumn;
@@ -345,14 +348,18 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
 
         @Override
         public void applyMove(PhotosynthesisPosition position) {
-            // TODO Auto-generated method stub
-
+            final PlayerBoard playerBoard = position.playerBoards[position.currentPlayer];
+            playerBoard.buy[buyColumn]--;
+            playerBoard.available[buyColumn]++;
+            playerBoard.lightPoints -= PRICES[buyColumn][playerBoard.buy[buyColumn]];
         }
 
         @Override
         public void unapplyMove(PhotosynthesisPosition position) {
-            // TODO Auto-generated method stub
-
+            final PlayerBoard playerBoard = position.playerBoards[position.currentPlayer];
+            playerBoard.lightPoints += PRICES[buyColumn][playerBoard.buy[buyColumn]];
+            playerBoard.buy[buyColumn]++;
+            playerBoard.available[buyColumn]--;
         }
 
     }

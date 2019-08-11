@@ -3,12 +3,17 @@ package bge.game.photosynthesis;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.junit.Test;
 
 import bge.game.Coordinate;
+import bge.game.photosynthesis.PhotosynthesisPosition.Buy;
+import bge.game.photosynthesis.PhotosynthesisPosition.PlayerBoard;
 import bge.game.photosynthesis.PhotosynthesisPosition.Setup;
 import bge.game.photosynthesis.PhotosynthesisPosition.Tile;
 import bge.game.photosynthesis.PhotosynthesisPosition.Upgrade;
@@ -109,6 +114,64 @@ public class PhotosynthesisPositionTest {
 
         final PhotosynthesisPosition expected = new PhotosynthesisPosition(2);
         assertEquals(getStartingPosition.get(), position);
+    }
+
+    /** Tests for effects of Upgrade moves on the player board state */
+    @Test
+    public void Upgrade_PlayerBoard() {
+        final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+        final PlayerBoard playerBoard = position.playerBoards[0];
+
+        final Tile tile = position.mainBoard.grid[0][0];
+        tile.level = 0;
+        tile.player = 0;
+        playerBoard.buy[0] = 3;
+
+        position.makeMove(new Upgrade(Coordinate.valueOf(0, 0)));
+
+        assertEquals(1, playerBoard.available[1]);
+        assertEquals(4, playerBoard.buy[0]);
+
+        position.makeMove(new Upgrade(Coordinate.valueOf(0, 0)));
+        assertEquals(0, playerBoard.available[2]);
+    }
+
+    @Test
+    public void ApplyUnapplyBuy() {
+        final int priceOfEverything = Arrays.stream(PhotosynthesisPosition.PRICES)
+                .flatMapToInt(x -> Arrays.stream(x))
+                .sum();
+
+        final Supplier<PhotosynthesisPosition> getPosition = () -> {
+            final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+            final PlayerBoard playerBoard = position.playerBoards[0];
+
+            playerBoard.lightPoints = priceOfEverything;
+            return position;
+        };
+
+        final PhotosynthesisPosition position = getPosition.get();
+
+        final PlayerBoard playerBoard = position.playerBoards[0];
+        final List<IPhotosynthesisMove> moves = new ArrayList<>();
+
+        for (int i = 0; i < PhotosynthesisPosition.PRICES.length; i++) {
+            for (int j = 0; j < PhotosynthesisPosition.PRICES[i].length; j++) {
+                final Buy move = new Buy(i);
+                moves.add(move);
+                position.makeMove(move);
+            }
+        }
+
+        assertEquals(0, playerBoard.lightPoints);
+
+        Collections.reverse(moves);
+
+        for (final IPhotosynthesisMove move : moves) {
+            position.unmakeMove(move);
+        }
+
+        assertEquals(getPosition.get(), position);
     }
 
     @Test
