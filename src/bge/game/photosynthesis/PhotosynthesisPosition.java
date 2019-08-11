@@ -8,16 +8,15 @@ import bge.game.IPosition;
 import bge.game.MoveList;
 
 public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
-    // next todo: get setup moves function, photosynthesis phase impl
     // Game constants
-    private static final int[][] SCORING_TOKENS = new int[][] {
-            new int[] { 14, 14, 13, 13, 13, 12, 12, 12, 12 },
-            new int[] { 17, 16, 16, 14, 14, 13, 13 },
-            new int[] { 19, 18, 18, 17, 17 },
-            new int[] { 22, 21, 20 }
+    static final int[][] SCORING_TOKENS = new int[][] {
+            new int[] { 12, 12, 12, 12, 13, 13, 13, 14, 14 },
+            new int[] { 13, 13, 14, 14, 16, 16, 17 },
+            new int[] { 17, 17, 18, 18, 19 },
+            new int[] { 20, 20, 21 }
     };
 
-    private static final int[][] PRICES = new int[][] {
+    static final int[][] PRICES = new int[][] {
             new int[] { 2, 2, 1, 1 },
             new int[] { 3, 3, 2, 2 },
             new int[] { 4, 3, 3 },
@@ -130,6 +129,60 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
         return new PhotosynthesisPosition(numPlayers);
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + currentPlayer;
+        result = prime * result + ((mainBoard == null) ? 0 : mainBoard.hashCode());
+        result = prime * result + numPlayers;
+        result = prime * result + Arrays.hashCode(playerBoards);
+        result = prime * result + playerRoundsRemaining;
+        result = prime * result + Arrays.hashCode(scoringTokensRemaining);
+        result = prime * result + setupPlayerRoundsRemaining;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PhotosynthesisPosition other = (PhotosynthesisPosition) obj;
+        if (currentPlayer != other.currentPlayer) {
+            return false;
+        }
+        if (mainBoard == null) {
+            if (other.mainBoard != null) {
+                return false;
+            }
+        } else if (!mainBoard.equals(other.mainBoard)) {
+            return false;
+        }
+        if (numPlayers != other.numPlayers) {
+            return false;
+        }
+        if (!Arrays.equals(playerBoards, other.playerBoards)) {
+            return false;
+        }
+        if (playerRoundsRemaining != other.playerRoundsRemaining) {
+            return false;
+        }
+        if (!Arrays.equals(scoringTokensRemaining, other.scoringTokensRemaining)) {
+            return false;
+        }
+        if (setupPlayerRoundsRemaining != other.setupPlayerRoundsRemaining) {
+            return false;
+        }
+        return true;
+    }
+
     public static class Tile {
         /** -1 denotes empty */
         int player = -1;
@@ -140,10 +193,48 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
         public Tile(int tileReward) {
             this.tileReward = tileReward;
         }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + lastTouchedPlayerRoundsRemaining;
+            result = prime * result + level;
+            result = prime * result + player;
+            result = prime * result + tileReward;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Tile other = (Tile) obj;
+            if (lastTouchedPlayerRoundsRemaining != other.lastTouchedPlayerRoundsRemaining) {
+                return false;
+            }
+            if (level != other.level) {
+                return false;
+            }
+            if (player != other.player) {
+                return false;
+            }
+            if (tileReward != other.tileReward) {
+                return false;
+            }
+            return true;
+        }
     }
 
     public static class Setup implements IPhotosynthesisMove {
-        private final Coordinate coordinate;
+        final Coordinate coordinate;
 
         public Setup(Coordinate coordinate) {
             this.coordinate = coordinate;
@@ -163,7 +254,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
         public void unapplyMove(PhotosynthesisPosition position) {
             final Tile tile = position.mainBoard.grid[coordinate.x][coordinate.y];
             tile.player = -1;
-            tile.level = 0;
+            tile.level = -1;
 
             position.currentPlayer = (position.currentPlayer + position.numPlayers - 1) % position.numPlayers;
             position.setupPlayerRoundsRemaining++;
@@ -214,6 +305,8 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
                 if (tileRewardColumn > -1) {
                     playerBoard.victoryPoints += SCORING_TOKENS[tileRewardColumn][--position.scoringTokensRemaining[tileRewardColumn]];
                 }
+            } else {
+                playerBoard.available[tile.level]--;
             }
         }
 
@@ -234,6 +327,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
                     playerBoard.victoryPoints -= SCORING_TOKENS[tileRewardColumn][position.scoringTokensRemaining[tileRewardColumn]++];
                 }
             } else {
+                playerBoard.available[tile.level]++;
                 tile.level--;
             }
 
@@ -246,7 +340,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
     }
 
     public static class Buy implements IPhotosynthesisMove {
-        private final int buyColumn;
+        final int buyColumn;
 
         public Buy(int buyColumn) {
             this.buyColumn = buyColumn;
@@ -254,14 +348,18 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
 
         @Override
         public void applyMove(PhotosynthesisPosition position) {
-            // TODO Auto-generated method stub
-
+            final PlayerBoard playerBoard = position.playerBoards[position.currentPlayer];
+            playerBoard.buy[buyColumn]--;
+            playerBoard.available[buyColumn]++;
+            playerBoard.lightPoints -= PRICES[buyColumn][playerBoard.buy[buyColumn]];
         }
 
         @Override
         public void unapplyMove(PhotosynthesisPosition position) {
-            // TODO Auto-generated method stub
-
+            final PlayerBoard playerBoard = position.playerBoards[position.currentPlayer];
+            playerBoard.lightPoints += PRICES[buyColumn][playerBoard.buy[buyColumn]];
+            playerBoard.buy[buyColumn]++;
+            playerBoard.available[buyColumn]--;
         }
 
     }
@@ -281,6 +379,32 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
                 }
             }
         }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + Arrays.deepHashCode(grid);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final MainBoard other = (MainBoard) obj;
+            if (!Arrays.deepEquals(grid, other.grid)) {
+                return false;
+            }
+            return true;
+        }
     }
 
     /** Represents each player's own board, where they can buy seeds and trees. */
@@ -298,6 +422,44 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
             lightPoints = 0;
             buy = new int[] { 4, 4, 3, 2 };
             available = new int[] { 2, 2, 1, 0 };
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + Arrays.hashCode(available);
+            result = prime * result + Arrays.hashCode(buy);
+            result = prime * result + lightPoints;
+            result = prime * result + victoryPoints;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final PlayerBoard other = (PlayerBoard) obj;
+            if (!Arrays.equals(available, other.available)) {
+                return false;
+            }
+            if (!Arrays.equals(buy, other.buy)) {
+                return false;
+            }
+            if (lightPoints != other.lightPoints) {
+                return false;
+            }
+            if (victoryPoints != other.victoryPoints) {
+                return false;
+            }
+            return true;
         }
     }
 }
