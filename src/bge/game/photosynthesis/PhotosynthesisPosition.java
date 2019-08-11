@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import bge.game.Coordinate;
+import bge.game.IDeepCopy;
 import bge.game.IPosition;
 import bge.game.MoveList;
 
@@ -103,6 +104,38 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
         scoringTokensRemaining = Arrays.stream(SCORING_TOKENS).mapToInt(a -> a.length).toArray();
     }
 
+    private PhotosynthesisPosition(
+            int numPlayers,
+            int currentPlayer,
+            int firstPlayer,
+            MainBoard mainBoard,
+            PlayerBoard[] playerBoards,
+            int setupPlayerRoundsRemaining,
+            int playerRoundsRemaining,
+            int[] scoringTokensRemaining) {
+        this.numPlayers = numPlayers;
+        this.currentPlayer = currentPlayer;
+        this.firstPlayer = firstPlayer;
+        this.mainBoard = mainBoard;
+        this.playerBoards = playerBoards;
+        this.setupPlayerRoundsRemaining = setupPlayerRoundsRemaining;
+        this.playerRoundsRemaining = playerRoundsRemaining;
+        this.scoringTokensRemaining = scoringTokensRemaining;
+    }
+
+    @Override
+    public IPosition<IPhotosynthesisMove> createCopy() {
+        return new PhotosynthesisPosition(
+                numPlayers,
+                currentPlayer,
+                firstPlayer,
+                mainBoard.createCopy(),
+                Arrays.stream(playerBoards).map(b -> b.createCopy()).toArray(PlayerBoard[]::new),
+                setupPlayerRoundsRemaining,
+                playerRoundsRemaining,
+                scoringTokensRemaining.clone());
+    }
+
     @Override
     public void getPossibleMoves(MoveList<IPhotosynthesisMove> moveList) {
         if (setupPlayerRoundsRemaining > 0) {
@@ -127,11 +160,6 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
     @Override
     public void unmakeMove(IPhotosynthesisMove move) {
         move.unapplyMove(this);
-    }
-
-    @Override
-    public IPosition<IPhotosynthesisMove> createCopy() {
-        return new PhotosynthesisPosition(numPlayers);
     }
 
     @Override
@@ -188,7 +216,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
         return true;
     }
 
-    public static class Tile {
+    public static class Tile implements IDeepCopy<Tile> {
         /** -1 denotes empty */
         int player = -1;
         int level = -1;
@@ -197,6 +225,22 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
 
         public Tile(int tileReward) {
             this.tileReward = tileReward;
+        }
+
+        private Tile(int player, int level, int lastTouchedPlayerRoundsRemaining, int tileReward) {
+            this.player = player;
+            this.level = level;
+            this.lastTouchedPlayerRoundsRemaining = lastTouchedPlayerRoundsRemaining;
+            this.tileReward = tileReward;
+        }
+
+        @Override
+        public Tile createCopy() {
+            return new Tile(
+                    player,
+                    level,
+                    lastTouchedPlayerRoundsRemaining,
+                    tileReward);
         }
 
         @Override
@@ -407,7 +451,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
     }
 
     /** Represents the main hexagonal board where players compete. */
-    public class MainBoard {
+    public class MainBoard implements IDeepCopy<MainBoard> {
         private static final int AXIS_LENGTH = 7;
 
         final Tile[][] grid;
@@ -420,6 +464,23 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
                     grid[coord.x][coord.y] = new Tile(tileReward);
                 }
             }
+        }
+
+        private MainBoard(Tile[][] grid) {
+            this.grid = grid;
+        }
+
+        @Override
+        public MainBoard createCopy() {
+            final Tile[][] newGrid = new Tile[AXIS_LENGTH][AXIS_LENGTH];
+
+            for (int i = 0; i < AXIS_LENGTH; i++) {
+                for (int j = 0; j < AXIS_LENGTH; j++) {
+                    newGrid[i][j] = grid[i][j] == null ? null : grid[i][j].createCopy();
+                }
+            }
+
+            return new MainBoard(newGrid);
         }
 
         @Override
@@ -450,7 +511,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
     }
 
     /** Represents each player's own board, where they can buy seeds and trees. */
-    public class PlayerBoard {
+    public class PlayerBoard implements IDeepCopy<PlayerBoard> {
         int lightPoints;
 
         /** Length 4, with 0 = seeds, 1 = small, 2 = med, 3 = large */
@@ -464,6 +525,22 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
             lightPoints = 0;
             buy = new int[] { 4, 4, 3, 2 };
             available = new int[] { 2, 2, 1, 0 };
+        }
+
+        private PlayerBoard(int lightPoints, int[] buy, int[] available, int victoryPoints) {
+            this.lightPoints = lightPoints;
+            this.buy = buy;
+            this.available = available;
+            this.victoryPoints = victoryPoints;
+        }
+
+        @Override
+        public PlayerBoard createCopy() {
+            return new PlayerBoard(
+                    lightPoints,
+                    buy.clone(),
+                    available.clone(),
+                    victoryPoints);
         }
 
         @Override

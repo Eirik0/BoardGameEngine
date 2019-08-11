@@ -203,4 +203,17 @@ public class PhotosynthesisPositionTest {
         assertEquals(new PhotosynthesisPosition(2), new PhotosynthesisPosition(2));
         assertNotEquals(new PhotosynthesisPosition(3), new PhotosynthesisPosition(4));
     }
+
+    @Test
+    public void TestDeepCopy() {
+        final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+        final PhotosynthesisPosition copy = (PhotosynthesisPosition) position.createCopy();
+
+        position.makeMove(new Setup(Coordinate.valueOf(0, 0)));
+        position.makeMove(new Setup(Coordinate.valueOf(1, 0)));
+        position.makeMove(new Setup(Coordinate.valueOf(2, 0)));
+        position.makeMove(new Setup(Coordinate.valueOf(3, 0)));
+
+        assertEquals(new PhotosynthesisPosition(2), copy);
+    }
 }
