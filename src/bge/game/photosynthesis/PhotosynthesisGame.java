@@ -10,19 +10,21 @@ public class PhotosynthesisGame implements IGame<IPhotosynthesisMove, Photosynth
 
     @Override
     public int getNumberOfPlayers() {
-        // TODO Auto-generated method stub
+        return 2;
+    }
+
+    @Override
+    public int getPlayerIndexOffset() {
         return 0;
     }
 
     @Override
     public int getMaxMoves() {
-        // TODO Auto-generated method stub
-        return 0;
+        return 64;
     }
 
     @Override
     public PhotosynthesisPosition newInitialPosition() {
-        // TODO Auto-generated method stub
-        return null;
+        return new PhotosynthesisPosition(2);
     }
 }

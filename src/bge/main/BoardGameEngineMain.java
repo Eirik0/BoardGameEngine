@@ -44,6 +44,9 @@ import bge.game.papersoccer.PaperSoccerGame;
 import bge.game.papersoccer.PaperSoccerGameRenderer;
 import bge.game.papersoccer.PaperSoccerPositionEvaluator;
 import bge.game.papersoccer.PaperSoccerUtilities;
+import bge.game.photosynthesis.PhotosynthesisGame;
+import bge.game.photosynthesis.PhotosynthesisGameRenderer;
+import bge.game.photosynthesis.PhotosynthesisPositionEvaluator;
 import bge.game.sudoku.SudokuConstants;
 import bge.game.sudoku.SudokuGame;
 import bge.game.sudoku.SudokuGameRenderer;
@@ -140,6 +143,11 @@ public class BoardGameEngineMain {
                 .registerComputer(1000, defaultMaxWorkers)
                 .registerMinimaxStrategies(new PaperSoccerPositionEvaluator(), false)
                 .registerMonteCarloStrategy(new PaperSoccerPositionEvaluator(), 1, PaperSoccerUtilities.MAX_REASONABLE_DEPTH);
+
+        GameRegistry.registerGame(new PhotosynthesisGame(), PhotosynthesisGameRenderer.class)
+                .registerHuman()
+                .registerComputer(1000, defaultMaxWorkers)
+                .registerMinimaxStrategies(new PhotosynthesisPositionEvaluator(), false);
 
         GameRegistry.registerGame(new SudokuGame(), SudokuGameRenderer.class)
                 .registerComputer(1000, defaultMaxWorkers)
