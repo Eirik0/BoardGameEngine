@@ -1,15 +1,13 @@
 package bge.game.photosynthesis;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import bge.game.Coordinate;
 import bge.game.IPosition;
 import bge.game.MoveList;
 
 public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
-    private final int numPlayers;
-    private int currentPlayer;
-
     // next todo: get setup moves function, photosynthesis phase impl
     // Game constants
     private static final int[][] SCORING_TOKENS = new int[][] {
@@ -26,7 +24,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
             new int[] { 5, 4 }
     };
 
-    private static Coordinate[][] ALL_TILES = new Coordinate[][] {
+    static final Coordinate[][] ALL_TILES = new Coordinate[][] {
             new Coordinate[] {
                     Coordinate.valueOf(0, 0),
                     Coordinate.valueOf(1, 0),
@@ -74,15 +72,32 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
             }
     };
 
-    private MainBoard mainBoard;
+    final int numPlayers;
 
-    private PlayerBoard[] playerBoards;
+    int currentPlayer;
 
-    private int setupPlayerRoundsRemaining;
+    final MainBoard mainBoard;
 
-    private final int playerRoundsRemaining;
+    final PlayerBoard[] playerBoards;
 
-    private final int scoringTokensRemaining[];
+    int setupPlayerRoundsRemaining;
+
+    final int playerRoundsRemaining;
+
+    final int scoringTokensRemaining[];
+
+    public PhotosynthesisPosition(int numPlayers) {
+        this.numPlayers = numPlayers;
+
+        mainBoard = new MainBoard();
+        playerBoards = IntStream.range(0, numPlayers)
+                .mapToObj(n -> new PlayerBoard())
+                .toArray(PlayerBoard[]::new);
+        setupPlayerRoundsRemaining = 2 * numPlayers;
+        playerRoundsRemaining = 18 * numPlayers;
+
+        scoringTokensRemaining = Arrays.stream(SCORING_TOKENS).mapToInt(a -> a.length).toArray();
+    }
 
     @Override
     public void getPossibleMoves(MoveList<IPhotosynthesisMove> moveList) {
@@ -112,24 +127,15 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
 
     @Override
     public IPosition<IPhotosynthesisMove> createCopy() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public PhotosynthesisPosition(int numPlayers) {
-        this.numPlayers = numPlayers;
-        setupPlayerRoundsRemaining = 2 * numPlayers;
-        playerRoundsRemaining = 18 * numPlayers;
-
-        scoringTokensRemaining = Arrays.stream(SCORING_TOKENS).mapToInt(a -> a.length).toArray();
+        return new PhotosynthesisPosition(numPlayers);
     }
 
     public static class Tile {
         /** -1 denotes empty */
-        private int player = -1;
-        private int level = -1;
-        private int lastTouchedPlayerRoundsRemaining = -1;
-        private final int tileReward;
+        int player = -1;
+        int level = -1;
+        int lastTouchedPlayerRoundsRemaining = Integer.MAX_VALUE;
+        final int tileReward;
 
         public Tile(int tileReward) {
             this.tileReward = tileReward;
@@ -264,7 +270,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
     public class MainBoard {
         private static final int AXIS_LENGTH = 7;
 
-        private final Tile[][] grid;
+        final Tile[][] grid;
 
         public MainBoard() {
             grid = new Tile[AXIS_LENGTH][AXIS_LENGTH];
@@ -279,19 +285,19 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
 
     /** Represents each player's own board, where they can buy seeds and trees. */
     public class PlayerBoard {
-        private int lightPoints;
+        int lightPoints;
 
         /** Length 4, with 0 = seeds, 1 = small, 2 = med, 3 = large */
-        private final int[] buy;
+        final int[] buy;
 
-        private final int[] available;
+        final int[] available;
 
-        private int victoryPoints;
+        int victoryPoints;
 
         public PlayerBoard() {
             lightPoints = 0;
             buy = new int[] { 4, 4, 3, 2 };
-            available = new int[] { 2, 4, 1, 0 };
+            available = new int[] { 2, 2, 1, 0 };
         }
     }
 }
