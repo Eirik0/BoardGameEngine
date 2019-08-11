@@ -99,7 +99,7 @@ public class GameRunner<M, P extends IPosition<M>> {
                 int playerToMove;
                 synchronized (this) {
                     playerToMove = position.getCurrentPlayer();
-                    currentPlayer = players.get(playerToMove - 1);
+                    currentPlayer = players.get(playerToMove - game.getPlayerIndexOffset());
                     setPositionCopy(NO_PLAYER, currentPlayer, false);
                 }
                 while (!stopRequested && getPossibleMovesCopy().size() > 0) {
