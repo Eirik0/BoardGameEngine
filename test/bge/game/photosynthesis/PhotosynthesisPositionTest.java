@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import bge.game.Coordinate;
 import bge.game.photosynthesis.PhotosynthesisPosition.Buy;
+import bge.game.photosynthesis.PhotosynthesisPosition.EndTurn;
 import bge.game.photosynthesis.PhotosynthesisPosition.PlayerBoard;
 import bge.game.photosynthesis.PhotosynthesisPosition.Setup;
 import bge.game.photosynthesis.PhotosynthesisPosition.Tile;
@@ -172,6 +173,29 @@ public class PhotosynthesisPositionTest {
         }
 
         assertEquals(getPosition.get(), position);
+    }
+
+    @Test
+    public void ApplyUnapplyEndTurn() {
+        int expectedPlayerRounds = 2 * 6 * 3;
+        final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+
+        position.makeMove(EndTurn.getInstance());
+        expectedPlayerRounds--;
+
+        assertEquals(1, position.currentPlayer);
+        assertEquals(expectedPlayerRounds, position.playerRoundsRemaining);
+
+        position.makeMove(EndTurn.getInstance());
+        expectedPlayerRounds--;
+
+        assertEquals(expectedPlayerRounds, position.playerRoundsRemaining);
+        assertEquals(1, position.currentPlayer);
+
+        position.unmakeMove(EndTurn.getInstance());
+        position.unmakeMove(EndTurn.getInstance());
+
+        assertEquals(new PhotosynthesisPosition(2), position);
     }
 
     @Test

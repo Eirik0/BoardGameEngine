@@ -75,18 +75,23 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
 
     int currentPlayer;
 
+    int firstPlayer;
+
     final MainBoard mainBoard;
 
     final PlayerBoard[] playerBoards;
 
     int setupPlayerRoundsRemaining;
 
-    final int playerRoundsRemaining;
+    int playerRoundsRemaining;
 
     final int scoringTokensRemaining[];
 
     public PhotosynthesisPosition(int numPlayers) {
         this.numPlayers = numPlayers;
+
+        currentPlayer = 0;
+        firstPlayer = 0;
 
         mainBoard = new MainBoard();
         playerBoards = IntStream.range(0, numPlayers)
@@ -362,6 +367,43 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
             playerBoard.available[buyColumn]--;
         }
 
+    }
+
+    public static class EndTurn implements IPhotosynthesisMove {
+        private static EndTurn instance;
+
+        private EndTurn() {
+        }
+
+        public static EndTurn getInstance() {
+            if (instance == null) {
+                instance = new EndTurn();
+            }
+
+            return instance;
+        }
+
+        @Override
+        public void applyMove(PhotosynthesisPosition position) {
+            position.currentPlayer = (position.currentPlayer + 1) % position.numPlayers;
+            position.playerRoundsRemaining--;
+            if (position.currentPlayer == position.firstPlayer) {
+                position.firstPlayer = (position.firstPlayer + 1) % position.numPlayers;
+                position.currentPlayer = position.firstPlayer;
+            }
+
+        }
+
+        @Override
+        public void unapplyMove(PhotosynthesisPosition position) {
+            position.playerRoundsRemaining++;
+            if (position.currentPlayer == position.firstPlayer) {
+                position.firstPlayer = (position.firstPlayer + position.numPlayers - 1) % position.numPlayers;
+                position.currentPlayer = (position.firstPlayer + position.numPlayers - 1) % position.numPlayers;
+            } else {
+                position.currentPlayer = (position.currentPlayer + position.numPlayers - 1) % position.numPlayers;
+            }
+        }
     }
 
     /** Represents the main hexagonal board where players compete. */
