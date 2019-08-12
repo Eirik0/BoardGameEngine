@@ -2,6 +2,7 @@ package bge.game.photosynthesis;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -196,6 +197,69 @@ public class PhotosynthesisPositionTest {
         position.unmakeMove(EndTurn.getInstance());
 
         assertEquals(new PhotosynthesisPosition(2), position);
+    }
+
+    @Test
+    public void TestShadowMap() {
+        // In this test we test a bunch of combinations of tree height + sun position to
+        // see what shadows they create on the board. So bundle them into a class.
+        class TestCase {
+            private final int level;
+
+            private final int sunPosition;
+
+            private final Coordinate[] expectedShadowCoords;
+
+            public TestCase(int level, int sunPosition, Coordinate[] expectedShadowCoords) {
+                this.level = level;
+                this.sunPosition = sunPosition;
+                this.expectedShadowCoords = expectedShadowCoords;
+            }
+
+            public void validate() {
+                final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+
+                position.playerRoundsRemaining -= sunPosition;
+
+                final Tile tile = position.mainBoard.grid[3][3];
+                tile.level = level;
+                tile.player = 0;
+
+                final int[][] actualShadows = position.mainBoard.getShadowMap();
+
+                final int[][] expectedShadows = new int[7][7];
+                for (final Coordinate coord : expectedShadowCoords) {
+                    expectedShadows[coord.x][coord.y] = level;
+                }
+
+                assertTrue(Arrays.deepEquals(expectedShadows, actualShadows));
+            }
+        }
+
+        final TestCase[] testCases = new TestCase[] {
+                // Sun at starting position, small tree, validate shadow at (4,3)
+                new TestCase(1, 0, new Coordinate[] { Coordinate.valueOf(4, 3) }),
+                new TestCase(2, 0, new Coordinate[] { Coordinate.valueOf(4, 3), Coordinate.valueOf(5, 3) }),
+                // Height 3, validate shadows at (4,3), (5,3), (6,3)
+                new TestCase(
+                        3,
+                        0,
+                        new Coordinate[] {
+                                Coordinate.valueOf(4, 3),
+                                Coordinate.valueOf(5, 3),
+                                Coordinate.valueOf(6, 3) }),
+
+                // Test other sun positions
+                new TestCase(1, 1, new Coordinate[] { Coordinate.valueOf(3, 4) }),
+                new TestCase(1, 2, new Coordinate[] { Coordinate.valueOf(2, 4) }),
+                new TestCase(1, 3, new Coordinate[] { Coordinate.valueOf(2, 3) }),
+                new TestCase(1, 4, new Coordinate[] { Coordinate.valueOf(3, 2) }),
+                new TestCase(1, 5, new Coordinate[] { Coordinate.valueOf(4, 2) })
+        };
+
+        for (final TestCase testCase : testCases) {
+            testCase.validate();
+        }
     }
 
     @Test

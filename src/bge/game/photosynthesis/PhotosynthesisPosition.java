@@ -1,6 +1,7 @@
 package bge.game.photosynthesis;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import bge.game.Coordinate;
@@ -507,6 +508,54 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
                 return false;
             }
             return true;
+        }
+
+        int[][] getShadowMap() {
+            final int[][] map = new int[AXIS_LENGTH][AXIS_LENGTH];
+            final int sunPosition = (18 * numPlayers - playerRoundsRemaining) % 6;
+
+            // Loop over all the trees and compute their shadows
+            for (final Coordinate[] coords : ALL_TILES) {
+                for (final Coordinate coord : coords) {
+                    final Tile tile = grid[coord.x][coord.y];
+
+                    final Consumer<Coordinate> updateMap = c -> {
+                        if (c.x >= 0 && c.y >= 0 && c.x < AXIS_LENGTH && c.y < AXIS_LENGTH && grid[c.x][c.y] != null) {
+                            map[c.x][c.y] = Math.max(map[c.x][c.y], tile.level);
+                        }
+                    };
+
+                    if (tile.level > 0) {
+                        if (sunPosition == 0) {
+                            for (int dx = 1; dx <= tile.level; dx++) {
+                                updateMap.accept(Coordinate.valueOf(coord.x + dx, coord.y));
+                            }
+                        } else if (sunPosition == 1) {
+                            for (int dy = 1; dy <= tile.level; dy++) {
+                                updateMap.accept(Coordinate.valueOf(coord.x, coord.y + dy));
+                            }
+                        } else if (sunPosition == 2) {
+                            for (int dz = 1; dz <= tile.level; dz++) {
+                                updateMap.accept(Coordinate.valueOf(coord.x - dz, coord.y + dz));
+                            }
+                        } else if (sunPosition == 3) {
+                            for (int dx = 1; dx <= tile.level; dx++) {
+                                updateMap.accept(Coordinate.valueOf(coord.x - dx, coord.y));
+                            }
+                        } else if (sunPosition == 4) {
+                            for (int dy = 1; dy <= tile.level; dy++) {
+                                updateMap.accept(Coordinate.valueOf(coord.x, coord.y - dy));
+                            }
+                        } else if (sunPosition == 5) {
+                            for (int dz = 1; dz <= tile.level; dz++) {
+                                updateMap.accept(Coordinate.valueOf(coord.x + dz, coord.y - dz));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return map;
         }
     }
 
