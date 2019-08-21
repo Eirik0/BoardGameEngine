@@ -1,16 +1,15 @@
 package bge.game.photosynthesis;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import bge.game.Coordinate;
 import bge.game.photosynthesis.PhotosynthesisPosition.Buy;
@@ -77,19 +76,19 @@ public class PhotosynthesisPositionTest {
         assertEquals(new PhotosynthesisPosition(2), position);
     }
 
+    // Helper to get starting positions with a "seeded" tile
+    private static PhotosynthesisPosition getStartingPosition() {
+        final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+
+        final Tile tile = position.mainBoard.grid[0][0];
+        tile.level = 0;
+        tile.player = 0;
+        return position;
+    }
+
     @Test
     public void ApplyAndUnapplyUpgrade() {
-        // Helper to get starting positions with a "seeded" tile
-        final Supplier<PhotosynthesisPosition> getStartingPosition = () -> {
-            final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
-
-            final Tile tile = position.mainBoard.grid[0][0];
-            tile.level = 0;
-            tile.player = 0;
-            return position;
-        };
-
-        final PhotosynthesisPosition position = getStartingPosition.get();
+        final PhotosynthesisPosition position = getStartingPosition();
 
         // Apply a series of upgrades until the tree is collected
         final IPhotosynthesisMove[] moves = new IPhotosynthesisMove[] {
@@ -114,8 +113,7 @@ public class PhotosynthesisPositionTest {
             position.unmakeMove(moves[i]);
         }
 
-        final PhotosynthesisPosition expected = new PhotosynthesisPosition(2);
-        assertEquals(getStartingPosition.get(), position);
+        assertEquals(getStartingPosition(), position);
     }
 
     /** Tests for effects of Upgrade moves on the player board state */
@@ -138,21 +136,20 @@ public class PhotosynthesisPositionTest {
         assertEquals(0, playerBoard.available[2]);
     }
 
-    @Test
-    public void ApplyUnapplyBuy() {
-        final int priceOfEverything = Arrays.stream(PhotosynthesisPosition.PRICES)
+    private static PhotosynthesisPosition getPosition() {
+        final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+        final PlayerBoard playerBoard = position.playerBoards[0];
+
+        playerBoard.lightPoints = Arrays.stream(PhotosynthesisPosition.PRICES)
                 .flatMapToInt(x -> Arrays.stream(x))
                 .sum();
 
-        final Supplier<PhotosynthesisPosition> getPosition = () -> {
-            final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
-            final PlayerBoard playerBoard = position.playerBoards[0];
+        return position;
+    }
 
-            playerBoard.lightPoints = priceOfEverything;
-            return position;
-        };
-
-        final PhotosynthesisPosition position = getPosition.get();
+    @Test
+    public void ApplyUnapplyBuy() {
+        final PhotosynthesisPosition position = getPosition();
 
         final PlayerBoard playerBoard = position.playerBoards[0];
         final List<IPhotosynthesisMove> moves = new ArrayList<>();
@@ -173,7 +170,7 @@ public class PhotosynthesisPositionTest {
             position.unmakeMove(move);
         }
 
-        assertEquals(getPosition.get(), position);
+        assertEquals(getPosition(), position);
     }
 
     @Test

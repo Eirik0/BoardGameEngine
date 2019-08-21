@@ -1,12 +1,12 @@
 package bge.game.ultimatetictactoe;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class UltimateTicTacToeUtilitiesTest {
     @Test
@@ -14,8 +14,8 @@ public class UltimateTicTacToeUtilitiesTest {
         List<int[]> allBoards = getAllPossibleBoards(new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0);
         for (int[] board : allBoards) {
             int boardInt = boardToInt(board);
-            assertEquals(Arrays.toString(board), countPossibleWinsSlower(board, 1), UltimateTicTacToeUtilities.countPossibleWins(boardInt, 1));
-            assertEquals(Arrays.toString(board), countPossibleWinsSlower(board, 2), UltimateTicTacToeUtilities.countPossibleWins(boardInt, 2));
+            assertEquals(countPossibleWinsSlower(board, 1), UltimateTicTacToeUtilities.countPossibleWins(boardInt, 1), Arrays.toString(board));
+            assertEquals(countPossibleWinsSlower(board, 2), UltimateTicTacToeUtilities.countPossibleWins(boardInt, 2), Arrays.toString(board));
         }
     }
 

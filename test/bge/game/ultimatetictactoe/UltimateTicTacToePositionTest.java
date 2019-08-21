@@ -1,13 +1,13 @@
 package bge.game.ultimatetictactoe;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import bge.game.ArrayMoveList;
 import bge.game.Coordinate;
@@ -47,14 +47,14 @@ public class UltimateTicTacToePositionTest {
                 containsWonBoard = true;
             }
         }
-        assertTrue(TicTacToeUtilities.boardToString(position.wonBoards), containsWonBoard);
+        assertTrue(containsWonBoard, TicTacToeUtilities.boardToString(position.wonBoards));
     }
 
     private static void checkEqual(UltimateTicTacToePosition expected, UltimateTicTacToePosition actual, int moveNum) {
-        assertEquals("Move " + moveNum, expected.currentPlayer, actual.currentPlayer);
-        assertEquals("Move " + moveNum, expected.currentBoard, actual.currentBoard);
-        assertEquals("Move " + moveNum, TicTacToeUtilities.boardToString(expected.wonBoards), TicTacToeUtilities.boardToString(actual.wonBoards));
-        assertEquals("Move " + moveNum, expected.toString(), actual.toString());
+        assertEquals(expected.currentPlayer, actual.currentPlayer, "Move " + moveNum);
+        assertEquals(expected.currentBoard, actual.currentBoard, "Move " + moveNum);
+        assertEquals(TicTacToeUtilities.boardToString(expected.wonBoards), TicTacToeUtilities.boardToString(actual.wonBoards), "Move " + moveNum);
+        assertEquals(expected.toString(), actual.toString(), "Move " + moveNum);
     }
 
     @Test

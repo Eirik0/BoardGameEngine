@@ -1,14 +1,14 @@
 package bge.analysis;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import bge.util.Pair;
 
@@ -20,12 +20,12 @@ public class AnalysisResultTest {
         AnalysisResult<Integer> mergedRestult = result1.mergeWith(result2);
         assertEquals(4, result1.getMovesWithScore().size());
         Map<Integer, MoveAnalysis> movesWithScore = mergedRestult.getMovesWithScore();
-        assertEquals(2.0, movesWithScore.get(Integer.valueOf(1)).score, 0.0);
-        assertEquals(0.5, movesWithScore.get(Integer.valueOf(2)).score, 0.0);
-        assertEquals(1.0, movesWithScore.get(Integer.valueOf(3)).score, 0.0);
-        assertEquals(1.0, movesWithScore.get(Integer.valueOf(4)).score, 0.0);
+        assertEquals(2.0, movesWithScore.get(Integer.valueOf(1)).score);
+        assertEquals(0.5, movesWithScore.get(Integer.valueOf(2)).score);
+        assertEquals(1.0, movesWithScore.get(Integer.valueOf(3)).score);
+        assertEquals(1.0, movesWithScore.get(Integer.valueOf(4)).score);
         AnalyzedMove<Integer> bestMove = mergedRestult.getBestMove(mergedRestult.getPlayer());
-        assertEquals(2.0, bestMove.analysis.score, 0.0);
+        assertEquals(2.0, bestMove.analysis.score);
         assertEquals(Integer.valueOf(1), bestMove.move);
     }
 
@@ -46,15 +46,15 @@ public class AnalysisResultTest {
 
     @Test
     public void testGreaterThan() {
-        assertTrue("2 > 1", AnalysisResult.isGreater(2, 1));
-        assertFalse("1 > 2", AnalysisResult.isGreater(1, 2));
-        assertFalse("0 > 0", AnalysisResult.isGreater(0, 0));
-        assertTrue("0 > Draw", AnalysisResult.isGreater(0, AnalysisResult.DRAW));
-        assertTrue("1 > Draw", AnalysisResult.isGreater(0, AnalysisResult.DRAW));
-        assertFalse("-1 > Draw", AnalysisResult.isGreater(-1, AnalysisResult.DRAW));
-        assertTrue("Draw > -1", AnalysisResult.isGreater(AnalysisResult.DRAW, -1));
-        assertFalse("Draw > 0", AnalysisResult.isGreater(AnalysisResult.DRAW, 0));
-        assertFalse("Draw > 1", AnalysisResult.isGreater(AnalysisResult.DRAW, 1));
-        assertFalse("Draw > Draw", AnalysisResult.isGreater(AnalysisResult.DRAW, AnalysisResult.DRAW));
+        assertTrue(AnalysisResult.isGreater(2, 1), "2 > 1");
+        assertFalse(AnalysisResult.isGreater(1, 2), "1 > 2");
+        assertFalse(AnalysisResult.isGreater(0, 0), "0 > 0");
+        assertTrue(AnalysisResult.isGreater(0, AnalysisResult.DRAW), "0 > Draw");
+        assertTrue(AnalysisResult.isGreater(0, AnalysisResult.DRAW), "1 > Draw");
+        assertFalse(AnalysisResult.isGreater(-1, AnalysisResult.DRAW), "-1 > Draw");
+        assertTrue(AnalysisResult.isGreater(AnalysisResult.DRAW, -1), "Draw > -1");
+        assertFalse(AnalysisResult.isGreater(AnalysisResult.DRAW, 0), "Draw > 0");
+        assertFalse(AnalysisResult.isGreater(AnalysisResult.DRAW, 1), "Draw > 1");
+        assertFalse(AnalysisResult.isGreater(AnalysisResult.DRAW, AnalysisResult.DRAW), "Draw > Draw");
     }
 }

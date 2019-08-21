@@ -1,9 +1,9 @@
 package bge.game;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import bge.game.MoveHistory.MoveIndex;
 import bge.game.chess.ChessGame;
@@ -37,8 +37,8 @@ public class MoveHistoryTest {
 
     private static <M> void checkMove(MoveHistory<M> moveHistory, int index, boolean p1Expected, boolean p2Expected) {
         M[] moves = moveHistory.getMoveHistoryListCopy().get(index).moves;
-        assertTrue("P1", p1Expected == (moves[0] != null));
-        assertTrue("P2", p2Expected == (moves[1] != null));
+        assertTrue(p1Expected == (moves[0] != null), "P1");
+        assertTrue(p2Expected == (moves[1] != null), "P2");
     }
 
     private static <M> void checkIndex(MoveHistory<M> moveHistory, MoveIndex expectedSelectedMoveIndex, MoveIndex expectedMaxMoveIndex) {

@@ -3,8 +3,8 @@ package bge.analysis;
 import java.util.Arrays;
 import java.util.Random;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import bge.analysis.search.IterativeDeepeningTreeSearcher;
 import bge.analysis.strategy.MinimaxStrategy;
@@ -19,7 +19,7 @@ import bge.game.tictactoe.TicTacToePositionEvaluator;
 
 public class ComputerPlayerTest {
     @Test
-    @Ignore
+    @Disabled
     public void testDoNotWaitForAMoveIfFInishedSearching() throws InterruptedException {
         TicTacToeGame game = new TicTacToeGame();
         MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(TicTacToeGame.MAX_MOVES);

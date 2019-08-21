@@ -1,9 +1,9 @@
 package bge.game.ultimatetictactoe;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import bge.analysis.ComputerPlayer;
 import bge.analysis.search.IterativeDeepeningTreeSearcher;
@@ -14,13 +14,13 @@ import bge.game.MoveListFactory;
 
 public class UTTTComputerPlayerTest {
     @Test
-    @Ignore
+    @Disabled
     public void testStopOnTime_OneWorker() {
         testStopOnTime(1, 2000);
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testStopOnTime_TwoWorker() {
         testStopOnTime(2, 2000);
     }
@@ -49,7 +49,7 @@ public class UTTTComputerPlayerTest {
         player.notifyGameEnded();
         long timeTaken = System.currentTimeMillis() - start;
         System.out.println("Stopped " + numWorkers + " workers in " + (timeTaken - toWait) + "ms");
-        assertTrue(Long.toString(timeTaken - allottedTime) + "ms over", timeTaken < allottedTime);
+        assertTrue(timeTaken < allottedTime, Long.toString(timeTaken - allottedTime) + "ms over");
     }
 
     private static ComputerPlayer newComputerPlayer(int numWorkers, long toWait) {

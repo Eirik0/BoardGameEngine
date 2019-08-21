@@ -1,8 +1,8 @@
 package bge.game.sudoku;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SudokuBoxTest implements SudokuConstants {
     private static SudokuBox setBoxes(SudokuCell cell1, SudokuCell cell2) {

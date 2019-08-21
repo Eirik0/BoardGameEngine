@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.strategy.MinimaxStrategy;

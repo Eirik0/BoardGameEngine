@@ -3,7 +3,7 @@ package bge.analysis.montecarlo;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import bge.analysis.IPositionEvaluator;
 import bge.game.IPosition;
