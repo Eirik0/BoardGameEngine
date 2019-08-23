@@ -18,6 +18,8 @@ import bge.game.MoveList;
 import bge.game.MoveListFactory;
 import bge.game.forkjoinexample.IStartStopObserver;
 import bge.gui.analysis.ComputerPlayerResult;
+import gt.async.ThreadNumber;
+import gt.async.ThreadWorker;
 
 public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implements ITreeSearcher<M, P>, PartialResultObservable {
     private Thread treeSearchThread;
@@ -29,8 +31,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
 
     private final List<GameTreeSearch<M, P>> treeSearchesToAnalyze = new ArrayList<>();
 
-    private final List<TreeSearchWorker> availableWorkers = new ArrayList<>();
-    private final Map<TreeSearchWorker, GameTreeSearch<M, P>> treeSearchesInProgress = new HashMap<>();
+    private final List<ThreadWorker> availableWorkers = new ArrayList<>();
+    private final Map<ThreadWorker, GameTreeSearch<M, P>> treeSearchesInProgress = new HashMap<>();
 
     private final Object searchStartedLock = new Object();
     private volatile boolean searchStopped = true;
@@ -45,7 +47,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
         this.moveListFactory = moveListFactory;
         this.numWorkers = numWorkers;
         for (int i = 0; i < numWorkers; i++) {
-            availableWorkers.add(new TreeSearchWorker(finishedWorker -> workerComplete(finishedWorker)));
+            availableWorkers.add(new ThreadWorker(finishedWorker -> workerComplete(finishedWorker)));
         }
     }
 
@@ -133,7 +135,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
             throw new RuntimeException(e);
         }
         if (joinWorkerThreads) {
-            for (TreeSearchWorker worker : availableWorkers) {
+            for (ThreadWorker worker : availableWorkers) {
                 worker.joinThread();
             }
         }
@@ -152,8 +154,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
 
     private synchronized void stopWorkers() { // Stopping a worker will eventually remove it from treeSearchesInProgress
         searchStopped = true;
-        for (Entry<TreeSearchWorker, GameTreeSearch<M, P>> searchInProgress : treeSearchesInProgress.entrySet()) {
-            searchInProgress.getKey().waitForSearchToStart();
+        for (Entry<ThreadWorker, GameTreeSearch<M, P>> searchInProgress : treeSearchesInProgress.entrySet()) {
+            searchInProgress.getKey().waitForStart();
             searchInProgress.getValue().stopSearch();
         }
     }
@@ -238,12 +240,12 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
         }
     }
 
-    private void startWork(TreeSearchWorker worker, GameTreeSearch<M, P> treeSearch) {
-        worker.workOn(treeSearch);
+    private void startWork(ThreadWorker worker, GameTreeSearch<M, P> treeSearch) {
+        worker.workOn(treeSearch::search);
         treeSearchesInProgress.put(worker, treeSearch);
     }
 
-    public synchronized void workerComplete(TreeSearchWorker finishedWorker) {
+    public synchronized void workerComplete(ThreadWorker finishedWorker) {
         if (treeSearchesToAnalyze.size() > 0) {
             GameTreeSearch<M, P> treeSearch = treeSearchesToAnalyze.remove(0);
             startWork(finishedWorker, treeSearch);
@@ -255,10 +257,10 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
 
         treeSearchesInProgress.remove(finishedWorker);
 
-        Entry<TreeSearchWorker, GameTreeSearch<M, P>> treeSearchToFork = null;
+        Entry<ThreadWorker, GameTreeSearch<M, P>> treeSearchToFork = null;
 
-        for (Entry<TreeSearchWorker, GameTreeSearch<M, P>> treeSearchInProgress : treeSearchesInProgress.entrySet()) {
-            treeSearchInProgress.getKey().waitForSearchToStart();
+        for (Entry<ThreadWorker, GameTreeSearch<M, P>> treeSearchInProgress : treeSearchesInProgress.entrySet()) {
+            treeSearchInProgress.getKey().waitForStart();
             GameTreeSearch<M, P> treeSearch = treeSearchInProgress.getValue();
             if (!treeSearch.isForkable()) {
                 continue;

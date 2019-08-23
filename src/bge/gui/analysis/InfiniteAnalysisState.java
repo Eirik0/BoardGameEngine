@@ -11,12 +11,12 @@ import javax.swing.JPanel;
 
 import bge.analysis.ComputerPlayer;
 import bge.analysis.ComputerPlayerInfo;
-import bge.analysis.search.ThreadNumber;
 import bge.game.IPosition;
 import bge.gui.GameRegistry;
 import bge.main.BoardGameEngineMain;
 import bge.main.ComputerConfigurationPanel;
 import bge.main.StartStopButton;
+import gt.async.ThreadNumber;
 
 public class InfiniteAnalysisState<M> implements IAnalysisState<M> {
     private IPosition<M> position;
