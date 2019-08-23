@@ -9,7 +9,7 @@ import bge.game.chess.ChessConstants;
 import bge.game.chess.ChessFunctions;
 import bge.game.chess.ChessPosition;
 import bge.game.chess.ChessPositionHistory;
-import bge.util.Pair;
+import gt.util.Pair;
 
 public class ForsythEdwardsNotation implements ChessConstants {
     public static ChessPosition stringToPosition(String string) {

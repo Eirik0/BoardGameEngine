@@ -10,13 +10,17 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import bge.util.Pair;
+import gt.util.Pair;
 
 public class AnalysisResultTest {
+    private static Pair<Integer, Double> moveScore(int move, double score) {
+        return Pair.valueOf(Integer.valueOf(move), Double.valueOf(score));
+    }
+
     @Test
     public void testMerged() {
-        AnalysisResult<Integer> result1 = createResult(Arrays.asList(Pair.valueOf(1, 1.0), Pair.valueOf(2, 1.0), Pair.valueOf(3, 1.0), Pair.valueOf(4, 1.0)));
-        AnalysisResult<Integer> result2 = createResult(Arrays.asList(Pair.valueOf(1, 2.0), Pair.valueOf(2, 0.5)));
+        AnalysisResult<Integer> result1 = createResult(Arrays.asList(moveScore(1, 1.0), moveScore(2, 1.0), moveScore(3, 1.0), moveScore(4, 1.0)));
+        AnalysisResult<Integer> result2 = createResult(Arrays.asList(moveScore(1, 2.0), moveScore(2, 0.5)));
         AnalysisResult<Integer> mergedRestult = result1.mergeWith(result2);
         assertEquals(4, result1.getMovesWithScore().size());
         Map<Integer, MoveAnalysis> movesWithScore = mergedRestult.getMovesWithScore();
