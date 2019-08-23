@@ -10,10 +10,10 @@ import bge.analysis.ComputerPlayer;
 import bge.game.TwoPlayers;
 import bge.gui.Drawable;
 import bge.gui.FixedDurationGameLoop;
-import bge.gui.Sizable;
 import bge.main.BoardGameEngineMain;
+import gt.gameentity.SizedSizable;
 
-public class ComputerPlayerObserver implements Drawable, Sizable {
+public class ComputerPlayerObserver implements Drawable, SizedSizable {
     public static final String NAME = "Computer Observer";
 
     private int height;
@@ -57,7 +57,7 @@ public class ComputerPlayerObserver implements Drawable, Sizable {
     }
 
     @Override
-    public void checkResized(int width, int height) {
+    public void setSize(int width, int height) {
         componentWidth = width;
         componentHeight = height;
     }

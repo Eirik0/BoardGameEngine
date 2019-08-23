@@ -34,8 +34,8 @@ public class ComputerPlayerObservationState<M> implements IAnalysisState<M> {
     }
 
     @Override
-    public void checkResized(int width, int height) {
-        observer.checkResized(width, height);
+    public void setSize(int width, int height) {
+        observer.setSize(width, height);
     }
 
     @Override

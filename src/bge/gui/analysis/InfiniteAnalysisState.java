@@ -54,7 +54,7 @@ public class InfiniteAnalysisState<M> implements IAnalysisState<M> {
                 observer = new ComputerPlayerObserver(computerPlayer, this.position.getCurrentPlayer(), name -> {
                 }, depth -> depthLabel.setText(depth));
 
-                observer.checkResized(oldWidth, oldHeight);
+                observer.setSize(oldWidth, oldHeight);
                 observer.setOnResize(oldOnResize);
 
                 startAnalysisThread();
@@ -111,8 +111,8 @@ public class InfiniteAnalysisState<M> implements IAnalysisState<M> {
     }
 
     @Override
-    public void checkResized(int width, int height) {
-        observer.checkResized(width, height);
+    public void setSize(int width, int height) {
+        observer.setSize(width, height);
     }
 
     @Override
