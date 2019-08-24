@@ -3,7 +3,8 @@ package bge.gui;
 import java.util.function.Consumer;
 
 import bge.gui.gamestate.GameState;
-import bge.gui.gamestate.GameState.UserInput;
+import gt.component.MouseTracker;
+import gt.gamestate.UserInput;
 
 public class GameGuiManager {
     private static final MouseTracker mouseTracker = new MouseTracker(GameGuiManager::handleUserInput);
@@ -74,5 +75,4 @@ public class GameGuiManager {
     public static void setGameState(GameState gameState) {
         currentState = gameState;
     }
-
 }

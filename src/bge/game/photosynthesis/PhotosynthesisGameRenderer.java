@@ -13,11 +13,11 @@ import bge.game.photosynthesis.PhotosynthesisPosition.Tile;
 import bge.gui.DrawingMethods;
 import bge.gui.GameGuiManager;
 import bge.gui.GuiPlayer;
-import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.IGameRenderer;
 import bge.gui.gamestate.IPositionObserver;
 import bge.main.BoardGameEngineMain;
 import gt.gameentity.GridSizer;
+import gt.gamestate.UserInput;
 
 public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesisMove, PhotosynthesisPosition>,
         IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {

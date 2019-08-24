@@ -14,12 +14,12 @@ import bge.game.Coordinate;
 import bge.game.MoveList;
 import bge.game.chess.move.IChessMove;
 import bge.gui.GameGuiManager;
-import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.GuiPlayerHelper;
 import bge.gui.gamestate.IGameRenderer;
 import bge.gui.gamestate.IPositionObserver;
 import bge.main.BoardGameEngineMain;
 import gt.gameentity.GridSizer;
+import gt.gamestate.UserInput;
 
 public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPosition>, IPositionObserver<IChessMove, ChessPosition>, ChessConstants {
     private final ChessPieceImages pieceImages;

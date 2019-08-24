@@ -9,10 +9,10 @@ import bge.game.TwoPlayers;
 import bge.game.papersoccer.PaperSoccerPositionHistory.UndoPaperSoccerMove;
 import bge.gui.DrawingMethods;
 import bge.gui.GameGuiManager;
-import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.GuiPlayerHelper;
 import bge.gui.gamestate.IGameRenderer;
 import gt.gameentity.GridSizer;
+import gt.gamestate.UserInput;
 
 public class PaperSoccerGameRenderer implements IGameRenderer<Integer, PaperSoccerPosition>, DrawingMethods {
     private static final PaperSoccerPosition INITIAL_POSITION = new PaperSoccerPosition();

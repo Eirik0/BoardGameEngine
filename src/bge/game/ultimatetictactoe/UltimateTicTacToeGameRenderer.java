@@ -11,11 +11,11 @@ import bge.game.TwoPlayers;
 import bge.game.tictactoe.TicTacToeUtilities;
 import bge.gui.DrawingMethods;
 import bge.gui.GameGuiManager;
-import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.GuiPlayerHelper;
 import bge.gui.gamestate.IGameRenderer;
 import bge.main.BoardGameEngineMain;
 import gt.gameentity.GridSizer;
+import gt.gamestate.UserInput;
 
 public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, UltimateTicTacToePosition> {
     private static final Coordinate[] BOARD_NM = new Coordinate[] {

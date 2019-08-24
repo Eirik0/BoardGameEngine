@@ -15,11 +15,11 @@ import bge.game.IGame;
 import bge.game.IPosition;
 import bge.game.MoveListFactory;
 import bge.gui.GameGuiManager;
-import bge.gui.GameMouseAdapter;
 import bge.gui.GamePanel;
 import bge.gui.GameRegistry;
 import bge.gui.analysis.AnalysisPanel;
 import bge.gui.movehistory.MoveHistoryPanel;
+import gt.component.GameMouseAdapter;
 
 @SuppressWarnings("serial")
 public class MainPanel extends JPanel {

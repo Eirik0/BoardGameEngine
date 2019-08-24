@@ -17,6 +17,7 @@ import bge.main.BoardGameEngineMain;
 import bge.main.ComputerConfigurationPanel;
 import bge.main.StartStopButton;
 import gt.async.ThreadNumber;
+import gt.gamestate.UserInput;
 
 public class InfiniteAnalysisState<M> implements IAnalysisState<M> {
     private IPosition<M> position;

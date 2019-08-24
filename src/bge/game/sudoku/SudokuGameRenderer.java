@@ -8,10 +8,10 @@ import bge.game.Coordinate;
 import bge.game.MoveList;
 import bge.game.ultimatetictactoe.UltimateTicTacToeGameRenderer;
 import bge.gui.GameGuiManager;
-import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.IGameRenderer;
 import bge.main.BoardGameEngineMain;
 import gt.gameentity.GridSizer;
+import gt.gamestate.UserInput;
 
 public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosition>, SudokuConstants {
     private GridSizer sizer;

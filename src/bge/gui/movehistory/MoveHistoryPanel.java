@@ -11,10 +11,10 @@ import javax.swing.JViewport;
 import bge.game.GameRunner;
 import bge.game.IPosition;
 import bge.game.MoveHistory;
-import bge.gui.GameMouseAdapter;
 import bge.gui.ScrollableGamePanel;
 import bge.gui.analysis.AnalysisPanel;
 import bge.main.BoardGameEngineMain;
+import gt.component.GameMouseAdapter;
 
 @SuppressWarnings("serial")
 public class MoveHistoryPanel<M> extends JPanel {

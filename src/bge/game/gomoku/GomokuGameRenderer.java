@@ -8,11 +8,11 @@ import bge.game.Coordinate;
 import bge.game.MoveList;
 import bge.game.TwoPlayers;
 import bge.gui.GameGuiManager;
-import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.GuiPlayerHelper;
 import bge.gui.gamestate.IGameRenderer;
 import bge.main.BoardGameEngineMain;
 import gt.gameentity.GridSizer;
+import gt.gamestate.UserInput;
 
 public class GomokuGameRenderer implements IGameRenderer<Integer, GomokuPosition> {
     private static final Color BOARD_COLOR = new Color(155, 111, 111);

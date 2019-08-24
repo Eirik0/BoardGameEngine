@@ -11,9 +11,9 @@ import bge.game.MoveList;
 import bge.game.forkjoinexample.ForkJoinExampleThreadTracker.ChildInfo;
 import bge.game.forkjoinexample.ForkJoinExampleThreadTracker.ForkJoinExampleNodeInfo;
 import bge.gui.GameGuiManager;
-import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.IGameRenderer;
 import bge.main.BoardGameEngineMain;
+import gt.gamestate.UserInput;
 
 public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampleNode, ForkJoinExampleTree> {
     private static final int BREDTH = (int) Math.round(Math.pow(ForkJoinExampleTree.DEPTH, ForkJoinExampleTree.BRANCHING_FACTOR));

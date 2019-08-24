@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import bge.analysis.ComputerPlayer;
 import bge.game.IPosition;
 import bge.main.BoardGameEngineMain;
+import gt.gamestate.UserInput;
 
 public class ComputerPlayerObservationState<M> implements IAnalysisState<M> {
     private final JPanel titlePanel;

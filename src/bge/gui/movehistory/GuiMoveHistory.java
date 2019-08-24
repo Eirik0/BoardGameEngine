@@ -8,8 +8,8 @@ import bge.game.MoveHistory;
 import bge.game.MoveHistory.HistoryMove;
 import bge.game.MoveHistory.MoveIndex;
 import bge.gui.Drawable;
-import bge.gui.MouseTracker;
 import bge.main.BoardGameEngineMain;
+import gt.component.MouseTracker;
 
 public class GuiMoveHistory<M> implements Drawable {
     static final int MOVE_X_PADDING = 40;
