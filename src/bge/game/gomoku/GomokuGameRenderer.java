@@ -8,11 +8,11 @@ import bge.game.Coordinate;
 import bge.game.MoveList;
 import bge.game.TwoPlayers;
 import bge.gui.GameGuiManager;
-import bge.gui.gamestate.BoardSizer;
 import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.GuiPlayerHelper;
 import bge.gui.gamestate.IGameRenderer;
 import bge.main.BoardGameEngineMain;
+import gt.gameentity.GridSizer;
 
 public class GomokuGameRenderer implements IGameRenderer<Integer, GomokuPosition> {
     private static final Color BOARD_COLOR = new Color(155, 111, 111);
@@ -22,34 +22,40 @@ public class GomokuGameRenderer implements IGameRenderer<Integer, GomokuPosition
             Coordinate.valueOf(3, 15), Coordinate.valueOf(9, 15), Coordinate.valueOf(15, 15)
     };
 
-    private BoardSizer sizer;
+    private GridSizer sizer;
 
     @Override
     public void initializeAndDrawBoard(Graphics2D g) {
         int imageWidth = GameGuiManager.getComponentWidth();
         int imageHeight = GameGuiManager.getComponentHeight();
 
-        sizer = new BoardSizer(imageWidth, imageHeight, GomokuUtilities.BOARD_WIDTH);
+        sizer = new GridSizer(imageWidth, imageHeight, GomokuUtilities.BOARD_WIDTH, GomokuUtilities.BOARD_WIDTH);
 
         fillRect(g, 0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
 
-        fillRect(g, sizer.offsetX, sizer.offsetY, sizer.boardWidth, sizer.boardWidth, BOARD_COLOR);
+        fillRect(g, sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.gridHeight, BOARD_COLOR);
 
         g.setColor(Color.BLACK);
         // Bounds & Grid
         for (int i = 0; i < GomokuUtilities.BOARD_WIDTH; ++i) {
-            g.drawLine(sizer.getCenterX(i), sizer.getCenterY(0), sizer.getCenterX(i), sizer.getCenterY(GomokuUtilities.BOARD_WIDTH - 1));
-            g.drawLine(sizer.getCenterX(0), sizer.getCenterY(i), sizer.getCenterX(GomokuUtilities.BOARD_WIDTH - 1), sizer.getCenterY(i));
+            int y0 = round(sizer.getCenterY(0));
+            int x0 = round(sizer.getCenterX(0));
+            int xi = round(sizer.getCenterX(i));
+            int yi = round(sizer.getCenterY(i));
+            int cx = round(sizer.getCenterX(GomokuUtilities.BOARD_WIDTH - 1));
+            int cy = round(sizer.getCenterY(GomokuUtilities.BOARD_WIDTH - 1));
+            g.drawLine(xi, y0, xi, cy);
+            g.drawLine(x0, yi, cx, yi);
         }
         // Small Circles
-        double small = Math.min(2, sizer.boardWidth / 200.0);
+        double small = Math.min(2, sizer.gridWidth / 200.0);
         for (int x = 0; x < GomokuUtilities.BOARD_WIDTH; ++x) {
             for (int y = 0; y < GomokuUtilities.BOARD_WIDTH; ++y) {
                 fillCircle(g, sizer.getCenterX(x), sizer.getCenterY(y), small);
             }
         }
         // Large
-        double large = Math.min(4, sizer.boardWidth / 100.0);
+        double large = Math.min(4, sizer.gridWidth / 100.0);
         for (Coordinate starPoint : STAR_POINTS) {
             fillCircle(g, sizer.getCenterX(starPoint.x), sizer.getCenterY(starPoint.y), large);
         }
@@ -68,14 +74,14 @@ public class GomokuGameRenderer implements IGameRenderer<Integer, GomokuPosition
                 if (position.board[move] != TwoPlayers.UNPLAYED) {
                     Color color = position.board[move] == TwoPlayers.PLAYER_1 ? Color.BLACK : Color.WHITE;
                     g.setColor(color);
-                    fillCircle(g, sizer.getCenterX(x), sizer.getCenterY(y), sizer.cellWidth * 0.45);
+                    fillCircle(g, sizer.getCenterX(x), sizer.getCenterY(y), sizer.cellSize * 0.45);
                 }
             }
         }
         if (lastMove != null) {
             g.setColor(Color.RED);
             Coordinate lastMoveCoord = GomokuUtilities.MOVE_COORDS[lastMove.intValue()];
-            drawCircle(g, sizer.getCenterX(lastMoveCoord.y), sizer.getCenterY(lastMoveCoord.x), sizer.cellWidth * 0.225);
+            drawCircle(g, sizer.getCenterX(lastMoveCoord.y), sizer.getCenterY(lastMoveCoord.x), sizer.cellSize * 0.225);
         }
     }
 

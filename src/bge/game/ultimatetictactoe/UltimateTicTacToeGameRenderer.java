@@ -11,11 +11,11 @@ import bge.game.TwoPlayers;
 import bge.game.tictactoe.TicTacToeUtilities;
 import bge.gui.DrawingMethods;
 import bge.gui.GameGuiManager;
-import bge.gui.gamestate.BoardSizer;
 import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.GuiPlayerHelper;
 import bge.gui.gamestate.IGameRenderer;
 import bge.main.BoardGameEngineMain;
+import gt.gameentity.GridSizer;
 
 public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, UltimateTicTacToePosition> {
     private static final Coordinate[] BOARD_NM = new Coordinate[] {
@@ -44,7 +44,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 
     private static final Color WOOD_COLOR = new Color(206, 168, 140);
 
-    private BoardSizer sizer;
+    private GridSizer sizer;
     private double smallBoardWidth;
     private Font smallFont;
     private Font largeFont;
@@ -54,14 +54,14 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
         int imageWidth = GameGuiManager.getComponentWidth();
         int imageHeight = GameGuiManager.getComponentHeight();
 
-        sizer = new BoardSizer(imageWidth, imageHeight, UltimateTicTacToePosition.BOARD_WIDTH);
-        smallBoardWidth = sizer.boardWidth / 3.0;
-        smallFont = new Font(Font.MONOSPACED, Font.BOLD, round(sizer.cellWidth * 0.75));
-        largeFont = new Font(Font.MONOSPACED, Font.BOLD, round(sizer.cellWidth * 4));
+        sizer = new GridSizer(imageWidth, imageHeight, UltimateTicTacToePosition.BOARD_WIDTH, UltimateTicTacToePosition.BOARD_WIDTH);
+        smallBoardWidth = sizer.gridWidth / 3.0;
+        smallFont = new Font(Font.MONOSPACED, Font.BOLD, round(sizer.cellSize * 0.75));
+        largeFont = new Font(Font.MONOSPACED, Font.BOLD, round(sizer.cellSize * 4));
 
         fillRect(g, 0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
 
-        fillRect(g, sizer.offsetX, sizer.offsetY, sizer.boardWidth, sizer.boardWidth, WOOD_COLOR);
+        fillRect(g, sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.gridHeight, WOOD_COLOR);
     }
 
     public static void drawBoard(Graphics g, double x0, double y0, double width, double padding, int lineThickness) {
@@ -108,7 +108,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
     private void highlightBoard(Graphics2D g, int board) {
         Coordinate boardXY = getBoardXY(board, 0); // 0 = upper left square
         int highlightWidth = round(smallBoardWidth - 2);
-        g.fillRect(round(sizer.getSquareCornerX(boardXY.x)), round(sizer.getSquareCornerY(boardXY.y)), highlightWidth, highlightWidth);
+        g.fillRect(round(sizer.getCornerX(boardXY.x)), round(sizer.getCornerY(boardXY.y)), highlightWidth, highlightWidth);
     }
 
     public Color getHighlightColor(int currentPlayer) {
@@ -117,11 +117,11 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 
     private void drawBoards(Graphics2D g) {
         g.setColor(Color.BLACK);
-        drawBoard(g, sizer.offsetX, sizer.offsetY, sizer.boardWidth, sizer.cellWidth * 0.05, 4);
+        drawBoard(g, sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.cellSize * 0.05, 4);
 
         for (int x = 0; x < 3; ++x) {
             for (int y = 0; y < 3; ++y) {
-                drawBoard(g, sizer.offsetX + smallBoardWidth * x, sizer.offsetY + smallBoardWidth * y, smallBoardWidth, sizer.cellWidth * 0.1, 3);
+                drawBoard(g, sizer.offsetX + smallBoardWidth * x, sizer.offsetY + smallBoardWidth * y, smallBoardWidth, sizer.cellSize * 0.1, 3);
             }
         }
     }

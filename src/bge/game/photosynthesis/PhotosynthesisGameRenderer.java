@@ -13,11 +13,11 @@ import bge.game.photosynthesis.PhotosynthesisPosition.Tile;
 import bge.gui.DrawingMethods;
 import bge.gui.GameGuiManager;
 import bge.gui.GuiPlayer;
-import bge.gui.gamestate.BoardSizer;
 import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.IGameRenderer;
 import bge.gui.gamestate.IPositionObserver;
 import bge.main.BoardGameEngineMain;
+import gt.gameentity.GridSizer;
 
 public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesisMove, PhotosynthesisPosition>,
         IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
@@ -27,7 +27,7 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
 
     private static final Color[] PLAYER_COLORS = new Color[] { Color.RED, Color.BLUE, Color.WHITE, Color.BLACK };
 
-    private BoardSizer sizer;
+    private GridSizer sizer;
     private HexGrid hexGrid;
 
     private final GuiPlayerBoard[] playerBoards = new GuiPlayerBoard[4];
@@ -43,8 +43,8 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
         int imageWidth = GameGuiManager.getComponentWidth();
         int imageHeight = GameGuiManager.getComponentHeight();
 
-        sizer = new BoardSizer(imageWidth, imageHeight, 11);
-        hexGrid = new HexGrid(sizer.getCenterX(2), sizer.getCenterY(3), sizer.cellWidth / 2);
+        sizer = new GridSizer(imageWidth, imageHeight, 11, 11);
+        hexGrid = new HexGrid(sizer.getCenterX(2), sizer.getCenterY(3), sizer.cellSize / 2);
 
         fillRect(g, 0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
         int green = 255 / 2;
@@ -54,7 +54,7 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             for (Coordinate coordinate : coordinates) {
                 double cx = hexGrid.centerX(coordinate.x, coordinate.y);
                 double cy = hexGrid.centerY(coordinate.x, coordinate.y);
-                fillCircle(g, cx, cy, sizer.cellWidth / 2);
+                fillCircle(g, cx, cy, sizer.cellSize / 2);
             }
             green += 32;
             red -= 32;
@@ -115,7 +115,7 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
                 }
                 double cx = hexGrid.centerX(a, b);
                 double cy = hexGrid.centerY(a, b);
-                drawTree(g, cx, cy, sizer.cellWidth / 3, tile.level, tile.player);
+                drawTree(g, cx, cy, sizer.cellSize / 3, tile.level, tile.player);
             }
         }
 
@@ -162,7 +162,7 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
                 double cx = hexGrid.centerX(coordinate.x, coordinate.y);
                 double cy = hexGrid.centerY(coordinate.x, coordinate.y);
                 g.setColor(PLAYER_COLORS[currentPlayer]);
-                drawCircle(g, cx, cy, sizer.cellWidth / 2 - 1);
+                drawCircle(g, cx, cy, sizer.cellSize / 2 - 1);
             }
         }
     }
@@ -200,7 +200,7 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
                 double cy = hexGrid.centerY(coordinate.x, coordinate.y);
                 double dx = mouseX - cx;
                 double dy = mouseY - cy;
-                if (dx * dx + dy * dy < sizer.cellWidth * sizer.cellWidth / 4) {
+                if (dx * dx + dy * dy < sizer.cellSize * sizer.cellSize / 4) {
                     return coordinate;
                 }
             }

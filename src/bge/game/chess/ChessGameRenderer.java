@@ -14,17 +14,17 @@ import bge.game.Coordinate;
 import bge.game.MoveList;
 import bge.game.chess.move.IChessMove;
 import bge.gui.GameGuiManager;
-import bge.gui.gamestate.BoardSizer;
 import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.GuiPlayerHelper;
 import bge.gui.gamestate.IGameRenderer;
 import bge.gui.gamestate.IPositionObserver;
 import bge.main.BoardGameEngineMain;
+import gt.gameentity.GridSizer;
 
 public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPosition>, IPositionObserver<IChessMove, ChessPosition>, ChessConstants {
     private final ChessPieceImages pieceImages;
 
-    private BoardSizer sizer;
+    private GridSizer sizer;
 
     private Map<Coordinate, Map<Coordinate, List<IChessMove>>> moveMap = new HashMap<>();
     private Coordinate movingPieceStart;
@@ -38,7 +38,7 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
         int imageWidth = GameGuiManager.getComponentWidth();
         int imageHeight = GameGuiManager.getComponentHeight();
 
-        sizer = new BoardSizer(imageWidth, imageHeight, BOARD_WIDTH);
+        sizer = new GridSizer(imageWidth, imageHeight, BOARD_WIDTH, BOARD_WIDTH);
 
         fillRect(g, 0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
 
@@ -46,7 +46,7 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
         for (int x = 0; x < BOARD_WIDTH; ++x) {
             for (int y = 0; y < BOARD_WIDTH; ++y) {
                 Color color = white ? LIGHT_SQUARE_COLOR : DARK_SQUARE_COLOR;
-                fillRect(g, sizer.offsetX + sizer.cellWidth * x, sizer.offsetY + sizer.cellWidth * y, sizer.cellWidth + 1, sizer.cellWidth + 1, color);
+                fillRect(g, sizer.offsetX + sizer.cellSize * x, sizer.offsetY + sizer.cellSize * y, sizer.cellSize + 1, sizer.cellSize + 1, color);
                 white = !white;
             }
             white = !white;
@@ -75,9 +75,9 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
                 int piece = position.squares[SQUARE_64_TO_SQUARE[y][x]];
                 BufferedImage pieceImage = pieceImages.getPieceImage(piece);
                 if (pieceImage != null) {
-                    int x0 = round(sizer.offsetX + sizer.cellWidth * x);
-                    int y0 = round(sizer.offsetY + sizer.cellWidth * y);
-                    int width = round(sizer.cellWidth + 1);
+                    int x0 = round(sizer.offsetX + sizer.cellSize * x);
+                    int y0 = round(sizer.offsetY + sizer.cellSize * y);
+                    int width = round(sizer.cellSize + 1);
                     g.drawImage(pieceImage, x0, y0, width, width, null);
                 }
             }
@@ -102,7 +102,7 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
             if (movingPieceStart != null) {
                 Set<Coordinate> possibleTos = moveMap.get(movingPieceStart).keySet(); // If we are drawing while maybe getting the user move, start can become null
                 BufferedImage pieceImage = pieceImages.getPieceImage(position.squares[SQUARE_64_TO_SQUARE[movingPieceStart.y][movingPieceStart.x]]);
-                double width = sizer.cellWidth + 1;
+                double width = sizer.cellSize + 1;
                 int x0 = round(GameGuiManager.getMouseX() - width / 2);
                 int y0 = round(GameGuiManager.getMouseY() - width / 2);
                 if (possibleTos != null && possibleTos.contains(coordinate)) {
