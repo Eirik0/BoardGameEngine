@@ -1,7 +1,6 @@
 package bge.game.photosynthesis;
 
 import java.util.Arrays;
-import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import bge.game.Coordinate;
@@ -9,7 +8,7 @@ import bge.game.IDeepCopy;
 import bge.game.IPosition;
 import bge.game.MoveList;
 
-public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
+public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
     // Game constants
     static final int[][] SCORING_TOKENS = new int[][] {
             new int[] { 12, 12, 12, 12, 13, 13, 13, 14, 14 },
@@ -24,6 +23,8 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
             new int[] { 4, 3, 3 },
             new int[] { 5, 4 }
     };
+
+    static final int MAX_LIGHT_POINTS = 20;
 
     static final Coordinate[][] ALL_TILES = new Coordinate[][] {
             new Coordinate[] {
@@ -72,6 +73,8 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
                     Coordinate.valueOf(3, 3),
             }
     };
+
+    static final Coordinate[] ALL_COORDS = Arrays.stream(ALL_TILES).flatMap(xs -> Arrays.stream(xs)).toArray(Coordinate[]::new);
 
     final int numPlayers;
 
@@ -217,7 +220,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
         return true;
     }
 
-    public static class Tile implements IDeepCopy<Tile> {
+    public static final class Tile implements IDeepCopy<Tile> {
         /** -1 denotes empty */
         int player = -1;
         int level = -1;
@@ -283,7 +286,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
         }
     }
 
-    public static class Setup implements IPhotosynthesisMove {
+    public static final class Setup implements IPhotosynthesisMove {
         final Coordinate coordinate;
 
         public Setup(Coordinate coordinate) {
@@ -298,10 +301,20 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
 
             position.currentPlayer = (position.currentPlayer + 1) % position.numPlayers;
             position.setupPlayerRoundsRemaining--;
+
+            if (position.setupPlayerRoundsRemaining == 0) {
+                position.doPhotosynthesis();
+            }
         }
 
         @Override
         public void unapplyMove(PhotosynthesisPosition position) {
+            if (position.setupPlayerRoundsRemaining == 0) {
+                for (final PlayerBoard playerBoard : position.playerBoards) {
+                    playerBoard.lightPoints = 0;
+                }
+            }
+
             final Tile tile = position.mainBoard.grid[coordinate.x][coordinate.y];
             tile.player = -1;
             tile.level = -1;
@@ -311,7 +324,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
         }
     }
 
-    public static class Upgrade implements IPhotosynthesisMove {
+    public static final class Upgrade implements IPhotosynthesisMove {
         private final Coordinate coordinate;
 
         private int tileRewardColumn = -1;
@@ -389,7 +402,7 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
         }
     }
 
-    public static class Buy implements IPhotosynthesisMove {
+    public static final class Buy implements IPhotosynthesisMove {
         final int buyColumn;
 
         public Buy(int buyColumn) {
@@ -414,8 +427,10 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
 
     }
 
-    public static class EndTurn implements IPhotosynthesisMove {
+    public static final class EndTurn implements IPhotosynthesisMove {
         private static EndTurn instance;
+
+        int[] previousPlayerLightPoints;
 
         private EndTurn() {
         }
@@ -435,24 +450,33 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
             if (position.currentPlayer == position.firstPlayer) {
                 position.firstPlayer = (position.firstPlayer + 1) % position.numPlayers;
                 position.currentPlayer = position.firstPlayer;
-            }
 
+                previousPlayerLightPoints = Arrays.stream(position.playerBoards).mapToInt(pb -> pb.lightPoints).toArray();
+                position.doPhotosynthesis();
+            }
         }
 
         @Override
         public void unapplyMove(PhotosynthesisPosition position) {
-            position.playerRoundsRemaining++;
+
             if (position.currentPlayer == position.firstPlayer) {
+                // Restore points before photosynthesis phase
+                for (int player = 0; player < previousPlayerLightPoints.length; player++) {
+                    position.playerBoards[player].lightPoints = previousPlayerLightPoints[player];
+                }
+
                 position.firstPlayer = (position.firstPlayer + position.numPlayers - 1) % position.numPlayers;
                 position.currentPlayer = (position.firstPlayer + position.numPlayers - 1) % position.numPlayers;
             } else {
                 position.currentPlayer = (position.currentPlayer + position.numPlayers - 1) % position.numPlayers;
             }
+
+            position.playerRoundsRemaining++;
         }
     }
 
     /** Represents the main hexagonal board where players compete. */
-    public class MainBoard implements IDeepCopy<MainBoard> {
+    public static final class MainBoard implements IDeepCopy<MainBoard> {
         private static final int AXIS_LENGTH = 7;
 
         final Tile[][] grid;
@@ -510,45 +534,49 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
             return true;
         }
 
-        int[][] getShadowMap() {
+        int[][] getShadowMap(int sunPosition) {
             final int[][] map = new int[AXIS_LENGTH][AXIS_LENGTH];
-            final int sunPosition = (18 * numPlayers - playerRoundsRemaining) % 6;
 
             // Loop over all the trees and compute their shadows
             for (final Coordinate[] coords : ALL_TILES) {
                 for (final Coordinate coord : coords) {
                     final Tile tile = grid[coord.x][coord.y];
 
-                    final Consumer<Coordinate> updateMap = c -> {
-                        if (c.x >= 0 && c.y >= 0 && c.x < AXIS_LENGTH && c.y < AXIS_LENGTH && grid[c.x][c.y] != null) {
-                            map[c.x][c.y] = Math.max(map[c.x][c.y], tile.level);
+                    // Helper function to do bounds checking while updating the shadow map
+                    final class Helper {
+                        public void updateMap(int x, int y) {
+                            if (x >= 0 && y >= 0 && x < AXIS_LENGTH && y < AXIS_LENGTH && grid[x][y] != null) {
+                                map[x][y] = Math.max(map[x][y], tile.level);
+                            }
                         }
-                    };
+                    }
+
+                    final Helper helper = new Helper();
 
                     if (tile.level > 0) {
                         if (sunPosition == 0) {
                             for (int dx = 1; dx <= tile.level; dx++) {
-                                updateMap.accept(Coordinate.valueOf(coord.x + dx, coord.y));
+                                helper.updateMap(coord.x + dx, coord.y);
                             }
                         } else if (sunPosition == 1) {
                             for (int dy = 1; dy <= tile.level; dy++) {
-                                updateMap.accept(Coordinate.valueOf(coord.x, coord.y + dy));
+                                helper.updateMap(coord.x, coord.y + dy);
                             }
                         } else if (sunPosition == 2) {
                             for (int dz = 1; dz <= tile.level; dz++) {
-                                updateMap.accept(Coordinate.valueOf(coord.x - dz, coord.y + dz));
+                                helper.updateMap(coord.x - dz, coord.y + dz);
                             }
                         } else if (sunPosition == 3) {
                             for (int dx = 1; dx <= tile.level; dx++) {
-                                updateMap.accept(Coordinate.valueOf(coord.x - dx, coord.y));
+                                helper.updateMap(coord.x - dx, coord.y);
                             }
                         } else if (sunPosition == 4) {
                             for (int dy = 1; dy <= tile.level; dy++) {
-                                updateMap.accept(Coordinate.valueOf(coord.x, coord.y - dy));
+                                helper.updateMap(coord.x, coord.y - dy);
                             }
                         } else if (sunPosition == 5) {
                             for (int dz = 1; dz <= tile.level; dz++) {
-                                updateMap.accept(Coordinate.valueOf(coord.x + dz, coord.y - dz));
+                                helper.updateMap(coord.x + dz, coord.y - dz);
                             }
                         }
                     }
@@ -559,8 +587,24 @@ public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
         }
     }
 
+    int[][] getShadowMap() {
+        return mainBoard.getShadowMap((18 * numPlayers - playerRoundsRemaining) % 6);
+    }
+
+    void doPhotosynthesis() {
+        final int[][] shadowMap = getShadowMap();
+
+        for (final Coordinate coord : ALL_COORDS) {
+            final Tile tile = mainBoard.grid[coord.x][coord.y];
+            if (tile.player != -1 && tile.level > shadowMap[coord.x][coord.y]) {
+                final PlayerBoard playerBoard = playerBoards[tile.player];
+                playerBoard.lightPoints = Math.min(playerBoard.lightPoints + tile.level, MAX_LIGHT_POINTS);
+            }
+        }
+    }
+
     /** Represents each player's own board, where they can buy seeds and trees. */
-    public class PlayerBoard implements IDeepCopy<PlayerBoard> {
+    public static final class PlayerBoard implements IDeepCopy<PlayerBoard> {
         int lightPoints;
 
         /** Length 4, with 0 = seeds, 1 = small, 2 = med, 3 = large */

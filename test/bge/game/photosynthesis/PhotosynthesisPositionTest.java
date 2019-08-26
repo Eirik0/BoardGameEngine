@@ -34,9 +34,9 @@ public class PhotosynthesisPositionTest {
         final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
 
         position.makeMove(new Setup(Coordinate.valueOf(0, 0)));
-        position.makeMove(new Setup(Coordinate.valueOf(1, 0)));
-        position.makeMove(new Setup(Coordinate.valueOf(2, 0)));
-        position.makeMove(new Setup(Coordinate.valueOf(3, 0)));
+        position.makeMove(new Setup(Coordinate.valueOf(0, 1)));
+        position.makeMove(new Setup(Coordinate.valueOf(0, 2)));
+        position.makeMove(new Setup(Coordinate.valueOf(0, 3)));
 
         assertEquals(0, position.currentPlayer);
         assertEquals(0, position.setupPlayerRoundsRemaining);
@@ -44,10 +44,10 @@ public class PhotosynthesisPositionTest {
 
         for (int p = 0; p < 2; p++) {
             assertEquals(0, position.playerBoards[p].victoryPoints);
-            assertEquals(0, position.playerBoards[p].lightPoints);
+            assertEquals(2, position.playerBoards[p].lightPoints);
         }
 
-        Arrays.stream(PhotosynthesisPosition.ALL_TILES).flatMap(x -> Arrays.stream(x)).forEach(coord -> {
+        Arrays.stream(PhotosynthesisPosition.ALL_COORDS).forEach(coord -> {
             final Tile tile = position.mainBoard.grid[coord.x][coord.y];
             assertEquals(Integer.MAX_VALUE, tile.lastTouchedPlayerRoundsRemaining);
         });
@@ -179,24 +179,44 @@ public class PhotosynthesisPositionTest {
     @Test
     public void ApplyUnapplyEndTurn() {
         int expectedPlayerRounds = 2 * 6 * 3;
-        final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+
+        final IPhotosynthesisMove[] setupMoves = new IPhotosynthesisMove[] {
+                new Setup(Coordinate.valueOf(0, 0)),
+                new Setup(Coordinate.valueOf(0, 1)),
+                new Setup(Coordinate.valueOf(0, 2)),
+                new Setup(Coordinate.valueOf(0, 3))
+        };
+
+        final PhotosynthesisPosition startingPosition = new PhotosynthesisPosition(2);
+        for (final IPhotosynthesisMove move : setupMoves) {
+            move.applyMove(startingPosition);
+        }
+
+        final PhotosynthesisPosition position = (PhotosynthesisPosition) startingPosition.createCopy();
+
+        assertEquals(2, position.playerBoards[0].lightPoints);
+        assertEquals(2, position.playerBoards[1].lightPoints);
 
         position.makeMove(EndTurn.getInstance());
         expectedPlayerRounds--;
 
         assertEquals(1, position.currentPlayer);
         assertEquals(expectedPlayerRounds, position.playerRoundsRemaining);
+        assertEquals(2, position.playerBoards[0].lightPoints);
+        assertEquals(2, position.playerBoards[1].lightPoints);
 
         position.makeMove(EndTurn.getInstance());
         expectedPlayerRounds--;
 
         assertEquals(expectedPlayerRounds, position.playerRoundsRemaining);
         assertEquals(1, position.currentPlayer);
+        assertEquals(4, position.playerBoards[0].lightPoints);
+        assertEquals(4, position.playerBoards[1].lightPoints);
 
         position.unmakeMove(EndTurn.getInstance());
         position.unmakeMove(EndTurn.getInstance());
 
-        assertEquals(new PhotosynthesisPosition(2), position);
+        assertEquals(startingPosition, position);
     }
 
     @Test
@@ -225,7 +245,7 @@ public class PhotosynthesisPositionTest {
                 tile.level = level;
                 tile.player = 0;
 
-                final int[][] actualShadows = position.mainBoard.getShadowMap();
+                final int[][] actualShadows = position.getShadowMap();
 
                 final int[][] expectedShadows = new int[7][7];
                 for (final Coordinate coord : expectedShadowCoords) {
@@ -260,6 +280,31 @@ public class PhotosynthesisPositionTest {
         for (final TestCase testCase : testCases) {
             testCase.validate();
         }
+    }
+
+    @Test
+    public void TestPhotosynthesisPhase() {
+        PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+
+        position.mainBoard.grid[0][0].player = 0;
+        position.mainBoard.grid[0][0].level = 2;
+
+        position.mainBoard.grid[1][0].player = 1;
+        position.mainBoard.grid[1][0].level = 1;
+        final PhotosynthesisPosition original = (PhotosynthesisPosition) position.createCopy();
+
+        position.doPhotosynthesis();
+
+        assertEquals(2, position.playerBoards[0].lightPoints);
+        assertEquals(0, position.playerBoards[1].lightPoints);
+
+        position = (PhotosynthesisPosition) original.createCopy();
+        position.playerRoundsRemaining -= 3;
+
+        position.doPhotosynthesis();
+
+        assertEquals(2, position.playerBoards[0].lightPoints);
+        assertEquals(1, position.playerBoards[1].lightPoints);
     }
 
     @Test
