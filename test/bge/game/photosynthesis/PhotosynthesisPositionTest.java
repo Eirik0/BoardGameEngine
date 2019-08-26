@@ -425,7 +425,7 @@ public class PhotosynthesisPositionTest {
                 final PhotosynthesisPosition copy = (PhotosynthesisPosition) position.createCopy();
                 move.applyMove(position);
                 move.unapplyMove(position);
-
+                assertEquals(copy, position);
                 move.applyMove(position);
             } while (position.playerRoundsRemaining > 0);
         }
