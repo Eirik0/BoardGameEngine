@@ -1,21 +1,31 @@
 package bge.game.photosynthesis;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.Stack;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
 import bge.game.Coordinate;
+import bge.game.IPosition;
+import bge.game.MoveList;
 import bge.game.photosynthesis.PhotosynthesisPosition.Buy;
 import bge.game.photosynthesis.PhotosynthesisPosition.EndTurn;
 import bge.game.photosynthesis.PhotosynthesisPosition.PlayerBoard;
+import bge.game.photosynthesis.PhotosynthesisPosition.Seed;
 import bge.game.photosynthesis.PhotosynthesisPosition.Setup;
 import bge.game.photosynthesis.PhotosynthesisPosition.Tile;
 import bge.game.photosynthesis.PhotosynthesisPosition.Upgrade;
@@ -223,7 +233,7 @@ public class PhotosynthesisPositionTest {
     public void TestShadowMap() {
         // In this test we test a bunch of combinations of tree height + sun position to
         // see what shadows they create on the board. So bundle them into a class.
-        class TestCase {
+        final class TestCase {
             private final int level;
 
             private final int sunPosition;
@@ -283,6 +293,30 @@ public class PhotosynthesisPositionTest {
     }
 
     @Test
+    public void ApplyUnapplySeed() {
+        final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+
+        final Tile sourceTile = position.mainBoard.grid[3][3];
+        final Tile destTile = position.mainBoard.grid[4][2];
+
+        sourceTile.level = 1;
+        sourceTile.player = 0;
+
+        final PhotosynthesisPosition original = (PhotosynthesisPosition) position.createCopy();
+
+        final IPhotosynthesisMove move = new Seed(Coordinate.valueOf(3, 3), Coordinate.valueOf(4, 2));
+        move.applyMove(position);
+
+        assertEquals(position.playerRoundsRemaining, sourceTile.lastTouchedPlayerRoundsRemaining);
+        assertEquals(Integer.MAX_VALUE, destTile.lastTouchedPlayerRoundsRemaining);
+        assertEquals(sourceTile.player, destTile.player);
+        assertEquals(0, destTile.level);
+
+        move.unapplyMove(position);
+        assertEquals(original, position);
+    }
+
+    @Test
     public void TestPhotosynthesisPhase() {
         PhotosynthesisPosition position = new PhotosynthesisPosition(2);
 
@@ -324,5 +358,158 @@ public class PhotosynthesisPositionTest {
         position.makeMove(new Setup(Coordinate.valueOf(3, 0)));
 
         assertEquals(new PhotosynthesisPosition(2), copy);
+    }
+
+    /** Exhaustively check all neighbors of 3,3 in hex coords */
+    @Test
+    public void TestAreNeighbors() {
+        final Coordinate[] positiveTestCases = new Coordinate[] {
+                Coordinate.valueOf(2, 3),
+                Coordinate.valueOf(4, 3),
+                Coordinate.valueOf(3, 2),
+                Coordinate.valueOf(3, 4),
+                Coordinate.valueOf(2, 4),
+                Coordinate.valueOf(4, 2)
+        };
+
+        final Set<Coordinate> negativeTestCases = new HashSet<>(Arrays.asList(PhotosynthesisPosition.ALL_COORDS));
+        negativeTestCases.removeAll(Arrays.asList(positiveTestCases));
+
+        final Coordinate source = Coordinate.valueOf(3, 3);
+        for (final Coordinate dest : positiveTestCases) {
+            assertTrue(PhotosynthesisPosition.MainBoard.areNeighbors(source, dest));
+        }
+
+        for (final Coordinate dest : negativeTestCases) {
+            assertFalse(PhotosynthesisPosition.MainBoard.areNeighbors(source, dest));
+        }
+    }
+
+    @Test
+    public void TestAreNeighbors_Symmetry() {
+        for (final Coordinate source : PhotosynthesisPosition.ALL_COORDS) {
+            for (final Coordinate dest : PhotosynthesisPosition.ALL_COORDS) {
+                assertEquals(
+                        PhotosynthesisPosition.MainBoard.areNeighbors(source, dest),
+                        PhotosynthesisPosition.MainBoard.areNeighbors(dest, source));
+
+            }
+        }
+    }
+
+    @Test
+    public void TestGetPossibleMoves_Setup() {
+        final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+
+        final Set<IPhotosynthesisMove> expectedMoves = new HashSet<>(
+                Arrays.stream(PhotosynthesisPosition.ALL_TILES[0]).map(c -> new Setup(c)).collect(Collectors.toList()));
+
+        final Set<IPhotosynthesisMove> quietMoves = new HashSet<>();
+        position.getPossibleMoves(new MockMoveList(m -> quietMoves.add(m)));
+
+        assertEquals(expectedMoves, quietMoves);
+    }
+
+    @Test
+    public void TestApplyUnapplyRandomMovesUntilEnd_Sequential() {
+        for (int seed = 0; seed < 100; seed++) {
+            final Random random = new Random(seed);
+
+            final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+
+            do {
+                final List<IPhotosynthesisMove> quietMoves = new ArrayList<>();
+                position.getPossibleMoves(new MockMoveList(m -> quietMoves.add(m)));
+
+                final IPhotosynthesisMove move = quietMoves.get(random.nextInt(quietMoves.size()));
+                final PhotosynthesisPosition copy = (PhotosynthesisPosition) position.createCopy();
+                move.applyMove(position);
+                move.unapplyMove(position);
+
+                move.applyMove(position);
+            } while (position.playerRoundsRemaining > 0);
+        }
+    }
+
+    @Test
+    public void TestApplyUnapplyRandomMovesUntilEnd_Stack() {
+        for (int seed = 0; seed < 100; seed++) {
+            final Random random = new Random(seed);
+
+            final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+
+            final Stack<IPhotosynthesisMove> stack = new Stack<>();
+
+            do {
+                final List<IPhotosynthesisMove> quietMoves = new ArrayList<>();
+                position.getPossibleMoves(new MockMoveList(m -> quietMoves.add(m)));
+
+                final IPhotosynthesisMove move = quietMoves.get(random.nextInt(quietMoves.size()));
+                stack.push(move);
+                move.applyMove(position);
+            } while (position.playerRoundsRemaining > 0);
+
+            while (!stack.empty()) {
+                stack.pop().unapplyMove(position);
+            }
+
+            assertEquals(new PhotosynthesisPosition(2), position);
+        }
+    }
+
+    private class MockMoveList implements MoveList<IPhotosynthesisMove> {
+        private final Consumer<IPhotosynthesisMove> consumer;
+
+        public MockMoveList(Consumer<IPhotosynthesisMove> consumer) {
+            this.consumer = consumer;
+        }
+
+        @Override
+        public void addDynamicMove(IPhotosynthesisMove move, IPosition<IPhotosynthesisMove> position) {
+        }
+
+        @Override
+        public void addAllDynamicMoves(IPhotosynthesisMove[] moves, IPosition<IPhotosynthesisMove> position) {
+
+        }
+
+        @Override
+        public void addQuietMove(IPhotosynthesisMove move, IPosition<IPhotosynthesisMove> position) {
+            consumer.accept(move);
+        }
+
+        @Override
+        public void addAllQuietMoves(IPhotosynthesisMove[] moves, IPosition<IPhotosynthesisMove> position) {
+
+        }
+
+        @Override
+        public IPhotosynthesisMove get(int index) {
+            return null;
+        }
+
+        @Override
+        public boolean contains(IPhotosynthesisMove move) {
+            return false;
+        }
+
+        @Override
+        public int size() {
+            return 0;
+        }
+
+        @Override
+        public int numDynamicMoves() {
+            return 0;
+        }
+
+        @Override
+        public MoveList<IPhotosynthesisMove> subList(int beginIndex) {
+            return null;
+        }
+
+        @Override
+        public void clear() {
+        }
     }
 }

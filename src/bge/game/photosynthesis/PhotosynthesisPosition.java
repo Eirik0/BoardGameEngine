@@ -1,6 +1,11 @@
 package bge.game.photosynthesis;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import bge.game.Coordinate;
@@ -76,6 +81,8 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
     static final Coordinate[] ALL_COORDS = Arrays.stream(ALL_TILES).flatMap(xs -> Arrays.stream(xs)).toArray(Coordinate[]::new);
 
+    static final Map<Coordinate, Map<Integer, List<Coordinate>>> PATHS_OF_LENGTH = MainBoard.preloadShortestPaths();
+
     final int numPlayers;
 
     int currentPlayer;
@@ -142,11 +149,62 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
     @Override
     public void getPossibleMoves(MoveList<IPhotosynthesisMove> moveList) {
+        // Setup actions
         if (setupPlayerRoundsRemaining > 0) {
             for (final Coordinate coordinate : ALL_TILES[0]) {
                 if (mainBoard.grid[coordinate.x][coordinate.y].player == -1) {
-                    moveList.addQuietMove(new Upgrade(coordinate), this);
+                    moveList.addQuietMove(new Setup(coordinate), this);
                 }
+            }
+
+            return;
+        }
+
+        // End turn
+        moveList.addQuietMove(EndTurn.getInstance(), this);
+
+        // Buy actions
+        for (int level = 0; level < 4; level++) {
+            final PlayerBoard playerBoard = playerBoards[currentPlayer];
+            final int buyable = playerBoard.buy[level];
+            if (buyable > 0 && playerBoard.lightPoints >= PRICES[level][buyable - 1]) {
+                moveList.addQuietMove(new Buy(level), this);
+            }
+        }
+
+        // Upgrade and seed actions
+        for (final Coordinate coord : ALL_COORDS) {
+            final Tile tile = mainBoard.grid[coord.x][coord.y];
+
+            if (tile.lastTouchedPlayerRoundsRemaining == playerRoundsRemaining) {
+                continue;
+            }
+
+            final int cost = tile.level + 1;
+            final int newLevel = cost % 4;
+
+            if (tile.player == currentPlayer) {
+                if (playerBoards[currentPlayer].available[newLevel] > 0 &&
+                        playerBoards[currentPlayer].lightPoints >= cost) {
+                    moveList.addQuietMove(new Upgrade(coord), this);
+                }
+
+                if (tile.level > 0 && playerBoards[currentPlayer].available[0] > 0) {
+                    getNearCoordinates(
+                            coord,
+                            tile.level,
+                            dest -> {
+                                moveList.addQuietMove(new Seed(coord, dest), this);
+                            });
+                }
+            }
+        }
+    }
+
+    private void getNearCoordinates(Coordinate coord, int distance, Consumer<Coordinate> consumer) {
+        for (int d = 1; d <= distance; d++) {
+            for (final Coordinate coordinate : PATHS_OF_LENGTH.get(coord).get(d)) {
+                consumer.accept(coordinate);
             }
         }
     }
@@ -322,6 +380,36 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             position.currentPlayer = (position.currentPlayer + position.numPlayers - 1) % position.numPlayers;
             position.setupPlayerRoundsRemaining++;
         }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((coordinate == null) ? 0 : coordinate.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Setup other = (Setup) obj;
+            if (coordinate == null) {
+                if (other.coordinate != null) {
+                    return false;
+                }
+            } else if (!coordinate.equals(other.coordinate)) {
+                return false;
+            }
+            return true;
+        }
     }
 
     public static final class Upgrade implements IPhotosynthesisMove {
@@ -400,6 +488,48 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
                 playerBoard.buy[tile.level]--;
             }
         }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((coordinate == null) ? 0 : coordinate.hashCode());
+            result = prime * result + previousLastTouchedPlayerRoundsRemaining;
+            result = prime * result + (returnedToPlayerBoard ? 1231 : 1237);
+            result = prime * result + tileRewardColumn;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Upgrade other = (Upgrade) obj;
+            if (coordinate == null) {
+                if (other.coordinate != null) {
+                    return false;
+                }
+            } else if (!coordinate.equals(other.coordinate)) {
+                return false;
+            }
+            if (previousLastTouchedPlayerRoundsRemaining != other.previousLastTouchedPlayerRoundsRemaining) {
+                return false;
+            }
+            if (returnedToPlayerBoard != other.returnedToPlayerBoard) {
+                return false;
+            }
+            if (tileRewardColumn != other.tileRewardColumn) {
+                return false;
+            }
+            return true;
+        }
     }
 
     public static final class Buy implements IPhotosynthesisMove {
@@ -412,19 +542,121 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         @Override
         public void applyMove(PhotosynthesisPosition position) {
             final PlayerBoard playerBoard = position.playerBoards[position.currentPlayer];
-            playerBoard.buy[buyColumn]--;
             playerBoard.available[buyColumn]++;
-            playerBoard.lightPoints -= PRICES[buyColumn][playerBoard.buy[buyColumn]];
+            playerBoard.lightPoints -= PRICES[buyColumn][--playerBoard.buy[buyColumn]];
         }
 
         @Override
         public void unapplyMove(PhotosynthesisPosition position) {
             final PlayerBoard playerBoard = position.playerBoards[position.currentPlayer];
-            playerBoard.lightPoints += PRICES[buyColumn][playerBoard.buy[buyColumn]];
-            playerBoard.buy[buyColumn]++;
+            playerBoard.lightPoints += PRICES[buyColumn][playerBoard.buy[buyColumn]++];
             playerBoard.available[buyColumn]--;
         }
 
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + buyColumn;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Buy other = (Buy) obj;
+            if (buyColumn != other.buyColumn) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    public static final class Seed implements IPhotosynthesisMove {
+        final Coordinate source, dest;
+        int sourceLastTouchedPlayerRoundsRemaining;
+
+        public Seed(Coordinate source, Coordinate dest) {
+            this.source = source;
+            this.dest = dest;
+        }
+
+        @Override
+        public void applyMove(PhotosynthesisPosition position) {
+            final Tile sourceTile = position.mainBoard.grid[source.x][source.y];
+            final Tile destTile = position.mainBoard.grid[dest.x][dest.y];
+
+            sourceLastTouchedPlayerRoundsRemaining = sourceTile.lastTouchedPlayerRoundsRemaining;
+            sourceTile.lastTouchedPlayerRoundsRemaining = position.playerRoundsRemaining;
+
+            destTile.player = position.currentPlayer;
+            destTile.level = 0;
+
+            position.playerBoards[position.currentPlayer].available[0]--;
+        }
+
+        @Override
+        public void unapplyMove(PhotosynthesisPosition position) {
+            final Tile sourceTile = position.mainBoard.grid[source.x][source.y];
+            final Tile destTile = position.mainBoard.grid[dest.x][dest.y];
+
+            position.playerBoards[position.currentPlayer].available[0]++;
+
+            sourceTile.lastTouchedPlayerRoundsRemaining = sourceLastTouchedPlayerRoundsRemaining;
+
+            destTile.player = -1;
+            destTile.level = -1;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((dest == null) ? 0 : dest.hashCode());
+            result = prime * result + ((source == null) ? 0 : source.hashCode());
+            result = prime * result + sourceLastTouchedPlayerRoundsRemaining;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Seed other = (Seed) obj;
+            if (dest == null) {
+                if (other.dest != null) {
+                    return false;
+                }
+            } else if (!dest.equals(other.dest)) {
+                return false;
+            }
+            if (source == null) {
+                if (other.source != null) {
+                    return false;
+                }
+            } else if (!source.equals(other.source)) {
+                return false;
+            }
+            if (sourceLastTouchedPlayerRoundsRemaining != other.sourceLastTouchedPlayerRoundsRemaining) {
+                return false;
+            }
+            return true;
+        }
     }
 
     public static final class EndTurn implements IPhotosynthesisMove {
@@ -477,7 +709,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
     /** Represents the main hexagonal board where players compete. */
     public static final class MainBoard implements IDeepCopy<MainBoard> {
-        private static final int AXIS_LENGTH = 7;
+        static final int AXIS_LENGTH = 7;
 
         final Tile[][] grid;
 
@@ -584,6 +816,86 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             }
 
             return map;
+        }
+
+        static Map<Coordinate, Map<Integer, List<Coordinate>>> preloadShortestPaths() {
+            final int[][] paths = computeAllPairsShortestPaths();
+
+            final Map<Coordinate, Map<Integer, List<Coordinate>>> result = new HashMap<>();
+
+            final int n = paths.length;
+
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    final int dist = paths[i][j];
+
+                    Map<Integer, List<Coordinate>> innerMap = result.getOrDefault(ALL_COORDS[i], null);
+
+                    if (innerMap == null) {
+                        innerMap = new HashMap<>();
+                        result.put(ALL_COORDS[i], innerMap);
+                    }
+
+                    List<Coordinate> coords = innerMap.getOrDefault(dist, null);
+
+                    if (coords == null) {
+                        coords = new ArrayList<>();
+                        innerMap.put(dist, coords);
+                    }
+
+                    coords.add(ALL_COORDS[j]);
+                }
+            }
+
+            return result;
+        }
+
+        /** Implements Floyd-Warshall algorithm for all-pairs shortest paths */
+        static int[][] computeAllPairsShortestPaths() {
+            final int n = ALL_COORDS.length;
+            final int[][] result = new int[n][n];
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (i == j) {
+                        result[i][j] = 0;
+                    } else {
+                        if (areNeighbors(ALL_COORDS[i], ALL_COORDS[j])) {
+                            result[i][j] = 1;
+                        } else {
+                            // "Infinity". Using max int causes an overflow in the addition below.
+                            result[i][j] = 999;
+                        }
+                    }
+                }
+            }
+
+            for (int k = 0; k < n; k++) {
+                for (int i = 0; i < n; i++) {
+                    for (int j = 0; j < n; j++) {
+                        final int candidate = result[i][k] + result[k][j];
+                        if (candidate < result[i][j]) {
+                            result[i][j] = candidate;
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /** Determines whether hex coordinates a, b are neighbors */
+        static boolean areNeighbors(Coordinate a, Coordinate b) {
+            final int ax = a.x;
+            final int ay = a.y;
+            final int az = -a.x - a.y;
+
+            final int bx = b.x;
+            final int by = b.y;
+            final int bz = -b.x - b.y;
+
+            return Math.abs(ax - bx) == 1 && ay == by
+                    || Math.abs(ay - by) == 1 && ax == bx
+                    || Math.abs(ax - bx) == 1 && az == bz;
         }
     }
 
