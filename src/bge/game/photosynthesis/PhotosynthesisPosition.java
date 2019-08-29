@@ -134,6 +134,53 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         this.scoringTokensRemaining = scoringTokensRemaining;
     }
 
+    /** Gets the final score for each player.
+     * 12 = win
+     * 6 = draw against 1 player
+     * 4 = draw against 2 players
+     * 3 = draw against 3 players
+     * 0 = loss
+     * @return Array of results indexed by player, totaling to 12.
+     */
+    public int[] getResult() {
+        final int[] adjustedScore = new int[numPlayers];
+
+        // The player with the most victory points wins. In case of tie, the
+        // winner is the player with the most seeds and trees on the player board.
+        for (final Coordinate coord : ALL_COORDS) {
+            final Tile tile = mainBoard.grid[coord.x][coord.y];
+            if (tile.player != -1) {
+                adjustedScore[tile.player] += 1;
+            }
+        }
+
+        for (int i = 0; i < numPlayers; i++) {
+            adjustedScore[i] += playerBoards[i].victoryPoints << 16;
+        }
+
+        List<Integer> winners = null;
+        int winningScore = -1;
+
+        for (int i = 0; i < numPlayers; i++) {
+            if (adjustedScore[i] > winningScore) {
+                winners = new ArrayList<>();
+                winningScore = adjustedScore[i];
+            }
+
+            if (adjustedScore[i] >= winningScore) {
+                winners.add(i);
+            }
+        }
+
+        final int[] result = new int[numPlayers];
+        final int prize = 12 / winners.size();
+        for (final int player : winners) {
+            result[player] = prize;
+        }
+
+        return result;
+    }
+
     @Override
     public IPosition<IPhotosynthesisMove> createCopy() {
         return new PhotosynthesisPosition(
@@ -161,7 +208,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         }
 
         // End turn
-        moveList.addQuietMove(EndTurn.getInstance(), this);
+        moveList.addQuietMove(new EndTurn(), this);
 
         // Buy actions
         for (int level = 0; level < 4; level++) {
@@ -194,7 +241,9 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
                             coord,
                             tile.level,
                             dest -> {
-                                moveList.addQuietMove(new Seed(coord, dest), this);
+                                if (mainBoard.grid[dest.x][dest.y].player == -1) {
+                                    moveList.addQuietMove(new Seed(coord, dest), this);
+                                }
                             });
                 }
             }
@@ -410,6 +459,11 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             }
             return true;
         }
+
+        @Override
+        public String toString() {
+            return "Setup [coordinate=" + coordinate + "]";
+        }
     }
 
     public static final class Upgrade implements IPhotosynthesisMove {
@@ -459,6 +513,11 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             } else {
                 playerBoard.available[tile.level]--;
             }
+        }
+
+        @Override
+        public String toString() {
+            return "Upgrade [coordinate=" + coordinate + "]";
         }
 
         @Override
@@ -578,6 +637,11 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             }
             return true;
         }
+
+        @Override
+        public String toString() {
+            return "Buy [buyColumn=" + buyColumn + "]";
+        }
     }
 
     public static final class Seed implements IPhotosynthesisMove {
@@ -657,23 +721,15 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             }
             return true;
         }
+
+        @Override
+        public String toString() {
+            return "Seed [source=" + source + ", dest=" + dest + "]";
+        }
     }
 
     public static final class EndTurn implements IPhotosynthesisMove {
-        private static EndTurn instance;
-
         int[] previousPlayerLightPoints;
-
-        private EndTurn() {
-        }
-
-        public static EndTurn getInstance() {
-            if (instance == null) {
-                instance = new EndTurn();
-            }
-
-            return instance;
-        }
 
         @Override
         public void applyMove(PhotosynthesisPosition position) {
@@ -704,6 +760,11 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             }
 
             position.playerRoundsRemaining++;
+        }
+
+        @Override
+        public String toString() {
+            return "EndTurn";
         }
     }
 

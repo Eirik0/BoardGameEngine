@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -207,7 +206,10 @@ public class PhotosynthesisPositionTest {
         assertEquals(2, position.playerBoards[0].lightPoints);
         assertEquals(2, position.playerBoards[1].lightPoints);
 
-        position.makeMove(EndTurn.getInstance());
+        final EndTurn endTurn1 = new EndTurn();
+        final EndTurn endTurn2 = new EndTurn();
+
+        position.makeMove(endTurn1);
         expectedPlayerRounds--;
 
         assertEquals(1, position.currentPlayer);
@@ -215,7 +217,7 @@ public class PhotosynthesisPositionTest {
         assertEquals(2, position.playerBoards[0].lightPoints);
         assertEquals(2, position.playerBoards[1].lightPoints);
 
-        position.makeMove(EndTurn.getInstance());
+        position.makeMove(endTurn2);
         expectedPlayerRounds--;
 
         assertEquals(expectedPlayerRounds, position.playerRoundsRemaining);
@@ -223,8 +225,8 @@ public class PhotosynthesisPositionTest {
         assertEquals(4, position.playerBoards[0].lightPoints);
         assertEquals(4, position.playerBoards[1].lightPoints);
 
-        position.unmakeMove(EndTurn.getInstance());
-        position.unmakeMove(EndTurn.getInstance());
+        position.unmakeMove(endTurn2);
+        position.unmakeMove(endTurn1);
 
         assertEquals(startingPosition, position);
     }
@@ -411,7 +413,7 @@ public class PhotosynthesisPositionTest {
     }
 
     @Test
-    public void TestApplyUnapplyRandomMovesUntilEnd_Sequential() {
+    public void TestApplyUnapplyRandomMovesUntilEnd() {
         for (int seed = 0; seed < 100; seed++) {
             final Random random = new Random(seed);
 
@@ -425,6 +427,7 @@ public class PhotosynthesisPositionTest {
                 final PhotosynthesisPosition copy = (PhotosynthesisPosition) position.createCopy();
                 move.applyMove(position);
                 move.unapplyMove(position);
+
                 assertEquals(copy, position);
                 move.applyMove(position);
             } while (position.playerRoundsRemaining > 0);
@@ -432,29 +435,32 @@ public class PhotosynthesisPositionTest {
     }
 
     @Test
-    public void TestApplyUnapplyRandomMovesUntilEnd_Stack() {
-        for (int seed = 0; seed < 100; seed++) {
-            final Random random = new Random(seed);
+    public void GetResult() {
+        // Test victory points only
+        final PhotosynthesisPosition position = new PhotosynthesisPosition(4);
 
-            final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+        position.playerBoards[0].victoryPoints = 1;
+        assertTrue(Arrays.equals(new int[] { 12, 0, 0, 0 }, position.getResult()));
 
-            final Stack<IPhotosynthesisMove> stack = new Stack<>();
+        position.playerBoards[1].victoryPoints = 1;
+        assertTrue(Arrays.equals(new int[] { 6, 6, 0, 0 }, position.getResult()));
 
-            do {
-                final List<IPhotosynthesisMove> quietMoves = new ArrayList<>();
-                position.getPossibleMoves(new MockMoveList(m -> quietMoves.add(m)));
+        position.playerBoards[2].victoryPoints = 1;
+        assertTrue(Arrays.equals(new int[] { 4, 4, 4, 0 }, position.getResult()));
 
-                final IPhotosynthesisMove move = quietMoves.get(random.nextInt(quietMoves.size()));
-                stack.push(move);
-                move.applyMove(position);
-            } while (position.playerRoundsRemaining > 0);
+        position.playerBoards[3].victoryPoints = 1;
+        assertTrue(Arrays.equals(new int[] { 3, 3, 3, 3 }, position.getResult()));
 
-            while (!stack.empty()) {
-                stack.pop().unapplyMove(position);
-            }
+        // Break ties with material
+        position.mainBoard.grid[0][0].player = 0;
+        position.mainBoard.grid[0][0].level = 0;
 
-            assertEquals(new PhotosynthesisPosition(2), position);
-        }
+        assertTrue(Arrays.equals(new int[] { 12, 0, 0, 0 }, position.getResult()));
+
+        position.mainBoard.grid[1][1].player = 1;
+        position.mainBoard.grid[1][1].level = 1;
+
+        assertTrue(Arrays.equals(new int[] { 6, 6, 0, 0 }, position.getResult()));
     }
 
     private class MockMoveList implements MoveList<IPhotosynthesisMove> {
