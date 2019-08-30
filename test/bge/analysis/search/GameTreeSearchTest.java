@@ -11,15 +11,15 @@ import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
 import bge.analysis.strategy.MinimaxStrategy;
 import bge.analysis.strategy.MoveListProvider;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.MoveListFactory;
 import bge.game.lock.TestLockingEvaluator;
 import bge.game.lock.TestLockingNode;
 import bge.game.lock.TestLockingPosition;
 import bge.game.value.TestGameEvaluator;
 import bge.game.value.TestGameNode;
 import bge.game.value.TestGamePosition;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.MoveListFactory;
 
 public class GameTreeSearchTest {
     private static <M, P extends IPosition<M>> GameTreeSearch<M, P> newGameTreeSearch(P position, int plies, int maxMoves,

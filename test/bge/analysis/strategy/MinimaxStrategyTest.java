@@ -15,16 +15,16 @@ import org.junit.jupiter.api.Test;
 import bge.analysis.AnalysisResult;
 import bge.analysis.MoveAnalysis;
 import bge.analysis.search.GameTreeSearch;
-import bge.game.ArrayMoveList;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.MoveListFactory;
 import bge.game.lock.TestLockingEvaluator;
 import bge.game.lock.TestLockingNode;
 import bge.game.lock.TestLockingPosition;
 import bge.game.value.TestGameEvaluator;
 import bge.game.value.TestGameNode;
 import bge.game.value.TestGamePosition;
+import bge.igame.ArrayMoveList;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.MoveListFactory;
 
 public class MinimaxStrategyTest {
     private synchronized <M, P extends IPosition<M>> AnalysisResult<M> search(MinimaxStrategy<M, P> minimaxStrategy, P testGamePosition, int plies) {

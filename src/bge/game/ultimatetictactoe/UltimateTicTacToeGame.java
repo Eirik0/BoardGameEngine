@@ -1,8 +1,8 @@
 package bge.game.ultimatetictactoe;
 
-import bge.game.Coordinate;
-import bge.game.IGame;
-import bge.game.TwoPlayers;
+import bge.igame.Coordinate;
+import bge.igame.IGame;
+import bge.igame.player.TwoPlayers;
 
 public class UltimateTicTacToeGame implements IGame<Coordinate, UltimateTicTacToePosition> {
     public static final String NAME = "Ultimate Tic Tac Toe";

@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import bge.game.IPosition;
 import bge.game.chess.ChessPositionPerfTest;
+import bge.igame.IPosition;
 
 public class SudokuPositionTest {
     @Test

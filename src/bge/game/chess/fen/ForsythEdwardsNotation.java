@@ -3,12 +3,12 @@ package bge.game.chess.fen;
 import java.util.ArrayList;
 import java.util.List;
 
-import bge.game.Coordinate;
-import bge.game.TwoPlayers;
 import bge.game.chess.ChessConstants;
 import bge.game.chess.ChessFunctions;
 import bge.game.chess.ChessPosition;
 import bge.game.chess.ChessPositionHistory;
+import bge.igame.Coordinate;
+import bge.igame.player.TwoPlayers;
 import gt.util.Pair;
 
 public class ForsythEdwardsNotation implements ChessConstants {

@@ -5,8 +5,8 @@ import java.util.Random;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
-import bge.game.IPosition;
-import bge.game.MoveList;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
 
 public class WeightedMonteCarloChildren<M> implements IMonteCarloChildren<M> {
     private static final Random RANDOM = new Random();

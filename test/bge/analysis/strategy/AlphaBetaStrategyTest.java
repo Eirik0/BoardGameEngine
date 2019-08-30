@@ -12,12 +12,12 @@ import org.junit.jupiter.api.Test;
 import bge.analysis.AnalysisResult;
 import bge.analysis.MoveAnalysis;
 import bge.analysis.search.IterativeDeepeningTreeSearcher;
-import bge.game.Coordinate;
-import bge.game.IPosition;
-import bge.game.MoveListFactory;
 import bge.game.ultimatetictactoe.UltimateTicTacToeGame;
 import bge.game.ultimatetictactoe.UltimateTicTacToePosition;
 import bge.game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
+import bge.igame.Coordinate;
+import bge.igame.IPosition;
+import bge.igame.MoveListFactory;
 
 public class AlphaBetaStrategyTest {
     @Test

@@ -3,9 +3,9 @@ package bge.analysis.strategy;
 import bge.analysis.AnalysisResult;
 import bge.analysis.MoveAnalysis;
 import bge.analysis.search.IGameTreeSearchJoin;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.MoveListFactory;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.MoveListFactory;
 
 public class MinimaxSearch<M, P extends IPosition<M>> extends AbstractAlphaBetaSearch<M, P> {
     public MinimaxSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies,

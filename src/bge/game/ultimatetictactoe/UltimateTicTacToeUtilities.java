@@ -3,8 +3,8 @@ package bge.game.ultimatetictactoe;
 import java.util.ArrayList;
 import java.util.List;
 
-import bge.game.TwoPlayers;
 import bge.game.tictactoe.TicTacToeUtilities;
+import bge.igame.player.TwoPlayers;
 import gt.util.Pair;
 
 public class UltimateTicTacToeUtilities {

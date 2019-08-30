@@ -2,10 +2,10 @@ package bge.game.ultimatetictactoe;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
-import bge.game.Coordinate;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
 import bge.game.tictactoe.TicTacToeUtilities;
+import bge.igame.Coordinate;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<Coordinate, UltimateTicTacToePosition> {
     private static final int WINS_PER_BOARD = 8;

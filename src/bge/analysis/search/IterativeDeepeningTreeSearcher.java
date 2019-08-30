@@ -13,11 +13,11 @@ import bge.analysis.MoveAnalysis;
 import bge.analysis.PartialResultObservable;
 import bge.analysis.strategy.IDepthBasedStrategy;
 import bge.analysis.strategy.IForkable;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.MoveListFactory;
 import bge.game.forkjoinexample.IStartStopObserver;
-import bge.gui.analysis.ComputerPlayerResult;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.MoveListFactory;
+import bge.igame.player.ComputerPlayerResult;
 import gt.async.ThreadNumber;
 import gt.async.ThreadWorker;
 

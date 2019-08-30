@@ -11,13 +11,13 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import bge.game.Coordinate;
 import bge.game.photosynthesis.PhotosynthesisPosition.Buy;
 import bge.game.photosynthesis.PhotosynthesisPosition.EndTurn;
 import bge.game.photosynthesis.PhotosynthesisPosition.PlayerBoard;
 import bge.game.photosynthesis.PhotosynthesisPosition.Setup;
 import bge.game.photosynthesis.PhotosynthesisPosition.Tile;
 import bge.game.photosynthesis.PhotosynthesisPosition.Upgrade;
+import bge.igame.Coordinate;
 
 public class PhotosynthesisPositionTest {
     @Test

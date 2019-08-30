@@ -9,12 +9,12 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import bge.game.ArrayMoveList;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
 import bge.game.chess.ChessPositionHistory.UndoChessMove;
 import bge.game.chess.fen.ForsythEdwardsNotation;
 import bge.game.chess.move.IChessMove;
+import bge.igame.ArrayMoveList;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class ChessPositionTest implements ChessConstants {
     @Test

@@ -1,8 +1,8 @@
 package bge.game.chess;
 
-import bge.game.IGame;
-import bge.game.TwoPlayers;
 import bge.game.chess.move.IChessMove;
+import bge.igame.IGame;
+import bge.igame.player.TwoPlayers;
 
 public class ChessGame implements IGame<IChessMove, ChessPosition> {
     public static final String NAME = "Chess";

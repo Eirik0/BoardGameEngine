@@ -10,19 +10,22 @@ import java.io.UncheckedIOException;
 
 import javax.imageio.ImageIO;
 
+import gt.component.JavaGameImage;
+import gt.gameentity.IGameImage;
+
 public class ChessPieceImages implements ChessConstants {
-    public final BufferedImage whitePawn;
-    public final BufferedImage whiteKnight;
-    public final BufferedImage whiteBishop;
-    public final BufferedImage whiteRook;
-    public final BufferedImage whiteQueen;
-    public final BufferedImage whiteKing;
-    public final BufferedImage blackPawn;
-    public final BufferedImage blackKnight;
-    public final BufferedImage blackBishop;
-    public final BufferedImage blackRook;
-    public final BufferedImage blackQueen;
-    public final BufferedImage blackKing;
+    public final JavaGameImage whitePawn;
+    public final JavaGameImage whiteKnight;
+    public final JavaGameImage whiteBishop;
+    public final JavaGameImage whiteRook;
+    public final JavaGameImage whiteQueen;
+    public final JavaGameImage whiteKing;
+    public final JavaGameImage blackPawn;
+    public final JavaGameImage blackKnight;
+    public final JavaGameImage blackBishop;
+    public final JavaGameImage blackRook;
+    public final JavaGameImage blackQueen;
+    public final JavaGameImage blackKing;
 
     private static ChessPieceImages instance;
 
@@ -48,7 +51,7 @@ public class ChessPieceImages implements ChessConstants {
         blackKing = loadImage("king16", false);
     }
 
-    private static BufferedImage loadImage(String name, boolean white) {
+    private static JavaGameImage loadImage(String name, boolean white) {
         BufferedImage image;
         try {
             image = ImageIO.read(ChessPieceImages.class.getResource("/bge/game/chess/" + name + ".png"));
@@ -56,8 +59,9 @@ public class ChessPieceImages implements ChessConstants {
             throw new UncheckedIOException(e);
         }
 
-        BufferedImage pieceImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D pieceGraphics = pieceImage.createGraphics();
+        JavaGameImage javaGameImage = new JavaGameImage(image.getWidth(), image.getHeight());
+        Graphics2D pieceGraphics = javaGameImage.getGraphics().getGraphics();
+        BufferedImage pieceImage = javaGameImage.getImage();
         // Clear background
         Composite composite = pieceGraphics.getComposite();
         pieceGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
@@ -74,10 +78,10 @@ public class ChessPieceImages implements ChessConstants {
             }
         }
 
-        return pieceImage;
+        return javaGameImage;
     }
 
-    public BufferedImage getPieceImage(int piece) {
+    public IGameImage getPieceImage(int piece) {
         switch (piece) {
         case BLACK_KING:
             return blackKing;

@@ -1,6 +1,6 @@
 package bge.game.tictactoe;
 
-import bge.game.TwoPlayers;
+import bge.igame.player.TwoPlayers;
 
 public class TicTacToeUtilities {
     // (0, 0), (1, 0), (2, 0)  0 1 2  ...00000011 ...00001100 ..00110000

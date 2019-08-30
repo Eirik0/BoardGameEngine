@@ -6,8 +6,8 @@ import bge.analysis.AnalysisResult;
 import bge.analysis.strategy.IAlphaBetaStrategy;
 import bge.analysis.strategy.IDepthBasedStrategy;
 import bge.analysis.strategy.IForkable;
-import bge.game.MoveList;
-import bge.game.MoveListFactory;
+import bge.igame.MoveList;
+import bge.igame.MoveListFactory;
 
 public class ForkJoinExampleStraregy
         implements IAlphaBetaStrategy<ForkJoinExampleNode, ForkJoinExampleTree>, IStartStopObserver, ForkObserver<ForkJoinExampleNode> {

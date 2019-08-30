@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test;
 import bge.analysis.AnalysisResult;
 import bge.analysis.strategy.MinimaxStrategy;
 import bge.analysis.strategy.MoveListProvider;
-import bge.game.Coordinate;
-import bge.game.MoveListFactory;
 import bge.game.ultimatetictactoe.UltimateTicTacToeGame;
 import bge.game.ultimatetictactoe.UltimateTicTacToePosition;
 import bge.game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
+import bge.igame.Coordinate;
+import bge.igame.MoveListFactory;
 
 public class IterativeDeepeningTreeSearcherTest {
     private static void doTest(int numThreads) throws InterruptedException {

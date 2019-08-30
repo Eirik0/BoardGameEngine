@@ -1,7 +1,7 @@
 package bge.analysis.strategy;
 
 import bge.analysis.AnalysisResult;
-import bge.game.IPosition;
+import bge.igame.IPosition;
 
 public interface IAlphaBetaStrategy<M, P extends IPosition<M>> extends IDepthBasedStrategy<M, P> {
     @Override

@@ -8,10 +8,10 @@ import bge.analysis.AnalysisResult;
 import bge.analysis.search.GameTreeSearch;
 import bge.analysis.search.GameTreeSearchJoin;
 import bge.analysis.search.IGameTreeSearchJoin;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.MoveListFactory;
 import bge.game.forkjoinexample.ForkObserver;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.MoveListFactory;
 
 public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> implements IForkable<M, P> {
     protected final M parentMove;

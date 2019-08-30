@@ -1,8 +1,8 @@
 package bge.game.tictactoe;
 
-import bge.game.Coordinate;
-import bge.game.IGame;
-import bge.game.TwoPlayers;
+import bge.igame.Coordinate;
+import bge.igame.IGame;
+import bge.igame.player.TwoPlayers;
 
 public class TicTacToeGame implements IGame<Coordinate, TicTacToePosition> {
     public static final String NAME = "Tic Tac Toe";

@@ -1,6 +1,6 @@
 package bge.game.photosynthesis;
 
-import bge.game.IGame;
+import bge.igame.IGame;
 
 public class PhotosynthesisGame implements IGame<IPhotosynthesisMove, PhotosynthesisPosition> {
     @Override

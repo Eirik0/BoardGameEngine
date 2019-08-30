@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.strategy.IForkable;
-import bge.game.IPosition;
+import bge.igame.IPosition;
 
 public class GameTreeSearch<M, P extends IPosition<M>> {
     private final IForkable<M, P> forkable;

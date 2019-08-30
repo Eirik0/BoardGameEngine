@@ -6,8 +6,6 @@ import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 import bge.analysis.IPositionEvaluator;
-import bge.game.IPosition;
-import bge.game.MoveListFactory;
 import bge.game.chess.ChessConstants;
 import bge.game.chess.ChessGame;
 import bge.game.chess.ChessPosition;
@@ -16,6 +14,8 @@ import bge.game.ultimatetictactoe.UltimateTicTacToeGame;
 import bge.game.ultimatetictactoe.UltimateTicTacToePosition;
 import bge.game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
 import bge.game.ultimatetictactoe.UltimateTicTacToeUtilities;
+import bge.igame.IPosition;
+import bge.igame.MoveListFactory;
 
 public class MonteCarloGameNodeTest {
     @Test

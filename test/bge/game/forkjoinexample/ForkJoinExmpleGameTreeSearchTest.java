@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import bge.analysis.search.IterativeDeepeningTreeSearcher;
 import bge.analysis.strategy.MinimaxStrategy;
 import bge.analysis.strategy.MoveListProvider;
-import bge.game.MoveListFactory;
+import bge.igame.MoveListFactory;
 
 public class ForkJoinExmpleGameTreeSearchTest {
     @BeforeAll

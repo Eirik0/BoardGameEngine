@@ -1,8 +1,8 @@
 package bge.game.forkjoinexample;
 
-import bge.game.ArrayMoveList;
-import bge.game.IPosition;
-import bge.game.MoveList;
+import bge.igame.ArrayMoveList;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
 
 public class ForkJoinMoveList implements MoveList<ForkJoinExampleNode> {
     private final ArrayMoveList<ForkJoinExampleNode> arrayMoveList;

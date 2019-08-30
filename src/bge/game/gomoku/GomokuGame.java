@@ -1,7 +1,7 @@
 package bge.game.gomoku;
 
-import bge.game.IGame;
-import bge.game.TwoPlayers;
+import bge.igame.IGame;
+import bge.igame.player.TwoPlayers;
 
 public class GomokuGame implements IGame<Integer, GomokuPosition> {
     public static final String NAME = "Gomoku";

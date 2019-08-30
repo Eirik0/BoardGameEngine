@@ -3,9 +3,9 @@ package bge.analysis.strategy;
 import java.util.Map;
 
 import bge.analysis.AnalysisResult;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.MoveListFactory;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.MoveListFactory;
 
 public interface IDepthBasedStrategy<M, P extends IPosition<M>> {
     public default IForkable<M, P> newForkableSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies) {

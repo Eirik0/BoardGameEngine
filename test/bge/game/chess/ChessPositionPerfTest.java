@@ -13,12 +13,12 @@ import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import bge.game.ArrayMoveList;
-import bge.game.IPosition;
-import bge.game.MoveList;
 import bge.game.chess.fen.ForsythEdwardsNotation;
 import bge.game.chess.move.IChessMove;
 import bge.game.sudoku.SudokuConstants;
+import bge.igame.ArrayMoveList;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
 
 public class ChessPositionPerfTest {
     @Test

@@ -1,6 +1,6 @@
 package bge.game.papersoccer;
 
-import bge.game.IGame;
+import bge.igame.IGame;
 
 public class PaperSoccerGame implements IGame<Integer, PaperSoccerPosition> {
     public static final String NAME = "Paper Soccer";

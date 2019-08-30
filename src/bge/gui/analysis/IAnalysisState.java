@@ -2,11 +2,11 @@ package bge.gui.analysis;
 
 import javax.swing.JPanel;
 
-import bge.game.IPosition;
-import bge.gui.gamestate.GameState;
-import gt.gameentity.SizedSizable;
+import bge.igame.IPosition;
+import gt.gameentity.Sized;
+import gt.gamestate.GameState;
 
-public interface IAnalysisState<M> extends SizedSizable, GameState {
+public interface IAnalysisState<M> extends GameState, Sized {
     void setPosition(IPosition<M> position);
 
     void stopAnalysis();
@@ -14,9 +14,4 @@ public interface IAnalysisState<M> extends SizedSizable, GameState {
     JPanel getTopPanel();
 
     void setOnResize(Runnable onResize);
-
-    @Override
-    default void componentResized(int width, int height) {
-        setSize(width, height);
-    }
 }

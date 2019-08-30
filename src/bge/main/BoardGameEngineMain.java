@@ -1,71 +1,50 @@
 package bge.main;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.BiFunction;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
-import bge.analysis.montecarlo.MonteCarloTreeSearcher;
-import bge.analysis.montecarlo.RandomMonteCarloChildren;
-import bge.analysis.montecarlo.WeightedMonteCarloChildren;
-import bge.analysis.search.IterativeDeepeningTreeSearcher;
-import bge.analysis.strategy.AlphaBetaQStrategy;
-import bge.analysis.strategy.AlphaBetaStrategy;
-import bge.analysis.strategy.MinimaxStrategy;
-import bge.analysis.strategy.MoveListProvider;
-import bge.game.GameRunner;
-import bge.game.MoveListFactory;
-import bge.game.chess.ChessConstants;
+import bge.analysis.IPositionEvaluator;
 import bge.game.chess.ChessGame;
 import bge.game.chess.ChessGameRenderer;
 import bge.game.chess.ChessPositionEvaluator;
-import bge.game.forkjoinexample.ForkJoinExampleGame;
-import bge.game.forkjoinexample.ForkJoinExampleGameRenderer;
-import bge.game.forkjoinexample.ForkJoinExampleNode;
-import bge.game.forkjoinexample.ForkJoinExampleStraregy;
-import bge.game.forkjoinexample.ForkJoinExampleThreadTracker;
-import bge.game.forkjoinexample.ForkJoinExampleTree;
-import bge.game.forkjoinexample.ForkJoinMoveList;
-import bge.game.forkjoinexample.ForkJoinPositionEvaluator;
-import bge.game.forkjoinexample.ForkObserver;
-import bge.game.forkjoinexample.StartStopObserver;
 import bge.game.gomoku.GomokuGame;
 import bge.game.gomoku.GomokuGameRenderer;
-import bge.game.gomoku.GomokuMoveList;
 import bge.game.gomoku.GomokuPositionEvaluator;
 import bge.game.papersoccer.PaperSoccerGame;
 import bge.game.papersoccer.PaperSoccerGameRenderer;
 import bge.game.papersoccer.PaperSoccerPositionEvaluator;
-import bge.game.papersoccer.PaperSoccerUtilities;
 import bge.game.photosynthesis.PhotosynthesisGame;
 import bge.game.photosynthesis.PhotosynthesisGameRenderer;
 import bge.game.photosynthesis.PhotosynthesisPositionEvaluator;
-import bge.game.sudoku.SudokuConstants;
-import bge.game.sudoku.SudokuGame;
-import bge.game.sudoku.SudokuGameRenderer;
-import bge.game.sudoku.SudokuPositionEvaluator;
 import bge.game.tictactoe.TicTacToeGame;
 import bge.game.tictactoe.TicTacToeGameRenderer;
-import bge.game.tictactoe.TicTacToePosition;
 import bge.game.tictactoe.TicTacToePositionEvaluator;
 import bge.game.ultimatetictactoe.UTTTProbabilityPositionEvaluator;
 import bge.game.ultimatetictactoe.UltimateTicTacToeGame;
 import bge.game.ultimatetictactoe.UltimateTicTacToeGameRenderer;
 import bge.game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
-import bge.game.ultimatetictactoe.UltimateTicTacToeUtilities;
-import bge.gui.FixedDurationGameLoop;
-import bge.gui.GameGuiManager;
-import bge.gui.GameRegistry;
-import bge.gui.GameRegistry.GameRegistryItem;
-import bge.gui.gamestate.GameRunningState;
+import bge.gui.gamestate.IGameRenderer;
 import bge.gui.gamestate.MainMenuState;
+import bge.igame.IGame;
+import bge.igame.IPosition;
+import bge.igame.player.ComputerPlayer;
+import bge.igame.player.ComputerPlayerInfo;
+import bge.igame.player.PlayerOptions;
+import bge.igame.player.PlayerOptions.CPOptionIntRange;
+import bge.igame.player.PlayerOptions.CPOptionStringArray;
+import bge.main.GameRegistry.GameRegistryItem;
+import gt.component.ComponentCreator;
+import gt.component.GamePanel;
+import gt.component.IMouseTracker;
+import gt.component.MainFrame;
+import gt.gameentity.IGameImageDrawer;
+import gt.gamestate.GameStateManager;
+import gt.util.Pair;
 
 public class BoardGameEngineMain {
     private static final String TITLE = "Board Game Engine";
@@ -82,142 +61,99 @@ public class BoardGameEngineMain {
     public static final Color FOREGROUND_COLOR = DARK_THEME ? Color.WHITE : Color.BLACK;
     public static final Color LIGHTER_FOREGROUND_COLOR = DARK_THEME ? new Color(200, 200, 200) : Color.GRAY;
 
+    public static PlayerOptions createComputerPlayerOptions(IGame<?, ?> game, int minMs, int maxMs, int maxThreads, int maxSimulations) {
+        PlayerOptions msPerMoveOption = new PlayerOptions("threads", new CPOptionIntRange(ComputerPlayerInfo.KEY_MS_PER_MOVE, minMs, maxMs));
+        PlayerOptions threadOption = new PlayerOptions("threads", new CPOptionIntRange(ComputerPlayerInfo.KEY_NUM_THREADS, 1, maxThreads));
+        PlayerOptions simulationsOption = new PlayerOptions("simulations", new CPOptionIntRange(ComputerPlayerInfo.KEY_NUM_SIMULATIONS, 1, maxSimulations));
+        PlayerOptions evaluatorOption = new PlayerOptions("Evaluator", new CPOptionStringArray(ComputerPlayerInfo.KEY_EVALUATOR,
+                GameRegistry.getPositionEvaluatorNames(game.getName())));
+
+        PlayerOptions fjStrategyOptions = new PlayerOptions("Strategy",
+                new CPOptionStringArray(ComputerPlayerInfo.KEY_FJ_STRATEGY, ComputerPlayerInfo.ALL_FJ_STRATEGIES));
+        for (String fjStrategy : ComputerPlayerInfo.ALL_FJ_STRATEGIES) {
+            fjStrategyOptions.addSubOption(fjStrategy, evaluatorOption);
+            fjStrategyOptions.addSubOption(fjStrategy, threadOption);
+            fjStrategyOptions.addSubOption(fjStrategy, msPerMoveOption);
+        }
+
+        PlayerOptions mcStrategyOptions = new PlayerOptions("Strategy",
+                new CPOptionStringArray(ComputerPlayerInfo.KEY_MC_STRATEGY, ComputerPlayerInfo.ALL_MC_STRATEGIES));
+        for (String mcStrategy : ComputerPlayerInfo.ALL_MC_STRATEGIES) {
+            mcStrategyOptions.addSubOption(mcStrategy, evaluatorOption);
+            mcStrategyOptions.addSubOption(mcStrategy, simulationsOption);
+            mcStrategyOptions.addSubOption(mcStrategy, msPerMoveOption);
+        }
+
+        return new PlayerOptions("Tree Searcher",
+                new CPOptionStringArray(ComputerPlayerInfo.KEY_TS, ComputerPlayerInfo.ALL_TREE_SEARCHERS))
+                        .addSubOption(ComputerPlayerInfo.TS_FORK_JOIN, fjStrategyOptions)
+                        .addSubOption(ComputerPlayerInfo.TS_MONTE_CARLO, mcStrategyOptions);
+    }
+
+    private static <M, P extends IPosition<M>> void registerGame(IGame<M, P> game,
+            List<Pair<String, IPositionEvaluator<M, P>>> positionEvaluators,
+            int minMsPerMove, int maxMsPerMove, int maxThreads, int maxSimulations,
+            BiFunction<IMouseTracker, IGameImageDrawer, IGameRenderer<M, P>> gameRendererSupplier) {
+        GameRegistryItem<M, P> gameRegistryItem = GameRegistry.registerGame(game, gameRendererSupplier).addPlayer(ComputerPlayer.NAME);
+        for (Pair<String, IPositionEvaluator<M, P>> nameEvaluator : positionEvaluators) {
+            gameRegistryItem.addPositionEvaluator(nameEvaluator.getFirst(), nameEvaluator.getSecond());
+        }
+        PlayerOptions computerPlayerOptions = createComputerPlayerOptions(game, minMsPerMove, maxMsPerMove, maxThreads, maxSimulations);
+        gameRegistryItem.setPlayerOptions(ComputerPlayer.NAME, computerPlayerOptions);
+    }
+
+    public static void registerGames() {
+        int maxThreads = Runtime.getRuntime().availableProcessors() - 1;
+
+        // TODO ChessConstants.MAX_REASONABLE_DEPTH, etc
+        registerGame(new ChessGame(),
+                Collections.singletonList(Pair.valueOf("Evaluator1", new ChessPositionEvaluator())),
+                50, 10000, maxThreads, 20,
+                (mouseTracker, imageDrawer) -> new ChessGameRenderer(mouseTracker, imageDrawer));
+
+        registerGame(new TicTacToeGame(),
+                Collections.singletonList(Pair.valueOf("Evaluator1", new TicTacToePositionEvaluator())),
+                50, 10000, maxThreads, 20,
+                (mouseTracker, imageDrawer) -> new TicTacToeGameRenderer(mouseTracker));
+
+        registerGame(new UltimateTicTacToeGame(),
+                Arrays.asList(Pair.valueOf("Evaluator1", new UltimateTicTacToePositionEvaluator()),
+                        Pair.valueOf("Evaluator2", new UTTTProbabilityPositionEvaluator())),
+                50, 10000, maxThreads, 20,
+                (mouseTracker, imageDrawer) -> new UltimateTicTacToeGameRenderer(mouseTracker));
+
+        // TODO GomokuMoveList.class
+        registerGame(new GomokuGame(),
+                Collections.singletonList(Pair.valueOf("Evaluator1", new GomokuPositionEvaluator())),
+                50, 10000, maxThreads, 20,
+                (mouseTracker, imageDrawer) -> new GomokuGameRenderer(mouseTracker));
+
+        registerGame(new PaperSoccerGame(),
+                Collections.singletonList(Pair.valueOf("Evaluator1", new PaperSoccerPositionEvaluator())),
+                50, 10000, maxThreads, 20,
+                (mouseTracker, imageDrawer) -> new PaperSoccerGameRenderer(mouseTracker));
+
+        registerGame(new PhotosynthesisGame(),
+                Collections.singletonList(Pair.valueOf("Evaluator1", new PhotosynthesisPositionEvaluator())),
+                50, 10000, maxThreads, 20,
+                (mouseTracker, imageDrawer) -> new PhotosynthesisGameRenderer(mouseTracker));
+
+        // TODO Sodoku
+    }
+
     public static void main(String[] args) {
         registerGames();
 
-        try {
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-        }
+        ComponentCreator.setCrossPlatformLookAndFeel();
 
-        JFrame mainFrame = createMainFrame();
-        MainPanel mainPanel = new MainPanel(mainFrame);
-        mainFrame.setContentPane(mainPanel);
+        GamePanel mainPanel = new GamePanel("BGE");
+        mainPanel.setPreferredSize(new Dimension(ComponentCreator.DEFAULT_WIDTH, ComponentCreator.DEFAULT_HEIGHT));
 
-        GameGuiManager.setLoadGameAction(gameName -> mainPanel.loadGame(gameName));
+        GameStateManager gameStateManager = mainPanel.getGameStateManager();
+        gameStateManager.setGameState(new MainMenuState(gameStateManager));
 
-        GameGuiManager.setGameState(new MainMenuState());
+        MainFrame mainFrame = new MainFrame(TITLE, mainPanel);
 
-        SwingUtilities.invokeLater(() -> {
-            mainFrame.pack();
-
-            mainPanel.gamePanel.addToGameLoop("Game");
-            FixedDurationGameLoop.startLoop();
-
-            mainFrame.setLocationRelativeTo(null);
-            mainFrame.setVisible(true);
-            mainPanel.gamePanel.requestFocus();
-        });
-    }
-
-    private static void registerGames() {
-        int defaultMaxWorkers = Runtime.getRuntime().availableProcessors() - 1;
-
-        GameRegistry.registerGame(new ChessGame(), ChessGameRenderer.class)
-                .registerHuman()
-                .registerComputer(6000, defaultMaxWorkers)
-                .registerMinimaxStrategies(new ChessPositionEvaluator(), true)
-                .registerMonteCarloStrategy(new ChessPositionEvaluator(), 1, ChessConstants.MAX_REASONABLE_DEPTH);
-
-        GameRegistry.registerGame(new TicTacToeGame(), TicTacToeGameRenderer.class)
-                .registerHuman()
-                .registerComputer(500, defaultMaxWorkers)
-                .registerMinimaxStrategies(new TicTacToePositionEvaluator(), false)
-                .registerMonteCarloStrategy(new TicTacToePositionEvaluator(), 1, TicTacToePosition.BOARD_WIDTH * TicTacToePosition.BOARD_WIDTH);
-
-        GameRegistry.registerGame(new UltimateTicTacToeGame(), UltimateTicTacToeGameRenderer.class)
-                .registerHuman()
-                .registerComputer(3000, defaultMaxWorkers)
-                .registerMinimaxStrategies(new UltimateTicTacToePositionEvaluator(), true)
-                .registerMinimaxStrategies(new UTTTProbabilityPositionEvaluator(), "P", true)
-                .registerMonteCarloStrategy(new UTTTProbabilityPositionEvaluator(), 1, UltimateTicTacToeUtilities.MAX_REASONABLE_DEPTH);
-
-        GameRegistry.registerGame(new GomokuGame(), GomokuGameRenderer.class, GomokuMoveList.class)
-                .registerHuman()
-                .registerComputer(6000, defaultMaxWorkers)
-                .registerMinimaxStrategies(new GomokuPositionEvaluator(), false)
-                .registerMonteCarloStrategy(new GomokuPositionEvaluator(), 1, GomokuGame.MAX_REASONABLE_DEPTH);
-
-        GameRegistry.registerGame(new PaperSoccerGame(), PaperSoccerGameRenderer.class)
-                .registerHuman()
-                .registerComputer(1000, defaultMaxWorkers)
-                .registerMinimaxStrategies(new PaperSoccerPositionEvaluator(), false)
-                .registerMonteCarloStrategy(new PaperSoccerPositionEvaluator(), 1, PaperSoccerUtilities.MAX_REASONABLE_DEPTH);
-
-        GameRegistry.registerGame(new PhotosynthesisGame(), PhotosynthesisGameRenderer.class)
-                .registerHuman()
-                .registerComputer(1000, defaultMaxWorkers)
-                .registerMinimaxStrategies(new PhotosynthesisPositionEvaluator(), false);
-
-        GameRegistry.registerGame(new SudokuGame(), SudokuGameRenderer.class)
-                .registerComputer(1000, defaultMaxWorkers)
-                .registerTreeSearcher("AlphaBetaQ",
-                        info -> new IterativeDeepeningTreeSearcher<>(
-                                new AlphaBetaQStrategy<>(new SudokuPositionEvaluator(),
-                                        new MoveListProvider<>(GameRegistry.getMoveListFactory(SudokuGame.NAME))),
-                                GameRegistry.getMoveListFactory(SudokuGame.NAME), info.numWorkers))
-                .registerMonteCarloStrategy(new SudokuPositionEvaluator(), 1, SudokuConstants.TOTAL_CELLS);
-
-        registerForkJoinExample();
-    }
-
-    private static void registerForkJoinExample() {
-        GameRegistryItem<ForkJoinExampleNode, ForkJoinExampleTree> gameRegistryItem = GameRegistry
-                .registerGame(new ForkJoinExampleGame(), ForkJoinExampleGameRenderer.class, ForkJoinMoveList.class)
-                .registerComputer(Long.MAX_VALUE, 100);
-
-        MoveListFactory<ForkJoinExampleNode> moveListFactory = GameRegistry.getMoveListFactory(ForkJoinExampleGame.NAME);
-        ForkJoinPositionEvaluator positionEvaluator = new ForkJoinPositionEvaluator();
-
-        MinimaxStrategy<ForkJoinExampleNode, ForkJoinExampleTree> minimaxStrategy = new MinimaxStrategy<>(positionEvaluator,
-                new MoveListProvider<>(moveListFactory));
-        AlphaBetaStrategy<ForkJoinExampleNode, ForkJoinExampleTree> alphaBetaStrategy = new AlphaBetaStrategy<>(positionEvaluator,
-                new MoveListProvider<>(moveListFactory));
-        AlphaBetaQStrategy<ForkJoinExampleNode, ForkJoinExampleTree> alphaBetaQStrategy = new AlphaBetaQStrategy<>(positionEvaluator,
-                new MoveListProvider<>(moveListFactory));
-        ForkObserver<ForkJoinExampleNode> expandObserver = node -> ForkJoinExampleThreadTracker.setForked(node);
-        StartStopObserver startStopObserver = new StartStopObserver();
-
-        gameRegistryItem
-                .registerTreeSearcher("MinMax",
-                        info -> new IterativeDeepeningTreeSearcher<>(new ForkJoinExampleStraregy(minimaxStrategy), moveListFactory, info.numWorkers))
-                .registerTreeSearcher("AlphaBeta",
-                        info -> new IterativeDeepeningTreeSearcher<>(new ForkJoinExampleStraregy(alphaBetaStrategy), moveListFactory, info.numWorkers))
-                .registerTreeSearcher("AlphaBetaQ",
-                        info -> new IterativeDeepeningTreeSearcher<>(new ForkJoinExampleStraregy(alphaBetaQStrategy), moveListFactory, info.numWorkers))
-                .registerTreeSearcher("MonteCarlo",
-                        info -> new MonteCarloTreeSearcher<>(new RandomMonteCarloChildren<>(0), positionEvaluator, moveListFactory, 1,
-                                ForkJoinExampleTree.DEPTH, expandObserver, startStopObserver))
-                .registerTreeSearcher("MonteCarloW",
-                        info -> new MonteCarloTreeSearcher<>(new WeightedMonteCarloChildren<>(0), positionEvaluator, moveListFactory, 1,
-                                ForkJoinExampleTree.DEPTH, expandObserver, startStopObserver));
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static void setGameState(String gameName, GameRunner<?, ?> gameRunner) {
-        GameGuiManager.setGameState(new GameRunningState(gameRunner, GameRegistry.newGameRenderer(gameName)));
-    }
-
-    private static JFrame createMainFrame() {
-        JFrame mainFrame = new JFrame(TITLE);
-        mainFrame.setBackground(BoardGameEngineMain.BACKGROUND_COLOR);
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setFocusable(false);
-        return mainFrame;
-    }
-
-    public static <T extends JComponent> T initComponent(T component) {
-        component.setBackground(BACKGROUND_COLOR);
-        component.setForeground(FOREGROUND_COLOR);
-        component.setFocusable(false);
-        if (component instanceof PlayerControllerPanel) {
-            component.setBorder(
-                    BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(FOREGROUND_COLOR, 1), BorderFactory.createEmptyBorder(0, 10, 0, 0)));
-        } else if (component instanceof JTextField) {
-            component.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createDashedBorder(null), BorderFactory.createEmptyBorder(2, 5, 2, 5)));
-        } else if (!(component instanceof JButton)) {
-            component.setBorder(BorderFactory.createEmptyBorder());
-        }
-        return component;
+        mainFrame.show();
     }
 }

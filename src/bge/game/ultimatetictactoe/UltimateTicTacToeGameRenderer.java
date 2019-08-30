@@ -2,20 +2,19 @@ package bge.game.ultimatetictactoe;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 
-import bge.game.Coordinate;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
 import bge.game.tictactoe.TicTacToeUtilities;
-import bge.gui.DrawingMethods;
-import bge.gui.GameGuiManager;
-import bge.gui.gamestate.GuiPlayerHelper;
 import bge.gui.gamestate.IGameRenderer;
+import bge.igame.Coordinate;
+import bge.igame.MoveList;
+import bge.igame.player.GuiPlayerHelper;
+import bge.igame.player.TwoPlayers;
 import bge.main.BoardGameEngineMain;
+import gt.component.IMouseTracker;
 import gt.gameentity.GridSizer;
+import gt.gameentity.IGraphics;
 import gt.gamestate.UserInput;
+import gt.util.EMath;
 
 public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, UltimateTicTacToePosition> {
     private static final Coordinate[] BOARD_NM = new Coordinate[] {
@@ -44,50 +43,52 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
 
     private static final Color WOOD_COLOR = new Color(206, 168, 140);
 
+    private final IMouseTracker mouseTracker;
     private GridSizer sizer;
     private double smallBoardWidth;
     private Font smallFont;
     private Font largeFont;
 
-    @Override
-    public void initializeAndDrawBoard(Graphics2D g) {
-        int imageWidth = GameGuiManager.getComponentWidth();
-        int imageHeight = GameGuiManager.getComponentHeight();
-
-        sizer = new GridSizer(imageWidth, imageHeight, UltimateTicTacToePosition.BOARD_WIDTH, UltimateTicTacToePosition.BOARD_WIDTH);
-        smallBoardWidth = sizer.gridWidth / 3.0;
-        smallFont = new Font(Font.MONOSPACED, Font.BOLD, round(sizer.cellSize * 0.75));
-        largeFont = new Font(Font.MONOSPACED, Font.BOLD, round(sizer.cellSize * 4));
-
-        fillRect(g, 0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
-
-        fillRect(g, sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.gridHeight, WOOD_COLOR);
+    public UltimateTicTacToeGameRenderer(IMouseTracker mouseTracker) {
+        this.mouseTracker = mouseTracker;
     }
 
-    public static void drawBoard(Graphics g, double x0, double y0, double width, double padding, int lineThickness) {
+    @Override
+    public void initializeAndDrawBoard(IGraphics g, double imageWidth, double imageHeight) {
+        sizer = new GridSizer(imageWidth, imageHeight, UltimateTicTacToePosition.BOARD_WIDTH, UltimateTicTacToePosition.BOARD_WIDTH);
+        smallBoardWidth = sizer.gridWidth / 3.0;
+        smallFont = new Font(Font.MONOSPACED, Font.BOLD, EMath.round(sizer.cellSize * 0.75));
+        largeFont = new Font(Font.MONOSPACED, Font.BOLD, EMath.round(sizer.cellSize * 4));
+
+        g.fillRect(0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
+
+        g.fillRect(sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.gridHeight, WOOD_COLOR);
+    }
+
+    public static void drawBoard(IGraphics g, double x0, double y0, double width, double padding, int lineThickness) {
         drawThickVLike(g, x0 + width / 3, y0 + padding, y0 + width - padding, lineThickness);
         drawThickVLike(g, x0 + 2 * width / 3, y0 + padding, y0 + width - padding, lineThickness);
         drawThickHLike(g, y0 + width / 3, x0 + padding, x0 + width - padding, lineThickness);
         drawThickHLike(g, y0 + 2 * width / 3, x0 + padding, x0 + width - padding, lineThickness);
     }
 
-    private static void drawThickHLike(Graphics g, double y, double x0, double x1, double thickness) {
-        g.fillRect(DrawingMethods.roundS(x0), DrawingMethods.roundS(y - thickness / 2), DrawingMethods.roundS(x1 - x0), DrawingMethods.roundS(thickness));
+    private static void drawThickHLike(IGraphics g, double y, double x0, double x1, double thickness) {
+        g.fillRect(x0, y - thickness / 2, x1 - x0, thickness);
     }
 
-    private static void drawThickVLike(Graphics g, double x, double y0, double y1, double thickness) {
-        g.fillRect(DrawingMethods.roundS(x - thickness / 2), DrawingMethods.roundS(y0), DrawingMethods.roundS(thickness), DrawingMethods.roundS(y1 - y0));
+    private static void drawThickVLike(IGraphics g, double x, double y0, double y1, double thickness) {
+        g.fillRect(x - thickness / 2, y0, thickness, y1 - y0);
     }
 
     @Override
-    public void drawPosition(Graphics2D g, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves, Coordinate lastMove) {
+    public void drawPosition(IGraphics g, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves, Coordinate lastMove) {
         highlightBoardInPlay(g, position, possibleMoves);
         drawBoards(g);
         drawMoves(g, position, lastMove);
         drawMouseOn(g, possibleMoves);
     }
 
-    private void highlightBoardInPlay(Graphics2D g, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves) {
+    private void highlightBoardInPlay(IGraphics g, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves) {
         if (possibleMoves.size() == 0) {
             return;
         }
@@ -105,17 +106,17 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
         }
     }
 
-    private void highlightBoard(Graphics2D g, int board) {
+    private void highlightBoard(IGraphics g, int board) {
         Coordinate boardXY = getBoardXY(board, 0); // 0 = upper left square
-        int highlightWidth = round(smallBoardWidth - 2);
-        g.fillRect(round(sizer.getCornerX(boardXY.x)), round(sizer.getCornerY(boardXY.y)), highlightWidth, highlightWidth);
+        double highlightWidth = smallBoardWidth - 2;
+        g.fillRect(sizer.getCornerX(boardXY.x), sizer.getCornerY(boardXY.y), highlightWidth, highlightWidth);
     }
 
     public Color getHighlightColor(int currentPlayer) {
         return currentPlayer == TwoPlayers.PLAYER_1 ? new Color(220, 220, 255) : new Color(255, 220, 220);
     }
 
-    private void drawBoards(Graphics2D g) {
+    private void drawBoards(IGraphics g) {
         g.setColor(Color.BLACK);
         drawBoard(g, sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.cellSize * 0.05, 4);
 
@@ -126,7 +127,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
         }
     }
 
-    private void drawMoves(Graphics2D g, UltimateTicTacToePosition position, Coordinate lastMove) {
+    private void drawMoves(IGraphics g, UltimateTicTacToePosition position, Coordinate lastMove) {
         for (int n = 0; n < UltimateTicTacToePosition.BOARD_WIDTH; ++n) {
             for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
                 int playerInt = (position.boards[n] >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
@@ -134,7 +135,8 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
                     Coordinate boardXY = getBoardXY(n, m);
                     g.setColor(getPlayerColor(playerInt, lastMove != null && n == lastMove.x && m == lastMove.y));
                     String player = playerInt == TwoPlayers.PLAYER_1 ? "X" : "O";
-                    drawCenteredString(g, smallFont, player, sizer.getCenterX(boardXY.x), sizer.getCenterY(boardXY.y));
+                    g.setFont(smallFont);
+                    g.drawCenteredString(player, sizer.getCenterX(boardXY.x), sizer.getCenterY(boardXY.y));
                 }
             }
         }
@@ -144,7 +146,8 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
                 String player = wonBoardsInt == TwoPlayers.PLAYER_1 ? "X" : "O";
                 g.setColor(getPlayerColor(wonBoardsInt, lastMove != null && lastMove.x == m));
                 Coordinate intersection = getBoardXY(m, 4); // 4 = the center square of that board
-                drawCenteredString(g, largeFont, player, sizer.getCenterX(intersection.x), sizer.getCenterY(intersection.y));
+                g.setFont(largeFont);
+                g.drawCenteredString(player, sizer.getCenterX(intersection.x), sizer.getCenterY(intersection.y));
             }
         }
     }
@@ -154,13 +157,13 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
         return lastMove ? color.darker().darker() : color;
     }
 
-    private void drawMouseOn(Graphics g, MoveList<Coordinate> possibleMoves) {
-        if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
-            Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
+    private void drawMouseOn(IGraphics g, MoveList<Coordinate> possibleMoves) {
+        if (mouseTracker.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
+            Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(mouseTracker, sizer, UltimateTicTacToePosition.BOARD_WIDTH);
             if (coordinate != null) {
                 Coordinate boardNM = getBoardNM(coordinate.x, coordinate.y);
                 if (possibleMoves.contains(boardNM)) {
-                    GuiPlayerHelper.highlightCoordinate(g, sizer, 0.1);
+                    GuiPlayerHelper.highlightCoordinate(g, mouseTracker, sizer, 0.1);
                 }
             }
         }
@@ -169,7 +172,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
     @Override
     public Coordinate maybeGetUserMove(UserInput input, UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves) {
         if (input == UserInput.LEFT_BUTTON_RELEASED) {
-            Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, UltimateTicTacToePosition.BOARD_WIDTH);
+            Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(mouseTracker, sizer, UltimateTicTacToePosition.BOARD_WIDTH);
             if (coordinate != null) {
                 return getBoardNM(coordinate.x, coordinate.y);
             }

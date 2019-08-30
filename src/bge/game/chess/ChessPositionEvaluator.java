@@ -2,9 +2,9 @@ package bge.game.chess;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
 import bge.game.chess.move.IChessMove;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class ChessPositionEvaluator implements IPositionEvaluator<IChessMove, ChessPosition>, ChessEvaluationConstants {
     @Override

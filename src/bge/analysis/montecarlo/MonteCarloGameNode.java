@@ -6,10 +6,10 @@ import java.util.List;
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
 import bge.analysis.strategy.MoveListProvider;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.MoveListFactory;
 import bge.game.forkjoinexample.ForkObserver;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.MoveListFactory;
 
 public class MonteCarloGameNode<M, P extends IPosition<M>> {
     private MonteCarloGameNode<M, P> parentNode;

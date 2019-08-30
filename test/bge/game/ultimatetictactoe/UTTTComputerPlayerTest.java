@@ -5,12 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import bge.analysis.ComputerPlayer;
 import bge.analysis.search.IterativeDeepeningTreeSearcher;
 import bge.analysis.strategy.MinimaxStrategy;
 import bge.analysis.strategy.MoveListProvider;
-import bge.game.Coordinate;
-import bge.game.MoveListFactory;
+import bge.igame.Coordinate;
+import bge.igame.MoveListFactory;
+import bge.igame.player.ComputerPlayer;
 
 public class UTTTComputerPlayerTest {
     @Test
@@ -54,9 +54,9 @@ public class UTTTComputerPlayerTest {
 
     private static ComputerPlayer newComputerPlayer(int numWorkers, long toWait) {
         MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
-        return new ComputerPlayer("MinMax",
+        return new ComputerPlayer(
                 new IterativeDeepeningTreeSearcher<>(new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory)),
                         moveListFactory, numWorkers),
-                numWorkers, toWait, true);
+                toWait, true);
     }
 }

@@ -1,6 +1,6 @@
 package bge.game.papersoccer;
 
-import bge.game.Coordinate;
+import bge.igame.Coordinate;
 
 public class PaperSoccerUtilities {
     public static final int BOARD_WIDTH = 13;

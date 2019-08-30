@@ -1,39 +1,46 @@
 package bge.gui.gamestate;
 
-import java.awt.Graphics2D;
-
-import bge.game.GameRunner;
-import bge.game.IPosition;
-import bge.gui.GameGuiManager;
-import bge.gui.GameImage;
-import bge.gui.GuiPlayer;
+import bge.igame.GameRunner;
+import bge.igame.IPosition;
+import bge.igame.player.GuiPlayer;
+import gt.gameentity.IGameImage;
+import gt.gameentity.IGameImageDrawer;
+import gt.gameentity.IGraphics;
+import gt.gamestate.GameState;
+import gt.gamestate.GameStateManager;
 import gt.gamestate.UserInput;
 
 public class GameRunningState<M> implements GameState {
+    private final IGameImageDrawer imageDrawer;
     private final GameRunner<M, IPosition<M>> gameRunner;
     private final IGameRenderer<M, IPosition<M>> gameRenderer;
-    private final GameImage boardImage = new GameImage();
+    private final IGameImage boardImage;
 
     @SuppressWarnings("unchecked")
-    public GameRunningState(GameRunner<M, IPosition<M>> gameRunner, IGameRenderer<M, IPosition<M>> gameRenderer) {
+    public GameRunningState(GameStateManager gameStateManager, GameRunner<M, IPosition<M>> gameRunner, IGameRenderer<M, IPosition<M>> gameRenderer) {
+        imageDrawer = gameStateManager.getImageDrawer();
         this.gameRunner = gameRunner;
         this.gameRenderer = gameRenderer;
+        boardImage = imageDrawer.newGameImage();
         if (gameRenderer instanceof IPositionObserver<?, ?>) {
             gameRunner.setPositionObserver((IPositionObserver<M, IPosition<M>>) gameRenderer);
         }
-        componentResized(GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
     }
 
     @Override
-    public void drawOn(Graphics2D graphics) {
-        graphics.drawImage(boardImage.getImage(), 0, 0, null);
+    public void update(double dt) {
+    }
+
+    @Override
+    public void drawOn(IGraphics graphics) {
+        imageDrawer.drawImage(graphics, boardImage, 0, 0);
         gameRenderer.drawPosition(graphics, gameRunner.getCurrentPositionCopy(), gameRunner.getPossibleMovesCopy(), gameRunner.getLastMove());
     }
 
     @Override
-    public void componentResized(int width, int height) {
-        boardImage.checkResized(width, height);
-        gameRenderer.initializeAndDrawBoard(boardImage.getGraphics());
+    public void setSize(double width, double height) {
+        boardImage.setSize(width, height);
+        gameRenderer.initializeAndDrawBoard(boardImage.getGraphics(), width, height);
     }
 
     @Override

@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import bge.analysis.AnalysisResult;
 import bge.analysis.AnalyzedMove;
 import bge.analysis.strategy.IDepthBasedStrategy;
-import bge.game.IPosition;
+import bge.igame.IPosition;
 
 public class GameTreeSearchJoin<M, P extends IPosition<M>> implements IGameTreeSearchJoin<M> {
     private final IGameTreeSearchJoin<M> parentJoin;

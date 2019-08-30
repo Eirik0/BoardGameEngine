@@ -1,19 +1,21 @@
 package bge.game.forkjoinexample;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import bge.game.MoveList;
 import bge.game.forkjoinexample.ForkJoinExampleThreadTracker.ChildInfo;
 import bge.game.forkjoinexample.ForkJoinExampleThreadTracker.ForkJoinExampleNodeInfo;
-import bge.gui.GameGuiManager;
 import bge.gui.gamestate.IGameRenderer;
+import bge.igame.MoveList;
 import bge.main.BoardGameEngineMain;
+import gt.component.IMouseTracker;
+import gt.gameentity.DrawingMethods;
+import gt.gameentity.IGraphics;
 import gt.gamestate.UserInput;
+import gt.util.EMath;
 
 public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampleNode, ForkJoinExampleTree> {
     private static final int BREDTH = (int) Math.round(Math.pow(ForkJoinExampleTree.DEPTH, ForkJoinExampleTree.BRANCHING_FACTOR));
@@ -23,20 +25,27 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
 
     private double nodeRadius = 0;
 
-    @Override
-    public void initializeAndDrawBoard(Graphics2D g) {
-        int padding = 20; // pixels on either side
-        nodeRadius = (((double) GameGuiManager.getComponentWidth() - 2 * padding) / BREDTH) / 4 + 0.5;
-        g.setColor(BoardGameEngineMain.BACKGROUND_COLOR);
-        g.fillRect(0, 0, GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
+    private double width;
+    private double height;
+
+    @SuppressWarnings("unused")
+    public ForkJoinExampleGameRenderer(IMouseTracker mouseTracker) {
     }
 
     @Override
-    public void drawPosition(Graphics2D g, ForkJoinExampleTree position, MoveList<ForkJoinExampleNode> possibleMoves, ForkJoinExampleNode lastMove) {
-        int width = GameGuiManager.getComponentWidth();
-        int height = GameGuiManager.getComponentHeight();
+    public void initializeAndDrawBoard(IGraphics g, double imageWidth, double imageHeight) {
+        width = imageHeight;
+        height = imageHeight;
+        int padding = 20; // pixels on either side
+        nodeRadius = ((width - 2 * padding) / BREDTH) / 4 + 0.5;
+        g.setColor(BoardGameEngineMain.BACKGROUND_COLOR);
+        g.fillRect(0, 0, width, height);
+    }
+
+    @Override
+    public void drawPosition(IGraphics g, ForkJoinExampleTree position, MoveList<ForkJoinExampleNode> possibleMoves, ForkJoinExampleNode lastMove) {
         g.setFont(BoardGameEngineMain.DEFAULT_SMALL_FONT);
-        int fontHeight = g.getFontMetrics().getHeight() + 2;
+        int fontHeight = EMath.round(g.getStringDimensions("N").getSecond()) + 2;
         g.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
         ForkJoinExampleThreadTracker.maybeRecalculateTimeElapsed();
         g.drawString("Nodes per evaluated second: " + String.format("%.2f", Double.valueOf(ForkJoinExampleThreadTracker.getNodesEvaluatedPerSecond())), 2,
@@ -59,20 +68,20 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
                 // draw node
                 if (nodeInfo.isForked()) {
                     g.setColor(color);
-                    fillCircle(g, nodeX, nodeY, nodeRadius * 2);
+                    g.fillCircle(nodeX, nodeY, nodeRadius * 2);
                 } else {
                     g.setColor(color);
-                    drawCircle(g, nodeX, nodeY, nodeRadius);
+                    g.drawCircle(nodeX, nodeY, nodeRadius);
                     // maybe fill in node
                     if (nodeInfo.getThreadName() != null) {
-                        fillCircle(g, nodeX, nodeY, nodeRadius * 2);
+                        g.fillCircle(nodeX, nodeY, nodeRadius * 2);
                     }
                 }
                 // draw lines to children
                 for (ChildInfo child : nodeInfo.getChildren()) {
                     g.setColor(getColorFromThreadName(child.threadName, child.branchTime));
                     ForkJoinExampleNodeInfo childInfo = child.childInfo;
-                    g.drawLine(round(nodeX), round(nodeY), round(childInfo.fractionX * width), round(childInfo.fractionY * height));
+                    g.drawLine(nodeX, nodeY, childInfo.fractionX * width, childInfo.fractionY * height);
                 }
             }
         }
@@ -84,7 +93,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
             color = new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255));
             threadColorMap.put(threadName, color);
         }
-        return decayToColor(color, calculateDecay(lastUpdateTime));
+        return DrawingMethods.fadeToColor(Color.WHITE, color, calculateDecay(lastUpdateTime));
     }
 
     private static double calculateDecay(long lastUpdateTime) {

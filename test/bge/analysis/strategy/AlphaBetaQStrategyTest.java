@@ -2,11 +2,11 @@ package bge.analysis.strategy;
 
 import org.junit.jupiter.api.Test;
 
-import bge.game.MoveListFactory;
 import bge.game.chess.ChessGame;
 import bge.game.chess.ChessPosition;
 import bge.game.chess.ChessPositionEvaluator;
 import bge.game.chess.move.IChessMove;
+import bge.igame.MoveListFactory;
 
 public class AlphaBetaQStrategyTest {
     @Test

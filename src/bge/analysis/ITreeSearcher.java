@@ -1,6 +1,6 @@
 package bge.analysis;
 
-import bge.game.IPosition;
+import bge.igame.IPosition;
 
 public interface ITreeSearcher<M, P extends IPosition<M>> {
     void searchForever(P position, boolean escapeEarly);

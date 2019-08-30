@@ -1,7 +1,7 @@
 package bge.game.value;
 
-import bge.game.IPosition;
-import bge.game.MoveList;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
 
 public class TestGamePosition implements IPosition<TestGameNode> {
     private TestGameNode previousNode;

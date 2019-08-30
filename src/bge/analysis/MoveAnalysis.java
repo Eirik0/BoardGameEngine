@@ -3,7 +3,7 @@ package bge.analysis;
 public class MoveAnalysis {
     public final double score;
 
-    public MoveAnalysis(double score) {
+    public MoveAnalysis(double score) { // TODO this includes the line ?
         this.score = score;
     }
 

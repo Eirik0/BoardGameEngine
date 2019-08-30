@@ -1,7 +1,7 @@
 package bge.game.forkjoinexample;
 
 import bge.analysis.IPositionEvaluator;
-import bge.game.MoveList;
+import bge.igame.MoveList;
 
 public class ForkJoinPositionEvaluator implements IPositionEvaluator<ForkJoinExampleNode, ForkJoinExampleTree> {
     @Override

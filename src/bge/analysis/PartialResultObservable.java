@@ -1,6 +1,6 @@
 package bge.analysis;
 
-import bge.gui.analysis.ComputerPlayerResult;
+import bge.igame.player.ComputerPlayerResult;
 
 public interface PartialResultObservable {
     ComputerPlayerResult getPartialResult();

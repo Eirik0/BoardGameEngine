@@ -9,12 +9,12 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import bge.game.ArrayMoveList;
-import bge.game.Coordinate;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
 import bge.game.sudoku.SudokuPositionTest;
 import bge.game.tictactoe.TicTacToeUtilities;
+import bge.igame.ArrayMoveList;
+import bge.igame.Coordinate;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class UltimateTicTacToePositionTest {
     @Test

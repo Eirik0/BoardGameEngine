@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
-import bge.game.Coordinate;
-import bge.game.IDeepCopy;
-import bge.game.IPosition;
-import bge.game.MoveList;
+import bge.igame.Coordinate;
+import bge.igame.IDeepCopy;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
 
 public class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
     // Game constants

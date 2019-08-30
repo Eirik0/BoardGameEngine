@@ -6,9 +6,9 @@ import java.util.Map.Entry;
 import bge.analysis.AnalysisResult;
 import bge.analysis.AnalyzedMove;
 import bge.analysis.IPositionEvaluator;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.MoveListFactory;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.MoveListFactory;
 
 public class MinimaxStrategy<M, P extends IPosition<M>> implements IAlphaBetaStrategy<M, P> {
     private final IPositionEvaluator<M, P> positionEvaluator;

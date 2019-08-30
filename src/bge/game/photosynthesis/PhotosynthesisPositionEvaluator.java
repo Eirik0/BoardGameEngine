@@ -1,7 +1,7 @@
 package bge.game.photosynthesis;
 
 import bge.analysis.IPositionEvaluator;
-import bge.game.MoveList;
+import bge.igame.MoveList;
 
 public class PhotosynthesisPositionEvaluator implements IPositionEvaluator<IPhotosynthesisMove, PhotosynthesisPosition> {
     @Override

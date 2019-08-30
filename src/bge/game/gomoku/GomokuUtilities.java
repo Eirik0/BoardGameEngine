@@ -1,6 +1,6 @@
 package bge.game.gomoku;
 
-import bge.game.Coordinate;
+import bge.igame.Coordinate;
 
 public class GomokuUtilities {
     static final int BOARD_WIDTH = 19;

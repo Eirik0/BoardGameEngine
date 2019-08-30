@@ -1,19 +1,18 @@
 package bge.analysis.montecarlo;
 
-import bge.game.IPosition;
-import bge.game.MoveList;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
 
 public interface IMonteCarloChildren<M> {
-    public IMonteCarloChildren<M> createNewWith(int numUnexpanded);
+    IMonteCarloChildren<M> createNewWith(int numUnexpanded);
 
-    public <P extends IPosition<M>> boolean initUnexpanded(MonteCarloGameNode<M, P> parentNode);
+    <P extends IPosition<M>> boolean initUnexpanded(MonteCarloGameNode<M, P> parentNode);
 
-    public int getNumUnexpanded();
+    int getNumUnexpanded();
 
-    public void setNumUnexpanded(int numUnexpanded);
+    void setNumUnexpanded(int numUnexpanded);
 
-    public int getNextNodeIndex();
+    int getNextNodeIndex();
 
-    public int getNextMoveIndex(MoveList<M> moveList);
-
+    int getNextMoveIndex(MoveList<M> moveList);
 }

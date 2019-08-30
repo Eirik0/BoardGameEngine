@@ -1,6 +1,6 @@
 package bge.game.forkjoinexample;
 
-import bge.game.IGame;
+import bge.igame.IGame;
 
 public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinExampleTree> {
     public static final String NAME = "Fork Join Example";

@@ -1,8 +1,8 @@
 package bge.game.papersoccer;
 
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class PaperSoccerPosition implements IPosition<Integer> {
     final int[] board;

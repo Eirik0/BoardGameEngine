@@ -4,9 +4,9 @@ import java.util.Map;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.MoveListFactory;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.MoveListFactory;
 
 public class AlphaBetaQStrategy<M, P extends IPosition<M>> implements IAlphaBetaStrategy<M, P> {
     private final IPositionEvaluator<M, P> positionEvaluator;

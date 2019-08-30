@@ -1,6 +1,6 @@
 package bge.game.sudoku;
 
-import bge.game.IGame;
+import bge.igame.IGame;
 
 public class SudokuGame implements IGame<SudokuMove, SudokuPosition>, SudokuConstants {
     public static final String NAME = "Sudoku Generator";

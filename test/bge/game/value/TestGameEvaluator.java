@@ -1,7 +1,7 @@
 package bge.game.value;
 
 import bge.analysis.IPositionEvaluator;
-import bge.game.MoveList;
+import bge.igame.MoveList;
 
 public class TestGameEvaluator implements IPositionEvaluator<TestGameNode, TestGamePosition> {
     @Override

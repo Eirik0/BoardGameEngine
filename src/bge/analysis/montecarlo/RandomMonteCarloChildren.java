@@ -2,8 +2,8 @@ package bge.analysis.montecarlo;
 
 import java.util.Random;
 
-import bge.game.IPosition;
-import bge.game.MoveList;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
 
 public class RandomMonteCarloChildren<M> implements IMonteCarloChildren<M> {
     private static final Random RANDOM = new Random();

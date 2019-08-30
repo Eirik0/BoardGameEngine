@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
 import bge.analysis.AnalysisResult;
 import bge.analysis.strategy.MinimaxStrategy;
 import bge.analysis.strategy.MoveListProvider;
-import bge.game.MoveList;
-import bge.game.MoveListFactory;
 import bge.game.value.TestGameEvaluator;
 import bge.game.value.TestGameNode;
 import bge.game.value.TestGamePosition;
+import bge.igame.MoveList;
+import bge.igame.MoveListFactory;
 import gt.async.ThreadWorker;
 
 public class TreeSearchWorkerTest {

@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import bge.analysis.AnalysisResult;
 import bge.analysis.AnalyzedMove;
 import bge.analysis.MoveAnalysis;
-import bge.game.IPosition;
+import bge.igame.IPosition;
 
 public class TreeSearchRoot<M, P extends IPosition<M>> {
     private final AnalysisResult<M> partialResult;

@@ -1,7 +1,7 @@
 package bge.analysis.strategy;
 
-import bge.game.MoveList;
-import bge.game.MoveListFactory;
+import bge.igame.MoveList;
+import bge.igame.MoveListFactory;
 
 public class MoveListProvider<M> {
     protected static final int MAX_DEPTH = 128;

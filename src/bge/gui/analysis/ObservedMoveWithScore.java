@@ -1,9 +1,9 @@
 package bge.gui.analysis;
 
 public class ObservedMoveWithScore {
-    String moveString;
-    double score;
-    boolean isPartial;
+    public final String moveString;
+    public final double score;
+    public final boolean isPartial;
 
     public ObservedMoveWithScore(String moveString, double score, boolean isPartial) {
         this.moveString = moveString;

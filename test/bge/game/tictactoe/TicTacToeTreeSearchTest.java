@@ -12,8 +12,8 @@ import bge.analysis.MoveAnalysis;
 import bge.analysis.search.IterativeDeepeningTreeSearcher;
 import bge.analysis.strategy.MinimaxStrategy;
 import bge.analysis.strategy.MoveListProvider;
-import bge.game.Coordinate;
-import bge.game.MoveListFactory;
+import bge.igame.Coordinate;
+import bge.igame.MoveListFactory;
 
 public class TicTacToeTreeSearchTest {
     private static IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> newTreeSearcher() {

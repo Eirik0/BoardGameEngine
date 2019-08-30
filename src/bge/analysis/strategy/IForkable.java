@@ -5,7 +5,7 @@ import java.util.List;
 import bge.analysis.AnalysisResult;
 import bge.analysis.search.GameTreeSearch;
 import bge.analysis.search.IGameTreeSearchJoin;
-import bge.game.IPosition;
+import bge.igame.IPosition;
 
 public interface IForkable<M, P extends IPosition<M>> {
     public AnalysisResult<M> search(IGameTreeSearchJoin<M> join);
