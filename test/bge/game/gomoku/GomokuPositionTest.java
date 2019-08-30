@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import bge.game.sudoku.SudokuPositionTest;
 import bge.igame.ArrayMoveList;
 import bge.igame.MoveList;
+import bge.perf.PerfTest;
 
 public class GomokuPositionTest {
     private static MoveList<Integer> getPossibleList(GomokuPosition position) {
@@ -73,8 +73,8 @@ public class GomokuPositionTest {
 
     @Test
     public void testCountPositions() {
-        SudokuPositionTest.countPos(new GomokuPosition(), 0, 361);
-        SudokuPositionTest.countPos(new GomokuPosition(), 1, 129960);
-        SudokuPositionTest.countPos(new GomokuPosition(), 2, 46655640);
+        PerfTest.countPos(new GomokuPosition(), 0, 361);
+        PerfTest.countPos(new GomokuPosition(), 1, 129960);
+        PerfTest.countPos(new GomokuPosition(), 2, 46655640);
     }
 }

@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+
 import bge.game.photosynthesis.PhotosynthesisPosition.Buy;
 import bge.game.photosynthesis.PhotosynthesisPosition.EndTurn;
 import bge.game.photosynthesis.PhotosynthesisPosition.PlayerBoard;
@@ -26,6 +27,7 @@ import bge.game.photosynthesis.PhotosynthesisPosition.Upgrade;
 import bge.igame.Coordinate;
 import bge.igame.IPosition;
 import bge.igame.MoveList;
+import bge.perf.PerfTest;
 
 public class PhotosynthesisPositionTest {
     @Test
@@ -428,6 +430,36 @@ public class PhotosynthesisPositionTest {
                 move.applyMove(position);
             } while (position.playerRoundsRemaining > 0);
         }
+    }
+
+    @Test
+    public void testCountAtDepth0() {
+        PerfTest.countPos(new PhotosynthesisPosition(2), 0, 18);
+    }
+
+    @Test
+    public void testCountAtDepth1() {
+        PerfTest.countPos(new PhotosynthesisPosition(2), 1, 18 * 17);
+    }
+
+    @Test
+    public void testCountAtDepth2() {
+        PerfTest.countPos(new PhotosynthesisPosition(2), 2, 18 * 17 * 16);
+    }
+
+    @Test
+    public void testCountAtDepth3() {
+        PerfTest.countPos(new PhotosynthesisPosition(2), 3, 18 * 17 * 16 * 15);
+    }
+
+    @Test
+    public void testCountAtDepth4() {
+        PerfTest.countPos(new PhotosynthesisPosition(2), 4, 791128); // XXX is this correct ?
+    }
+
+    @Test
+    public void testCountAtDepth5() {
+        PerfTest.countPos(new PhotosynthesisPosition(2), 5, 5881248); // XXX is this correct ?
     }
 
     @Test
