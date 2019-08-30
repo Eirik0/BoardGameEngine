@@ -110,7 +110,7 @@ public class GameRunner<M, P extends IPosition<M>> {
                             lastMove = move;
                             position.makeMove(move);
                             currentPlayer.notifyTurnEnded();
-                            currentPlayer = players.get(position.getCurrentPlayer() - 1);
+                            currentPlayer = players.get(position.getCurrentPlayer() - game.getPlayerIndexOffset());
                             setPositionCopy(playerToMove, currentPlayer, true); // now previous player
                             playerToMove = positionCopy.getCurrentPlayer();
                         }

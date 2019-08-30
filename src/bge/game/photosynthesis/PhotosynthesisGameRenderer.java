@@ -209,7 +209,17 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
 
     @Override
     public IPhotosynthesisMove maybeGetUserMove(UserInput input, PhotosynthesisPosition position, MoveList<IPhotosynthesisMove> possibleMoves) {
-        // TODO Auto-generated method stub
+        if (input == UserInput.LEFT_BUTTON_RELEASED) {
+            Coordinate coordinate = maybeGetCoordinate();
+            Map<Coordinate, IPhotosynthesisMove> map = moveMap.get(coordinate);
+            if (map != null) {
+                IPhotosynthesisMove move = map.get(coordinate);
+                if (move != null) {
+                    return move;
+                }
+            }
+
+        }
         return null;
     }
 
