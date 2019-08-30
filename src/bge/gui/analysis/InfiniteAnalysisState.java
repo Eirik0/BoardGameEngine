@@ -11,12 +11,13 @@ import javax.swing.JPanel;
 
 import bge.analysis.ComputerPlayer;
 import bge.analysis.ComputerPlayerInfo;
-import bge.analysis.search.ThreadNumber;
 import bge.game.IPosition;
 import bge.gui.GameRegistry;
 import bge.main.BoardGameEngineMain;
 import bge.main.ComputerConfigurationPanel;
 import bge.main.StartStopButton;
+import gt.async.ThreadNumber;
+import gt.gamestate.UserInput;
 
 public class InfiniteAnalysisState<M> implements IAnalysisState<M> {
     private IPosition<M> position;
@@ -54,7 +55,7 @@ public class InfiniteAnalysisState<M> implements IAnalysisState<M> {
                 observer = new ComputerPlayerObserver(computerPlayer, this.position.getCurrentPlayer(), name -> {
                 }, depth -> depthLabel.setText(depth));
 
-                observer.checkResized(oldWidth, oldHeight);
+                observer.setSize(oldWidth, oldHeight);
                 observer.setOnResize(oldOnResize);
 
                 startAnalysisThread();
@@ -111,8 +112,8 @@ public class InfiniteAnalysisState<M> implements IAnalysisState<M> {
     }
 
     @Override
-    public void checkResized(int width, int height) {
-        observer.checkResized(width, height);
+    public void setSize(int width, int height) {
+        observer.setSize(width, height);
     }
 
     @Override

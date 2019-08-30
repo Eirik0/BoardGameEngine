@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import bge.analysis.ComputerPlayer;
 import bge.game.IPosition;
 import bge.main.BoardGameEngineMain;
+import gt.gamestate.UserInput;
 
 public class ComputerPlayerObservationState<M> implements IAnalysisState<M> {
     private final JPanel titlePanel;
@@ -34,8 +35,8 @@ public class ComputerPlayerObservationState<M> implements IAnalysisState<M> {
     }
 
     @Override
-    public void checkResized(int width, int height) {
-        observer.checkResized(width, height);
+    public void setSize(int width, int height) {
+        observer.setSize(width, height);
     }
 
     @Override

@@ -1,9 +1,9 @@
 package bge.game.sudoku;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import bge.game.IPosition;
 import bge.game.chess.ChessPositionPerfTest;
@@ -20,7 +20,7 @@ public class SudokuPositionTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void countAtDepthTwo() {
         countPos(new SudokuPosition(), 2, 342802044);
     }

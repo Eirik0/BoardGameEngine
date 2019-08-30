@@ -7,12 +7,12 @@ import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
 import bge.analysis.ITreeSearcher;
 import bge.analysis.PartialResultObservable;
-import bge.analysis.search.ThreadNumber;
 import bge.game.IPosition;
 import bge.game.MoveListFactory;
 import bge.game.forkjoinexample.ForkObserver;
 import bge.game.forkjoinexample.StartStopObserver;
 import bge.gui.analysis.ComputerPlayerResult;
+import gt.async.ThreadNumber;
 
 public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeSearcher<M, P>, PartialResultObservable {
     private final IMonteCarloChildren<M> monteCarloChildren;

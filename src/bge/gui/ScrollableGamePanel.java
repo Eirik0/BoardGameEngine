@@ -14,14 +14,15 @@ import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 
 import bge.main.BoardGameEngineMain;
+import gt.gameentity.SizedSizable;
 
 @SuppressWarnings("serial")
 public class ScrollableGamePanel extends JPanel implements Scrollable {
     private final JViewport viewport;
-    private Sizable sizable;
+    private SizedSizable sizable;
     private final GamePanelController controller;
 
-    public ScrollableGamePanel(JViewport viewport, Sizable sizable, Consumer<Graphics2D> drawFunction) {
+    public ScrollableGamePanel(JViewport viewport, SizedSizable sizable, Consumer<Graphics2D> drawFunction) {
         setBackground(BoardGameEngineMain.BACKGROUND_COLOR);
         controller = new GamePanelController(drawFunction);
         this.viewport = viewport;
@@ -34,13 +35,13 @@ public class ScrollableGamePanel extends JPanel implements Scrollable {
         });
     }
 
-    public void setSizable(Sizable sizable) {
+    public void setSizable(SizedSizable sizable) {
         this.sizable = sizable;
     }
 
     public void checkResized() {
         SwingUtilities.invokeLater(() -> {
-            sizable.checkResized(viewport.getWidth(), viewport.getHeight());
+            sizable.setSize(viewport.getWidth(), viewport.getHeight());
             controller.gameImage.checkResized(sizable.getWidth(), sizable.getHeight());
             Dimension newPreferredSize = new Dimension(sizable.getWidth(), sizable.getHeight());
             if (!getPreferredSize().equals(newPreferredSize)) {

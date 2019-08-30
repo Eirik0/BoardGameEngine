@@ -1,11 +1,11 @@
 package bge.game.tictactoe;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.MoveAnalysis;
@@ -72,7 +72,7 @@ public class TicTacToeTreeSearchTest {
         IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = newTreeSearcher();
         AnalysisResult<Coordinate> search = treeSearcher.startSearch(position, 9, true);
         for (Entry<Coordinate, MoveAnalysis> moveWithScore : search.getMovesWithScore().entrySet()) {
-            assertEquals(AnalysisResult.DRAW, moveWithScore.getValue().score, 0.0);
+            assertEquals(AnalysisResult.DRAW, moveWithScore.getValue().score);
         }
         treeSearcher.stopSearch(true);
     }
@@ -86,8 +86,8 @@ public class TicTacToeTreeSearchTest {
         AnalysisResult<Coordinate> search = treeSearcher.startSearch(position, 9, true);
         Coordinate draw = Coordinate.valueOf(2, 1);
         for (Entry<Coordinate, MoveAnalysis> moveWithScore : search.getMovesWithScore().entrySet()) {
-            assertEquals(moveWithScore.getKey().toString(), moveWithScore.getKey().equals(draw) ? 0.0 : AnalysisResult.WIN, moveWithScore.getValue().score,
-                    0.0);
+            assertEquals(moveWithScore.getKey().equals(draw) ? -0.0 : AnalysisResult.WIN, moveWithScore.getValue().score,
+                    moveWithScore.getKey().toString());
         }
         treeSearcher.stopSearch(true);
     }
@@ -121,9 +121,9 @@ public class TicTacToeTreeSearchTest {
             assertEquals(2, treeSearcher.getPlies());
             Map<Coordinate, MoveAnalysis> movesWithScore = result.getMovesWithScore();
             String assertMessage = "search " + String.valueOf(i) + ":\n" + result.toString();
-            assertEquals(assertMessage, 2, movesWithScore.size());
-            assertEquals(assertMessage, AnalysisResult.DRAW, movesWithScore.get(Coordinate.valueOf(2, 2)).score, 0.0);
-            assertEquals(assertMessage, AnalysisResult.LOSS, movesWithScore.get(Coordinate.valueOf(0, 2)).score, 0.0);
+            assertEquals(2, movesWithScore.size(), assertMessage);
+            assertEquals(AnalysisResult.DRAW, movesWithScore.get(Coordinate.valueOf(2, 2)).score, assertMessage);
+            assertEquals(AnalysisResult.LOSS, movesWithScore.get(Coordinate.valueOf(0, 2)).score, assertMessage);
         }
         treeSearcher.stopSearch(true);
     }

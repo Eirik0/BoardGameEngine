@@ -1,6 +1,6 @@
 package bge.analysis.strategy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import bge.game.MoveListFactory;
 import bge.game.chess.ChessGame;

@@ -1,6 +1,6 @@
 package bge.game.chess;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,8 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import bge.game.ArrayMoveList;
 import bge.game.IPosition;
@@ -29,13 +29,13 @@ public class ChessPositionPerfTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testCountAtDepthFour() {
         countAtDepth(4, true);
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testCountAtDepthFive() {
         countAtDepth(5, true);
     }
@@ -48,13 +48,13 @@ public class ChessPositionPerfTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testPositionIntegrityAtDepthThree() {
         checkIntegrityAtDepth(3);
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testPositionIntegrityAtDepthFour() {
         checkIntegrityAtDepth(4);
     }
@@ -76,7 +76,7 @@ public class ChessPositionPerfTest {
                 System.out.println(depth + ": " + countPositions + " != " + perfTest.expectedPositions[depth] + " " + perfTest.fen);
                 System.out.println(ChessFunctions.getBoardStr(position));
             }
-            assertEquals(depth + ": " + perfTest.fen, perfTest.expectedPositions[depth], countPositions);
+            assertEquals(perfTest.expectedPositions[depth], countPositions, depth + ": " + perfTest.fen);
             totalPositions += countPositions;
         }
         long time = System.currentTimeMillis() - start;
@@ -134,7 +134,7 @@ public class ChessPositionPerfTest {
     private static List<PerfTest> loadPerfTests() {
         List<PerfTest> perfTests = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(ChessPositionPerfTest.class.getResourceAsStream("/game/chess/perftsuite.epd"), StandardCharsets.UTF_8))) {
+                new InputStreamReader(ChessPositionPerfTest.class.getResourceAsStream("/bge/game/chess/perftsuite.epd"), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 perfTests.add(new PerfTest(line));

@@ -5,13 +5,14 @@ import java.awt.Graphics2D;
 import bge.game.GameRunner;
 import bge.game.IPosition;
 import bge.game.MoveHistory;
-import bge.gui.MouseTracker;
-import bge.gui.Sizable;
 import bge.gui.gamestate.GameState;
 import bge.gui.movehistory.GuiMoveHistory.MoveMenuItem;
 import bge.main.BoardGameEngineMain;
+import gt.component.MouseTracker;
+import gt.gameentity.SizedSizable;
+import gt.gamestate.UserInput;
 
-public class MoveHistoryState<M> implements Sizable, GameState {
+public class MoveHistoryState<M> implements SizedSizable, GameState {
     int width;
     int height;
 
@@ -28,7 +29,7 @@ public class MoveHistoryState<M> implements Sizable, GameState {
     }
 
     @Override
-    public void checkResized(int width, int height) {
+    public void setSize(int width, int height) {
         this.width = width;
         this.height = height;
     }
@@ -55,7 +56,7 @@ public class MoveHistoryState<M> implements Sizable, GameState {
 
     @Override
     public void componentResized(int width, int height) {
-        checkResized(width, height);
+        setSize(width, height);
     }
 
     @Override

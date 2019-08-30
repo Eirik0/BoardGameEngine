@@ -1,13 +1,13 @@
 package bge.game.chess;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import bge.game.ArrayMoveList;
 import bge.game.MoveList;
@@ -73,24 +73,24 @@ public class ChessPositionTest implements ChessConstants {
     public static void assertPositionIntegrity(ChessPosition position) {
         int whiteKingSquare = position.kingSquares[TwoPlayers.PLAYER_1];
         int blackKingSquare = position.kingSquares[TwoPlayers.PLAYER_2];
-        assertEquals("White king square", WHITE_KING, position.squares[whiteKingSquare]);
-        assertEquals("Black king square", BLACK_KING, position.squares[blackKingSquare]);
+        assertEquals(WHITE_KING, position.squares[whiteKingSquare], "White king square");
+        assertEquals(BLACK_KING, position.squares[blackKingSquare], "Black king square");
         double[] expectedMaterialScore = ForsythEdwardsNotation.getMaterialScore(position.squares);
-        assertEquals("White material score", expectedMaterialScore[1], position.materialScore[1], 0.01);
-        assertEquals("Black material score", expectedMaterialScore[2], position.materialScore[2], 0.01);
+        assertEquals(expectedMaterialScore[1], position.materialScore[1], "White material score");
+        assertEquals(expectedMaterialScore[2], position.materialScore[2], "Black material score");
     }
 
     public static void assertPositionsEqual(ChessPosition expected, ChessPosition actual) {
         assertEquals(ChessFunctions.getBoardStr(expected), ChessFunctions.getBoardStr(actual));
-        assertEquals("Current player", expected.currentPlayer, actual.currentPlayer);
-        assertEquals("Castle state", expected.castleState, actual.castleState);
-        assertEquals("En passant square", expected.enPassantSquare, actual.enPassantSquare);
-        assertEquals("White king square", expected.kingSquares[1], actual.kingSquares[1]);
-        assertEquals("Black king square", expected.kingSquares[2], actual.kingSquares[2]);
-        assertEquals("White material score", expected.materialScore[1], actual.materialScore[1], 0.01);
-        assertEquals("Black material score", expected.materialScore[2], actual.materialScore[2], 0.01);
-        assertEquals("Half move clock", expected.halfMoveClock, actual.halfMoveClock);
-        assertEquals("Ply count", expected.positionHistory.plyCount, actual.positionHistory.plyCount);
+        assertEquals(expected.currentPlayer, actual.currentPlayer, "Current player");
+        assertEquals(expected.castleState, actual.castleState, "Castle state");
+        assertEquals(expected.enPassantSquare, actual.enPassantSquare, "En passant square");
+        assertEquals(expected.kingSquares[1], actual.kingSquares[1], "White king square");
+        assertEquals(expected.kingSquares[2], actual.kingSquares[2], "Black king square");
+        assertEquals(expected.materialScore[1], actual.materialScore[1], "White material score");
+        assertEquals(expected.materialScore[2], actual.materialScore[2], "Black material score");
+        assertEquals(expected.halfMoveClock, actual.halfMoveClock, "Half move clock");
+        assertEquals(expected.positionHistory.plyCount, actual.positionHistory.plyCount, "Ply count");
         for (int i = 0; i < expected.positionHistory.plyCount; ++i) {
             UndoChessMove expectedUndoMove = expected.positionHistory.undoChessMoves[i];
             UndoChessMove actualUndoMove = actual.positionHistory.undoChessMoves[i];
@@ -98,9 +98,9 @@ public class ChessPositionTest implements ChessConstants {
                 assertNull(actualUndoMove);
                 continue;
             }
-            assertEquals("Castle state " + i, expectedUndoMove.priorCastleState, actualUndoMove.priorCastleState);
-            assertEquals("En passant Square " + i, expectedUndoMove.priorEnPassantSquare, actualUndoMove.priorEnPassantSquare);
-            assertEquals("Half move clock " + i, expectedUndoMove.priorHalfMoveClock, actualUndoMove.priorHalfMoveClock);
+            assertEquals(expectedUndoMove.priorCastleState, actualUndoMove.priorCastleState, "Castle state " + i);
+            assertEquals(expectedUndoMove.priorEnPassantSquare, actualUndoMove.priorEnPassantSquare, "En passant Square " + i);
+            assertEquals(expectedUndoMove.priorHalfMoveClock, actualUndoMove.priorHalfMoveClock, "Half move clock " + i);
         }
     }
 

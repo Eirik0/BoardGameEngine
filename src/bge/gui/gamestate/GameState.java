@@ -1,13 +1,10 @@
 package bge.gui.gamestate;
 
 import bge.gui.Drawable;
+import gt.gamestate.UserInput;
 
 public interface GameState extends Drawable {
-    public void componentResized(int width, int height);
+    void componentResized(int width, int height);
 
-    public void handleUserInput(UserInput input);
-
-    public static enum UserInput {
-        LEFT_BUTTON_PRESSED, LEFT_BUTTON_RELEASED
-    }
+    void handleUserInput(UserInput input);
 }

@@ -1,15 +1,15 @@
 package bge.game.forkjoinexample;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import bge.analysis.search.IterativeDeepeningTreeSearcher;
 import bge.analysis.strategy.MinimaxStrategy;
@@ -17,12 +17,12 @@ import bge.analysis.strategy.MoveListProvider;
 import bge.game.MoveListFactory;
 
 public class ForkJoinExmpleGameTreeSearchTest {
-    @BeforeClass
+    @BeforeAll
     public static void setSleepTimes() {
         ForkJoinExampleThreadTracker.setSleepTimes(1, 0, 0);
     }
 
-    @Before
+    @BeforeEach
     public void clear() {
         ForkJoinExampleThreadTracker.searchStarted();
     }
@@ -56,7 +56,7 @@ public class ForkJoinExmpleGameTreeSearchTest {
         Set<String> threadNames = new HashSet<>();
         for (ForkJoinExampleNode node : nodesByDepth) {
             String threadName = ForkJoinExampleThreadTracker.getForkJoinExampleNodeInfo(node).getThreadName();
-            assertNotNull("Thread name shoud not be null", threadName);
+            assertNotNull(threadName, "Thread name shoud not be null");
             threadNames.add(threadName);
         }
         assertEquals("Unexpected num workers, reevaluated = " + ForkJoinExampleThreadTracker.getNodesReevaluated(), expectedWorkers, threadNames.size());

@@ -7,6 +7,7 @@ import bge.game.IPosition;
 import bge.gui.GameGuiManager;
 import bge.gui.GameImage;
 import bge.gui.GuiPlayer;
+import gt.gamestate.UserInput;
 
 public class GameRunningState<M> implements GameState {
     private final GameRunner<M, IPosition<M>> gameRunner;

@@ -8,13 +8,13 @@ import bge.game.Coordinate;
 import bge.game.MoveList;
 import bge.game.ultimatetictactoe.UltimateTicTacToeGameRenderer;
 import bge.gui.GameGuiManager;
-import bge.gui.gamestate.BoardSizer;
-import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.IGameRenderer;
 import bge.main.BoardGameEngineMain;
+import gt.gameentity.GridSizer;
+import gt.gamestate.UserInput;
 
 public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosition>, SudokuConstants {
-    private BoardSizer sizer;
+    private GridSizer sizer;
     private double smallBoardWidth = 0;
 
     @Override
@@ -22,16 +22,16 @@ public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosit
         int imageWidth = GameGuiManager.getComponentWidth();
         int imageHeight = GameGuiManager.getComponentHeight();
 
-        sizer = new BoardSizer(imageWidth, imageHeight, NUM_DIGITS);
+        sizer = new GridSizer(imageWidth, imageHeight, NUM_DIGITS, NUM_DIGITS);
 
-        smallBoardWidth = sizer.boardWidth / 3.0;
+        smallBoardWidth = sizer.gridWidth / 3.0;
 
         fillRect(g, 0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
 
-        drawRect(g, sizer.offsetX, sizer.offsetY, sizer.boardWidth, sizer.boardWidth, BoardGameEngineMain.FOREGROUND_COLOR);
+        drawRect(g, sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.gridWidth, BoardGameEngineMain.FOREGROUND_COLOR);
 
         g.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
-        UltimateTicTacToeGameRenderer.drawBoard(g, sizer.offsetX, sizer.offsetY, sizer.boardWidth, 0, 2);
+        UltimateTicTacToeGameRenderer.drawBoard(g, sizer.offsetX, sizer.offsetY, sizer.gridWidth, 0, 2);
 
         for (int x = 0; x < 3; ++x) {
             for (int y = 0; y < 3; ++y) {
@@ -42,7 +42,7 @@ public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosit
 
     @Override
     public void drawPosition(Graphics2D g, SudokuPosition position, MoveList<SudokuMove> possibleMoves, SudokuMove lastMove) {
-        Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, round(sizer.cellWidth * 0.33));
+        Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, round(sizer.cellSize * 0.33));
         int i = 0;
         while (i < position.numDecided) {
             int cellIndex = position.decidedCells[i++];

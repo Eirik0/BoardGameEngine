@@ -9,10 +9,10 @@ import bge.game.TwoPlayers;
 import bge.game.papersoccer.PaperSoccerPositionHistory.UndoPaperSoccerMove;
 import bge.gui.DrawingMethods;
 import bge.gui.GameGuiManager;
-import bge.gui.gamestate.BoardSizer;
-import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.GuiPlayerHelper;
 import bge.gui.gamestate.IGameRenderer;
+import gt.gameentity.GridSizer;
+import gt.gamestate.UserInput;
 
 public class PaperSoccerGameRenderer implements IGameRenderer<Integer, PaperSoccerPosition>, DrawingMethods {
     private static final PaperSoccerPosition INITIAL_POSITION = new PaperSoccerPosition();
@@ -22,7 +22,7 @@ public class PaperSoccerGameRenderer implements IGameRenderer<Integer, PaperSocc
     private static final Color FIELD_COLOR = new Color(80, 160, 72);
     private static final Color WALL_COLOR = new Color(139, 69, 19);
 
-    private BoardSizer sizer;
+    private GridSizer sizer;
     private double ballRadius;
 
     @Override
@@ -30,8 +30,8 @@ public class PaperSoccerGameRenderer implements IGameRenderer<Integer, PaperSocc
         int imageWidth = GameGuiManager.getComponentWidth();
         int imageHeight = GameGuiManager.getComponentHeight();
 
-        sizer = new BoardSizer(imageWidth, imageHeight, PaperSoccerUtilities.BOARD_WIDTH);
-        ballRadius = sizer.cellWidth / 5;
+        sizer = new GridSizer(imageWidth, imageHeight, PaperSoccerUtilities.BOARD_WIDTH, PaperSoccerUtilities.BOARD_WIDTH);
+        ballRadius = sizer.cellSize / 5;
 
         fillRect(g, 0, 0, imageWidth, imageHeight, new Color(25, 127, 0));
 
@@ -75,10 +75,10 @@ public class PaperSoccerGameRenderer implements IGameRenderer<Integer, PaperSocc
         int[] directionsTaken = taken ? PaperSoccerUtilities.DIRECTIONS_TAKEN[value] : PaperSoccerUtilities.DIRECTIONS_REMAINING[value];
         for (int i = 0; i < directionsTaken.length; ++i) {
             Coordinate to = PaperSoccerUtilities.getCoordinate(location + directionsTaken[i]);
-            int x0 = sizer.getCenterX(from.x);
-            int y0 = sizer.getCenterY(from.y);
-            int x1 = (x0 + sizer.getCenterX(to.x)) / 2;
-            int y1 = (y0 + sizer.getCenterY(to.y)) / 2;
+            int x0 = round(sizer.getCenterX(from.x));
+            int y0 = round(sizer.getCenterY(from.y));
+            int x1 = (x0 + round(sizer.getCenterX(to.x))) / 2;
+            int y1 = (y0 + round(sizer.getCenterY(to.y))) / 2;
             drawThickLine(g, x0, y0, x1, y1, thickness, true);
         }
     }

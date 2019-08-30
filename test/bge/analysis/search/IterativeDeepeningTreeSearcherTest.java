@@ -1,6 +1,6 @@
 package bge.analysis.search;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.strategy.MinimaxStrategy;

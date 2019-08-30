@@ -2,8 +2,8 @@ package bge.game;
 
 import java.util.List;
 
-import bge.analysis.search.ThreadNumber;
 import bge.gui.gamestate.IPositionObserver;
+import gt.async.ThreadNumber;
 
 public class GameRunner<M, P extends IPosition<M>> {
     public static final int NO_PLAYER = -1;

@@ -8,9 +8,9 @@ import bge.game.MoveList;
 import bge.game.TwoPlayers;
 import bge.gui.GameGuiManager;
 import bge.gui.GuiPlayer;
-import bge.gui.gamestate.GameState.UserInput;
 import bge.gui.gamestate.IGameRenderer;
 import bge.main.BoardGameEngineMain;
+import gt.gamestate.UserInput;
 
 public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacToePosition> {
     @Override

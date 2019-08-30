@@ -1,8 +1,8 @@
 package bge.game.chess;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import bge.game.TwoPlayers;
 
@@ -40,7 +40,7 @@ public class ChessEvaluationConstantsTest implements ChessEvaluationConstants {
     static void testArray(double[] whiteScores, double[] blackScores) {
         for (int i = 0; i < 12; ++i) {
             for (int j = 0; j < 10; ++j) {
-                assertEquals(whiteScores[i * 10 + j], blackScores[110 - i * 10 + j], 0.001);
+                assertEquals(whiteScores[i * 10 + j], blackScores[110 - i * 10 + j]);
             }
         }
     }

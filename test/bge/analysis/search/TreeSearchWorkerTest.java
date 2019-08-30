@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.strategy.MinimaxStrategy;
@@ -15,11 +15,12 @@ import bge.game.MoveListFactory;
 import bge.game.value.TestGameEvaluator;
 import bge.game.value.TestGameNode;
 import bge.game.value.TestGamePosition;
+import gt.async.ThreadWorker;
 
 public class TreeSearchWorkerTest {
     @Test
     public void testJoinThread() {
-        TreeSearchWorker worker = new TreeSearchWorker("test", finishedWorker -> {
+        ThreadWorker worker = new ThreadWorker("test", finishedWorker -> {
         });
         worker.joinThread();
     }
@@ -36,7 +37,7 @@ public class TreeSearchWorkerTest {
     @Test
     public void testDoWork() throws InterruptedException {
         BlockingQueue<AnalysisResult<TestGameNode>> resultQueue = new SynchronousQueue<>();
-        TreeSearchWorker worker = new TreeSearchWorker("test", finishedWorker -> {
+        ThreadWorker worker = new ThreadWorker("test", finishedWorker -> {
         });
         worker.workOn(newGameTreeSearch((canceled, moveWithResult) -> {
             try {
@@ -44,7 +45,7 @@ public class TreeSearchWorkerTest {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }));
+        })::search);
         resultQueue.take();
         worker.joinThread();
     }
@@ -58,14 +59,14 @@ public class TreeSearchWorkerTest {
                 notify();
             }
         });
-        TreeSearchWorker worker = new TreeSearchWorker("test", finishedWorker -> {
+        ThreadWorker worker = new ThreadWorker("test", finishedWorker -> {
             synchronized (this) {
                 if (resultList.size() < 2) {
-                    finishedWorker.workOn(treeSearch);
+                    finishedWorker.workOn(treeSearch::search);
                 }
             }
         });
-        worker.workOn(treeSearch);
+        worker.workOn(treeSearch::search);
         synchronized (this) {
             while (resultList.size() < 2) {
                 wait();

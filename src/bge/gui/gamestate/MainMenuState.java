@@ -10,6 +10,7 @@ import bge.gui.Drawable;
 import bge.gui.GameGuiManager;
 import bge.gui.GameRegistry;
 import bge.main.BoardGameEngineMain;
+import gt.gamestate.UserInput;
 
 public class MainMenuState implements GameState {
     private final List<MenuItem> menuItems = new ArrayList<>();

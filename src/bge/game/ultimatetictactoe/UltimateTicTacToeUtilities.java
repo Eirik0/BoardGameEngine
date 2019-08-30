@@ -5,7 +5,7 @@ import java.util.List;
 
 import bge.game.TwoPlayers;
 import bge.game.tictactoe.TicTacToeUtilities;
-import bge.util.Pair;
+import gt.util.Pair;
 
 public class UltimateTicTacToeUtilities {
     public static final int MAX_REASONABLE_DEPTH = 63;
