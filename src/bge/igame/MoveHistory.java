@@ -138,7 +138,7 @@ public class MoveHistory<M> {
         }
 
         M getPlayerMove(int playerNum) {
-            return moves[playerNum - 1];
+            return moves[playerNum];
         }
 
         void clearFrom(int playerNum, int numberOfPlayers) {
