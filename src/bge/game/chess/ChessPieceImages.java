@@ -59,7 +59,7 @@ public class ChessPieceImages implements ChessConstants {
             throw new UncheckedIOException(e);
         }
 
-        JavaGameImage javaGameImage = new JavaGameImage(image.getWidth(), image.getHeight());
+        JavaGameImage javaGameImage = new JavaGameImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D pieceGraphics = javaGameImage.getGraphics().getGraphics();
         BufferedImage pieceImage = javaGameImage.getImage();
         // Clear background
