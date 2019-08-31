@@ -33,7 +33,7 @@ import bge.gui.gamestate.MainMenuState;
 import bge.igame.IGame;
 import bge.igame.IPosition;
 import bge.igame.player.ComputerPlayer;
-import bge.igame.player.ComputerPlayerInfo;
+import bge.igame.player.PlayerInfo;
 import bge.igame.player.PlayerOptions;
 import bge.igame.player.PlayerOptions.CPOptionIntRange;
 import bge.igame.player.PlayerOptions.CPOptionStringArray;
@@ -62,32 +62,32 @@ public class BoardGameEngineMain {
     public static final Color LIGHTER_FOREGROUND_COLOR = DARK_THEME ? new Color(200, 200, 200) : Color.GRAY;
 
     public static PlayerOptions createComputerPlayerOptions(IGame<?, ?> game, int minMs, int maxMs, int maxThreads, int maxSimulations) {
-        PlayerOptions msPerMoveOption = new PlayerOptions("threads", new CPOptionIntRange(ComputerPlayerInfo.KEY_MS_PER_MOVE, minMs, maxMs));
-        PlayerOptions threadOption = new PlayerOptions("threads", new CPOptionIntRange(ComputerPlayerInfo.KEY_NUM_THREADS, 1, maxThreads));
-        PlayerOptions simulationsOption = new PlayerOptions("simulations", new CPOptionIntRange(ComputerPlayerInfo.KEY_NUM_SIMULATIONS, 1, maxSimulations));
-        PlayerOptions evaluatorOption = new PlayerOptions("Evaluator", new CPOptionStringArray(ComputerPlayerInfo.KEY_EVALUATOR,
+        PlayerOptions msPerMoveOption = new PlayerOptions("time", new CPOptionIntRange(PlayerInfo.KEY_MS_PER_MOVE, minMs, maxMs));
+        PlayerOptions threadOption = new PlayerOptions("threads", new CPOptionIntRange(PlayerInfo.KEY_NUM_THREADS, 1, maxThreads));
+        PlayerOptions simulationsOption = new PlayerOptions("sims", new CPOptionIntRange(PlayerInfo.KEY_NUM_SIMULATIONS, 1, maxSimulations));
+        PlayerOptions evaluatorOption = new PlayerOptions("Evaluator", new CPOptionStringArray(PlayerInfo.KEY_EVALUATOR,
                 GameRegistry.getPositionEvaluatorNames(game.getName())));
 
         PlayerOptions fjStrategyOptions = new PlayerOptions("Strategy",
-                new CPOptionStringArray(ComputerPlayerInfo.KEY_FJ_STRATEGY, ComputerPlayerInfo.ALL_FJ_STRATEGIES));
-        for (String fjStrategy : ComputerPlayerInfo.ALL_FJ_STRATEGIES) {
+                new CPOptionStringArray(PlayerInfo.KEY_FJ_STRATEGY, PlayerInfo.ALL_FJ_STRATEGIES));
+        for (String fjStrategy : PlayerInfo.ALL_FJ_STRATEGIES) {
             fjStrategyOptions.addSubOption(fjStrategy, evaluatorOption);
-            fjStrategyOptions.addSubOption(fjStrategy, threadOption);
             fjStrategyOptions.addSubOption(fjStrategy, msPerMoveOption);
+            fjStrategyOptions.addSubOption(fjStrategy, threadOption);
         }
 
         PlayerOptions mcStrategyOptions = new PlayerOptions("Strategy",
-                new CPOptionStringArray(ComputerPlayerInfo.KEY_MC_STRATEGY, ComputerPlayerInfo.ALL_MC_STRATEGIES));
-        for (String mcStrategy : ComputerPlayerInfo.ALL_MC_STRATEGIES) {
+                new CPOptionStringArray(PlayerInfo.KEY_MC_STRATEGY, PlayerInfo.ALL_MC_STRATEGIES));
+        for (String mcStrategy : PlayerInfo.ALL_MC_STRATEGIES) {
             mcStrategyOptions.addSubOption(mcStrategy, evaluatorOption);
-            mcStrategyOptions.addSubOption(mcStrategy, simulationsOption);
             mcStrategyOptions.addSubOption(mcStrategy, msPerMoveOption);
+            mcStrategyOptions.addSubOption(mcStrategy, simulationsOption);
         }
 
         return new PlayerOptions("Tree Searcher",
-                new CPOptionStringArray(ComputerPlayerInfo.KEY_TS, ComputerPlayerInfo.ALL_TREE_SEARCHERS))
-                        .addSubOption(ComputerPlayerInfo.TS_FORK_JOIN, fjStrategyOptions)
-                        .addSubOption(ComputerPlayerInfo.TS_MONTE_CARLO, mcStrategyOptions);
+                new CPOptionStringArray(PlayerInfo.KEY_TS, PlayerInfo.ALL_TREE_SEARCHERS))
+                        .addSubOption(PlayerInfo.TS_FORK_JOIN, fjStrategyOptions)
+                        .addSubOption(PlayerInfo.TS_MONTE_CARLO, mcStrategyOptions);
     }
 
     private static <M, P extends IPosition<M>> void registerGame(IGame<M, P> game,

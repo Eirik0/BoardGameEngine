@@ -1,5 +1,7 @@
 package bge.gui.movehistory;
 
+import java.awt.Color;
+
 import bge.igame.MoveHistory;
 import gt.component.IMouseTracker;
 import gt.ecomponent.EComponentPanel;
@@ -44,6 +46,7 @@ public class MoveHistoryState<M> implements GameState, Sized {
     @Override
     public void drawOn(IGraphics graphics) {
         componentPanel.drawOn(graphics);
+        graphics.drawRect(0, 0, width, height, Color.RED);
     }
 
     @Override

@@ -1,11 +1,14 @@
 package bge.igame.player;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PlayerOptions {
     public final String optionName;
     public final CPOptionValues possibleValues;
-    public final HashMap<String, PlayerOptions> subOptions = new HashMap<>();
+    public final Map<String, List<PlayerOptions>> subOptions = new HashMap<>();
 
     public PlayerOptions(String optionName, CPOptionValues possibleValues) {
         this.optionName = optionName;
@@ -13,7 +16,12 @@ public class PlayerOptions {
     }
 
     public PlayerOptions addSubOption(String parentName, PlayerOptions option) {
-        subOptions.put(parentName, option);
+        List<PlayerOptions> list = subOptions.get(parentName);
+        if (list == null) {
+            list = new ArrayList<>();
+            subOptions.put(parentName, list);
+        }
+        list.add(option);
         return this;
     }
 

@@ -22,7 +22,7 @@ public class GameRunningState<M> implements GameState {
         this.gameRunner = gameRunner;
         this.gameRenderer = gameRenderer;
         boardImage = imageDrawer.newGameImage();
-        if (gameRenderer instanceof IPositionObserver<?, ?>) {
+        if (gameRenderer instanceof IPositionObserver<?, ?>) { // TODO (re)move this
             gameRunner.setPositionObserver((IPositionObserver<M, IPosition<M>>) gameRenderer);
         }
     }

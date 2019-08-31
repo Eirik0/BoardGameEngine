@@ -64,6 +64,10 @@ public class GameRegistry {
         return gameMap.get(gameName).positionEvaluators.keySet().toArray(new String[0]);
     }
 
+    public static PlayerOptions getPlayerOptions(String gameName, String playerName) {
+        return gameMap.get(gameName).playerOptions.get(playerName);
+    }
+
     @SuppressWarnings("unchecked")
     public static <M> IPositionEvaluator<M, IPosition<M>> getPositionEvaluator(String gameName, String evaluatorName) {
         return (IPositionEvaluator<M, IPosition<M>>) gameMap.get(gameName).positionEvaluators.get(evaluatorName);
