@@ -7,7 +7,7 @@ import bge.igame.Coordinate;
 import bge.igame.MoveList;
 import bge.igame.player.GuiPlayer;
 import bge.igame.player.TwoPlayers;
-import bge.main.BoardGameEngineMain;
+import gt.component.ComponentCreator;
 import gt.component.IMouseTracker;
 import gt.gameentity.IGraphics;
 import gt.gamestate.UserInput;
@@ -27,9 +27,9 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
         width = imageWidth;
         height = imageHeight;
 
-        g.fillRect(0, 0, width, height, BoardGameEngineMain.BACKGROUND_COLOR);
+        g.fillRect(0, 0, width, height, ComponentCreator.backgroundColor());
 
-        g.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
+        g.setColor(ComponentCreator.foregroundColor());
         for (int i = 1; i < 3; ++i) {
             double thirdOfWidth = i * width / 3.0;
             double thirdOfHeight = i * height / 3.0;
@@ -44,7 +44,7 @@ public class TicTacToeGameRenderer implements IGameRenderer<Coordinate, TicTacTo
             for (int x = 0; x < TicTacToePosition.BOARD_WIDTH; ++x) {
                 int playerInt = getPlayer(position.board, x, y);
                 if (playerInt != TwoPlayers.UNPLAYED) {
-                    g.setColor(lastMove != null && Coordinate.valueOf(x, y).equals(lastMove) ? Color.RED : BoardGameEngineMain.FOREGROUND_COLOR);
+                    g.setColor(lastMove != null && Coordinate.valueOf(x, y).equals(lastMove) ? Color.RED : ComponentCreator.foregroundColor());
                     String player = playerInt == TwoPlayers.PLAYER_1 ? "X" : "O";
                     double xCoord = width * (2 * x + 1) / 6.0;
                     double yCoord = height * (2 * y + 1) / 6.0;

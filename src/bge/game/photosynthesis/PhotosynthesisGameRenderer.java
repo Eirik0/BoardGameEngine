@@ -13,6 +13,7 @@ import bge.igame.Coordinate;
 import bge.igame.MoveList;
 import bge.igame.player.GuiPlayer;
 import bge.main.BoardGameEngineMain;
+import gt.component.ComponentCreator;
 import gt.component.IMouseTracker;
 import gt.gameentity.GridSizer;
 import gt.gameentity.IGraphics;
@@ -53,7 +54,7 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
         sizer = new GridSizer(imageWidth, imageHeight, 11, 11);
         hexGrid = new HexGrid(sizer.getCenterX(2), sizer.getCenterY(3), sizer.cellSize / 2);
 
-        g.fillRect(0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
+        g.fillRect(0, 0, imageWidth, imageHeight, ComponentCreator.backgroundColor());
         int green = 255 / 2;
         int red = 255 / 2;
         for (Coordinate[] coordinates : PhotosynthesisPosition.ALL_TILES) {

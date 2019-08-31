@@ -1,6 +1,5 @@
 package bge.main;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Arrays;
@@ -48,18 +47,10 @@ import gt.util.Pair;
 
 public class BoardGameEngineMain {
     private static final String TITLE = "Board Game Engine";
-    private static final boolean DARK_THEME = true;
-
-    public static final int DEFAULT_WIDTH = 1280;
-    public static final int DEFAULT_HEIGHT = 720;
 
     public static final Font DEFAULT_FONT = new Font("consolas", Font.PLAIN, 24);
     public static final Font DEFAULT_SMALL_FONT = new Font(Font.DIALOG, Font.PLAIN, 12);
     public static final int DEFAULT_SMALL_FONT_HEIGHT = 18;
-
-    public static final Color BACKGROUND_COLOR = DARK_THEME ? Color.BLACK : Color.WHITE;
-    public static final Color FOREGROUND_COLOR = DARK_THEME ? Color.WHITE : Color.BLACK;
-    public static final Color LIGHTER_FOREGROUND_COLOR = DARK_THEME ? new Color(200, 200, 200) : Color.GRAY;
 
     public static PlayerOptions createComputerPlayerOptions(IGame<?, ?> game, int minMs, int maxMs, int maxThreads, int maxSimulations) {
         PlayerOptions msPerMoveOption = new PlayerOptions("time", new CPOptionIntRange(PlayerInfo.KEY_MS_PER_MOVE, minMs, maxMs));

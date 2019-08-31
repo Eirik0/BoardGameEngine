@@ -9,7 +9,7 @@ import bge.igame.Coordinate;
 import bge.igame.MoveList;
 import bge.igame.player.GuiPlayerHelper;
 import bge.igame.player.TwoPlayers;
-import bge.main.BoardGameEngineMain;
+import gt.component.ComponentCreator;
 import gt.component.IMouseTracker;
 import gt.gameentity.GridSizer;
 import gt.gameentity.IGraphics;
@@ -60,7 +60,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
         smallFont = new Font(Font.MONOSPACED, Font.BOLD, EMath.round(sizer.cellSize * 0.75));
         largeFont = new Font(Font.MONOSPACED, Font.BOLD, EMath.round(sizer.cellSize * 4));
 
-        g.fillRect(0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
+        g.fillRect(0, 0, imageWidth, imageHeight, ComponentCreator.backgroundColor());
 
         g.fillRect(sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.gridHeight, WOOD_COLOR);
     }

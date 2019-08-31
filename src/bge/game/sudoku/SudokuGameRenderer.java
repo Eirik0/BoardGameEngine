@@ -7,7 +7,7 @@ import bge.game.ultimatetictactoe.UltimateTicTacToeGameRenderer;
 import bge.gui.gamestate.IGameRenderer;
 import bge.igame.Coordinate;
 import bge.igame.MoveList;
-import bge.main.BoardGameEngineMain;
+import gt.component.ComponentCreator;
 import gt.component.IMouseTracker;
 import gt.gameentity.GridSizer;
 import gt.gameentity.IGraphics;
@@ -28,11 +28,11 @@ public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosit
 
         smallBoardWidth = sizer.gridWidth / 3.0;
 
-        g.fillRect(0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
+        g.fillRect(0, 0, imageWidth, imageHeight, ComponentCreator.backgroundColor());
 
-        g.drawRect(sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.gridWidth, BoardGameEngineMain.FOREGROUND_COLOR);
+        g.drawRect(sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.gridWidth, ComponentCreator.foregroundColor());
 
-        g.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
+        g.setColor(ComponentCreator.foregroundColor());
         UltimateTicTacToeGameRenderer.drawBoard(g, sizer.offsetX, sizer.offsetY, sizer.gridWidth, 0, 2);
 
         for (int x = 0; x < 3; ++x) {
@@ -49,7 +49,7 @@ public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosit
         while (i < position.numDecided) {
             int cellIndex = position.decidedCells[i++];
             Coordinate coordinate = SudokuConstants.getCoordinate(cellIndex);
-            g.setColor(lastMove != null && cellIndex == lastMove.location ? Color.GREEN : BoardGameEngineMain.FOREGROUND_COLOR);
+            g.setColor(lastMove != null && cellIndex == lastMove.location ? Color.GREEN : ComponentCreator.foregroundColor());
             g.drawCenteredString(position.cells[cellIndex].toString(), sizer.getCenterX(coordinate.x), sizer.getCenterY(coordinate.y));
         }
     }

@@ -11,6 +11,7 @@ import bge.game.forkjoinexample.ForkJoinExampleThreadTracker.ForkJoinExampleNode
 import bge.gui.gamestate.IGameRenderer;
 import bge.igame.MoveList;
 import bge.main.BoardGameEngineMain;
+import gt.component.ComponentCreator;
 import gt.component.IMouseTracker;
 import gt.gameentity.DrawingMethods;
 import gt.gameentity.IGraphics;
@@ -38,7 +39,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
         height = imageHeight;
         int padding = 20; // pixels on either side
         nodeRadius = ((width - 2 * padding) / BREDTH) / 4 + 0.5;
-        g.setColor(BoardGameEngineMain.BACKGROUND_COLOR);
+        g.setColor(ComponentCreator.backgroundColor());
         g.fillRect(0, 0, width, height);
     }
 
@@ -46,7 +47,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
     public void drawPosition(IGraphics g, ForkJoinExampleTree position, MoveList<ForkJoinExampleNode> possibleMoves, ForkJoinExampleNode lastMove) {
         g.setFont(BoardGameEngineMain.DEFAULT_SMALL_FONT);
         int fontHeight = EMath.round(g.getStringDimensions("N").getSecond()) + 2;
-        g.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
+        g.setColor(ComponentCreator.foregroundColor());
         ForkJoinExampleThreadTracker.maybeRecalculateTimeElapsed();
         g.drawString("Nodes per evaluated second: " + String.format("%.2f", Double.valueOf(ForkJoinExampleThreadTracker.getNodesEvaluatedPerSecond())), 2,
                 fontHeight);
@@ -62,7 +63,7 @@ public class ForkJoinExampleGameRenderer implements IGameRenderer<ForkJoinExampl
                     continue;
                 }
                 Color color = nodeInfo.getThreadName() != null ? getColorFromThreadName(nodeInfo.getThreadName(), nodeInfo.getThreadSetTime())
-                        : BoardGameEngineMain.FOREGROUND_COLOR;
+                        : ComponentCreator.foregroundColor();
                 double nodeX = nodeInfo.fractionX * width;
                 double nodeY = nodeInfo.fractionY * height;
                 // draw node

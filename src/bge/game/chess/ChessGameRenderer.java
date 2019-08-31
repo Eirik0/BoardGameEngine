@@ -13,7 +13,7 @@ import bge.gui.gamestate.IPositionObserver;
 import bge.igame.Coordinate;
 import bge.igame.MoveList;
 import bge.igame.player.GuiPlayerHelper;
-import bge.main.BoardGameEngineMain;
+import gt.component.ComponentCreator;
 import gt.component.IMouseTracker;
 import gt.gameentity.GridSizer;
 import gt.gameentity.IGameImage;
@@ -43,7 +43,7 @@ public class ChessGameRenderer implements IGameRenderer<IChessMove, ChessPositio
     public void initializeAndDrawBoard(IGraphics g, double imageWidth, double imageHeight) {
         sizer = new GridSizer(imageWidth, imageHeight, BOARD_WIDTH, BOARD_WIDTH);
 
-        g.fillRect(0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
+        g.fillRect(0, 0, imageWidth, imageHeight, ComponentCreator.backgroundColor());
 
         boolean white = true;
         for (int x = 0; x < BOARD_WIDTH; ++x) {

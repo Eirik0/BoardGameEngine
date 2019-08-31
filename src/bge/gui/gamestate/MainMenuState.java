@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import bge.main.BoardGameEngineMain;
 import bge.main.GameRegistry;
+import gt.component.ComponentCreator;
 import gt.component.IMouseTracker;
 import gt.gameentity.Drawable;
 import gt.gameentity.IGraphics;
@@ -46,7 +46,7 @@ public class MainMenuState implements GameState {
 
     @Override
     public void drawOn(IGraphics graphics) {
-        graphics.setColor(BoardGameEngineMain.BACKGROUND_COLOR);
+        graphics.setColor(ComponentCreator.backgroundColor());
         graphics.fillRect(0, 0, width, height);
         for (MenuItem menuItem : menuItems) {
             menuItem.drawOn(graphics);
