@@ -5,14 +5,16 @@ import java.util.List;
 
 public class MoveHistory<M> {
     private final int numberOfPlayers;
+    private final int playerIndexOffset;
 
     public MoveIndex selectedMoveIndex = new MoveIndex(0, 0);
     public MoveIndex maxMoveIndex = new MoveIndex(0, 0);
 
     private final List<HistoryMove<M>> moveHistoryList = new ArrayList<>();
 
-    public MoveHistory(int numberOfPlayers) {
-        this.numberOfPlayers = numberOfPlayers;
+    public <P extends IPosition<M>> MoveHistory(IGame<M, P> game) {
+        this.numberOfPlayers = game.getNumberOfPlayers();
+        this.playerIndexOffset = game.getPlayerIndexOffset();
         setIndex(new MoveIndex(-1, numberOfPlayers - 1));
     }
 
@@ -24,34 +26,34 @@ public class MoveHistory<M> {
     public synchronized void addMove(M move, int playerNum) {
         if (move == null) {
             moveHistoryList.clear();
-            setIndex(new MoveIndex(-1, numberOfPlayers - 1));
+            setIndex(new MoveIndex(-1, numberOfPlayers - playerIndexOffset));
             return;
         }
-        MoveIndex nextIndex = MoveIndex.nextIndex(selectedMoveIndex, playerNum - 1, numberOfPlayers);
+        MoveIndex nextIndex = MoveIndex.nextIndex(selectedMoveIndex, playerNum - playerIndexOffset, numberOfPlayers);
         if (nextIndex.moveNumber == moveHistoryList.size()) {
             HistoryMove<M> historyMove = new HistoryMove<>(numberOfPlayers);
-            historyMove.addMove(move, playerNum);
+            historyMove.addMove(move, playerNum - playerIndexOffset);
             moveHistoryList.add(historyMove);
-            setIndex(new MoveIndex(nextIndex.moveNumber, playerNum - 1));
+            setIndex(new MoveIndex(nextIndex.moveNumber, playerNum - playerIndexOffset));
             return;
         }
         HistoryMove<M> historyMove = moveHistoryList.get(nextIndex.moveNumber);
-        M playerMove = historyMove.getPlayerMove(playerNum);
+        M playerMove = historyMove.getPlayerMove(playerNum - playerIndexOffset);
         if (playerMove == null) {
-            historyMove.addMove(move, playerNum);
-            setIndex(new MoveIndex(nextIndex.moveNumber, playerNum - 1));
+            historyMove.addMove(move, playerNum - playerIndexOffset);
+            setIndex(new MoveIndex(nextIndex.moveNumber, playerNum - playerIndexOffset));
         } else if (playerMove.equals(move)) {
-            historyMove.addMove(move, playerNum);
-            selectedMoveIndex = new MoveIndex(nextIndex.moveNumber, playerNum - 1);
+            historyMove.addMove(move, playerNum - playerIndexOffset);
+            selectedMoveIndex = new MoveIndex(nextIndex.moveNumber, playerNum - playerIndexOffset);
         } else {
-            historyMove.addMove(move, playerNum);
+            historyMove.addMove(move, playerNum - playerIndexOffset);
             int moveNum = moveHistoryList.size() - 1;
             while (moveNum > nextIndex.moveNumber) {
                 moveHistoryList.remove(moveNum);
                 --moveNum;
             }
             historyMove.clearFrom(playerNum, numberOfPlayers);
-            setIndex(new MoveIndex(nextIndex.moveNumber, playerNum - 1));
+            setIndex(new MoveIndex(nextIndex.moveNumber, playerNum - playerIndexOffset));
         }
     }
 
@@ -132,7 +134,7 @@ public class MoveHistory<M> {
         }
 
         void addMove(M move, int playerNum) {
-            moves[playerNum - 1] = move;
+            moves[playerNum] = move;
         }
 
         M getPlayerMove(int playerNum) {

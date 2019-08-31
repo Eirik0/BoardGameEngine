@@ -8,17 +8,12 @@ import org.junit.jupiter.api.Test;
 import bge.game.chess.ChessGame;
 import bge.game.chess.ChessPosition;
 import bge.game.chess.move.IChessMove;
-import bge.igame.ArrayMoveList;
-import bge.igame.IPosition;
-import bge.igame.MoveHistory;
-import bge.igame.MoveList;
 import bge.igame.MoveHistory.MoveIndex;
-import bge.igame.player.TwoPlayers;
 
 public class MoveHistoryTest {
     private static MoveHistory<IChessMove> createMoveHistory(int movesToMake) {
         ChessPosition chessPosition = new ChessPosition();
-        MoveHistory<IChessMove> moveHistory = new MoveHistory<>(TwoPlayers.NUMBER_OF_PLAYERS);
+        MoveHistory<IChessMove> moveHistory = new MoveHistory<>(new ChessGame());
         makeMoves(chessPosition, moveHistory, ChessGame.MAX_MOVES, movesToMake);
         return moveHistory;
     }

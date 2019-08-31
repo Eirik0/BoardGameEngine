@@ -72,7 +72,7 @@ public class BoardGameState<M> implements GameState, Sized {
         // Game Runner
         GameObserver<M> gameObserver = new GameObserver<>();
         MoveListFactory<M> moveListFactory = GameRegistry.getMoveListFactory(game.getName());
-        MoveHistory<M> moveHistory = new MoveHistory<>(game.getNumberOfPlayers());
+        MoveHistory<M> moveHistory = new MoveHistory<>(game);
         GameRunner<M, IPosition<M>> gameRunner = new GameRunner<>(game, moveHistory, gameObserver, moveListFactory);
         gameObserver.setPositionChangedAction(positionChangedInfo -> {
             //            moveHistoryPanel.setMoveHistory(positionChangedInfo.moveHistory);
