@@ -10,7 +10,7 @@ public class PhotosynthesisGame implements IGame<IPhotosynthesisMove, Photosynth
 
     @Override
     public int getNumberOfPlayers() {
-        return 2;
+        return 4;
     }
 
     @Override
@@ -20,11 +20,11 @@ public class PhotosynthesisGame implements IGame<IPhotosynthesisMove, Photosynth
 
     @Override
     public int getMaxMoves() {
-        return 64;
+        return 128;
     }
 
     @Override
     public PhotosynthesisPosition newInitialPosition() {
-        return new PhotosynthesisPosition(2);
+        return new PhotosynthesisPosition(getNumberOfPlayers());
     }
 }

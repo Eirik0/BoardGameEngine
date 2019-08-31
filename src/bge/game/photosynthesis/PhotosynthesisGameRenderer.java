@@ -20,11 +20,20 @@ import gt.gamestate.UserInput;
 
 public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesisMove, PhotosynthesisPosition>,
         IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
+    private static final Coordinate[] SUN_POSITIONS = new Coordinate[] {
+            Coordinate.valueOf(0, 0),
+            Coordinate.valueOf(3, 0),
+            Coordinate.valueOf(6, 3),
+            Coordinate.valueOf(6, 6),
+            Coordinate.valueOf(3, 6),
+            Coordinate.valueOf(0, 3),
+    };
+
     private static enum SpecialMove {
         BUY_SEED, BUY_SMALL, BUY_MEDIUM, BUY_LARGE, END
     }
 
-    private static final Color[] PLAYER_COLORS = new Color[] { Color.RED, Color.BLUE, Color.WHITE, Color.BLACK };
+    private static final Color[] PLAYER_COLORS = new Color[] { Color.RED, Color.BLUE, Color.WHITE, Color.MAGENTA };
 
     private final IMouseTracker mouseTracker;
     private GridSizer sizer;
@@ -93,7 +102,10 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
 
     @Override
     public void drawPosition(IGraphics g, PhotosynthesisPosition position, MoveList<IPhotosynthesisMove> possibleMoves, IPhotosynthesisMove lastMove) {
-        // TODO draw sun
+        Coordinate sunPos = SUN_POSITIONS[(4 * 6 * 3 + 12 - position.playerRoundsRemaining) % 6];
+        g.setColor(Color.YELLOW);
+        g.drawCircle(hexGrid.centerX(sunPos.x, sunPos.y), hexGrid.centerY(sunPos.x, sunPos.y), sizer.cellSize * 3);
+        g.drawCenteredYString("Rounds remaining: " + position.playerRoundsRemaining, 5, 20);
         int currentPlayer = position.currentPlayer;
         GuiPlayerBoard cpb = playerBoards[currentPlayer];
         g.drawRect(cpb.x0, cpb.y0, cpb.width, cpb.height, Color.GREEN);
@@ -106,8 +118,6 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
                 if (tile == null) {
                     continue;
                 }
-                double x = hexGrid.centerX(a, b);
-                double y = hexGrid.centerY(a, b);
                 if (tile.player == -1) {
                     continue;
                 }
@@ -133,16 +143,20 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             g.drawCenteredString(Integer.toString(pb.victoryPoints), gpb.x0 + gpb.width - compWidth / 2, gpb.y0 + compWidth / 2);
             // seeds
             drawTree(g, gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 1.5, compWidth / 2, 0, i);
-            g.drawCenteredString(Integer.toString(PhotosynthesisPosition.PRICES[0][pb.buy[0] - 1]),
+            int pbBuySeed = pb.buy[0] - 1;
+            g.drawCenteredString(pbBuySeed < 0 ? "X" : Integer.toString(PhotosynthesisPosition.PRICES[0][pbBuySeed]),
                     gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 1.5);
             drawTree(g, gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 2.5, compWidth / 2, 1, i);
-            g.drawCenteredString(Integer.toString(PhotosynthesisPosition.PRICES[1][pb.buy[1] - 1]),
+            int pbBuySmall = pb.buy[1] - 1;
+            g.drawCenteredString(pbBuySmall < 0 ? "X" : Integer.toString(PhotosynthesisPosition.PRICES[1][pbBuySmall]),
                     gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 2.5);
             drawTree(g, gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 3.5, compWidth / 2, 2, i);
-            g.drawCenteredString(Integer.toString(PhotosynthesisPosition.PRICES[2][pb.buy[2] - 1]),
+            int pbBuyMed = pb.buy[2] - 1;
+            g.drawCenteredString(pbBuyMed < 0 ? "X" : Integer.toString(PhotosynthesisPosition.PRICES[2][pbBuyMed]),
                     gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 3.5);
             drawTree(g, gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 4.5, compWidth / 2, 3, i);
-            g.drawCenteredString(Integer.toString(PhotosynthesisPosition.PRICES[3][pb.buy[3] - 1]),
+            int pbBuyLarge = pb.buy[3] - 1;
+            g.drawCenteredString(pbBuyLarge < 0 ? "X" : Integer.toString(PhotosynthesisPosition.PRICES[3][pbBuyLarge]),
                     gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 4.5);
             g.setColor(PLAYER_COLORS[i]);
             g.drawCenteredYString(treeString(pb.buy[0], 4, pb.available[0]), gpb.x0 + compWidth * 1.5, gpb.y0 + compWidth * 1.5);

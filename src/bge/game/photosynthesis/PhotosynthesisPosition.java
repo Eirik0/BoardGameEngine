@@ -196,6 +196,9 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
     @Override
     public void getPossibleMoves(MoveList<IPhotosynthesisMove> moveList) {
+        if (playerRoundsRemaining == 0) {
+            return;
+        }
         // Setup actions
         if (setupPlayerRoundsRemaining > 0) {
             for (final Coordinate coordinate : ALL_TILES[0]) {
@@ -462,7 +465,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
         @Override
         public String toString() {
-            return "Setup [coordinate=" + coordinate + "]";
+            return "S" + coordinate.toString();
         }
     }
 
@@ -517,7 +520,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
         @Override
         public String toString() {
-            return "Upgrade [coordinate=" + coordinate + "]";
+            return "U" + coordinate;
         }
 
         @Override
@@ -640,7 +643,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
         @Override
         public String toString() {
-            return "Buy [buyColumn=" + buyColumn + "]";
+            return "B" + buyColumn;
         }
     }
 
@@ -724,7 +727,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
         @Override
         public String toString() {
-            return "Seed [source=" + source + ", dest=" + dest + "]";
+            return "S" + source.toString() + "-" + dest.toString();
         }
     }
 
@@ -764,7 +767,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
         @Override
         public String toString() {
-            return "EndTurn";
+            return "End";
         }
     }
 

@@ -64,8 +64,8 @@ public class BoardGameState<M> implements GameState, Sized {
 
     public BoardGameState(GameStateManager gameStateManager, IGame<M, IPosition<M>> game) {
         EComponentLocation stateLocation = new SizedComponentLocationAdapter(this, 0, 0);
-        moveHistoryLocation = stateLocation.createGluedLocation(GlueSide.LEFT, 0, CONTROLLER_PANEL_HEIGHT, 199, 0);
-        gameLocation = stateLocation.createPaddedLocation(200, CONTROLLER_PANEL_HEIGHT, 200, 0);
+        moveHistoryLocation = stateLocation.createGluedLocation(GlueSide.LEFT, 0, CONTROLLER_PANEL_HEIGHT, 299, 0);
+        gameLocation = stateLocation.createPaddedLocation(300, CONTROLLER_PANEL_HEIGHT, 200, 0);
         analysisLocation = stateLocation.createGluedLocation(GlueSide.RIGHT, -199, CONTROLLER_PANEL_HEIGHT, 0, 0);
         // Create images
         imageDrawer = gameStateManager.getImageDrawer();
