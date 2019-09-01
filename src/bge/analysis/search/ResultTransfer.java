@@ -1,40 +1,31 @@
 package bge.analysis.search;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import bge.analysis.AnalysisResult;
 
 public class ResultTransfer<M> {
-    private final BlockingQueue<AnalysisResult<M>> resultQueue = new SynchronousQueue<>();
-    private final AtomicBoolean resultPut = new AtomicBoolean(false);
-    private final AtomicBoolean awaitingResult = new AtomicBoolean(true);
+    private final AtomicReference<AnalysisResult<M>> move = new AtomicReference<>(null);
 
     public synchronized void putResult(AnalysisResult<M> result) {
-        if (resultPut.getAndSet(true)) { // synchronized and an atomic boolean is not enough, which is why we wait
+        if (move.get() != null) {
             return;
         }
-        try {
-            resultQueue.put(result);
-            while (awaitingResult.get()) {
-                wait();
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        move.set(result);
+        notify();
     }
 
     public AnalysisResult<M> awaitResult() {
-        try {
-            AnalysisResult<M> result = resultQueue.take();
+        AnalysisResult<M> result;
+        while ((result = move.get()) == null) {
             synchronized (this) {
-                awaitingResult.set(false);
-                notify();
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            return result;
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
+        return result;
     }
 }
