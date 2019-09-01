@@ -2,7 +2,7 @@ package bge.game.papersoccer;
 
 import bge.igame.IGame;
 
-public class PaperSoccerGame implements IGame<Integer, PaperSoccerPosition> {
+public class PaperSoccerGame implements IGame<Integer> {
     public static final String NAME = "Paper Soccer";
     public static final int MAX_MOVES = 8;
 

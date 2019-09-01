@@ -13,7 +13,6 @@ import bge.gui.movehistory.MoveHistoryState;
 import bge.igame.GameObserver;
 import bge.igame.GameRunner;
 import bge.igame.IGame;
-import bge.igame.IPosition;
 import bge.igame.MoveListFactory;
 import bge.igame.player.GuiPlayer;
 import bge.igame.player.IPlayer;
@@ -68,11 +67,11 @@ public class BoardGameState<M> implements GameState, Sized {
 
     private final ECheckBox pausePlayButton;
 
-    private final GameRunner<M, IPosition<M>> gameRunner;
+    private final GameRunner<M> gameRunner;
 
     private final EventQueue<BoardGameEvent> gameEventQueue = new EventQueue<>();
 
-    public BoardGameState(GameStateManager gameStateManager, IGame<M, IPosition<M>> game) {
+    public BoardGameState(GameStateManager gameStateManager, IGame<M> game) {
         EComponentLocation stateLocation = new SizedComponentLocationAdapter(this, 0, 0);
         moveHistoryLocation = stateLocation.createGluedLocation(GlueSide.LEFT, 0, CONTROLLER_PANEL_HEIGHT, 299, 0);
         gameLocation = stateLocation.createPaddedLocation(300, CONTROLLER_PANEL_HEIGHT, 200, 0);

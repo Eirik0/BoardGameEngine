@@ -24,8 +24,7 @@ public class GameTreeSearchJoin<M, P extends IPosition<M>> implements IGameTreeS
     private final AtomicBoolean parentAwaitingJoin = new AtomicBoolean(true);
 
     public GameTreeSearchJoin(IGameTreeSearchJoin<M> parentJoin, M parentMove, P parentPosition, IDepthBasedStrategy<M, P> strategy,
-            AnalysisResult<M> partialResult,
-            int expectedResults) {
+            AnalysisResult<M> partialResult, int expectedResults) {
         this.parentJoin = parentJoin;
         this.parentMove = parentMove;
         this.parentPosition = parentPosition;

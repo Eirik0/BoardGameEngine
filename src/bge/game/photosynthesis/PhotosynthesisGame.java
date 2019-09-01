@@ -2,7 +2,7 @@ package bge.game.photosynthesis;
 
 import bge.igame.IGame;
 
-public class PhotosynthesisGame implements IGame<IPhotosynthesisMove, PhotosynthesisPosition> {
+public class PhotosynthesisGame implements IGame<IPhotosynthesisMove> {
     @Override
     public String getName() {
         return "Photosynthesis";

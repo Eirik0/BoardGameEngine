@@ -39,11 +39,10 @@ public class WeightedMonteCarloChildren<M> implements IMonteCarloChildren<M> {
         do {
             M move = moveList.get(i);
             position.makeMove(move);
-            double score = positionEvaluator.evaluate(position, moveList); // XXX wrong move list
+            double score = positionEvaluator.evaluate(position, moveList); // TODO XXX wrong move list
             if (AnalysisResult.isGameOver(score)) {
                 MonteCarloGameNode<M, P> childNode = new MonteCarloGameNode<>(parentNode, move, position, this, positionEvaluator, parentNode.moveListFactory,
-                        parentNode.numSimulations,
-                        parentNode.maxDepth, parentNode.expandObserver);
+                        parentNode.numSimulations, parentNode.maxDepth, parentNode.expandObserver);
                 childNode.statistics.setResult(new MonteCarloStatistics(position.getCurrentPlayer(), score));
                 won = won || childNode.statistics.isWin(parentNode.statistics.player);
                 parentNode.expandedChildren.add(childNode);

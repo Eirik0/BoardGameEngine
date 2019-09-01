@@ -1,6 +1,6 @@
 package bge.igame;
 
-public interface IGame<M, P extends IPosition<M>> {
+public interface IGame<M> {
     String getName();
 
     int getNumberOfPlayers();
@@ -11,5 +11,5 @@ public interface IGame<M, P extends IPosition<M>> {
 
     int getMaxMoves();
 
-    P newInitialPosition();
+    IPosition<M> newInitialPosition();
 }

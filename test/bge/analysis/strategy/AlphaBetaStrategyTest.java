@@ -33,8 +33,7 @@ public class AlphaBetaStrategyTest {
     }
 
     public static <M, P extends IPosition<M>> void compareStrategies(P position, MoveListFactory<M> moveListFactory, IDepthBasedStrategy<M, P> strat1,
-            IDepthBasedStrategy<M, P> strat2,
-            int numThreads, int maxPlies) {
+            IDepthBasedStrategy<M, P> strat2, int numThreads, int maxPlies) {
         IterativeDeepeningTreeSearcher<M, P> s1 = new IterativeDeepeningTreeSearcher<>(strat1, moveListFactory, numThreads);
         IterativeDeepeningTreeSearcher<M, P> s2 = new IterativeDeepeningTreeSearcher<>(strat2, moveListFactory, numThreads);
         System.out.println("S1: " + strat1.getClass().getSimpleName() + ", S2: " + strat2.getClass().getSimpleName());

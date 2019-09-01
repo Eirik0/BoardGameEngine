@@ -5,7 +5,7 @@ import java.util.List;
 import bge.igame.player.IPlayer;
 import gt.async.ThreadNumber;
 
-public class GameRunner<M, P extends IPosition<M>> {
+public class GameRunner<M> {
     public static final int NO_PLAYER = -1;
 
     private volatile boolean stopRequested = false;
@@ -14,19 +14,19 @@ public class GameRunner<M, P extends IPosition<M>> {
 
     private final GameObserver<M> gameObserver;
 
-    private final IGame<M, P> game;
+    private final IGame<M> game;
     private final MoveListFactory<M> moveListFactory;
-    private P position;
+    private IPosition<M> position;
 
     private final MoveHistory<M> moveHistory;
-    private P positionCopy;
+    private IPosition<M> positionCopy;
     private MoveList<M> possibleMovesCopy;
     private M lastMove;
 
     private List<IPlayer> players;
     private IPlayer currentPlayer;
 
-    public GameRunner(IGame<M, P> game, GameObserver<M> gameObserver, MoveListFactory<M> moveListFactory) {
+    public GameRunner(IGame<M> game, GameObserver<M> gameObserver, MoveListFactory<M> moveListFactory) {
         this.game = game;
         this.moveHistory = new MoveHistory<>(game);
         this.gameObserver = gameObserver;
@@ -36,8 +36,7 @@ public class GameRunner<M, P extends IPosition<M>> {
     }
 
     private synchronized void setPositionCopy(int playerWhoMoved, IPlayer currentPlayer, boolean updateHistory) {
-        @SuppressWarnings("unchecked")
-        P newPositionCopy = (P) position.createCopy();
+        IPosition<M> newPositionCopy = position.createCopy();
         MoveList<M> newPossibleMoves = moveListFactory.newArrayMoveList();
         newPositionCopy.getPossibleMoves(newPossibleMoves);
         positionCopy = newPositionCopy;
@@ -127,7 +126,7 @@ public class GameRunner<M, P extends IPosition<M>> {
         isSettingPosition = true;
         pauseGame(false);
         isSettingPosition = false;
-        P newPosition = game.newInitialPosition();
+        IPosition<M> newPosition = game.newInitialPosition();
         lastMove = moveHistory.setPositionFromHistory(newPosition, moveNumToFind, playerNumToFind);
         position = newPosition;
         setPositionCopy(NO_PLAYER, currentPlayer, false);

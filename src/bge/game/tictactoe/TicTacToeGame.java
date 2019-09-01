@@ -4,7 +4,7 @@ import bge.igame.Coordinate;
 import bge.igame.IGame;
 import bge.igame.player.TwoPlayers;
 
-public class TicTacToeGame implements IGame<Coordinate, TicTacToePosition> {
+public class TicTacToeGame implements IGame<Coordinate> {
     public static final String NAME = "Tic Tac Toe";
     public static final int MAX_MOVES = TicTacToePosition.BOARD_WIDTH * TicTacToePosition.BOARD_WIDTH;
 

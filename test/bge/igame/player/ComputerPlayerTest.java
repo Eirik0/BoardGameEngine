@@ -10,7 +10,6 @@ import bge.analysis.search.IterativeDeepeningTreeSearcher;
 import bge.analysis.strategy.MinimaxStrategy;
 import bge.analysis.strategy.MoveListProvider;
 import bge.game.tictactoe.TicTacToeGame;
-import bge.game.tictactoe.TicTacToePosition;
 import bge.game.tictactoe.TicTacToePositionEvaluator;
 import bge.igame.Coordinate;
 import bge.igame.GameObserver;
@@ -26,7 +25,7 @@ public class ComputerPlayerTest {
         ComputerPlayer player = new ComputerPlayer(new IterativeDeepeningTreeSearcher<>(
                 new MinimaxStrategy<>(new TicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory)), moveListFactory, 2),
                 500, true);
-        GameRunner<Coordinate, TicTacToePosition> gameRunner = new GameRunner<>(game, new GameObserver<>(), moveListFactory);
+        GameRunner<Coordinate> gameRunner = new GameRunner<>(game, new GameObserver<>(), moveListFactory);
         for (int i = 0; i < 100; ++i) {
             gameRunner.createNewGame();
             gameRunner.setPlayersAndResume(Arrays.asList(player, player));

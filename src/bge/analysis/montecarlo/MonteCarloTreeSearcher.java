@@ -37,8 +37,7 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
     }
 
     public MonteCarloTreeSearcher(IMonteCarloChildren<M> monteCarloChildren, IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory,
-            int numSimulations, int maxDepth,
-            ForkObserver<M> expandObserver, StartStopObserver startStopObserver) {
+            int numSimulations, int maxDepth, ForkObserver<M> expandObserver, StartStopObserver startStopObserver) {
         this.monteCarloChildren = monteCarloChildren;
         this.positionEvaluator = positionEvaluator;
         this.moveListFactory = moveListFactory;

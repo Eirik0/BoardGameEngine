@@ -6,10 +6,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.strategy.IForkable;
-import bge.igame.IPosition;
 
-public class GameTreeSearch<M, P extends IPosition<M>> {
-    private final IForkable<M, P> forkable;
+public class GameTreeSearch<M> {
+    private final IForkable<M> forkable;
 
     private final IGameTreeSearchJoin<M> treeSearchJoin;
 
@@ -21,7 +20,7 @@ public class GameTreeSearch<M, P extends IPosition<M>> {
     private final AtomicBoolean forked = new AtomicBoolean(false);
     private final AtomicBoolean joined = new AtomicBoolean(false);
 
-    public GameTreeSearch(IForkable<M, P> forkable, IGameTreeSearchJoin<M> treeSearchJoin) {
+    public GameTreeSearch(IForkable<M> forkable, IGameTreeSearchJoin<M> treeSearchJoin) {
         this.forkable = forkable;
         this.treeSearchJoin = treeSearchJoin;
     }
@@ -66,7 +65,7 @@ public class GameTreeSearch<M, P extends IPosition<M>> {
         return forkable.isForkable();
     }
 
-    public List<GameTreeSearch<M, P>> fork() {
+    public List<GameTreeSearch<M>> fork() {
         forked.set(true);
         if (joined.get()) {
             return Collections.emptyList();

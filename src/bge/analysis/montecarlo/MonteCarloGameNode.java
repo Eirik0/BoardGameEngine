@@ -35,14 +35,12 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
     private volatile boolean stopRequested = false;
 
     public MonteCarloGameNode(M parentMove, P position, IMonteCarloChildren<M> children, IPositionEvaluator<M, P> positionEvaluator,
-            MoveListFactory<M> moveListFactory, int numSimulations,
-            int maxDepth) {
+            MoveListFactory<M> moveListFactory, int numSimulations, int maxDepth) {
         this(null, parentMove, position, children, positionEvaluator, moveListFactory, numSimulations, maxDepth, null);
     }
 
     public MonteCarloGameNode(MonteCarloGameNode<M, P> parentNode, M parentMove, P position, IMonteCarloChildren<M> children,
-            IPositionEvaluator<M, P> positionEvaluator,
-            MoveListFactory<M> moveListFactory, int numSimulations, int maxDepth, ForkObserver<M> expandObserver) {
+            IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory, int numSimulations, int maxDepth, ForkObserver<M> expandObserver) {
         this.parentNode = parentNode;
         this.parentMove = parentMove;
         this.position = position;

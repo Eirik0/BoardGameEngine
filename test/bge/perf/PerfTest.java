@@ -8,7 +8,7 @@ import bge.igame.IPosition;
 import bge.igame.MoveList;
 
 public class PerfTest {
-    public static <M, P extends IPosition<M>> long countPositions(P position, int depth) {
+    public static <M> long countPositions(IPosition<M> position, int depth) {
         MoveList<M> possibleMoves = new ArrayMoveList<>(SudokuConstants.MAX_MOVES);
         position.getPossibleMoves(possibleMoves);
         if (depth == 0) {

@@ -9,5 +9,5 @@ public interface IAlphaBetaStrategy<M, P extends IPosition<M>> extends IDepthBas
         return evaluate(position, plies, AnalysisResult.LOSS, AnalysisResult.WIN);
     }
 
-    public double evaluate(P position, int plies, double alpha, double beta);
+    double evaluate(P position, int plies, double alpha, double beta);
 }

@@ -25,7 +25,7 @@ public class TreeSearchWorkerTest {
         worker.joinThread();
     }
 
-    private static GameTreeSearch<TestGameNode, TestGamePosition> newGameTreeSearch(IGameTreeSearchJoin<TestGameNode> join) {
+    private static GameTreeSearch<TestGameNode> newGameTreeSearch(IGameTreeSearchJoin<TestGameNode> join) {
         MoveListFactory<TestGameNode> moveListFactory = new MoveListFactory<>(2);
         TestGamePosition position = TestGamePosition.createTestPosition();
         MoveList<TestGameNode> moveList = moveListFactory.newAnalysisMoveList();
@@ -53,7 +53,7 @@ public class TreeSearchWorkerTest {
     @Test
     public void testRescheduleWorkOnComplete() throws InterruptedException {
         List<AnalysisResult<TestGameNode>> resultList = new ArrayList<>();
-        GameTreeSearch<TestGameNode, TestGamePosition> treeSearch = newGameTreeSearch((canceled, moveWithResult) -> {
+        GameTreeSearch<TestGameNode> treeSearch = newGameTreeSearch((canceled, moveWithResult) -> {
             synchronized (this) {
                 resultList.add(moveWithResult.result);
                 notify();

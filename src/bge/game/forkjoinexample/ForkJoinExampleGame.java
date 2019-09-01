@@ -2,7 +2,7 @@ package bge.game.forkjoinexample;
 
 import bge.igame.IGame;
 
-public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinExampleTree> {
+public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode> {
     public static final String NAME = "Fork Join Example";
 
     public static final int MAX_MOVES = ForkJoinExampleTree.BRANCHING_FACTOR;

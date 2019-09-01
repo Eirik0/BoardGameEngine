@@ -4,7 +4,7 @@ import bge.game.chess.move.IChessMove;
 import bge.igame.IGame;
 import bge.igame.player.TwoPlayers;
 
-public class ChessGame implements IGame<IChessMove, ChessPosition> {
+public class ChessGame implements IGame<IChessMove> {
     public static final String NAME = "Chess";
     public static final int MAX_MOVES = 256;
 

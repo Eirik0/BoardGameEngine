@@ -20,7 +20,7 @@ public class AlphaBetaQTestStrategy<M, P extends IPosition<M>> implements IAlpha
     }
 
     @Override
-    public IForkable<M, P> newForkableSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies,
+    public IForkable<M> newForkableSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory, int plies,
             IDepthBasedStrategy<M, P> strategy) {
         return new AlphaBetaSearch<>(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
     }

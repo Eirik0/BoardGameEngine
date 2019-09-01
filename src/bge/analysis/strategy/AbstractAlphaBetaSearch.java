@@ -13,7 +13,7 @@ import bge.igame.IPosition;
 import bge.igame.MoveList;
 import bge.igame.MoveListFactory;
 
-public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> implements IForkable<M, P> {
+public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> implements IForkable<M> {
     protected final M parentMove;
     protected final P position;
     protected final MoveListFactory<M> moveListFactory;
@@ -37,7 +37,7 @@ public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> impleme
         this.strategy = (IAlphaBetaStrategy<M, P>) strategy.createCopy();
     }
 
-    protected abstract AbstractAlphaBetaSearch<M, P> newSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory,
+    protected abstract IForkable<M> newSearch(M parentMove, P position, MoveList<M> movesToSearch, MoveListFactory<M> moveListFactory,
             int plies, IDepthBasedStrategy<M, P> strategy);
 
     @Override
@@ -72,7 +72,7 @@ public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> impleme
 
     @SuppressWarnings("unchecked")
     @Override
-    public synchronized List<GameTreeSearch<M, P>> fork(IGameTreeSearchJoin<M> parentJoin, AnalysisResult<M> partialResult) {
+    public synchronized List<GameTreeSearch<M>> fork(IGameTreeSearchJoin<M> parentJoin, AnalysisResult<M> partialResult) {
         if (partialResult == null) {
             partialResult = new AnalysisResult<>(position.getCurrentPlayer());
         }
@@ -84,7 +84,7 @@ public abstract class AbstractAlphaBetaSearch<M, P extends IPosition<M>> impleme
             ((ForkObserver<M>) strategy).notifyForked(parentMove);
         }
 
-        List<GameTreeSearch<M, P>> gameTreeSearches = new ArrayList<>();
+        List<GameTreeSearch<M>> gameTreeSearches = new ArrayList<>();
         GameTreeSearchJoin<M, P> forkJoin = new GameTreeSearchJoin<>(parentJoin, parentMove, position, strategy, partialResult, expectedResults);
 
         int i = 0;

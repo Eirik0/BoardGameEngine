@@ -52,7 +52,7 @@ public class BoardGameEngineMain {
     public static final Font DEFAULT_SMALL_FONT = new Font(Font.DIALOG, Font.PLAIN, 12);
     public static final int DEFAULT_SMALL_FONT_HEIGHT = 18;
 
-    public static PlayerOptions createComputerPlayerOptions(IGame<?, ?> game, int minMs, int maxMs, int maxThreads, int maxSimulations) {
+    public static PlayerOptions createComputerPlayerOptions(IGame<?> game, int minMs, int maxMs, int maxThreads, int maxSimulations) {
         PlayerOptions msPerMoveOption = new PlayerOptions("time", new CPOptionIntRange(PlayerInfo.KEY_MS_PER_MOVE, minMs, maxMs));
         PlayerOptions threadOption = new PlayerOptions("threads", new CPOptionIntRange(PlayerInfo.KEY_NUM_THREADS, 1, maxThreads));
         PlayerOptions simulationsOption = new PlayerOptions("sims", new CPOptionIntRange(PlayerInfo.KEY_NUM_SIMULATIONS, 1, maxSimulations));
@@ -81,7 +81,7 @@ public class BoardGameEngineMain {
                         .addSubOption(PlayerInfo.TS_MONTE_CARLO, mcStrategyOptions);
     }
 
-    private static <M, P extends IPosition<M>> void registerGame(IGame<M, P> game,
+    private static <M, P extends IPosition<M>> void registerGame(IGame<M> game,
             List<Pair<String, IPositionEvaluator<M, P>>> positionEvaluators,
             int minMsPerMove, int maxMsPerMove, int maxThreads, int maxSimulations,
             BiFunction<IMouseTracker, IGameImageDrawer, IGameRenderer<M, P>> gameRendererSupplier) {

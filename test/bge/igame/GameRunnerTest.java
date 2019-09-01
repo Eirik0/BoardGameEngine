@@ -14,7 +14,7 @@ import bge.igame.player.GuiPlayer;
 import bge.igame.player.IPlayer;
 
 public class GameRunnerTest {
-    private static void startGame(GameRunner<?, ?> gameRunner, IPlayer player) {
+    private static void startGame(GameRunner<?> gameRunner, IPlayer player) {
         gameRunner.createNewGame();
         gameRunner.setPlayersAndResume(Collections.singletonList(player));
     }
@@ -22,7 +22,7 @@ public class GameRunnerTest {
     @Test
     public void testStartStopGame() throws InterruptedException {
         AddToListTestGame game = new AddToListTestGame();
-        GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
+        GameRunner<?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
         startGame(gameRunner, game.player);
         Thread.sleep(10);// sleep a little to let the list populate
         gameRunner.pauseGame(false);
@@ -33,7 +33,7 @@ public class GameRunnerTest {
     @Test
     public void testStartTwice() throws InterruptedException {
         AddToListTestGame game = new AddToListTestGame();
-        GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
+        GameRunner<?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
         startGame(gameRunner, game.player);
         startGame(gameRunner, game.player);
         Thread.sleep(10);// sleep a little to let the list populate
@@ -45,7 +45,7 @@ public class GameRunnerTest {
     @Test
     public void testEndTwice() throws InterruptedException {
         AddToListTestGame game = new AddToListTestGame();
-        GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
+        GameRunner<?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
         startGame(gameRunner, game.player);
         Thread.sleep(10);// sleep a little to let the list populate
         gameRunner.pauseGame(false);
@@ -57,7 +57,7 @@ public class GameRunnerTest {
     @Test
     public void testEndWhenWaitingOnPlayer() throws InterruptedException {
         AddToListTestGame game = new AddToListTestGame(GuiPlayer.HUMAN);
-        GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
+        GameRunner<?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
         startGame(gameRunner, game.player);
         Thread.sleep(10);
         gameRunner.pauseGame(false);
@@ -67,12 +67,12 @@ public class GameRunnerTest {
     @Test
     public void testStardAndEndWhenNoMoves() {
         AddToListTestGame game = new AddToListTestGame(new AddToListTestPlayer(), i -> Collections.emptyList());
-        GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
+        GameRunner<?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
         startGame(gameRunner, game.player);
         assertEquals(2, game.numNewPositions);
     }
 
-    static class AddToListTestGame implements IGame<Integer, AddToListPosition> {
+    static class AddToListTestGame implements IGame<Integer> {
         final IPlayer player;
         final List<Integer> list = new ArrayList<>();
         final IntFunction<List<Integer>> possibleMovesFunction;

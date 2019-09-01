@@ -29,10 +29,10 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
 
     private final int numWorkers;
 
-    private final List<GameTreeSearch<M, P>> treeSearchesToAnalyze = new ArrayList<>();
+    private final List<GameTreeSearch<M>> treeSearchesToAnalyze = new ArrayList<>();
 
     private final List<ThreadWorker> availableWorkers = new ArrayList<>();
-    private final Map<ThreadWorker, GameTreeSearch<M, P>> treeSearchesInProgress = new HashMap<>();
+    private final Map<ThreadWorker, GameTreeSearch<M>> treeSearchesInProgress = new HashMap<>();
 
     private final Object searchStartedLock = new Object();
     private volatile boolean searchStopped = true;
@@ -40,7 +40,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
 
     private int plies = 0;
     private volatile AnalysisResult<M> result;
-    private TreeSearchRoot<M, P> treeSearchRoot = new TreeSearchRoot<>();
+    private TreeSearchRoot<M> treeSearchRoot = new TreeSearchRoot<>();
 
     public IterativeDeepeningTreeSearcher(IDepthBasedStrategy<M, P> strategy, MoveListFactory<M> moveListFactory, int numWorkers) {
         this.strategy = strategy;
@@ -154,7 +154,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
 
     private synchronized void stopWorkers() { // Stopping a worker will eventually remove it from treeSearchesInProgress
         searchStopped = true;
-        for (Entry<ThreadWorker, GameTreeSearch<M, P>> searchInProgress : treeSearchesInProgress.entrySet()) {
+        for (Entry<ThreadWorker, GameTreeSearch<M>> searchInProgress : treeSearchesInProgress.entrySet()) {
             searchInProgress.getKey().waitForStart();
             searchInProgress.getValue().stopSearch();
         }
@@ -176,8 +176,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
 
         MoveList<M> searchMoveList = buildMoveList(position);
 
-        IForkable<M, P> forkableSearch = strategy.newForkableSearch(null, position, searchMoveList, moveListFactory, plies);
-        GameTreeSearch<M, P> rootTreeSearch = new GameTreeSearch<>(forkableSearch,
+        IForkable<M> forkableSearch = strategy.newForkableSearch(null, position, searchMoveList, moveListFactory, plies);
+        GameTreeSearch<M> rootTreeSearch = new GameTreeSearch<>(forkableSearch,
                 (canceled, moveWithResult) -> resultTransfer.putResult(moveWithResult.result));
 
         treeSearchRoot = new TreeSearchRoot<>(rootTreeSearch, position.getCurrentPlayer());
@@ -185,7 +185,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
 
         int removeIndex = 0;
         while (availableWorkers.size() > treeSearchesToAnalyze.size() && removeIndex < treeSearchesToAnalyze.size() && !searchStopped) {
-            GameTreeSearch<M, P> treeSearch = treeSearchesToAnalyze.get(removeIndex);
+            GameTreeSearch<M> treeSearch = treeSearchesToAnalyze.get(removeIndex);
             if (treeSearch.isForkable()) {
                 treeSearchesToAnalyze.addAll(treeSearchesToAnalyze.remove(removeIndex).fork());
                 removeIndex = 0;
@@ -209,7 +209,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
         return result;
     }
 
-    private MoveList<M> buildMoveList(P position) {
+    private MoveList<M> buildMoveList(IPosition<M> position) {
         MoveList<M> searchMoveList;
         if (result == null) {
             searchMoveList = moveListFactory.newAnalysisMoveList();
@@ -240,14 +240,14 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
         }
     }
 
-    private void startWork(ThreadWorker worker, GameTreeSearch<M, P> treeSearch) {
+    private void startWork(ThreadWorker worker, GameTreeSearch<M> treeSearch) {
         worker.workOn(treeSearch::search);
         treeSearchesInProgress.put(worker, treeSearch);
     }
 
     public synchronized void workerComplete(ThreadWorker finishedWorker) {
         if (treeSearchesToAnalyze.size() > 0) {
-            GameTreeSearch<M, P> treeSearch = treeSearchesToAnalyze.remove(0);
+            GameTreeSearch<M> treeSearch = treeSearchesToAnalyze.remove(0);
             startWork(finishedWorker, treeSearch);
             if (searchStopped) {
                 treeSearch.stopSearch();
@@ -257,11 +257,11 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
 
         treeSearchesInProgress.remove(finishedWorker);
 
-        Entry<ThreadWorker, GameTreeSearch<M, P>> treeSearchToFork = null;
+        Entry<ThreadWorker, GameTreeSearch<M>> treeSearchToFork = null;
 
-        for (Entry<ThreadWorker, GameTreeSearch<M, P>> treeSearchInProgress : treeSearchesInProgress.entrySet()) {
+        for (Entry<ThreadWorker, GameTreeSearch<M>> treeSearchInProgress : treeSearchesInProgress.entrySet()) {
             treeSearchInProgress.getKey().waitForStart();
-            GameTreeSearch<M, P> treeSearch = treeSearchInProgress.getValue();
+            GameTreeSearch<M> treeSearch = treeSearchInProgress.getValue();
             if (!treeSearch.isForkable()) {
                 continue;
             }
@@ -274,7 +274,7 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
         }
 
         if (!searchStopped && treeSearchToFork != null) {
-            List<GameTreeSearch<M, P>> fork = treeSearchToFork.getValue().fork(); // Forking this worker will cause it to enqueue a call to workerComplete(this)
+            List<GameTreeSearch<M>> fork = treeSearchToFork.getValue().fork(); // Forking this worker will cause it to enqueue a call to workerComplete(this)
             treeSearchesInProgress.remove(treeSearchToFork.getKey()); // If we do not remove this from searches in progress, it can get reforked unnecessarily
             if (fork.size() > 0) {
                 treeSearchesToAnalyze.addAll(fork);

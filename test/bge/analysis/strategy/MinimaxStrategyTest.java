@@ -32,7 +32,7 @@ public class MinimaxStrategyTest {
         MoveListFactory<M> moveListFactory = new MoveListFactory<>(2);
         MoveList<M> moveList = moveListFactory.newAnalysisMoveList();
         testGamePosition.getPossibleMoves(moveList);
-        GameTreeSearch<M, P> gameTreeSearch = new GameTreeSearch<>(
+        GameTreeSearch<M> gameTreeSearch = new GameTreeSearch<>(
                 new MinimaxSearch<>(null, testGamePosition, moveList, moveListFactory, plies, minimaxStrategy),
                 (canceled, moveWithResult) -> {
                     synchronized (this) {
@@ -148,7 +148,7 @@ public class MinimaxStrategyTest {
         MoveList<TestLockingNode> moveList = moveListFactory.newAnalysisMoveList();
         testLockingPosition.getPossibleMoves(moveList);
         List<AnalysisResult<TestLockingNode>> result = new ArrayList<>();
-        GameTreeSearch<TestLockingNode, TestLockingPosition> gameTreeSearch = new GameTreeSearch<>(
+        GameTreeSearch<TestLockingNode> gameTreeSearch = new GameTreeSearch<>(
                 new MinimaxSearch<>(null, testLockingPosition, moveList, moveListFactory, 1,
                         new MinimaxStrategy<>(new TestLockingEvaluator(), new MoveListProvider<>(moveListFactory))),
                 (canceled, moveWithResult) -> result.add(moveWithResult.result));

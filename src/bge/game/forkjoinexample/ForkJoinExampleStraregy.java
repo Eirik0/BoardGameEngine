@@ -18,9 +18,9 @@ public class ForkJoinExampleStraregy
     }
 
     @Override
-    public IForkable<ForkJoinExampleNode, ForkJoinExampleTree> newForkableSearch(ForkJoinExampleNode parentMove, ForkJoinExampleTree position,
-            MoveList<ForkJoinExampleNode> movesToSearch,
-            MoveListFactory<ForkJoinExampleNode> moveListFactory, int plies, IDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> strategy) {
+    public IForkable<ForkJoinExampleNode> newForkableSearch(ForkJoinExampleNode parentMove, ForkJoinExampleTree position,
+            MoveList<ForkJoinExampleNode> movesToSearch, MoveListFactory<ForkJoinExampleNode> moveListFactory, int plies,
+            IDepthBasedStrategy<ForkJoinExampleNode, ForkJoinExampleTree> strategy) {
         return this.strategy.newForkableSearch(parentMove, position, movesToSearch, moveListFactory, plies, strategy);
     }
 
