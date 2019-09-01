@@ -2,7 +2,6 @@ package bge.igame;
 
 import java.util.List;
 
-import bge.gui.gamestate.IPositionObserver;
 import bge.igame.player.IPlayer;
 import gt.async.ThreadNumber;
 
@@ -14,7 +13,6 @@ public class GameRunner<M, P extends IPosition<M>> {
     private volatile boolean isSettingPosition = false;
 
     private final GameObserver<M> gameObserver;
-    private IPositionObserver<M, P> positionObserver;
 
     private final IGame<M, P> game;
     private final MoveListFactory<M> moveListFactory;
@@ -28,29 +26,13 @@ public class GameRunner<M, P extends IPosition<M>> {
     private List<IPlayer> players;
     private IPlayer currentPlayer;
 
-    public GameRunner(IGame<M, P> game, MoveHistory<M> moveHistory, GameObserver<M> gameObserver, MoveListFactory<M> moveListFactory) {
+    public GameRunner(IGame<M, P> game, GameObserver<M> gameObserver, MoveListFactory<M> moveListFactory) {
         this.game = game;
-        this.moveHistory = moveHistory;
+        this.moveHistory = new MoveHistory<>(game);
         this.gameObserver = gameObserver;
         this.moveListFactory = moveListFactory;
         position = game.newInitialPosition();
         setPositionCopy(NO_PLAYER, null, true);
-    }
-
-    public void setPositionObserver(IPositionObserver<M, P> positionObserver) {
-        this.positionObserver = positionObserver;
-    }
-
-    public P getCurrentPositionCopy() {
-        return positionCopy;
-    }
-
-    public MoveList<M> getPossibleMovesCopy() {
-        return possibleMovesCopy;
-    }
-
-    public M getLastMove() {
-        return lastMove;
     }
 
     private synchronized void setPositionCopy(int playerWhoMoved, IPlayer currentPlayer, boolean updateHistory) {
@@ -60,17 +42,11 @@ public class GameRunner<M, P extends IPosition<M>> {
         newPositionCopy.getPossibleMoves(newPossibleMoves);
         positionCopy = newPositionCopy;
         possibleMovesCopy = newPossibleMoves;
-        notifyPositionObserver();
         if (updateHistory) {
             moveHistory.addMove(lastMove, playerWhoMoved);
         }
-        gameObserver.notifyPositionChanged(new PositionChangedInfo<>(positionCopy, currentPlayer));
-    }
-
-    private void notifyPositionObserver() {
-        if (positionObserver != null) {
-            positionObserver.notifyPositionChanged(positionCopy, possibleMovesCopy);
-        }
+        gameObserver.notifyPositionChanged(
+                new PositionChangedInfo<>(positionCopy, possibleMovesCopy, currentPlayer, moveHistory.getMoveHistoryListCopy(), lastMove));
     }
 
     public synchronized void createNewGame() {
@@ -85,7 +61,7 @@ public class GameRunner<M, P extends IPosition<M>> {
         resumeGame();
     }
 
-    public synchronized void resumeGame() {
+    private synchronized void resumeGame() {
         if (possibleMovesCopy.size() == 0) {
             notifyGameEnded();
             return;
@@ -103,7 +79,7 @@ public class GameRunner<M, P extends IPosition<M>> {
                     currentPlayer = players.get(playerToMove - game.getPlayerIndexOffset());
                     setPositionCopy(NO_PLAYER, currentPlayer, false);
                 }
-                while (!stopRequested && getPossibleMovesCopy().size() > 0) {
+                while (!stopRequested && possibleMovesCopy.size() > 0) {
                     M move = currentPlayer.getMove(positionCopy);
                     if (!stopRequested) {
                         synchronized (this) {

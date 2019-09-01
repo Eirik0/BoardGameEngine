@@ -22,8 +22,7 @@ public class GameRunnerTest {
     @Test
     public void testStartStopGame() throws InterruptedException {
         AddToListTestGame game = new AddToListTestGame();
-        MoveHistory<Integer> moveHistory = new MoveHistory<>(game);
-        GameRunner<?, ?> gameRunner = new GameRunner<>(game, moveHistory, new GameObserver<>(), new MoveListFactory<>(1));
+        GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
         startGame(gameRunner, game.player);
         Thread.sleep(10);// sleep a little to let the list populate
         gameRunner.pauseGame(false);
@@ -34,8 +33,7 @@ public class GameRunnerTest {
     @Test
     public void testStartTwice() throws InterruptedException {
         AddToListTestGame game = new AddToListTestGame();
-        MoveHistory<Integer> moveHistory = new MoveHistory<>(game);
-        GameRunner<?, ?> gameRunner = new GameRunner<>(game, moveHistory, new GameObserver<>(), new MoveListFactory<>(1));
+        GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
         startGame(gameRunner, game.player);
         startGame(gameRunner, game.player);
         Thread.sleep(10);// sleep a little to let the list populate
@@ -47,8 +45,7 @@ public class GameRunnerTest {
     @Test
     public void testEndTwice() throws InterruptedException {
         AddToListTestGame game = new AddToListTestGame();
-        MoveHistory<Integer> moveHistory = new MoveHistory<>(game);
-        GameRunner<?, ?> gameRunner = new GameRunner<>(game, moveHistory, new GameObserver<>(), new MoveListFactory<>(1));
+        GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
         startGame(gameRunner, game.player);
         Thread.sleep(10);// sleep a little to let the list populate
         gameRunner.pauseGame(false);
@@ -60,8 +57,7 @@ public class GameRunnerTest {
     @Test
     public void testEndWhenWaitingOnPlayer() throws InterruptedException {
         AddToListTestGame game = new AddToListTestGame(GuiPlayer.HUMAN);
-        MoveHistory<Integer> moveHistory = new MoveHistory<>(game);
-        GameRunner<?, ?> gameRunner = new GameRunner<>(game, moveHistory, new GameObserver<>(), new MoveListFactory<>(1));
+        GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
         startGame(gameRunner, game.player);
         Thread.sleep(10);
         gameRunner.pauseGame(false);
@@ -71,8 +67,7 @@ public class GameRunnerTest {
     @Test
     public void testStardAndEndWhenNoMoves() {
         AddToListTestGame game = new AddToListTestGame(new AddToListTestPlayer(), i -> Collections.emptyList());
-        MoveHistory<Integer> moveHistory = new MoveHistory<>(game);
-        GameRunner<?, ?> gameRunner = new GameRunner<>(game, moveHistory, new GameObserver<>(), new MoveListFactory<>(1));
+        GameRunner<?, ?> gameRunner = new GameRunner<>(game, new GameObserver<>(), new MoveListFactory<>(1));
         startGame(gameRunner, game.player);
         assertEquals(2, game.numNewPositions);
     }

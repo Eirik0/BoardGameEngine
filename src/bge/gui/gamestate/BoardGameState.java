@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bge.gui.analysis.AnalysisGameState;
+import bge.gui.gamestate.event.BoardGameEvent;
+import bge.gui.gamestate.event.BoardGameEvent.GamePausedEvent;
+import bge.gui.gamestate.event.BoardGameEvent.GameStartEvent;
+import bge.gui.gamestate.event.BoardGameEvent.PositionChangedEvent;
 import bge.gui.movehistory.MoveHistoryState;
 import bge.igame.GameObserver;
 import bge.igame.GameRunner;
 import bge.igame.IGame;
 import bge.igame.IPosition;
-import bge.igame.MoveHistory;
 import bge.igame.MoveListFactory;
 import bge.igame.player.GuiPlayer;
 import bge.igame.player.IPlayer;
@@ -36,10 +39,11 @@ import gt.gameentity.Sized;
 import gt.gamestate.GameState;
 import gt.gamestate.GameStateManager;
 import gt.gamestate.UserInput;
+import gt.util.EventQueue;
 
 public class BoardGameState<M> implements GameState, Sized {
     private static final int CONTROLLER_PANEL_HEIGHT = 170;
-    private static final int PLAYER_SELECTION_WIDTH = 200;
+    private static final int PLAYER_SELECTION_WIDTH = 180;
 
     private double width;
     private double height;
@@ -55,12 +59,18 @@ public class BoardGameState<M> implements GameState, Sized {
     private final EComponentLocation gameLocation;
     private final EComponentLocation analysisLocation;
 
-    private final GameState moveHistoryState;
-    private final GameState gameRunningState;
+    private final MoveHistoryState<M> moveHistoryState;
+    private final GameRunningState<M> gameRunningState;
     private final GameState analysisState;
 
     int[] selectedPlayersIndexes;
     private final PlayerOptionsPanel[] playerOptionsPanels;
+
+    private final ECheckBox pausePlayButton;
+
+    private final GameRunner<M, IPosition<M>> gameRunner;
+
+    private final EventQueue<BoardGameEvent> gameEventQueue = new EventQueue<>();
 
     public BoardGameState(GameStateManager gameStateManager, IGame<M, IPosition<M>> game) {
         EComponentLocation stateLocation = new SizedComponentLocationAdapter(this, 0, 0);
@@ -76,21 +86,11 @@ public class BoardGameState<M> implements GameState, Sized {
         // Game Runner
         GameObserver<M> gameObserver = new GameObserver<>();
         MoveListFactory<M> moveListFactory = GameRegistry.getMoveListFactory(game.getName());
-        MoveHistory<M> moveHistory = new MoveHistory<>(game);
-        GameRunner<M, IPosition<M>> gameRunner = new GameRunner<>(game, moveHistory, gameObserver, moveListFactory);
-        gameObserver.setPositionChangedAction(positionChangedInfo -> {
-            //            moveHistoryPanel.setMoveHistory(positionChangedInfo.moveHistory);
-            //            analysisPanel.positionChanged(positionChangedInfo);
-        });
-
-        //        gameObserver.setGameRunningAction(() -> playerControllerPanel.gameStarted());
-
-        gameObserver.setGamePausedAction(gameEnded -> {
-            //            playerControllerPanel.gamePaused();
-            //            if (gameEnded.booleanValue()) {
-            //                analysisPanel.gameEnded();
-            //            }
-        });
+        gameRunner = new GameRunner<>(game, gameObserver, moveListFactory);
+        gameObserver
+                .setGameRunningAction(() -> gameEventQueue.push(new GameStartEvent()))
+                .setPositionChangedAction(info -> gameEventQueue.push(new PositionChangedEvent<>(info)))
+                .setGamePausedAction(gameEnded -> gameEventQueue.push(new GamePausedEvent(gameEnded)));
 
         // Top "Controller" panel
         EComponentLocation cpl = stateLocation.createGluedLocation(GlueSide.TOP, 0, 0, 0, CONTROLLER_PANEL_HEIGHT - 1);
@@ -103,31 +103,38 @@ public class BoardGameState<M> implements GameState, Sized {
         EComponentLocation gameLabelLocation = bpl.createGluedLocation(GlueSide.LEFT, 10, 10, 109, -10);
         EComponentLocation newGameButtonLocation = bpl.createGluedLocation(GlueSide.RIGHT, -239, 10, -170, -10);
         EComponentLocation playPauseButtonLocation = bpl.createGluedLocation(GlueSide.RIGHT, -159, 10, -90, -10);
-        EComponentLocation backPauseButtonLocation = bpl.createGluedLocation(GlueSide.RIGHT, -79, 10, -10, -10);
+        EComponentLocation backButtonLocation = bpl.createGluedLocation(GlueSide.RIGHT, -79, 10, -10, -10);
 
         selectedPlayersIndexes = new int[game.getNumberOfPlayers()];
         playerOptionsPanels = new PlayerOptionsPanel[game.getNumberOfPlayers()];
+        pausePlayButton = new ECheckBox(playPauseButtonLocation, "Pause", "Play", false, play -> {
+            if (play) {
+                List<IPlayer> players = new ArrayList<>();
+                for (int i = 0; i < game.getNumberOfPlayers(); ++i) {
+                    String playerName = GameRegistry.getPlayerNames(game.getName())[selectedPlayersIndexes[i]];
+                    if (GuiPlayer.NAME.equals(playerName)) {
+                        players.add(GuiPlayer.HUMAN);
+                    } else {
+                        players.add(playerOptionsPanels[i].getPlayerInfo().newComputerPlayer(game.getName()));
+                    }
+                }
+                gameRunner.setPlayersAndResume(players);
+            } else {
+                gameRunner.pauseGame(false);
+            }
+        });
+
         panelBuilder
                 .add(1, new ETextLabel(gameLabelLocation, game.getName(), false))
                 .add(1, EButton.createTextButton(newGameButtonLocation, "New Game", () -> {
+                    gameRunner.createNewGame();
+                    pausePlayButton.setSelected(false);
                 }))
-                .add(1, new ECheckBox(playPauseButtonLocation, "Pause", "Play", false, play -> {
-                    if (play) {
-                        List<IPlayer> players = new ArrayList<>();
-                        for (int i = 0; i < game.getNumberOfPlayers(); ++i) {
-                            String playerName = GameRegistry.getPlayerNames(game.getName())[selectedPlayersIndexes[i]];
-                            if (GuiPlayer.NAME.equals(playerName)) {
-                                players.add(GuiPlayer.HUMAN);
-                            } else {
-                                players.add(playerOptionsPanels[i].getPlayerInfo().newComputerPlayer(game.getName()));
-                            }
-                        }
-                        gameRunner.setPlayersAndResume(players);
-                    } else {
-                        gameRunner.pauseGame(false);
-                    }
-                }))
-                .add(1, EButton.createTextButton(backPauseButtonLocation, "Back", () -> {
+                .add(1, pausePlayButton)
+                .add(1, EButton.createTextButton(backButtonLocation, "Back", () -> {
+                    // TODO pause analysis
+                    gameRunner.pauseGame(true);
+                    gameStateManager.setGameState(new MainMenuState(gameStateManager));
                 }));
 
         // ... [Player v] "v." ... [Player v] ...
@@ -151,16 +158,37 @@ public class BoardGameState<M> implements GameState, Sized {
         }
         controllerPanel = panelBuilder.build();
 
-        moveHistoryState = new MoveHistoryState<>(moveHistory, new ComponentMouseTracker(mouseTracker, moveHistoryLocation), imageDrawer);
+        moveHistoryState = new MoveHistoryState<>(new ComponentMouseTracker(mouseTracker, moveHistoryLocation), imageDrawer);
 
-        gameRunningState = new GameRunningState<>(gameStateManager, gameRunner,
+        gameRunningState = new GameRunningState<>(gameStateManager.getImageDrawer(),
                 GameRegistry.getGameRenderer(game.getName(), new ComponentMouseTracker(mouseTracker, gameLocation), gameStateManager.getImageDrawer()));
 
         analysisState = new AnalysisGameState();
+
+        gameRunner.createNewGame();
+        handleGameEvents();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handleGameEvents() {
+        while (gameEventQueue.popAll(event -> {
+            if (event instanceof GameStartEvent) {
+                pausePlayButton.setSelected(true);
+            } else if (event instanceof PositionChangedEvent<?>) {
+                PositionChangedEvent<M> changeEvent = (PositionChangedEvent<M>) event;
+                gameRunningState.positionChanged(changeEvent.changeInfo);
+                moveHistoryState.setMoveHistoryList(changeEvent.changeInfo.moveHistoryList);
+            } else if (event instanceof GamePausedEvent) {
+                pausePlayButton.setSelected(false);
+                // TODO Stop anayisis if game over
+            }
+        }) > 0) {
+        }
     }
 
     @Override
     public void update(double dt) {
+        handleGameEvents();
         controllerPanel.update(dt);
         moveHistoryState.update(dt);
         gameRunningState.update(dt);

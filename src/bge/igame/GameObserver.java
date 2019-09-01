@@ -2,9 +2,11 @@ package bge.igame;
 
 import java.util.function.Consumer;
 
+import gt.util.BooleanConsumer;
+
 public class GameObserver<M> {
     private Consumer<PositionChangedInfo<M>> positionChangedConsumer;
-    private Consumer<Boolean> gamePausedConsumer;
+    private BooleanConsumer gamePausedConsumer;
     private Runnable gameRunningRunnable;
 
     public GameObserver() {
@@ -16,31 +18,30 @@ public class GameObserver<M> {
         };
     }
 
-    public void setPositionChangedAction(Consumer<PositionChangedInfo<M>> positionChangedConsumer) {
+    public GameObserver<M> setPositionChangedAction(Consumer<PositionChangedInfo<M>> positionChangedConsumer) {
         this.positionChangedConsumer = positionChangedConsumer;
+        return this;
     }
 
     public void notifyPositionChanged(PositionChangedInfo<M> positionChangedInfo) {
-        executeAction(() -> positionChangedConsumer.accept(positionChangedInfo));
+        positionChangedConsumer.accept(positionChangedInfo);
     }
 
-    public void setGameRunningAction(Runnable gameRunningRunnable) {
+    public GameObserver<M> setGameRunningAction(Runnable gameRunningRunnable) {
         this.gameRunningRunnable = gameRunningRunnable;
+        return this;
     }
 
     public void notifyGameRunning() {
-        executeAction(gameRunningRunnable);
+        gameRunningRunnable.run();
     }
 
-    public void setGamePausedAction(Consumer<Boolean> gamePausedConsumer) {
+    public GameObserver<M> setGamePausedAction(BooleanConsumer gamePausedConsumer) {
         this.gamePausedConsumer = gamePausedConsumer;
+        return this;
     }
 
     public void notifyGamePaused(boolean gameEnded) {
-        executeAction(() -> gamePausedConsumer.accept(Boolean.valueOf(gameEnded)));
-    }
-
-    private synchronized static void executeAction(Runnable runnable) {
-        runnable.run();
+        gamePausedConsumer.accept(gameEnded);
     }
 }

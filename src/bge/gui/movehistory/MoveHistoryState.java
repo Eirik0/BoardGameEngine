@@ -1,13 +1,14 @@
 package bge.gui.movehistory;
 
 import java.awt.Color;
+import java.util.List;
 
-import bge.igame.MoveHistory;
+import bge.igame.MoveHistory.HistoryMove;
 import gt.component.IMouseTracker;
 import gt.ecomponent.EComponentPanel;
 import gt.ecomponent.EComponentPanelBuilder;
 import gt.ecomponent.ETextLabel;
-import gt.ecomponent.location.EGluedLocation;
+import gt.ecomponent.list.EComponentLocation;
 import gt.ecomponent.location.GlueSide;
 import gt.ecomponent.location.SizedComponentLocationAdapter;
 import gt.ecomponent.scrollbar.EScrollPane;
@@ -24,23 +25,31 @@ public class MoveHistoryState<M> implements GameState, Sized {
     double height;
 
     private final EComponentPanel componentPanel;
+    private final EComponentLocation spLoc;
     private final EScrollPane scrollPane;
 
-    public MoveHistoryState(MoveHistory<M> guiMoveHistory, IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
+    private final MoveHistoryViewport<M> view;
+
+    public MoveHistoryState(IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
         SizedComponentLocationAdapter cl = new SizedComponentLocationAdapter(this, 0, 0);
-        EGluedLocation spLoc = cl.createPaddedLocation(0, TITLE_HEIGHT, 0, 0);
-        scrollPane = new EScrollPane(spLoc, new MoveHistoryViewport<>(guiMoveHistory, spLoc), imageDrawer);
+        spLoc = cl.createPaddedLocation(1, TITLE_HEIGHT, 1, 1);
+        view = new MoveHistoryViewport<>(spLoc);
+        scrollPane = new EScrollPane(spLoc, view, imageDrawer);
         componentPanel = new EComponentPanelBuilder(mouseTracker)
                 .add(0, new ETextLabel(cl.createGluedLocation(GlueSide.TOP, 0, 0, 0, TITLE_HEIGHT - 1), "Move History", true))
                 .add(0, scrollPane)
                 .build();
     }
 
+    public void setMoveHistoryList(List<HistoryMove<M>> moveHistoryList) {
+        view.setMoveHistoryList(moveHistoryList);
+        scrollPane.setSize(spLoc.getWidth(), spLoc.getHeight());
+        view.getWindow().move(0, MoveHistoryViewport.ITEM_HEIGHT);
+    }
+
     @Override
     public void update(double dt) {
         componentPanel.update(dt);
-        // TODO: only resize when a move is added
-        scrollPane.setSize(width, height - TITLE_HEIGHT);
     }
 
     @Override
@@ -53,7 +62,7 @@ public class MoveHistoryState<M> implements GameState, Sized {
     public void setSize(double width, double height) {
         this.width = width;
         this.height = height;
-        scrollPane.setSize(width, height - TITLE_HEIGHT);
+        scrollPane.setSize(spLoc.getWidth(), spLoc.getHeight());
     }
 
     @Override

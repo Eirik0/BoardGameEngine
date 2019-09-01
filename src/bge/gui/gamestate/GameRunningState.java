@@ -1,30 +1,42 @@
 package bge.gui.gamestate;
 
-import bge.igame.GameRunner;
 import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.PositionChangedInfo;
 import bge.igame.player.GuiPlayer;
 import gt.gameentity.IGameImage;
 import gt.gameentity.IGameImageDrawer;
 import gt.gameentity.IGraphics;
 import gt.gamestate.GameState;
-import gt.gamestate.GameStateManager;
 import gt.gamestate.UserInput;
 
 public class GameRunningState<M> implements GameState {
     private final IGameImageDrawer imageDrawer;
-    private final GameRunner<M, IPosition<M>> gameRunner;
+
     private final IGameRenderer<M, IPosition<M>> gameRenderer;
+    private final IPositionObserver<M, IPosition<M>> positionObserver;
+
     private final IGameImage boardImage;
 
+    private IPosition<M> position;
+    private MoveList<M> possibleMoves;
+    private M lastMove;
+
     @SuppressWarnings("unchecked")
-    public GameRunningState(GameStateManager gameStateManager, GameRunner<M, IPosition<M>> gameRunner, IGameRenderer<M, IPosition<M>> gameRenderer) {
-        imageDrawer = gameStateManager.getImageDrawer();
-        this.gameRunner = gameRunner;
+    public GameRunningState(IGameImageDrawer imageDrawer, IGameRenderer<M, IPosition<M>> gameRenderer) {
+        this.imageDrawer = imageDrawer;
         this.gameRenderer = gameRenderer;
+        positionObserver = gameRenderer instanceof IPositionObserver<?, ?> ? (IPositionObserver<M, IPosition<M>>) gameRenderer : null;
         boardImage = imageDrawer.newGameImage();
-        if (gameRenderer instanceof IPositionObserver<?, ?>) { // TODO (re)move this
-            gameRunner.setPositionObserver((IPositionObserver<M, IPosition<M>>) gameRenderer);
+    }
+
+    public void positionChanged(PositionChangedInfo<M> changeInfo) {
+        if (positionObserver != null) {
+            positionObserver.notifyPositionChanged(changeInfo.position, changeInfo.possibleMoves);
         }
+        position = changeInfo.position;
+        possibleMoves = changeInfo.possibleMoves;
+        lastMove = changeInfo.lastMove;
     }
 
     @Override
@@ -34,7 +46,7 @@ public class GameRunningState<M> implements GameState {
     @Override
     public void drawOn(IGraphics graphics) {
         imageDrawer.drawImage(graphics, boardImage, 0, 0);
-        gameRenderer.drawPosition(graphics, gameRunner.getCurrentPositionCopy(), gameRunner.getPossibleMovesCopy(), gameRunner.getLastMove());
+        gameRenderer.drawPosition(graphics, position, possibleMoves, lastMove);
     }
 
     @Override
@@ -45,9 +57,9 @@ public class GameRunningState<M> implements GameState {
 
     @Override
     public void handleUserInput(UserInput input) {
-        M move = gameRenderer.maybeGetUserMove(input, gameRunner.getCurrentPositionCopy(), gameRunner.getPossibleMovesCopy());
+        M move = gameRenderer.maybeGetUserMove(input, position, possibleMoves);
         if (move != null) {
-            if (gameRunner.getPossibleMovesCopy().contains(move)) {
+            if (possibleMoves.contains(move)) {
                 GuiPlayer.HUMAN.setMove(move);
             }
         }
