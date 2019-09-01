@@ -24,14 +24,16 @@ public class ComputerPlayer implements IPlayer {
 
     @SuppressWarnings("unchecked")
     @Override
-    public synchronized <M> M getMove(IPosition<M> position) {
+    public <M> M getMove(IPosition<M> position) {
         long start = System.currentTimeMillis();
         ((ITreeSearcher<M, IPosition<M>>) treeSearcher).searchForever(position, escapeEarly);
-        while (treeSearcher.isSearching() && msPerMove > System.currentTimeMillis() - start) {
-            try {
-                wait(50);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        synchronized (this) {
+            while (treeSearcher.isSearching() && msPerMove > System.currentTimeMillis() - start) {
+                try {
+                    wait(50);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
