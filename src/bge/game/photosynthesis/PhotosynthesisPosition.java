@@ -470,7 +470,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
     }
 
     public static final class Upgrade implements IPhotosynthesisMove {
-        private final Coordinate coordinate;
+        public final Coordinate coordinate;
 
         private int tileRewardColumn = -1;
 

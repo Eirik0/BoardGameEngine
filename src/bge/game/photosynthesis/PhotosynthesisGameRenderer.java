@@ -3,10 +3,15 @@ package bge.game.photosynthesis;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
+import bge.game.photosynthesis.PhotosynthesisPosition.Buy;
+import bge.game.photosynthesis.PhotosynthesisPosition.EndTurn;
 import bge.game.photosynthesis.PhotosynthesisPosition.PlayerBoard;
+import bge.game.photosynthesis.PhotosynthesisPosition.Seed;
 import bge.game.photosynthesis.PhotosynthesisPosition.Setup;
 import bge.game.photosynthesis.PhotosynthesisPosition.Tile;
+import bge.game.photosynthesis.PhotosynthesisPosition.Upgrade;
 import bge.gui.gamestate.IGameRenderer;
 import bge.gui.gamestate.IPositionObserver;
 import bge.igame.Coordinate;
@@ -15,12 +20,14 @@ import bge.igame.player.GuiPlayer;
 import bge.main.BoardGameEngineMain;
 import gt.component.ComponentCreator;
 import gt.component.IMouseTracker;
+import gt.ecomponent.list.EComponentLocation;
+import gt.ecomponent.location.EFixedLocation;
 import gt.gameentity.GridSizer;
 import gt.gameentity.IGraphics;
 import gt.gamestate.UserInput;
 
 public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesisMove, PhotosynthesisPosition>,
-        IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
+IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
     private static final Coordinate[] SUN_POSITIONS = new Coordinate[] {
             Coordinate.valueOf(0, 0),
             Coordinate.valueOf(3, 0),
@@ -30,9 +37,11 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             Coordinate.valueOf(0, 3),
     };
 
-    private static enum SpecialMove {
-        BUY_SEED, BUY_SMALL, BUY_MEDIUM, BUY_LARGE, END
-    }
+    // The allowed buy moves this turn
+    private IPhotosynthesisMove[] allowedBuyMoves;
+
+    // The end turn move
+    private IPhotosynthesisMove endTurn;
 
     private static final Color[] PLAYER_COLORS = new Color[] { Color.RED, Color.BLUE, Color.WHITE, Color.MAGENTA };
 
@@ -43,7 +52,8 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
     private final GuiPlayerBoard[] playerBoards = new GuiPlayerBoard[4];
 
     private Map<Coordinate, Map<Coordinate, IPhotosynthesisMove>> moveMap = new HashMap<>();
-    private Map<SpecialMove, IPhotosynthesisMove> specialMoveMap = new HashMap<>();
+
+    private Coordinate mouseDownCoordinate;
 
     public PhotosynthesisGameRenderer(IMouseTracker mouseTracker) {
         this.mouseTracker = mouseTracker;
@@ -81,24 +91,52 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
     @Override
     public void notifyPositionChanged(PhotosynthesisPosition position, MoveList<IPhotosynthesisMove> possibleMoves) {
         Map<Coordinate, Map<Coordinate, IPhotosynthesisMove>> newMoveMap = new HashMap<>();
-        Map<SpecialMove, IPhotosynthesisMove> newSpecialMoveMap = new HashMap<>();
+        IPhotosynthesisMove[] newAllowedBuyMoves = new IPhotosynthesisMove[4];
+
         int i = 0;
         while (i < possibleMoves.size()) {
             IPhotosynthesisMove move = possibleMoves.get(i);
+
+            BiConsumer<Coordinate, Coordinate> putCoord = (a, b) -> {
+                Map<Coordinate, IPhotosynthesisMove> map = newMoveMap.get(a);
+                if (map == null) {
+                    map = new HashMap<>();
+                    newMoveMap.put(a, map);
+                }
+
+                map.put(b, move);
+            };
+
             if (move instanceof Setup) {
                 Setup setupMove = (Setup) move;
                 Coordinate coordinate = setupMove.coordinate;
-                Map<Coordinate, IPhotosynthesisMove> map = newMoveMap.get(coordinate);
-                if (map == null) {
-                    map = new HashMap<>();
-                    newMoveMap.put(coordinate, map);
-                }
-                map.put(coordinate, move);
+
+                putCoord.accept(coordinate, coordinate);
+            }
+            else if (move instanceof Upgrade) {
+                Upgrade upgradeMove = (Upgrade) move;
+                Coordinate coordinate = upgradeMove.coordinate;
+
+                putCoord.accept(coordinate, coordinate);
+            }
+            else if (move instanceof Seed) {
+                Seed seedMove = (Seed) move;
+
+                putCoord.accept(seedMove.source, seedMove.dest);
+            }
+            else if (move instanceof Buy) {
+                Buy buyMove = (Buy) move;
+
+                newAllowedBuyMoves[buyMove.buyColumn] = buyMove;
+            }
+            else if (move instanceof EndTurn) {
+                endTurn = move;
             }
             ++i;
         }
+
         moveMap = newMoveMap;
-        specialMoveMap = newSpecialMoveMap;
+        allowedBuyMoves = newAllowedBuyMoves;
     }
 
     @Override
@@ -160,12 +198,23 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             g.drawCenteredString(pbBuyLarge < 0 ? "X" : Integer.toString(PhotosynthesisPosition.PRICES[3][pbBuyLarge]),
                     gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 4.5);
             g.setColor(PLAYER_COLORS[i]);
+
+            g.drawRect(gpb.x0, gpb.y0, compWidth, compWidth);
+            gpb.setBuyableLocations(new EComponentLocation[] {
+                    new EFixedLocation(gpb.x0 + compWidth * 1.5, gpb.y0 + compWidth, gpb.x0 + gpb.width, gpb.y0 + compWidth * 2),
+                    new EFixedLocation(gpb.x0 + compWidth * 1.5, gpb.y0 + compWidth * 2, gpb.x0 + gpb.width, gpb.y0 + compWidth * 3),
+                    new EFixedLocation(gpb.x0 + compWidth * 1.5, gpb.y0 + compWidth * 3, gpb.x0 + gpb.width, gpb.y0 + compWidth * 4),
+                    new EFixedLocation(gpb.x0 + compWidth * 1.5, gpb.y0 + compWidth * 4, gpb.x0 + gpb.width, gpb.y0 + compWidth * 5)
+            });
+
             g.drawCenteredYString(treeString(pb.buy[0], 4, pb.available[0]), gpb.x0 + compWidth * 1.5, gpb.y0 + compWidth * 1.5);
             g.drawCenteredYString(treeString(pb.buy[1], 4, pb.available[1]), gpb.x0 + compWidth * 1.5, gpb.y0 + compWidth * 2.5);
             g.drawCenteredYString(treeString(pb.buy[2], 3, pb.available[2]), gpb.x0 + compWidth * 1.5, gpb.y0 + compWidth * 3.5);
             g.drawCenteredYString(treeString(pb.buy[3], 2, pb.available[3]), gpb.x0 + compWidth * 1.5, gpb.y0 + compWidth * 4.5);
+
             // end button
             if (i == position.currentPlayer) {
+                gpb.setEndTurnLocation(new EFixedLocation(gpb.x0, gpb.y0 + compWidth * 5, gpb.x0 + gpb.width, gpb.y0 + compWidth * 6));
                 g.drawCenteredString("End", gpb.x0 + gpb.width / 2, gpb.y0 + compWidth * 5.5);
             }
         }
@@ -226,14 +275,46 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
     public IPhotosynthesisMove maybeGetUserMove(UserInput input, PhotosynthesisPosition position, MoveList<IPhotosynthesisMove> possibleMoves) {
         if (input == UserInput.LEFT_BUTTON_RELEASED) {
             Coordinate coordinate = maybeGetCoordinate();
-            Map<Coordinate, IPhotosynthesisMove> map = moveMap.get(coordinate);
-            if (map != null) {
-                IPhotosynthesisMove move = map.get(coordinate);
-                if (move != null) {
-                    return move;
+
+            if (coordinate == null) {
+                GuiPlayerBoard currentPlayerBoard = playerBoards[position.currentPlayer];
+                EComponentLocation[] currentPlayerBuyableLocations = currentPlayerBoard.getBuyableLocations();
+
+                int mouseX = mouseTracker.mouseX();
+                int mouseY = mouseTracker.mouseY();
+
+                for (int i = 0; i < currentPlayerBuyableLocations.length; i++) {
+                    if (currentPlayerBuyableLocations[i].containsPoint(mouseTracker.mouseX(), mouseTracker.mouseY())
+                            && allowedBuyMoves[i] != null) {
+                        return allowedBuyMoves[i];
+                    }
+                }
+
+                if (currentPlayerBoard.endTurnLocation.containsPoint(mouseX, mouseY)) {
+                    return endTurn;
+                }
+            } else {
+                Coordinate source = mouseDownCoordinate == null ? coordinate : mouseDownCoordinate;
+                Coordinate dest = coordinate;
+
+                Map<Coordinate, IPhotosynthesisMove> map = moveMap.get(source);
+                if (map != null) {
+                    IPhotosynthesisMove move = map.get(dest);
+                    if (move != null) {
+                        return move;
+                    }
                 }
             }
 
+            mouseDownCoordinate = null;
+        }
+
+        else if (input == UserInput.LEFT_BUTTON_PRESSED) {
+            Coordinate coordinate = maybeGetCoordinate();
+
+            if (coordinate != null) {
+                mouseDownCoordinate = coordinate;
+            }
         }
         return null;
     }
@@ -264,11 +345,31 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
         private final double width;
         private final double height;
 
+        private EComponentLocation[] buyableLocations;
+
+        private EComponentLocation endTurnLocation;
+
         public GuiPlayerBoard(double x0, double y0, double width, double height) {
             this.x0 = x0;
             this.y0 = y0;
             this.width = width;
             this.height = height;
+        }
+
+        public EComponentLocation[] getBuyableLocations() {
+            return buyableLocations;
+        }
+
+        public void setBuyableLocations(EComponentLocation[] buyableLocations) {
+            this.buyableLocations = buyableLocations;
+        }
+
+        public EComponentLocation getEndTurnLocation() {
+            return endTurnLocation;
+        }
+
+        public void setEndTurnLocation(EComponentLocation endTurnLocation) {
+            this.endTurnLocation = endTurnLocation;
         }
     }
 }
