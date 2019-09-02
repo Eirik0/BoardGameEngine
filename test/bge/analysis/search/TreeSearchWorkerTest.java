@@ -18,8 +18,7 @@ import gt.async.ThreadWorker;
 public class TreeSearchWorkerTest {
     @Test
     public void testJoinThread() {
-        ThreadWorker worker = new ThreadWorker("test", finishedWorker -> {
-        });
+        ThreadWorker worker = new ThreadWorker("test");
         worker.joinThread();
     }
 
@@ -35,8 +34,7 @@ public class TreeSearchWorkerTest {
     @Test
     public void testDoWork() {
         ResultTransfer<TestGameNode> resultTransfer = new ResultTransfer<>();
-        ThreadWorker worker = new ThreadWorker("test", finishedWorker -> {
-        });
+        ThreadWorker worker = new ThreadWorker("test");
         worker.workOn(newGameTreeSearch((canceled, moveWithResult) -> {
             resultTransfer.putResult(moveWithResult.result);
         })::search);

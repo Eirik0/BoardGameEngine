@@ -11,7 +11,6 @@ import bge.igame.player.ComputerPlayerResult;
 import bge.igame.player.PlayerInfo;
 import bge.igame.player.PlayerOptions;
 import bge.main.GameRegistry;
-import gt.async.ThreadNumber;
 import gt.async.ThreadWorker;
 import gt.component.ComponentCreator;
 import gt.component.IMouseTracker;
@@ -59,8 +58,7 @@ public class AnalysisState implements GameState, Sized {
 
     private final DurationTimer analysisRefreshTimer = new DurationTimer(TimeConstants.NANOS_PER_SECOND / 10);
 
-    private final ThreadWorker analysisWorker = new ThreadWorker("Analysis_Observer_" + ThreadNumber.getThreadNum("AnalysisObserver"), worker -> {
-    });
+    private final ThreadWorker analysisWorker = new ThreadWorker("Analysis_Observer");
 
     private AnalysisMode mode = AnalysisMode.STOPPED;
 
