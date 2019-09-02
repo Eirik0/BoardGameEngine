@@ -215,7 +215,35 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             }
         }
 
+        drawLastMove(g, lastMove);
+
         maybeDrawMouse(g, currentPlayer);
+    }
+
+    private void drawLastMove(IGraphics g, IPhotosynthesisMove move) {
+        g.setColor(Color.YELLOW);
+        if (move instanceof Setup) {
+            Setup setupMove = (Setup) move;
+            Coordinate coordinate = setupMove.coordinate;
+            DoublePair centerXY = hexGrid.centerXY(coordinate);
+            g.drawCircle(centerXY.getFirst(), centerXY.getSecond(), sizer.cellSize * .33);
+        } else if (move instanceof Upgrade) {
+            Upgrade upgradeMove = (Upgrade) move;
+            Coordinate coordinate = upgradeMove.coordinate;
+            DoublePair centerXY = hexGrid.centerXY(coordinate);
+            g.drawCircle(centerXY.getFirst(), centerXY.getSecond(), sizer.cellSize * .33);
+        } else if (move instanceof Seed) {
+            Seed seedMove = (Seed) move;
+            DoublePair fromXY = hexGrid.centerXY(seedMove.source);
+            DoublePair toXY = hexGrid.centerXY(seedMove.dest);
+            g.drawCircle(fromXY.getFirst(), fromXY.getSecond(), sizer.cellSize * .33);
+            g.drawCircle(toXY.getFirst(), toXY.getSecond(), sizer.cellSize * .33);
+            g.drawLine(fromXY.getFirst(), fromXY.getSecond(), toXY.getFirst(), toXY.getSecond());
+        } else if (move instanceof Buy) {
+            // TODO
+        } else if (move instanceof EndTurn) {
+            // TODO
+        }
     }
 
     private void maybeDrawMouse(IGraphics g, int currentPlayer) {
