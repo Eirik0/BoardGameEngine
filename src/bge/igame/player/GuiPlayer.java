@@ -41,6 +41,11 @@ public class GuiPlayer implements IPlayer {
     }
 
     @Override
+    public <M> void notifyMoveMade(M move) {
+        // Do nothing
+    }
+
+    @Override
     public synchronized void notifyGameEnded() {
         isGameRunning = false;
         notify();

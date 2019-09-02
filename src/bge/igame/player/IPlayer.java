@@ -7,5 +7,7 @@ public interface IPlayer {
 
     void notifyTurnEnded();
 
+    <M> void notifyMoveMade(M move);
+
     void notifyGameEnded();
 }

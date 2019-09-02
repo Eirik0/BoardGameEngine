@@ -75,8 +75,8 @@ public class BoardGameEngineMain {
             mcStrategyOptions.addSubOption(mcStrategy, simulationsOption);
         }
 
-        return new PlayerOptions("Tree Searcher",
-                new CPOptionStringArray(PlayerInfo.KEY_TS, PlayerInfo.ALL_TREE_SEARCHERS))
+        return new PlayerOptions("Search Type",
+                new CPOptionStringArray(PlayerInfo.KEY_ISTRATEGY, PlayerInfo.ALL_TREE_SEARCHERS))
                         .addSubOption(PlayerInfo.TS_FORK_JOIN, fjStrategyOptions)
                         .addSubOption(PlayerInfo.TS_MONTE_CARLO, mcStrategyOptions);
     }

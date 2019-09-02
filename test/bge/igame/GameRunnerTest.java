@@ -127,6 +127,10 @@ public class GameRunnerTest {
         }
 
         @Override
+        public <M> void notifyMoveMade(M move) {
+        }
+
+        @Override
         public void notifyGameEnded() {
         }
     }

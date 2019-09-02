@@ -1,7 +1,7 @@
 package bge.analysis;
 
-import bge.igame.player.ComputerPlayerResult;
+import bge.igame.player.StrategyResult;
 
 public interface PartialResultObservable {
-    ComputerPlayerResult getPartialResult();
+    StrategyResult getPartialResult();
 }

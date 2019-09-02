@@ -11,6 +11,7 @@ import bge.analysis.strategy.MoveListProvider;
 import bge.igame.Coordinate;
 import bge.igame.MoveListFactory;
 import bge.igame.player.ComputerPlayer;
+import bge.strategy.TreeSearchStrategy;
 
 public class UTTTComputerPlayerTest {
     @Test
@@ -54,9 +55,9 @@ public class UTTTComputerPlayerTest {
 
     private static ComputerPlayer newComputerPlayer(int numWorkers, long toWait) {
         MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
-        return new ComputerPlayer(
-                new IterativeDeepeningTreeSearcher<>(new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory)),
-                        moveListFactory, numWorkers),
-                toWait, true);
+        IterativeDeepeningTreeSearcher<Coordinate, UltimateTicTacToePosition> treeSearcher = new IterativeDeepeningTreeSearcher<>(
+                new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory)),
+                moveListFactory, numWorkers);
+        return new ComputerPlayer(new TreeSearchStrategy<>(treeSearcher, toWait, true));
     }
 }

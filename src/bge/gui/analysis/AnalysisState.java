@@ -7,9 +7,9 @@ import bge.gui.gamestate.PlayerOptionsPanel;
 import bge.igame.IPosition;
 import bge.igame.PositionChangedInfo;
 import bge.igame.player.ComputerPlayer;
-import bge.igame.player.ComputerPlayerResult;
 import bge.igame.player.PlayerInfo;
 import bge.igame.player.PlayerOptions;
+import bge.igame.player.StrategyResult;
 import bge.main.GameRegistry;
 import gt.async.ThreadWorker;
 import gt.component.ComponentCreator;
@@ -144,7 +144,7 @@ public class AnalysisState implements GameState, Sized {
                 analysisPlayer = (ComputerPlayer) changeInfo.currentPlayer;
                 mode = AnalysisMode.OBSERVING;
             } else {
-                analysisPlayer.stopSearch(false);
+                analysisPlayer.notifyTurnEnded();
                 analyze();
             }
             analyzePauseButton.setSelected(true);
@@ -176,7 +176,7 @@ public class AnalysisState implements GameState, Sized {
         analysisRefreshTimer.update(dt);
         if (analysisRefreshTimer.getPercentComplete() >= 1 && (mode == AnalysisMode.ANALYZING || mode == AnalysisMode.OBSERVING)) {
             if (analysisPlayer != null) {
-                ComputerPlayerResult currentResult = analysisPlayer.getCurrentResult();
+                StrategyResult currentResult = analysisPlayer.getCurrentResult();
                 analysisMsg = "depth = " + currentResult.depth;
                 view.setAnalyzedMoves(currentResult.moves);
                 scrollPane.setSize(spLoc.getWidth(), spLoc.getHeight());

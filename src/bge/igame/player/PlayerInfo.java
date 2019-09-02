@@ -17,9 +17,14 @@ import bge.analysis.strategy.MoveListProvider;
 import bge.igame.IPosition;
 import bge.igame.MoveListFactory;
 import bge.main.GameRegistry;
+import bge.strategy.IStrategy;
+import bge.strategy.RandomMoveStrategy;
+import bge.strategy.TreeSearchStrategy;
 
 public class PlayerInfo {
-    // * TS: ForkJoin
+    // * Strategy:
+    //   - Random
+    // * Strategy: ForkJoin
     //   * FJS: MinMax
     //     - PE: { PE1, ... }
     //     - threads: [1 ... ]
@@ -28,18 +33,19 @@ public class PlayerInfo {
     //     ...
     //   * FJS: AlphaBetaQ
     //     ...
-    // * TS: MonteCarlo
+    // * Strategy: MonteCarlo
     //   * MCS: Not Weighted
     //     - PE: { PE1, ... }
     //     - simulations: [1 ... ]
     //     - msPerMove [50 ...]
     //   * MCS: Weighted
     //     ...
-    public static final String KEY_TS = "KeyTS";
+    public static final String KEY_ISTRATEGY = "KeyIStrategy";
     // Single-Core Minmax
+    public static final String TS_RANDOM = "Random";
     public static final String TS_FORK_JOIN = "Fork Join";
     public static final String TS_MONTE_CARLO = "Monte Carlo";
-    public static final String[] ALL_TREE_SEARCHERS = { TS_FORK_JOIN, TS_MONTE_CARLO };
+    public static final String[] ALL_TREE_SEARCHERS = { TS_RANDOM, TS_FORK_JOIN, TS_MONTE_CARLO };
 
     public static final String KEY_FJ_STRATEGY = "KeyFJStrategy";
     public static final String FJ_MINMAX = "MinMax";
@@ -76,12 +82,16 @@ public class PlayerInfo {
         return value == null ? null : Integer.valueOf(value);
     }
 
-    public <M> ITreeSearcher<M, IPosition<M>> newTreeSearcher(String gameName) {
+    private <M> IStrategy<M> newStrategy(String gameName) {
         MoveListFactory<M> moveListFactory = GameRegistry.getMoveListFactory(gameName);
         IPositionEvaluator<M, IPosition<M>> positionEvaluator = GameRegistry.getPositionEvaluator(gameName, optionsMap.get(KEY_EVALUATOR));
 
-        String treeSearcher = optionsMap.get(KEY_TS);
-        if (TS_FORK_JOIN.equals(treeSearcher)) {
+        String iStrategy = optionsMap.get(KEY_ISTRATEGY);
+        if (TS_RANDOM.equals(iStrategy)) {
+            return new RandomMoveStrategy<>(moveListFactory);
+        }
+        ITreeSearcher<M, IPosition<M>> treeSearcher;
+        if (TS_FORK_JOIN.equals(iStrategy)) {
             String fjStrategy = optionsMap.get(KEY_FJ_STRATEGY);
             int numThreads = getOptionInt(KEY_NUM_THREADS).intValue();
             IAlphaBetaStrategy<M, IPosition<M>> strategy;
@@ -92,27 +102,28 @@ public class PlayerInfo {
             } else if (FJ_ALPHA_BETA_Q.equals(fjStrategy)) {
                 strategy = new AlphaBetaQStrategy<>(positionEvaluator, new MoveListProvider<>(moveListFactory));
             } else {
-                throw new IllegalStateException("Unknown fork join strategy: " + treeSearcher);
+                throw new IllegalStateException("Unknown fork join strategy: " + iStrategy);
             }
-            return new IterativeDeepeningTreeSearcher<>(strategy, moveListFactory, numThreads);
-        } else if (TS_MONTE_CARLO.equals(treeSearcher)) {
+            treeSearcher = new IterativeDeepeningTreeSearcher<>(strategy, moveListFactory, numThreads);
+        } else if (TS_MONTE_CARLO.equals(iStrategy)) {
             int numSimulations = getOptionInt(KEY_NUM_SIMULATIONS).intValue();
             String mcStrategy = optionsMap.get(KEY_MC_STRATEGY);
             int maxDepth = 500; // TODO this is defined for each game
             if (MC_RANDOM.equals(mcStrategy)) {
-                return new MonteCarloTreeSearcher<>(new RandomMonteCarloChildren<>(0), positionEvaluator, moveListFactory, numSimulations, maxDepth);
+                treeSearcher = new MonteCarloTreeSearcher<>(new RandomMonteCarloChildren<>(0), positionEvaluator, moveListFactory, numSimulations, maxDepth);
             } else if (MC_WEIGHTED.equals(mcStrategy)) {
-                return new MonteCarloTreeSearcher<>(new WeightedMonteCarloChildren<>(0), positionEvaluator, moveListFactory, numSimulations, maxDepth);
+                treeSearcher = new MonteCarloTreeSearcher<>(new WeightedMonteCarloChildren<>(0), positionEvaluator, moveListFactory, numSimulations, maxDepth);
             } else {
                 throw new IllegalStateException("Unknown monte carlo strategy " + mcStrategy);
             }
         } else {
-            throw new IllegalStateException("Unknown tree searcher: " + treeSearcher);
+            throw new IllegalStateException("Unknown tree searcher: " + iStrategy);
         }
+        long msPerMove = Long.parseLong(optionsMap.get(KEY_MS_PER_MOVE));
+        return new TreeSearchStrategy<>(treeSearcher, msPerMove, true);// TODO evaluate escape early
     }
 
     public ComputerPlayer newComputerPlayer(String gameName) {
-        long msPerMove = Long.parseLong(optionsMap.get(KEY_MS_PER_MOVE));
-        return new ComputerPlayer(newTreeSearcher(gameName), msPerMove, true); // TODO evaluate escape early
+        return new ComputerPlayer(newStrategy(gameName));
     }
 }

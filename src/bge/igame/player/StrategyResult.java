@@ -11,12 +11,12 @@ import bge.analysis.AnalysisResult;
 import bge.analysis.MoveAnalysis;
 import bge.gui.analysis.ObservedMoveWithScore;
 
-public class ComputerPlayerResult {
+public class StrategyResult {
     public final List<ObservedMoveWithScore> moves;
     public final Integer depth;
     public final boolean isDecided;
 
-    public ComputerPlayerResult(AnalysisResult<Object> analysisResult, Map<Object, MoveAnalysis> partialResults, int depth) {
+    public StrategyResult(AnalysisResult<Object> analysisResult, Map<Object, MoveAnalysis> partialResults, int depth) {
         if (analysisResult == null && partialResults.size() == 0) {
             moves = Collections.emptyList();
             isDecided = false;

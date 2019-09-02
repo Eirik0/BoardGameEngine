@@ -1,74 +1,55 @@
 package bge.igame.player;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 
 import bge.analysis.AnalysisResult;
-import bge.analysis.ITreeSearcher;
-import bge.analysis.PartialResultObservable;
 import bge.igame.IPosition;
+import bge.strategy.IStrategy;
+import bge.strategy.InterruptableStrategy;
+import bge.strategy.ObservableStrategy;
+import bge.strategy.UpdatableStrategy;
 
 public class ComputerPlayer implements IPlayer {
     public static final String NAME = "Computer";
 
-    private final ITreeSearcher<?, ?> treeSearcher;
-    private final long msPerMove;
-    private final boolean escapeEarly;
+    private final IStrategy<?> strategy;
 
-    public ComputerPlayer(ITreeSearcher<?, ?> treeSearcher, long msPerMove, boolean escapeEarly) {
-        this.treeSearcher = treeSearcher;
-        this.msPerMove = msPerMove;
-        this.escapeEarly = escapeEarly;
+    public ComputerPlayer(IStrategy<?> strategy) {
+        this.strategy = strategy;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <M> M getMove(IPosition<M> position) {
-        long start = System.currentTimeMillis();
-        ((ITreeSearcher<M, IPosition<M>>) treeSearcher).searchForever(position, escapeEarly);
-        synchronized (this) {
-            while (treeSearcher.isSearching() && msPerMove > System.currentTimeMillis() - start) {
-                try {
-                    wait(50);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        if (treeSearcher.isSearching()) {
-            treeSearcher.stopSearch(false);
-        }
-
-        AnalysisResult<M> result = (AnalysisResult<M>) treeSearcher.getResult();
-
-        List<M> bestMoves = result == null ? Collections.emptyList() : result.getBestMoves();
-
-        return bestMoves.size() > 0 ? bestMoves.get(new Random().nextInt(bestMoves.size())) : null;
+        return ((IStrategy<M>) strategy).getMove(position);
     }
 
     @Override
     public void notifyTurnEnded() {
-        treeSearcher.clearResult();
+        if (strategy instanceof InterruptableStrategy) {
+            ((InterruptableStrategy) strategy).pauseSearch();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <M> void notifyMoveMade(M move) {
+        if (strategy instanceof UpdatableStrategy<?>) {
+            ((UpdatableStrategy<M>) strategy).moveMade(move);
+        }
     }
 
     @Override
     public synchronized void notifyGameEnded() {
-        stopSearch(true);
-        notify();
-    }
-
-    public void stopSearch(boolean gameEnded) {
-        treeSearcher.stopSearch(gameEnded);
-    }
-
-    @SuppressWarnings("unchecked")
-    public ComputerPlayerResult getCurrentResult() {
-        if (treeSearcher instanceof PartialResultObservable) {
-            return ((PartialResultObservable) treeSearcher).getPartialResult();
-        } else {
-            return new ComputerPlayerResult((AnalysisResult<Object>) treeSearcher.getResult(), Collections.emptyMap(), 0);
+        if (strategy instanceof InterruptableStrategy) {
+            ((InterruptableStrategy) strategy).pauseSearch();
         }
+    }
+
+    public StrategyResult getCurrentResult() {
+        if (strategy instanceof ObservableStrategy) {
+            return ((ObservableStrategy) strategy).getCurrentResult();
+        }
+        return new StrategyResult(new AnalysisResult<>(0), Collections.emptyMap(), 0); // TODO (re)consider this
     }
 }

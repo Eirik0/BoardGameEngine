@@ -11,7 +11,7 @@ import bge.game.forkjoinexample.ForkObserver;
 import bge.game.forkjoinexample.StartStopObserver;
 import bge.igame.IPosition;
 import bge.igame.MoveListFactory;
-import bge.igame.player.ComputerPlayerResult;
+import bge.igame.player.StrategyResult;
 import gt.async.ThreadNumber;
 
 public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeSearcher<M, P>, PartialResultObservable {
@@ -141,12 +141,12 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 
     @SuppressWarnings("unchecked")
     @Override
-    public ComputerPlayerResult getPartialResult() {
+    public StrategyResult getPartialResult() {
         if (monteCarloNode != null) {
             AnalysisResult<M> partialResult = result == null ? calculatePartialResult() : result;
-            return new ComputerPlayerResult((AnalysisResult<Object>) partialResult, Collections.emptyMap(), monteCarloNode.statistics.getTotalNodesEvaluated());
+            return new StrategyResult((AnalysisResult<Object>) partialResult, Collections.emptyMap(), monteCarloNode.statistics.getTotalNodesEvaluated());
         } else {
-            return new ComputerPlayerResult(null, Collections.emptyMap(), 0);
+            return new StrategyResult(null, Collections.emptyMap(), 0);
         }
     }
 }

@@ -17,7 +17,7 @@ import bge.game.forkjoinexample.IStartStopObserver;
 import bge.igame.IPosition;
 import bge.igame.MoveList;
 import bge.igame.MoveListFactory;
-import bge.igame.player.ComputerPlayerResult;
+import bge.igame.player.StrategyResult;
 import gt.async.ThreadNumber;
 import gt.async.ThreadWorker;
 
@@ -166,8 +166,8 @@ public class IterativeDeepeningTreeSearcher<M, P extends IPosition<M>> implement
 
     @SuppressWarnings("unchecked")
     @Override
-    public ComputerPlayerResult getPartialResult() {
-        return new ComputerPlayerResult((AnalysisResult<Object>) result, (Map<Object, MoveAnalysis>) treeSearchRoot.getPartialResult().getMovesWithScore(),
+    public StrategyResult getPartialResult() {
+        return new StrategyResult((AnalysisResult<Object>) result, (Map<Object, MoveAnalysis>) treeSearchRoot.getPartialResult().getMovesWithScore(),
                 plies);
     }
 
