@@ -7,12 +7,12 @@ import bge.analysis.AnalysisResult;
 public class ResultTransfer<M> {
     private final AtomicReference<AnalysisResult<M>> move = new AtomicReference<>(null);
 
-    public synchronized void putResult(AnalysisResult<M> result) {
-        if (move.get() != null) {
-            return;
+    public void putResult(AnalysisResult<M> result) {
+        if (move.compareAndSet(null, result)) {
+            synchronized (this) {
+                notify();
+            }
         }
-        move.set(result);
-        notify();
     }
 
     public AnalysisResult<M> awaitResult() {

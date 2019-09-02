@@ -2,8 +2,6 @@ package bge.analysis.search;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,18 +33,14 @@ public class TreeSearchWorkerTest {
     }
 
     @Test
-    public void testDoWork() throws InterruptedException {
-        BlockingQueue<AnalysisResult<TestGameNode>> resultQueue = new SynchronousQueue<>();
+    public void testDoWork() {
+        ResultTransfer<TestGameNode> resultTransfer = new ResultTransfer<>();
         ThreadWorker worker = new ThreadWorker("test", finishedWorker -> {
         });
         worker.workOn(newGameTreeSearch((canceled, moveWithResult) -> {
-            try {
-                resultQueue.put(moveWithResult.result);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            resultTransfer.putResult(moveWithResult.result);
         })::search);
-        resultQueue.take();
+        resultTransfer.awaitResult();
         worker.joinThread();
     }
 
