@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiFunction;
 
 import bge.analysis.IPositionEvaluator;
 import bge.gui.gamestate.IGameRenderer;
@@ -24,15 +23,13 @@ public class GameRegistry {
     private static final Map<String, GameRegistryItem<?, ?>> gameMap = new LinkedHashMap<>();
 
     @SuppressWarnings("rawtypes")
-    public static <M, P extends IPosition<M>> GameRegistryItem<M, P> registerGame(IGame<M> game,
-            BiFunction<IMouseTracker, IGameImageDrawer, IGameRenderer<M, P>> gameRendererSupplier) {
-        return registerGame(game, (Class<? extends MoveList>) ArrayMoveList.class, gameRendererSupplier);
+    public static <M, P extends IPosition<M>> GameRegistryItem<M, P> registerGame(IGame<M, P> game) {
+        return registerGame(game, (Class<? extends MoveList>) ArrayMoveList.class);
     }
 
     @SuppressWarnings("rawtypes")
-    public static <M, P extends IPosition<M>> GameRegistryItem<M, P> registerGame(IGame<M> game, Class<? extends MoveList> moveListClass,
-            BiFunction<IMouseTracker, IGameImageDrawer, IGameRenderer<M, P>> gameRendererSupplier) {
-        GameRegistryItem<M, P> gameRegistryItem = new GameRegistryItem<>(game, moveListClass, gameRendererSupplier);
+    public static <M, P extends IPosition<M>> GameRegistryItem<M, P> registerGame(IGame<M, P> game, Class<? extends MoveList> moveListClass) {
+        GameRegistryItem<M, P> gameRegistryItem = new GameRegistryItem<>(game, moveListClass);
         gameMap.put(game.getName(), gameRegistryItem);
         return gameRegistryItem;
     }
@@ -42,13 +39,13 @@ public class GameRegistry {
     }
 
     @SuppressWarnings("unchecked")
-    public static <M> IGame<M> getGame(String gameName) {
-        return (IGame<M>) gameMap.get(gameName).game;
+    public static <M, P extends IPosition<M>> IGame<M, P> getGame(String gameName) {
+        return (IGame<M, P>) gameMap.get(gameName).game;
     }
 
     @SuppressWarnings("unchecked")
     public static <M, P extends IPosition<M>> IGameRenderer<M, P> getGameRenderer(String gameName, IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
-        return (IGameRenderer<M, P>) gameMap.get(gameName).gameRendererSupplier.apply(mouseTracker, imageDrawer);
+        return (IGameRenderer<M, P>) gameMap.get(gameName).game.newGameRenderer(mouseTracker, imageDrawer);
     }
 
     @SuppressWarnings("unchecked")
@@ -74,18 +71,15 @@ public class GameRegistry {
     }
 
     public static class GameRegistryItem<M, P extends IPosition<M>> {
-        final IGame<M> game;
-        final BiFunction<IMouseTracker, IGameImageDrawer, IGameRenderer<M, P>> gameRendererSupplier;
+        final IGame<M, P> game;
         final MoveListFactory<M> moveListFactory;
         final List<String> playerNames = new ArrayList<>();
         final Map<String, PlayerOptions> playerOptions = new HashMap<>();
         final Map<String, IPositionEvaluator<M, P>> positionEvaluators = new LinkedHashMap<>();
 
         @SuppressWarnings("rawtypes")
-        public GameRegistryItem(IGame<M> game, Class<? extends MoveList> analysisMoveListClass,
-                BiFunction<IMouseTracker, IGameImageDrawer, IGameRenderer<M, P>> gameRendererSupplier) {
+        public GameRegistryItem(IGame<M, P> game, Class<? extends MoveList> analysisMoveListClass) {
             this.game = game;
-            this.gameRendererSupplier = gameRendererSupplier;
             moveListFactory = new MoveListFactory<>(game.getMaxMoves(), analysisMoveListClass);
             playerNames.add(GuiPlayer.NAME);
         }

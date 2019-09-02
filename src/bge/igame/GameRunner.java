@@ -14,7 +14,7 @@ public class GameRunner<M> {
 
     private final GameObserver<M> gameObserver;
 
-    private final IGame<M> game;
+    private final IGame<M, ? extends IPosition<M>> game;
     private final MoveListFactory<M> moveListFactory;
     private IPosition<M> position;
 
@@ -26,7 +26,7 @@ public class GameRunner<M> {
     private List<IPlayer> players;
     private IPlayer currentPlayer;
 
-    public GameRunner(IGame<M> game, GameObserver<M> gameObserver, MoveListFactory<M> moveListFactory) {
+    public GameRunner(IGame<M, ? extends IPosition<M>> game, GameObserver<M> gameObserver, MoveListFactory<M> moveListFactory) {
         this.game = game;
         this.moveHistory = new MoveHistory<>(game);
         this.gameObserver = gameObserver;

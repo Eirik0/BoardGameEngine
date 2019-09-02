@@ -1,6 +1,10 @@
 package bge.igame;
 
-public interface IGame<M> {
+import bge.gui.gamestate.IGameRenderer;
+import gt.component.IMouseTracker;
+import gt.gameentity.IGameImageDrawer;
+
+public interface IGame<M, P extends IPosition<M>> {
     String getName();
 
     int getNumberOfPlayers();
@@ -12,4 +16,6 @@ public interface IGame<M> {
     int getMaxMoves();
 
     IPosition<M> newInitialPosition();
+
+    IGameRenderer<M, P> newGameRenderer(IMouseTracker mouseTracker, IGameImageDrawer imageDrawer);
 }

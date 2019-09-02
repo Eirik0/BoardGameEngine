@@ -10,8 +10,11 @@ import java.util.function.IntFunction;
 
 import org.junit.jupiter.api.Test;
 
+import bge.gui.gamestate.IGameRenderer;
 import bge.igame.player.GuiPlayer;
 import bge.igame.player.IPlayer;
+import gt.component.IMouseTracker;
+import gt.gameentity.IGameImageDrawer;
 
 public class GameRunnerTest {
     private static void startGame(GameRunner<?> gameRunner, IPlayer player) {
@@ -72,7 +75,7 @@ public class GameRunnerTest {
         assertEquals(2, game.numNewPositions);
     }
 
-    static class AddToListTestGame implements IGame<Integer> {
+    static class AddToListTestGame implements IGame<Integer, AddToListPosition> {
         final IPlayer player;
         final List<Integer> list = new ArrayList<>();
         final IntFunction<List<Integer>> possibleMovesFunction;
@@ -111,6 +114,11 @@ public class GameRunnerTest {
             numNewPositions++;
             list.clear();
             return new AddToListPosition(0, list, possibleMovesFunction);
+        }
+
+        @Override
+        public IGameRenderer<Integer, AddToListPosition> newGameRenderer(IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
+            return null;
         }
     }
 

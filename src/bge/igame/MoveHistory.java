@@ -12,7 +12,7 @@ public class MoveHistory<M> {
 
     private final List<HistoryMove<M>> moveHistoryList = new ArrayList<>();
 
-    public MoveHistory(IGame<M> game) {
+    public MoveHistory(IGame<M, ? extends IPosition<M>> game) {
         this.numberOfPlayers = game.getNumberOfPlayers();
         this.playerIndexOffset = game.getPlayerIndexOffset();
         setIndex(new MoveIndex(-1, numberOfPlayers - 1));

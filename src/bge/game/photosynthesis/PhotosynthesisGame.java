@@ -1,8 +1,11 @@
 package bge.game.photosynthesis;
 
+import bge.gui.gamestate.IGameRenderer;
 import bge.igame.IGame;
+import gt.component.IMouseTracker;
+import gt.gameentity.IGameImageDrawer;
 
-public class PhotosynthesisGame implements IGame<IPhotosynthesisMove> {
+public class PhotosynthesisGame implements IGame<IPhotosynthesisMove, PhotosynthesisPosition> {
     @Override
     public String getName() {
         return "Photosynthesis";
@@ -26,5 +29,10 @@ public class PhotosynthesisGame implements IGame<IPhotosynthesisMove> {
     @Override
     public PhotosynthesisPosition newInitialPosition() {
         return new PhotosynthesisPosition(getNumberOfPlayers());
+    }
+
+    @Override
+    public IGameRenderer<IPhotosynthesisMove, PhotosynthesisPosition> newGameRenderer(IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
+        return new PhotosynthesisGameRenderer(mouseTracker);
     }
 }

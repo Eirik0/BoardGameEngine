@@ -1,10 +1,13 @@
 package bge.game.tictactoe;
 
+import bge.gui.gamestate.IGameRenderer;
 import bge.igame.Coordinate;
 import bge.igame.IGame;
 import bge.igame.player.TwoPlayers;
+import gt.component.IMouseTracker;
+import gt.gameentity.IGameImageDrawer;
 
-public class TicTacToeGame implements IGame<Coordinate> {
+public class TicTacToeGame implements IGame<Coordinate, TicTacToePosition> {
     public static final String NAME = "Tic Tac Toe";
     public static final int MAX_MOVES = TicTacToePosition.BOARD_WIDTH * TicTacToePosition.BOARD_WIDTH;
 
@@ -26,5 +29,10 @@ public class TicTacToeGame implements IGame<Coordinate> {
     @Override
     public TicTacToePosition newInitialPosition() {
         return new TicTacToePosition();
+    }
+
+    @Override
+    public IGameRenderer<Coordinate, TicTacToePosition> newGameRenderer(IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
+        return new TicTacToeGameRenderer(mouseTracker);
     }
 }
