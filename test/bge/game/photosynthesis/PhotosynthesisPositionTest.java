@@ -365,6 +365,8 @@ public class PhotosynthesisPositionTest {
                     PhotosynthesisPosition.MainBoard.areNeighbors(source, dest),
                     source.toString() + " " + dest.toString());
         }
+
+        assertFalse(PhotosynthesisPosition.MainBoard.areNeighbors(Coordinate.valueOf(2, 5), Coordinate.valueOf(3, 2)));
     }
 
     @Test
@@ -436,12 +438,12 @@ public class PhotosynthesisPositionTest {
 
     @Test
     public void testCountAtDepth4() {
-        PerfTest.countPos(new PhotosynthesisPosition(2), 4, 920728); // XXX is this correct ?
+        PerfTest.countPos(new PhotosynthesisPosition(2), 4, 828568); // XXX is this correct ?
     }
 
     @Test
     public void testCountAtDepth5() {
-        PerfTest.countPos(new PhotosynthesisPosition(2), 5, 7866440); // XXX is this correct ?
+        PerfTest.countPos(new PhotosynthesisPosition(2), 5, 6443828); // XXX is this correct ?
     }
 
     @Test
