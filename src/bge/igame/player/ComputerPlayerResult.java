@@ -12,13 +12,13 @@ import bge.analysis.MoveAnalysis;
 import bge.gui.analysis.ObservedMoveWithScore;
 
 public class ComputerPlayerResult {
-    final List<ObservedMoveWithScore> moves;
-    final Integer depth;
-    final boolean isDecided;
+    public final List<ObservedMoveWithScore> moves;
+    public final Integer depth;
+    public final boolean isDecided;
 
     public ComputerPlayerResult(AnalysisResult<Object> analysisResult, Map<Object, MoveAnalysis> partialResults, int depth) {
         if (analysisResult == null && partialResults.size() == 0) {
-            moves = null;
+            moves = Collections.emptyList();
             isDecided = false;
         } else {
             Map<String, ObservedMoveWithScore> moveMap = new HashMap<>();

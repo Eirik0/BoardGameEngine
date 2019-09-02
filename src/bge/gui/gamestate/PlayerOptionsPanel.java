@@ -3,6 +3,7 @@ package bge.gui.gamestate;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import bge.igame.player.PlayerInfo;
 import bge.igame.player.PlayerOptions;
@@ -39,13 +40,16 @@ public class PlayerOptionsPanel implements GameEntity, UserInputHandler {
     private EComponentPanel cp;
 
     private final PlayerOptions playerOptions;
+    private final Set<String> excludedOptions;
     private final PlayerInfo playerInfo;
 
-    public PlayerOptionsPanel(EComponentLocation cl, IMouseTracker mouseTracker, IGameImageDrawer imageDrawer, PlayerOptions playerOptions) {
+    public PlayerOptionsPanel(EComponentLocation cl, IMouseTracker mouseTracker, IGameImageDrawer imageDrawer, PlayerOptions playerOptions,
+            Set<String> excludedOptions) {
         this.cl = cl;
         this.imageDrawer = imageDrawer;
         this.mouseTracker = mouseTracker;
         this.playerOptions = playerOptions;
+        this.excludedOptions = excludedOptions;
         playerInfo = new PlayerInfo();
         rebuildComponentPanel();
     }
@@ -66,6 +70,9 @@ public class PlayerOptionsPanel implements GameEntity, UserInputHandler {
     private double createComponents(List<EComponent> components, PlayerOptions options, double y) {
         CPOptionValues possibleValues = options.possibleValues;
         String key = possibleValues.getKey();
+        if (excludedOptions.contains(key)) {
+            return y;
+        }
         EGluedLocation labelCL = cl.createGluedLocation(GlueSide.TOP, 0, y, -110, y + OPTION_BOX_HEIGHT);
         components.add(new ETextLabel(labelCL, options.optionName + ":", false, false));
         if (possibleValues instanceof CPOptionStringArray) {
@@ -103,7 +110,7 @@ public class PlayerOptionsPanel implements GameEntity, UserInputHandler {
                 option = Integer.valueOf(values.minValue);
                 playerInfo.setOption(values.getKey(), option);
             }
-            ETextLabel valueLabel = new ETextLabel(cl.createGluedLocation(GlueSide.TOP, 150, y, 0, y + OPTION_BOX_HEIGHT), option.toString(), false);
+            ETextLabel valueLabel = new ETextLabel(optionsCl.createGluedLocation(GlueSide.RIGHT, 0, 0, 50, 0), option.toString(), false);
             components.add(new ESlider(optionsCl, values.minValue, values.maxValue, option.intValue(), i -> {
                 Integer value = Integer.valueOf(i);
                 playerInfo.setOption(values.getKey(), value);

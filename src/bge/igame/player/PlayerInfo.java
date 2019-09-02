@@ -98,7 +98,7 @@ public class PlayerInfo {
         } else if (TS_MONTE_CARLO.equals(treeSearcher)) {
             int numSimulations = getOptionInt(KEY_NUM_SIMULATIONS).intValue();
             String mcStrategy = optionsMap.get(KEY_MC_STRATEGY);
-            int maxDepth = 100; // TODO this is defined for each game
+            int maxDepth = 500; // TODO this is defined for each game
             if (MC_RANDOM.equals(mcStrategy)) {
                 return new MonteCarloTreeSearcher<>(new RandomMonteCarloChildren<>(0), positionEvaluator, moveListFactory, numSimulations, maxDepth);
             } else if (MC_WEIGHTED.equals(mcStrategy)) {
