@@ -45,8 +45,8 @@ public class AnalysisViewport implements EViewport {
             ObservedMoveWithScore moveWithScore = analyzedMoves.get(i);
             g.setColor(moveWithScore.isPartial ? ComponentCreator.foregroundColor() : ComponentCreator.foregroundColor().darker());
             double y = i * ITEM_HEIGHT - window.getTruncatedY0(ITEM_HEIGHT);
-            g.drawCenteredYString((i + 1) + ". " + moveWithScore.moveString, 5, y + ITEM_HEIGHT / 2);
-            g.drawCenteredYString(getScoreString(moveWithScore.score), 100, y + ITEM_HEIGHT / 2);
+            g.drawCenteredYString((i + 1) + ". " + getScoreString(moveWithScore.score), 5, y + ITEM_HEIGHT / 2);
+            g.drawCenteredYString(moveWithScore.moveString, 100, y + ITEM_HEIGHT / 2);
         }
     }
 

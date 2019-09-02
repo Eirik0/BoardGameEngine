@@ -76,7 +76,7 @@ public class AnalysisState implements GameState, Sized {
         view = new AnalysisViewport(spLoc);
         scrollPane = new EScrollPane(spLoc, view, imageDrawer);
         EGluedLocation headerLocation = cl.createGluedLocation(GlueSide.TOP, 0, 0, 0, TITLE_HEIGHT - 1);
-        analyzePauseButton = new ECheckBox(headerLocation.createGluedLocation(GlueSide.RIGHT, -100, 3, -3, -3), "Pause", "Analyze", false,
+        analyzePauseButton = new ECheckBox(headerLocation.createGluedLocation(GlueSide.RIGHT, -100, 3, -3, -3), "Stop", "Analyze", false,
                 selected -> {
                     if (mode == AnalysisMode.OBSERVING) {
                         analyzePauseButton.setSelected(true);
