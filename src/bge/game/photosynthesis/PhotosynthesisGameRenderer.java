@@ -1,6 +1,7 @@
 package bge.game.photosynthesis;
 
 import java.awt.Color;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -25,9 +26,10 @@ import gt.ecomponent.location.EFixedLocation;
 import gt.gameentity.GridSizer;
 import gt.gameentity.IGraphics;
 import gt.gamestate.UserInput;
+import gt.util.DoublePair;
 
 public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesisMove, PhotosynthesisPosition>,
-IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
+        IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
     private static final Coordinate[] SUN_POSITIONS = new Coordinate[] {
             Coordinate.valueOf(0, 0),
             Coordinate.valueOf(3, 0),
@@ -36,13 +38,6 @@ IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
             Coordinate.valueOf(3, 6),
             Coordinate.valueOf(0, 3),
     };
-
-    // The allowed buy moves this turn
-    private IPhotosynthesisMove[] allowedBuyMoves;
-
-    // The end turn move
-    private IPhotosynthesisMove endTurn;
-
     private static final Color[] PLAYER_COLORS = new Color[] { Color.RED, Color.BLUE, Color.WHITE, Color.MAGENTA };
 
     private final IMouseTracker mouseTracker;
@@ -51,9 +46,13 @@ IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
 
     private final GuiPlayerBoard[] playerBoards = new GuiPlayerBoard[4];
 
-    private Map<Coordinate, Map<Coordinate, IPhotosynthesisMove>> moveMap = new HashMap<>();
+    private Coordinate mousePressedCoordinate;
 
-    private Coordinate mouseDownCoordinate;
+    // The allowed buy moves this turn
+    private IPhotosynthesisMove[] allowedBuyMoves;
+    // The end turn move
+    private IPhotosynthesisMove endTurn;
+    private Map<Coordinate, Map<Coordinate, IPhotosynthesisMove>> moveMap = new HashMap<>();
 
     public PhotosynthesisGameRenderer(IMouseTracker mouseTracker) {
         this.mouseTracker = mouseTracker;
@@ -70,9 +69,7 @@ IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
         for (Coordinate[] coordinates : PhotosynthesisPosition.ALL_TILES) {
             g.setColor(new Color(red, green, 0));
             for (Coordinate coordinate : coordinates) {
-                double cx = hexGrid.centerX(coordinate.x, coordinate.y);
-                double cy = hexGrid.centerY(coordinate.x, coordinate.y);
-                g.fillCircle(cx, cy, sizer.cellSize / 2);
+                g.fillCircle(hexGrid.centerX(coordinate.x, coordinate.y), hexGrid.centerY(coordinate.x, coordinate.y), sizer.cellSize / 2);
             }
             green += 32;
             red -= 32;
@@ -112,24 +109,20 @@ IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
                 Coordinate coordinate = setupMove.coordinate;
 
                 putCoord.accept(coordinate, coordinate);
-            }
-            else if (move instanceof Upgrade) {
+            } else if (move instanceof Upgrade) {
                 Upgrade upgradeMove = (Upgrade) move;
                 Coordinate coordinate = upgradeMove.coordinate;
 
                 putCoord.accept(coordinate, coordinate);
-            }
-            else if (move instanceof Seed) {
+            } else if (move instanceof Seed) {
                 Seed seedMove = (Seed) move;
 
                 putCoord.accept(seedMove.source, seedMove.dest);
-            }
-            else if (move instanceof Buy) {
+            } else if (move instanceof Buy) {
                 Buy buyMove = (Buy) move;
 
                 newAllowedBuyMoves[buyMove.buyColumn] = buyMove;
-            }
-            else if (move instanceof EndTurn) {
+            } else if (move instanceof EndTurn) {
                 endTurn = move;
             }
             ++i;
@@ -160,9 +153,7 @@ IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
                 if (tile.player == -1) {
                     continue;
                 }
-                double cx = hexGrid.centerX(a, b);
-                double cy = hexGrid.centerY(a, b);
-                drawTree(g, cx, cy, sizer.cellSize / 3, tile.level, tile.player);
+                drawTree(g, hexGrid.centerX(a, b), hexGrid.centerY(a, b), sizer.cellSize / 3, tile.level, tile.player);
             }
         }
 
@@ -219,14 +210,40 @@ IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
             }
         }
 
-        if (GuiPlayer.HUMAN.isRequestingMove()) {
-            Coordinate coordinate = maybeGetCoordinate();
-            if (coordinate != null && moveMap.containsKey(coordinate)) {
-                double cx = hexGrid.centerX(coordinate.x, coordinate.y);
-                double cy = hexGrid.centerY(coordinate.x, coordinate.y);
-                g.setColor(PLAYER_COLORS[currentPlayer]);
-                g.drawCircle(cx, cy, sizer.cellSize / 2 - 1);
+        maybeDrawMouse(g, currentPlayer);
+    }
+
+    private void maybeDrawMouse(IGraphics g, int currentPlayer) {
+        if (!GuiPlayer.HUMAN.isRequestingMove()) {
+            return;
+        }
+        g.setColor(PLAYER_COLORS[currentPlayer]);
+        Coordinate currentCoordinate = maybeGetCoordinate();
+        if (mousePressedCoordinate != null) {
+            Map<Coordinate, IPhotosynthesisMove> toMoveMap = moveMap.get(mousePressedCoordinate);
+            if (toMoveMap == null) {
+                return;
             }
+            if (currentCoordinate == null || currentCoordinate.equals(mousePressedCoordinate)) {
+                drawMovesFrom(g, mousePressedCoordinate, toMoveMap.keySet());
+            } else if (toMoveMap.containsKey(currentCoordinate)) {
+                DoublePair fromXY = hexGrid.centerXY(mousePressedCoordinate);
+                DoublePair toXY = hexGrid.centerXY(currentCoordinate);
+                g.drawLine(fromXY.getFirst(), fromXY.getSecond(), toXY.getFirst(), toXY.getSecond());
+                g.drawCircle(toXY.getFirst(), toXY.getSecond(), sizer.cellSize / 2 - 1);
+            }
+        } else if (currentCoordinate != null && moveMap.containsKey(currentCoordinate)) {
+            drawMovesFrom(g, currentCoordinate, moveMap.get(currentCoordinate).keySet());
+        }
+    }
+
+    private void drawMovesFrom(IGraphics g, Coordinate from, Collection<Coordinate> tos) {
+        DoublePair fromXY = hexGrid.centerXY(from);
+        g.drawCircle(fromXY.getFirst(), fromXY.getSecond(), sizer.cellSize / 2 - 1);
+        for (Coordinate to : tos) {
+            DoublePair toXY = hexGrid.centerXY(to);
+            g.drawLine(fromXY.getFirst(), fromXY.getSecond(), toXY.getFirst(), toXY.getSecond());
+            g.drawCircle(toXY.getFirst(), toXY.getSecond(), sizer.cellSize / 2 - 1);
         }
     }
 
@@ -274,17 +291,17 @@ IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
     @Override
     public IPhotosynthesisMove maybeGetUserMove(UserInput input, PhotosynthesisPosition position, MoveList<IPhotosynthesisMove> possibleMoves) {
         if (input == UserInput.LEFT_BUTTON_RELEASED) {
-            Coordinate coordinate = maybeGetCoordinate();
+            Coordinate mouseReleasedCoordinate = maybeGetCoordinate();
 
-            if (coordinate == null) {
+            if (mouseReleasedCoordinate == null) {
+                mousePressedCoordinate = null;
+
                 GuiPlayerBoard currentPlayerBoard = playerBoards[position.currentPlayer];
-                EComponentLocation[] currentPlayerBuyableLocations = currentPlayerBoard.getBuyableLocations();
-
                 int mouseX = mouseTracker.mouseX();
                 int mouseY = mouseTracker.mouseY();
 
-                for (int i = 0; i < currentPlayerBuyableLocations.length; i++) {
-                    if (currentPlayerBuyableLocations[i].containsPoint(mouseTracker.mouseX(), mouseTracker.mouseY())
+                for (int i = 0; i < currentPlayerBoard.buyableLocations.length; i++) {
+                    if (currentPlayerBoard.buyableLocations[i].containsPoint(mouseTracker.mouseX(), mouseTracker.mouseY())
                             && allowedBuyMoves[i] != null) {
                         return allowedBuyMoves[i];
                     }
@@ -293,29 +310,22 @@ IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
                 if (currentPlayerBoard.endTurnLocation.containsPoint(mouseX, mouseY)) {
                     return endTurn;
                 }
-            } else {
-                Coordinate source = mouseDownCoordinate == null ? coordinate : mouseDownCoordinate;
-                Coordinate dest = coordinate;
-
-                Map<Coordinate, IPhotosynthesisMove> map = moveMap.get(source);
+            } else if (mousePressedCoordinate != null) {
+                Map<Coordinate, IPhotosynthesisMove> map = moveMap.get(mousePressedCoordinate);
+                Coordinate print = mouseReleasedCoordinate;
+                mousePressedCoordinate = null;
                 if (map != null) {
-                    IPhotosynthesisMove move = map.get(dest);
+                    IPhotosynthesisMove move = map.get(mouseReleasedCoordinate);
                     if (move != null) {
+                        System.out.println(print + "->" + mouseReleasedCoordinate);
                         return move;
                     }
                 }
             }
-
-            mouseDownCoordinate = null;
+        } else if (input == UserInput.LEFT_BUTTON_PRESSED) {
+            mousePressedCoordinate = maybeGetCoordinate();
         }
 
-        else if (input == UserInput.LEFT_BUTTON_PRESSED) {
-            Coordinate coordinate = maybeGetCoordinate();
-
-            if (coordinate != null) {
-                mouseDownCoordinate = coordinate;
-            }
-        }
         return null;
     }
 
@@ -337,6 +347,10 @@ IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
         public double centerY(int a, int b) {
             return y0 + (b - a) * radius * Math.sqrt(3);
         }
+
+        public DoublePair centerXY(Coordinate coord) {
+            return new DoublePair(centerX(coord.x, coord.y), centerY(coord.x, coord.y));
+        }
     }
 
     private static class GuiPlayerBoard {
@@ -356,16 +370,8 @@ IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
             this.height = height;
         }
 
-        public EComponentLocation[] getBuyableLocations() {
-            return buyableLocations;
-        }
-
         public void setBuyableLocations(EComponentLocation[] buyableLocations) {
             this.buyableLocations = buyableLocations;
-        }
-
-        public EComponentLocation getEndTurnLocation() {
-            return endTurnLocation;
         }
 
         public void setEndTurnLocation(EComponentLocation endTurnLocation) {
