@@ -470,7 +470,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
     }
 
     public static final class Upgrade implements IPhotosynthesisMove {
-        private final Coordinate coordinate;
+        public final Coordinate coordinate;
 
         private int tileRewardColumn = -1;
 
@@ -852,27 +852,27 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
                     if (tile.level > 0) {
                         if (sunPosition == 0) {
                             for (int dx = 1; dx <= tile.level; dx++) {
-                                helper.updateMap(coord.x + dx, coord.y);
+                                helper.updateMap(coord.x + dx, coord.y + dx);
                             }
                         } else if (sunPosition == 1) {
                             for (int dy = 1; dy <= tile.level; dy++) {
                                 helper.updateMap(coord.x, coord.y + dy);
                             }
                         } else if (sunPosition == 2) {
-                            for (int dz = 1; dz <= tile.level; dz++) {
-                                helper.updateMap(coord.x - dz, coord.y + dz);
+                            for (int dx = 1; dx <= tile.level; dx++) {
+                                helper.updateMap(coord.x - dx, coord.y);
                             }
                         } else if (sunPosition == 3) {
                             for (int dx = 1; dx <= tile.level; dx++) {
-                                helper.updateMap(coord.x - dx, coord.y);
+                                helper.updateMap(coord.x - dx, coord.y - dx);
                             }
                         } else if (sunPosition == 4) {
                             for (int dy = 1; dy <= tile.level; dy++) {
                                 helper.updateMap(coord.x, coord.y - dy);
                             }
                         } else if (sunPosition == 5) {
-                            for (int dz = 1; dz <= tile.level; dz++) {
-                                helper.updateMap(coord.x + dz, coord.y - dz);
+                            for (int dx = 1; dx <= tile.level; dx++) {
+                                helper.updateMap(coord.x + dx, coord.y);
                             }
                         }
                     }
@@ -951,20 +951,24 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         static boolean areNeighbors(Coordinate a, Coordinate b) {
             final int ax = a.x;
             final int ay = a.y;
-            final int az = -a.x - a.y;
+            final int az = ax + ay;
 
             final int bx = b.x;
             final int by = b.y;
-            final int bz = -b.x - b.y;
+            final int bz = bx + by;
 
             return Math.abs(ax - bx) == 1 && ay == by
                     || Math.abs(ay - by) == 1 && ax == bx
-                    || Math.abs(ax - bx) == 1 && az == bz;
+                    || Math.abs(az - bz) == 2 && Math.abs(ax - bx) == 1;
         }
     }
 
+    int getSunPosition() {
+        return ((18 * numPlayers - playerRoundsRemaining) / numPlayers) % 6;
+    }
+
     int[][] getShadowMap() {
-        return mainBoard.getShadowMap((18 * numPlayers - playerRoundsRemaining) % 6);
+        return mainBoard.getShadowMap(getSunPosition());
     }
 
     void doPhotosynthesis() {
