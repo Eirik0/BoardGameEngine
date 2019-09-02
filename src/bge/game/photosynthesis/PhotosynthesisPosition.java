@@ -852,27 +852,27 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
                     if (tile.level > 0) {
                         if (sunPosition == 0) {
                             for (int dx = 1; dx <= tile.level; dx++) {
-                                helper.updateMap(coord.x + dx, coord.y);
+                                helper.updateMap(coord.x + dx, coord.y + dx);
                             }
                         } else if (sunPosition == 1) {
                             for (int dy = 1; dy <= tile.level; dy++) {
                                 helper.updateMap(coord.x, coord.y + dy);
                             }
                         } else if (sunPosition == 2) {
-                            for (int dz = 1; dz <= tile.level; dz++) {
-                                helper.updateMap(coord.x - dz, coord.y + dz);
+                            for (int dx = 1; dx <= tile.level; dx++) {
+                                helper.updateMap(coord.x - dx, coord.y);
                             }
                         } else if (sunPosition == 3) {
                             for (int dx = 1; dx <= tile.level; dx++) {
-                                helper.updateMap(coord.x - dx, coord.y);
+                                helper.updateMap(coord.x - dx, coord.y - dx);
                             }
                         } else if (sunPosition == 4) {
                             for (int dy = 1; dy <= tile.level; dy++) {
                                 helper.updateMap(coord.x, coord.y - dy);
                             }
                         } else if (sunPosition == 5) {
-                            for (int dz = 1; dz <= tile.level; dz++) {
-                                helper.updateMap(coord.x + dz, coord.y - dz);
+                            for (int dx = 1; dx <= tile.level; dx++) {
+                                helper.updateMap(coord.x + dx, coord.y);
                             }
                         }
                     }
@@ -963,8 +963,12 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         }
     }
 
+    int getSunPosition() {
+        return ((18 * numPlayers - playerRoundsRemaining) / numPlayers) % 6;
+    }
+
     int[][] getShadowMap() {
-        return mainBoard.getShadowMap((18 * numPlayers - playerRoundsRemaining) % 6);
+        return mainBoard.getShadowMap(getSunPosition());
     }
 
     void doPhotosynthesis() {

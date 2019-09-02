@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -201,13 +202,15 @@ public class PhotosynthesisPositionTest {
 
         final PhotosynthesisPosition position = (PhotosynthesisPosition) startingPosition.createCopy();
 
+        assertEquals(0, position.currentPlayer);
         assertEquals(2, position.playerBoards[0].lightPoints);
         assertEquals(2, position.playerBoards[1].lightPoints);
 
-        final EndTurn endTurn1 = new EndTurn();
-        final EndTurn endTurn2 = new EndTurn();
+        Stack<EndTurn> endTurns = new Stack<>();
 
-        position.makeMove(endTurn1);
+        EndTurn endTurn = new EndTurn();
+        position.makeMove(endTurn);
+        endTurns.push(endTurn);
         expectedPlayerRounds--;
 
         assertEquals(1, position.currentPlayer);
@@ -215,16 +218,19 @@ public class PhotosynthesisPositionTest {
         assertEquals(2, position.playerBoards[0].lightPoints);
         assertEquals(2, position.playerBoards[1].lightPoints);
 
-        position.makeMove(endTurn2);
+        endTurn = new EndTurn();
+        position.makeMove(endTurn);
+        endTurns.push(endTurn);
         expectedPlayerRounds--;
 
         assertEquals(expectedPlayerRounds, position.playerRoundsRemaining);
         assertEquals(1, position.currentPlayer);
-        assertEquals(4, position.playerBoards[0].lightPoints);
-        assertEquals(4, position.playerBoards[1].lightPoints);
+        assertEquals(3, position.playerBoards[0].lightPoints);
+        assertEquals(2, position.playerBoards[1].lightPoints);
 
-        position.unmakeMove(endTurn2);
-        position.unmakeMove(endTurn1);
+        while (!endTurns.empty()) {
+            endTurns.pop().unapplyMove(position);
+        }
 
         assertEquals(startingPosition, position);
     }
@@ -249,7 +255,7 @@ public class PhotosynthesisPositionTest {
             public void validate() {
                 final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
 
-                position.playerRoundsRemaining -= sunPosition;
+                position.playerRoundsRemaining -= 2 * sunPosition;
 
                 final Tile tile = position.mainBoard.grid[3][3];
                 tile.level = level;
@@ -267,24 +273,23 @@ public class PhotosynthesisPositionTest {
         }
 
         final TestCase[] testCases = new TestCase[] {
-                // Sun at starting position, small tree, validate shadow at (4,3)
-                new TestCase(1, 0, new Coordinate[] { Coordinate.valueOf(4, 3) }),
-                new TestCase(2, 0, new Coordinate[] { Coordinate.valueOf(4, 3), Coordinate.valueOf(5, 3) }),
-                // Height 3, validate shadows at (4,3), (5,3), (6,3)
+                // Sun at starting position, small tree, validate shadow at (4,4), next coordinate to the right
+                new TestCase(1, 0, new Coordinate[] { Coordinate.valueOf(4, 4) }),
+                new TestCase(2, 0, new Coordinate[] { Coordinate.valueOf(4, 4), Coordinate.valueOf(5, 5) }),
                 new TestCase(
                         3,
                         0,
                         new Coordinate[] {
-                                Coordinate.valueOf(4, 3),
-                                Coordinate.valueOf(5, 3),
-                                Coordinate.valueOf(6, 3) }),
+                                Coordinate.valueOf(4, 4),
+                                Coordinate.valueOf(5, 5),
+                                Coordinate.valueOf(6, 6) }),
 
                 // Test other sun positions
                 new TestCase(1, 1, new Coordinate[] { Coordinate.valueOf(3, 4) }),
-                new TestCase(1, 2, new Coordinate[] { Coordinate.valueOf(2, 4) }),
-                new TestCase(1, 3, new Coordinate[] { Coordinate.valueOf(2, 3) }),
+                new TestCase(1, 2, new Coordinate[] { Coordinate.valueOf(2, 3) }),
+                new TestCase(1, 3, new Coordinate[] { Coordinate.valueOf(2, 2) }),
                 new TestCase(1, 4, new Coordinate[] { Coordinate.valueOf(3, 2) }),
-                new TestCase(1, 5, new Coordinate[] { Coordinate.valueOf(4, 2) })
+                new TestCase(1, 5, new Coordinate[] { Coordinate.valueOf(4, 3) })
         };
 
         for (final TestCase testCase : testCases) {
@@ -314,31 +319,6 @@ public class PhotosynthesisPositionTest {
 
         move.unapplyMove(position);
         assertEquals(original, position);
-    }
-
-    @Test
-    public void TestPhotosynthesisPhase() {
-        PhotosynthesisPosition position = new PhotosynthesisPosition(2);
-
-        position.mainBoard.grid[0][0].player = 0;
-        position.mainBoard.grid[0][0].level = 2;
-
-        position.mainBoard.grid[1][0].player = 1;
-        position.mainBoard.grid[1][0].level = 1;
-        final PhotosynthesisPosition original = (PhotosynthesisPosition) position.createCopy();
-
-        position.doPhotosynthesis();
-
-        assertEquals(2, position.playerBoards[0].lightPoints);
-        assertEquals(0, position.playerBoards[1].lightPoints);
-
-        position = (PhotosynthesisPosition) original.createCopy();
-        position.playerRoundsRemaining -= 3;
-
-        position.doPhotosynthesis();
-
-        assertEquals(2, position.playerBoards[0].lightPoints);
-        assertEquals(1, position.playerBoards[1].lightPoints);
     }
 
     @Test
@@ -459,7 +439,7 @@ public class PhotosynthesisPositionTest {
 
     @Test
     public void testCountAtDepth5() {
-        PerfTest.countPos(new PhotosynthesisPosition(2), 5, 5881248); // XXX is this correct ?
+        PerfTest.countPos(new PhotosynthesisPosition(2), 5, 5850572); // XXX is this correct ?
     }
 
     @Test

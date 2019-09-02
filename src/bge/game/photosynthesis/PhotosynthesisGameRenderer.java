@@ -141,7 +141,7 @@ IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
 
     @Override
     public void drawPosition(IGraphics g, PhotosynthesisPosition position, MoveList<IPhotosynthesisMove> possibleMoves, IPhotosynthesisMove lastMove) {
-        Coordinate sunPos = SUN_POSITIONS[(4 * 6 * 3 + 12 - position.playerRoundsRemaining) % 6];
+        Coordinate sunPos = SUN_POSITIONS[position.getSunPosition()];
         g.setColor(Color.YELLOW);
         g.drawCircle(hexGrid.centerX(sunPos.x, sunPos.y), hexGrid.centerY(sunPos.x, sunPos.y), sizer.cellSize * 3);
         g.drawCenteredYString("Rounds remaining: " + position.playerRoundsRemaining, 5, 20);
