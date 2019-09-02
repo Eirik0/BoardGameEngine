@@ -33,6 +33,6 @@ public class PhotosynthesisGame implements IGame<IPhotosynthesisMove, Photosynth
 
     @Override
     public IGameRenderer<IPhotosynthesisMove, PhotosynthesisPosition> newGameRenderer(IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
-        return new PhotosynthesisGameRenderer(mouseTracker);
+        return new PhotosynthesisGameRenderer(mouseTracker, imageDrawer);
     }
 }

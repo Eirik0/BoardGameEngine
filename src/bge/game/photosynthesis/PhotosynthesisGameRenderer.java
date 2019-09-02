@@ -24,12 +24,15 @@ import gt.component.IMouseTracker;
 import gt.ecomponent.list.EComponentLocation;
 import gt.ecomponent.location.EFixedLocation;
 import gt.gameentity.GridSizer;
+import gt.gameentity.IGameImageDrawer;
 import gt.gameentity.IGraphics;
 import gt.gamestate.UserInput;
 import gt.util.DoublePair;
 
 public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesisMove, PhotosynthesisPosition>,
         IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
+    public static final Color[] PLAYER_COLORS = new Color[] { Color.RED, Color.BLUE, Color.WHITE, Color.MAGENTA };
+
     private static final Coordinate[] SUN_POSITIONS = new Coordinate[] {
             Coordinate.valueOf(0, 0),
             Coordinate.valueOf(3, 0),
@@ -38,9 +41,10 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             Coordinate.valueOf(3, 6),
             Coordinate.valueOf(0, 3),
     };
-    private static final Color[] PLAYER_COLORS = new Color[] { Color.RED, Color.BLUE, Color.WHITE, Color.MAGENTA };
 
     private final IMouseTracker mouseTracker;
+    private final IGameImageDrawer imageDrawer;
+
     private GridSizer sizer;
     private HexGrid hexGrid;
 
@@ -54,8 +58,9 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
     private IPhotosynthesisMove endTurn;
     private Map<Coordinate, Map<Coordinate, IPhotosynthesisMove>> moveMap = new HashMap<>();
 
-    public PhotosynthesisGameRenderer(IMouseTracker mouseTracker) {
+    public PhotosynthesisGameRenderer(IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
         this.mouseTracker = mouseTracker;
+        this.imageDrawer = imageDrawer;
     }
 
     @Override
@@ -153,7 +158,7 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
                 if (tile.player == -1) {
                     continue;
                 }
-                drawTree(g, hexGrid.centerX(a, b), hexGrid.centerY(a, b), sizer.cellSize / 3, tile.level, tile.player);
+                drawTree(g, hexGrid.centerX(a, b), hexGrid.centerY(a, b), tile.level, tile.player);
             }
         }
 
@@ -172,19 +177,19 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             g.drawCircle(gpb.x0 + gpb.width - compWidth / 2, gpb.y0 + compWidth / 2, compWidth / 2);
             g.drawCenteredString(Integer.toString(pb.victoryPoints), gpb.x0 + gpb.width - compWidth / 2, gpb.y0 + compWidth / 2);
             // seeds
-            drawTree(g, gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 1.5, compWidth / 2, 0, i);
+            drawTree(g, gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 1.5, 0, i);
             int pbBuySeed = pb.buy[0] - 1;
             g.drawCenteredString(pbBuySeed < 0 ? "X" : Integer.toString(PhotosynthesisPosition.PRICES[0][pbBuySeed]),
                     gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 1.5);
-            drawTree(g, gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 2.5, compWidth / 2, 1, i);
+            drawTree(g, gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 2.5, 1, i);
             int pbBuySmall = pb.buy[1] - 1;
             g.drawCenteredString(pbBuySmall < 0 ? "X" : Integer.toString(PhotosynthesisPosition.PRICES[1][pbBuySmall]),
                     gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 2.5);
-            drawTree(g, gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 3.5, compWidth / 2, 2, i);
+            drawTree(g, gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 3.5, 2, i);
             int pbBuyMed = pb.buy[2] - 1;
             g.drawCenteredString(pbBuyMed < 0 ? "X" : Integer.toString(PhotosynthesisPosition.PRICES[2][pbBuyMed]),
                     gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 3.5);
-            drawTree(g, gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 4.5, compWidth / 2, 3, i);
+            drawTree(g, gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 4.5, 3, i);
             int pbBuyLarge = pb.buy[3] - 1;
             g.drawCenteredString(pbBuyLarge < 0 ? "X" : Integer.toString(PhotosynthesisPosition.PRICES[3][pbBuyLarge]),
                     gpb.x0 + compWidth / 2, gpb.y0 + compWidth * 4.5);
@@ -247,23 +252,10 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
         }
     }
 
-    private static void drawTree(IGraphics g, double cx, double cy, double r, int level, int player) {
-        g.setColor(PLAYER_COLORS[player]);
-        switch (level) {
-        case 0: // seed
-            g.fillRect(cx - r / 4, cy - r / 4, r / 2, r / 2);
-            break;
-        case 1: // small
-            r *= 0.7;
-        case 2: // med
-            r *= 0.7;
-        case 3: // large
-            g.fillCircle(cx, cy, r - 1);
-            break;
-        default:
-            throw new IllegalStateException("Unknown tree level " + level);
-        }
-        g.setColor(Color.GREEN);
+    private void drawTree(IGraphics g, double cx, double cy, int level, int player) {
+        double x0 = cx - sizer.cellSize / 2;
+        double y0 = cy - sizer.cellSize / 2;
+        imageDrawer.drawImage(g, PhotosynthesisPieceImages.getInstance().getPieceImage(level, player), x0, y0, sizer.cellSize, sizer.cellSize);
     }
 
     private static String treeString(int buy, int total, int available) {

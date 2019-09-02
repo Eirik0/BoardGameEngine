@@ -1,15 +1,6 @@
 package bge.game.chess;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Composite;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-
-import javax.imageio.ImageIO;
-
+import bge.main.PieceImages;
 import gt.component.JavaGameImage;
 import gt.gameentity.IGameImage;
 
@@ -52,33 +43,7 @@ public class ChessPieceImages implements ChessConstants {
     }
 
     private static JavaGameImage loadImage(String name, boolean white) {
-        BufferedImage image;
-        try {
-            image = ImageIO.read(ChessPieceImages.class.getResource("/bge/game/chess/" + name + ".png"));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        JavaGameImage javaGameImage = new JavaGameImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D pieceGraphics = javaGameImage.getGraphics().getGraphics();
-        BufferedImage pieceImage = javaGameImage.getImage();
-        // Clear background
-        Composite composite = pieceGraphics.getComposite();
-        pieceGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-        pieceGraphics.fillRect(0, 0, image.getWidth(), image.getHeight());
-        pieceGraphics.setComposite(composite);
-        // Copy
-        Color pieceColor = white ? LIGHT_PIECE_COLOR : DARK_PIECE_COLOR;
-        for (int x = 0; x < image.getWidth(); ++x) {
-            for (int y = 0; y < image.getHeight(); ++y) {
-                int rgb = image.getRGB(x, y);
-                if (rgb != -1) {
-                    pieceImage.setRGB(x, y, pieceColor.getRGB());
-                }
-            }
-        }
-
-        return javaGameImage;
+        return PieceImages.toJavaGameImage(PieceImages.loadImage("chess", name), white ? LIGHT_PIECE_COLOR : DARK_PIECE_COLOR);
     }
 
     public IGameImage getPieceImage(int piece) {
