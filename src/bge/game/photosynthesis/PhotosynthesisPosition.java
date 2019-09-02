@@ -951,15 +951,15 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         static boolean areNeighbors(Coordinate a, Coordinate b) {
             final int ax = a.x;
             final int ay = a.y;
-            final int az = -a.x - a.y;
+            final int az = ax + ay;
 
             final int bx = b.x;
             final int by = b.y;
-            final int bz = -b.x - b.y;
+            final int bz = bx + by;
 
             return Math.abs(ax - bx) == 1 && ay == by
                     || Math.abs(ay - by) == 1 && ax == bx
-                    || Math.abs(ax - bx) == 1 && az == bz;
+                    || Math.abs(az - bz) == 2 && Math.abs(ax - bx) == 1;
         }
     }
 

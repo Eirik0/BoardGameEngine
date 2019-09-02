@@ -344,12 +344,12 @@ public class PhotosynthesisPositionTest {
     @Test
     public void TestAreNeighbors() {
         final Coordinate[] positiveTestCases = new Coordinate[] {
-                Coordinate.valueOf(2, 3),
+                Coordinate.valueOf(2, 2),
+                Coordinate.valueOf(4, 4),
                 Coordinate.valueOf(4, 3),
-                Coordinate.valueOf(3, 2),
                 Coordinate.valueOf(3, 4),
-                Coordinate.valueOf(2, 4),
-                Coordinate.valueOf(4, 2)
+                Coordinate.valueOf(2, 3),
+                Coordinate.valueOf(3, 2)
         };
 
         final Set<Coordinate> negativeTestCases = new HashSet<>(Arrays.asList(PhotosynthesisPosition.ALL_COORDS));
@@ -361,7 +361,9 @@ public class PhotosynthesisPositionTest {
         }
 
         for (final Coordinate dest : negativeTestCases) {
-            assertFalse(PhotosynthesisPosition.MainBoard.areNeighbors(source, dest));
+            assertFalse(
+                    PhotosynthesisPosition.MainBoard.areNeighbors(source, dest),
+                    source.toString() + " " + dest.toString());
         }
     }
 
@@ -434,12 +436,12 @@ public class PhotosynthesisPositionTest {
 
     @Test
     public void testCountAtDepth4() {
-        PerfTest.countPos(new PhotosynthesisPosition(2), 4, 791128); // XXX is this correct ?
+        PerfTest.countPos(new PhotosynthesisPosition(2), 4, 920728); // XXX is this correct ?
     }
 
     @Test
     public void testCountAtDepth5() {
-        PerfTest.countPos(new PhotosynthesisPosition(2), 5, 5850572); // XXX is this correct ?
+        PerfTest.countPos(new PhotosynthesisPosition(2), 5, 7866440); // XXX is this correct ?
     }
 
     @Test
