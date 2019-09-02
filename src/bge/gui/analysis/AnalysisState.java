@@ -11,6 +11,7 @@ import bge.igame.player.ComputerPlayerResult;
 import bge.igame.player.PlayerInfo;
 import bge.igame.player.PlayerOptions;
 import bge.main.GameRegistry;
+import gt.async.ThreadNumber;
 import gt.async.ThreadWorker;
 import gt.component.ComponentCreator;
 import gt.component.IMouseTracker;
@@ -58,7 +59,8 @@ public class AnalysisState implements GameState, Sized {
 
     private final DurationTimer analysisRefreshTimer = new DurationTimer(TimeConstants.NANOS_PER_SECOND / 10);
 
-    private final ThreadWorker analysisWorker = new ThreadWorker();
+    private final ThreadWorker analysisWorker = new ThreadWorker("Analysis_Observer_" + ThreadNumber.getThreadNum("AnalysisObserver"), worker -> {
+    });
 
     private AnalysisMode mode = AnalysisMode.STOPPED;
 
@@ -87,14 +89,11 @@ public class AnalysisState implements GameState, Sized {
                             mode = AnalysisMode.STOPPED;
                             return;
                         }
-                        if (analysisPlayer != null) {
-                            analysisPlayer.notifyGameEnded();
-                        }
                         createNewAnalysisPlayer();
                         analyze();
                     } else {
                         if (analysisPlayer != null) {
-                            analysisPlayer.stopSearch(false);
+                            analysisPlayer.notifyGameEnded();
                         }
                         mode = AnalysisMode.STOPPED;
                     }
@@ -111,16 +110,19 @@ public class AnalysisState implements GameState, Sized {
     }
 
     private void createNewAnalysisPlayer() {
-        PlayerInfo playerInfo = playerOptionsPanel.getPlayerInfo();
-        playerInfo.setOption(PlayerInfo.KEY_MS_PER_MOVE, Integer.valueOf(Integer.MAX_VALUE));
         if (analysisPlayer != null) {
             analysisPlayer.notifyGameEnded();
         }
+        PlayerInfo playerInfo = playerOptionsPanel.getPlayerInfo();
+        playerInfo.setOption(PlayerInfo.KEY_MS_PER_MOVE, Integer.valueOf(Integer.MAX_VALUE));
         analysisPlayer = playerInfo.newComputerPlayer(gameName);
     }
 
     private void analyze() {
-        analysisWorker.workOn(() -> analysisPlayer.getMove(currentPosition));
+        analysisWorker.workOn(() -> {
+            analysisPlayer.getMove(currentPosition);
+            analysisPlayer.notifyGameEnded();
+        });
         analyzePauseButton.setSelected(true);
         mode = AnalysisMode.ANALYZING;
     }
