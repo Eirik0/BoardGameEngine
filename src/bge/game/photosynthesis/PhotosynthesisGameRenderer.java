@@ -203,7 +203,8 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillCircle(cx, cy, sizer.cellSize / 2);
                 }
-                drawTree(g, cx, cy, tile.level, tile.player, tile.level > 0 && tile.level <= shadowMap[a][b]);
+                boolean shadow = (tile.level == 0 && shadowMap[a][b] > 0) || (tile.level > 0 && tile.level <= shadowMap[a][b]);
+                drawTree(g, cx, cy, tile.level, tile.player, shadow);
             }
         }
 
