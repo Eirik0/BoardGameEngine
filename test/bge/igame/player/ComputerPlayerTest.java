@@ -6,9 +6,6 @@ import java.util.Random;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import bge.analysis.search.IterativeDeepeningTreeSearcher;
-import bge.analysis.strategy.MinimaxStrategy;
-import bge.analysis.strategy.MoveListProvider;
 import bge.game.tictactoe.TicTacToeGame;
 import bge.game.tictactoe.TicTacToePosition;
 import bge.game.tictactoe.TicTacToePositionEvaluator;
@@ -16,7 +13,11 @@ import bge.igame.Coordinate;
 import bge.igame.GameObserver;
 import bge.igame.GameRunner;
 import bge.igame.MoveListFactory;
-import bge.strategy.TreeSearchStrategy;
+import bge.strategy.ts.MoveListProvider;
+import bge.strategy.ts.TreeSearchStrategy;
+import bge.strategy.ts.forkjoin.ForkJoinTreeSearcher;
+import bge.strategy.ts.forkjoin.minmax.ForkableMinimaxFactory;
+import bge.strategy.ts.forkjoin.minmax.MinimaxPositionEvaluator;
 
 public class ComputerPlayerTest {
     @Test
@@ -24,8 +25,9 @@ public class ComputerPlayerTest {
     public void testDoNotWaitForAMoveIfFInishedSearching() throws InterruptedException {
         TicTacToeGame game = new TicTacToeGame();
         MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(TicTacToeGame.MAX_MOVES);
-        IterativeDeepeningTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = new IterativeDeepeningTreeSearcher<>(
-                new MinimaxStrategy<>(new TicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory)), moveListFactory, 2);
+        ForkJoinTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = new ForkJoinTreeSearcher<>(
+                new ForkableMinimaxFactory<>(new MinimaxPositionEvaluator<>(new TicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory))),
+                moveListFactory, 2);
         ComputerPlayer player = new ComputerPlayer(new TreeSearchStrategy<>(treeSearcher, 500, true));
         GameRunner<Coordinate> gameRunner = new GameRunner<>(game, new GameObserver<>(), moveListFactory);
         for (int i = 0; i < 100; ++i) {

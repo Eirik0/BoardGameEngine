@@ -1,6 +1,6 @@
 package bge.strategy;
 
-import bge.igame.player.StrategyResult;
+import bge.analysis.StrategyResult;
 
 public interface ObservableStrategy {
     StrategyResult getCurrentResult();

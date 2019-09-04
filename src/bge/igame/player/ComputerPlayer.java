@@ -3,6 +3,7 @@ package bge.igame.player;
 import java.util.Collections;
 
 import bge.analysis.AnalysisResult;
+import bge.analysis.StrategyResult;
 import bge.igame.IPosition;
 import bge.strategy.IStrategy;
 import bge.strategy.InterruptableStrategy;
@@ -42,7 +43,7 @@ public class ComputerPlayer implements IPlayer {
     @Override
     public synchronized void notifyGameEnded() {
         if (strategy instanceof InterruptableStrategy) {
-            ((InterruptableStrategy) strategy).pauseSearch();
+            ((InterruptableStrategy) strategy).stopSearch();
         }
     }
 

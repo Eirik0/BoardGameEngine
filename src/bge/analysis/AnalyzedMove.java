@@ -4,21 +4,21 @@ import java.util.Objects;
 
 public class AnalyzedMove<M> {
     public final M move;
-    public final MoveAnalysis analysis; // XXX Change to score
+    public final double score;
 
     public AnalyzedMove(M move, double score) {
         this.move = move;
-        this.analysis = new MoveAnalysis(score);
+        this.score = score;
     }
 
     public AnalyzedMove<M> transform(boolean isCurrentPlayer) {
-        return isCurrentPlayer ? this : new AnalyzedMove<>(move, -analysis.score);
+        return isCurrentPlayer ? this : new AnalyzedMove<>(move, -score);
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
-        return prime * (prime + ((move == null) ? 0 : move.hashCode())) + analysis.hashCode();
+        return prime * (prime + ((move == null) ? 0 : move.hashCode())) + Double.hashCode(score);
     }
 
     @Override
@@ -30,15 +30,15 @@ public class AnalyzedMove<M> {
         }
         AnalyzedMove<?> other = (AnalyzedMove<?>) obj;
         return Objects.equals(move, other.move)
-                && (analysis == other.analysis || AnalysisResult.isDraw(analysis.score) && AnalysisResult.isDraw(other.analysis.score));
+                && (score == other.score || AnalysisResult.isDraw(score) && AnalysisResult.isDraw(other.score));
     }
 
     @Override
     public String toString() {
-        return toString(move, analysis);
+        return toString(move, score);
     }
 
-    public static <M> String toString(M move, MoveAnalysis score) {
-        return (move == null ? "null move" : move.toString()) + ": " + score.toString();
+    public static <M> String toString(M move, double score) {
+        return (move == null ? "null move" : move.toString()) + ": " + Double.toString(score);
     }
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bge.analysis.AnalysisResult;
+import bge.analysis.ObservedMoveWithScore;
 import gt.component.ComponentCreator;
 import gt.ecomponent.list.EComponentLocation;
 import gt.ecomponent.scrollbar.EScrollBar;

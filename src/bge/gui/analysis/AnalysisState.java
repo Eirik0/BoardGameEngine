@@ -3,13 +3,13 @@ package bge.gui.analysis;
 import java.awt.Color;
 import java.util.Collections;
 
+import bge.analysis.StrategyResult;
 import bge.gui.gamestate.PlayerOptionsPanel;
 import bge.igame.IPosition;
 import bge.igame.PositionChangedInfo;
 import bge.igame.player.ComputerPlayer;
 import bge.igame.player.PlayerInfo;
 import bge.igame.player.PlayerOptions;
-import bge.igame.player.StrategyResult;
 import bge.main.GameRegistry;
 import gt.async.ThreadWorker;
 import gt.component.ComponentCreator;

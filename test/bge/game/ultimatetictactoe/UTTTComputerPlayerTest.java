@@ -5,13 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import bge.analysis.search.IterativeDeepeningTreeSearcher;
-import bge.analysis.strategy.MinimaxStrategy;
-import bge.analysis.strategy.MoveListProvider;
 import bge.igame.Coordinate;
 import bge.igame.MoveListFactory;
 import bge.igame.player.ComputerPlayer;
-import bge.strategy.TreeSearchStrategy;
+import bge.strategy.ts.MoveListProvider;
+import bge.strategy.ts.TreeSearchStrategy;
+import bge.strategy.ts.forkjoin.ForkJoinTreeSearcher;
+import bge.strategy.ts.forkjoin.minmax.ForkableMinimaxFactory;
+import bge.strategy.ts.forkjoin.minmax.MinimaxPositionEvaluator;
 
 public class UTTTComputerPlayerTest {
     @Test
@@ -32,6 +33,11 @@ public class UTTTComputerPlayerTest {
     }
 
     @Test
+    public void testStopOnTime_SixWorker() {
+        testStopOnTime(6, 1000);
+    }
+
+    @Test
     public void testMakeTwoMoves() {
         ComputerPlayer player = newComputerPlayer(2, 50);
         UltimateTicTacToeUtilities.initialize();
@@ -44,7 +50,7 @@ public class UTTTComputerPlayerTest {
     private static void testStopOnTime(int numWorkers, long toWait) {
         ComputerPlayer player = newComputerPlayer(numWorkers, toWait);
         long start = System.currentTimeMillis();
-        long extraTime = 1000;
+        long extraTime = 100;
         long allottedTime = toWait + extraTime;
         player.getMove(new UltimateTicTacToePosition());
         player.notifyGameEnded();
@@ -55,8 +61,8 @@ public class UTTTComputerPlayerTest {
 
     private static ComputerPlayer newComputerPlayer(int numWorkers, long toWait) {
         MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
-        IterativeDeepeningTreeSearcher<Coordinate, UltimateTicTacToePosition> treeSearcher = new IterativeDeepeningTreeSearcher<>(
-                new MinimaxStrategy<>(new UltimateTicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory)),
+        ForkJoinTreeSearcher<Coordinate, UltimateTicTacToePosition> treeSearcher = new ForkJoinTreeSearcher<>(
+                new ForkableMinimaxFactory<>(new MinimaxPositionEvaluator<>(new UltimateTicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory))),
                 moveListFactory, numWorkers);
         return new ComputerPlayer(new TreeSearchStrategy<>(treeSearcher, toWait, true));
     }
