@@ -19,6 +19,8 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
 
     private Thread treeSearchThread;
 
+    private volatile boolean searchComplete = false;
+
     private final int numSimulations;
     private final int maxDepth;
     private MonteCarloGameNode<M, P> monteCarloNode;
@@ -37,6 +39,7 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
     @SuppressWarnings("unchecked")
     @Override
     public void searchForever(P position, boolean escapeEarly) {
+        searchComplete = false;
         treeSearchThread = new Thread(() -> startSearch((P) position.createCopy(), escapeEarly),
                 "Monte_Carlo_Search_Thread_" + ThreadNumber.getThreadNum(getClass()));
         treeSearchThread.start();
@@ -47,6 +50,12 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
         monteCarloNode = new MonteCarloGameNode<>(null, null, position, monteCarloChildren, positionEvaluator, moveListFactory, numSimulations, maxDepth);
         monteCarloNode.searchRoot(escapeEarly);
         result = calculatePartialResult();
+        searchComplete = true;
+    }
+
+    @Override
+    public boolean isSearching() {
+        return !searchComplete;
     }
 
     @Override

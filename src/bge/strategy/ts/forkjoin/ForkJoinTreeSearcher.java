@@ -110,6 +110,11 @@ public class ForkJoinTreeSearcher<M, P extends IPosition<M>> implements ITreeSea
     }
 
     @Override
+    public boolean isSearching() {
+        return !searchStopped;
+    }
+
+    @Override
     public void stopSearch(boolean joinWorkerThreads) {
         stopWorkers();
         try {

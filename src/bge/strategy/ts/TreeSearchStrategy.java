@@ -32,7 +32,7 @@ public class TreeSearchStrategy<M> implements IStrategy<M>, InterruptableStrateg
         long start = System.currentTimeMillis();
         ((ITreeSearcher<M, IPosition<M>>) treeSearcher).searchForever(position, escapeEarly);
         synchronized (this) {
-            while (!stopRequested && msPerMove > System.currentTimeMillis() - start) {
+            while (treeSearcher.isSearching() && msPerMove > System.currentTimeMillis() - start) {
                 try {
                     wait(50);
                 } catch (InterruptedException e) {
