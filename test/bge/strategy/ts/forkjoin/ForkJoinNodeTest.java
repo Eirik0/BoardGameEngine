@@ -191,7 +191,6 @@ public class ForkJoinNodeTest {
         pos3.search(); // consumes the result
         AnalysisResult<TestGameNode> analysisResult = results.get(0);
         assertEquals(1, analysisResult.getMovesWithScore().size());
-        assertEquals(1, analysisResult.getInvalidMoves().size());
     }
 
     @Test
@@ -216,6 +215,5 @@ public class ForkJoinNodeTest {
         pos10.search(); // consumes the result
         AnalysisResult<TestGameNode> analysisResult = results.get(0);
         assertEquals(1, analysisResult.getMovesWithScore().size());
-        assertEquals(1, analysisResult.getInvalidMoves().size());
     }
 }

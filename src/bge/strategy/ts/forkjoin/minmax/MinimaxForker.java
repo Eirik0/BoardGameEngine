@@ -43,10 +43,9 @@ public class MinimaxForker {
             M move = moveWithResult.getKey();
             AnalysisResult<M> result = moveWithResult.getValue();
             MoveWithScore<M> moveWithScore = result.getBestMove(partialResult.getPlayer());
-            if (moveWithScore == null) {
-                continue;
+            if (moveWithScore != null && result.isSearchComplete()) {
+                partialResult.addMoveWithScore(move, moveWithScore.score);
             }
-            partialResult.addMoveWithScore(move, moveWithScore.score, result.isSearchComplete());
         }
     }
 
@@ -58,7 +57,6 @@ public class MinimaxForker {
         private final int expectedResults;
 
         private final Map<M, AnalysisResult<M>> movesWithResults;
-        private final AnalysisResult<M> remainderResult;
 
         private final AtomicBoolean parentAwaitingJoin = new AtomicBoolean(true);
 
@@ -68,7 +66,6 @@ public class MinimaxForker {
             this.partialResult = partialResult;
             this.expectedResults = expectedResults;
             movesWithResults = new LinkedHashMap<>();
-            remainderResult = new AnalysisResult<M>(partialResult.getPlayer()).mergeWith(partialResult);
         }
 
         @Override
@@ -80,10 +77,7 @@ public class MinimaxForker {
 
         private synchronized void joinSynchronized(boolean searchCanceled, Pair<M, AnalysisResult<M>> moveWithResult) {
             movesWithResults.put(moveWithResult.getFirst(), moveWithResult.getSecond());
-            MoveWithScore<M> bestMove = moveWithResult.getSecond().getBestMove(remainderResult.getPlayer());
-            if (bestMove != null) {
-                remainderResult.addMoveWithScore(moveWithResult.getFirst(), bestMove.score);
-            }
+
             if (searchCanceled || !moveWithResult.getSecond().isSearchComplete()) {
                 if (parentAwaitingJoin.compareAndSet(true, false)) {
                     MinimaxForker.combineWithPartial(partialResult, movesWithResults);

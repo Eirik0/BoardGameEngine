@@ -3,13 +3,11 @@ package bge.analysis;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import bge.game.chess.ChessConstants;
 
@@ -27,7 +25,6 @@ public class AnalysisResult<M> {
     private final Map<M, Double> allValidMoves = new LinkedHashMap<>();
     private final Map<M, Double> wonAndDrawnMoves = new HashMap<>();
     private final Map<M, Double> lostMoves = new HashMap<>();
-    private final Set<M> invalidMoves = new HashSet<>();
 
     private MoveWithScore<M> bestMove;
 
@@ -39,18 +36,10 @@ public class AnalysisResult<M> {
 
     public AnalysisResult(int player, M move, double score) {
         this(player);
-        addMoveWithScore(move, score, true);
+        addMoveWithScore(move, score);
     }
 
     public void addMoveWithScore(M move, double score) {
-        addMoveWithScore(move, score, true);
-    }
-
-    public synchronized void addMoveWithScore(M move, double score, boolean isValid) {
-        if (!isValid) {
-            invalidMoves.add(move);
-            return;
-        }
         allValidMoves.put(move, score);
         if (bestMove == null || AnalysisResult.isGreater(score, bestMove.score)) {
             bestMove = new MoveWithScore<>(move, score);
@@ -114,10 +103,6 @@ public class AnalysisResult<M> {
         Map<M, Double> decidedMoves = new HashMap<>(wonAndDrawnMoves);
         decidedMoves.putAll(lostMoves);
         return decidedMoves;
-    }
-
-    public synchronized Set<M> getInvalidMoves() {
-        return invalidMoves;
     }
 
     public synchronized boolean isWin() {
