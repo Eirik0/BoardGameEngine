@@ -1,6 +1,7 @@
 package bge.game.photosynthesis;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,8 @@ import gt.util.DoublePair;
 
 public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesisMove, PhotosynthesisPosition>,
         IPositionObserver<IPhotosynthesisMove, PhotosynthesisPosition> {
+    private static final Font PHOTO_FONT = BoardGameEngineMain.DEFAULT_SMALL_FONT.deriveFont(Font.BOLD, 14f);
+
     public static final Color[] PLAYER_COLORS = new Color[] { Color.RED, Color.BLUE, Color.ORANGE, Color.MAGENTA };
 
     private static final Coordinate[] SUN_POSITIONS = new Coordinate[] {
@@ -77,8 +80,8 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
         sizer = new GridSizer(imageWidth, imageHeight, 11, 11);
         hexGrid = new HexGrid(sizer.getCenterX(2), sizer.getCenterY(3), sizer.cellSize / 2);
         g.fillRect(0, 0, imageWidth, imageHeight, ComponentCreator.backgroundColor());
-        double endTurnX0 = imageWidth - 70;
-        endTurnLocation = new EFixedLocation(endTurnX0, 10, endTurnX0 + 60, 40);
+        double endTurnX0 = imageWidth - 80;
+        endTurnLocation = new EFixedLocation(endTurnX0, 10, endTurnX0 + 70, 40);
         drawEndTurnButton(g, Color.RED);
         double x0 = 0;
         double y0 = sizer.getCenterY(7);
@@ -95,6 +98,7 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
         g.fillRect(endTurnLocation.getX0() - 2, endTurnLocation.getY0() - 2, endTurnLocation.getWidth() + 4, endTurnLocation.getHeight() + 4);
         g.setColor(color);
         g.drawRect(endTurnLocation.getX0(), endTurnLocation.getY0(), endTurnLocation.getWidth(), endTurnLocation.getHeight());
+        g.setFont(PHOTO_FONT);
         g.drawCenteredString("End Turn", endTurnLocation.getCenterX(), endTurnLocation.getCenterY());
     }
 
@@ -151,12 +155,13 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
         drawBoard(g, position);
 
         // Draw player boards
+        g.setFont(PHOTO_FONT);
         for (int i = 0; i < position.numPlayers; ++i) {
             PlayerBoard pb = position.playerBoards[i];
             GuiPlayerBoard gpb = playerBoards[i];
+            Color playerColor = PLAYER_COLORS[i];
             gpb.drawOn(g);
             // light points
-            g.setFont(BoardGameEngineMain.DEFAULT_SMALL_FONT);
             g.setColor(Color.YELLOW);
             g.drawCenteredString(Integer.toString(pb.lightPoints), gpb.lightPointsLocation.getCenterX(), gpb.lightPointsLocation.getCenterY());
             // victory points
@@ -165,14 +170,13 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             // seeds
             for (int j = 0; j < pb.buy.length; ++j) {
                 EComponentLocation loc = gpb.buyableLocations[j];
-                Color playerColor = PLAYER_COLORS[i];
                 g.setColor(new Color(255 - playerColor.getRed(), 255 - playerColor.getGreen(), 255 - playerColor.getBlue()));
-                int pbBuy = pb.buy[i] - 1;
+                int pbBuy = pb.buy[j] - 1;
                 g.drawCenteredString(pbBuy < 0 ? "X" : Integer.toString(PhotosynthesisPosition.PRICES[0][pbBuy]),
                         loc.getX0() + loc.getHeight() / 2,
                         loc.getY0() + loc.getHeight() / 2);
                 g.setColor(playerColor);
-                g.drawCenteredString(treeString(pb.buy[i], 4, pb.available[i]),
+                g.drawCenteredString(treeString(pb.buy[j], 4, pb.available[j]),
                         loc.getX0() + (loc.getWidth() - loc.getHeight()) / 2,
                         loc.getY0() + loc.getHeight() / 2);
             }
@@ -309,7 +313,6 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
                 continue;
             }
             EComponentLocation buyLocation = playerBoards[currentPlayer].buyableLocations[buy.buyColumn];
-            System.out.println(buyLocation + " " + buyLocation.containsPoint(mouseTracker.mouseX(), mouseTracker.mouseY()));
             if (buyLocation.containsPoint(mouseTracker.mouseX(), mouseTracker.mouseY())) {
                 g.setColor(Color.GREEN);
                 g.drawRect(buyLocation.getX0(), buyLocation.getY0(), buyLocation.getWidth(), buyLocation.getHeight());
@@ -440,7 +443,7 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             }
             EGluedLocation topLocation = cl.createGluedLocation(GlueSide.TOP, 0, 0, 0, cl.getWidth() / 5 - 1);
             lightPointsLocation = topLocation.createGluedLocation(GlueSide.LEFT, 0, 0, cl.getHeight() / 5 - 1, 0);
-            victoryPointsLocation = topLocation.createGluedLocation(GlueSide.RIGHT, -cl.getHeight() / 5 - 1, 0, 0, 0);
+            victoryPointsLocation = topLocation.createGluedLocation(GlueSide.RIGHT, -cl.getHeight() / 5 + 1, 0, 0, 0);
         }
 
         @Override
