@@ -8,12 +8,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
+import bge.analysis.MoveWithScore;
 import bge.game.lock.TestLockingEvaluator;
 import bge.game.lock.TestLockingNode;
 import bge.game.lock.TestLockingPosition;
@@ -182,10 +182,10 @@ public class ForkableMinimaxTest {
     @Test
     public void testJoin_MovesWithScore() {
         TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
-        Map<TestGameNode, Double> movesWithScore = search(new TestGameEvaluator(), testGamePosition, 4).getMovesWithScore();
+        List<MoveWithScore<TestGameNode>> movesWithScore = search(new TestGameEvaluator(), testGamePosition, 4).getMovesWithScore();
         AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(testGamePosition.getCurrentPlayer());
-        for (Entry<TestGameNode, Double> moveWithScore : movesWithScore.entrySet()) {
-            partialResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue());
+        for (MoveWithScore<TestGameNode> moveWithScore : movesWithScore) {
+            partialResult.addMoveWithScore(moveWithScore);
         }
         MinimaxForker.combineWithPartial(partialResult, Collections.emptyMap());
         assertEquals("-1 -> [6, 5]: 25.0\n"
@@ -195,9 +195,9 @@ public class ForkableMinimaxTest {
     @Test
     public void testJoin_Mixed() {
         TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
-        Entry<TestGameNode, Double> moveWithScore = search(new TestGameEvaluator(), testGamePosition, 4).getMovesWithScore().entrySet().iterator().next();
-        AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(testGamePosition.getCurrentPlayer(), moveWithScore.getKey(),
-                moveWithScore.getValue());
+        MoveWithScore<TestGameNode> moveWithScore = search(new TestGameEvaluator(), testGamePosition, 4).getMovesWithScore().get(0);
+        AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(testGamePosition.getCurrentPlayer());
+        partialResult.addMoveWithScore(moveWithScore);
 
         MoveList<TestGameNode> possibleMoves = new ArrayMoveList<>(2);
         testGamePosition.getPossibleMoves(possibleMoves);

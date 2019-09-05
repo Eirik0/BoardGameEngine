@@ -3,13 +3,13 @@ package bge.strategy.ts.forkjoin;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import bge.analysis.AnalysisResult;
+import bge.analysis.MoveWithScore;
+import bge.analysis.MoveWithScoreFinder;
 import bge.game.ultimatetictactoe.UltimateTicTacToeGame;
 import bge.game.ultimatetictactoe.UltimateTicTacToePosition;
 import bge.game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
@@ -45,11 +45,14 @@ public class ForkableAlphaBetaTest {
             System.out.println("S1: " + s1Time + "ms, S2: " + s2Time + "ms, depth: " + plies + ", " + s1Result.getBestMove(s1Result.getPlayer()).toString());
             assertEquals(s1Result.getBestMove(s1Result.getPlayer()).score, s2Result.getBestMove(s2Result.getPlayer()).score,
                     "Comparing score " + plies);
-            Map<M, Double> s2MoveMap = s2Result.getMovesWithScore();
-            for (Entry<M, Double> moveWithScore : s1Result.getMovesWithScore().entrySet()) {
-                if (!(Math.abs(moveWithScore.getValue() - s2MoveMap.get(moveWithScore.getKey())) < 0.001)) {
+            List<MoveWithScore<M>> s1Moves = s1Result.getMovesWithScore();
+            List<MoveWithScore<M>> s2Moves = s2Result.getMovesWithScore();
+            assertEquals(s1Moves.size(), s2Moves.size());
+            for (MoveWithScore<M> s1moveWithScore : s1Moves) {
+                MoveWithScore<M> s2MoveWithScore = MoveWithScoreFinder.find(s2Moves, s1moveWithScore.move);
+                if (!(Math.abs(s1moveWithScore.score - s2MoveWithScore.score) < 0.001)) {
                     printResults(s1Result, s2Result);
-                    fail(moveWithScore + " " + s2MoveMap.get(moveWithScore.getKey()));
+                    fail(s1moveWithScore + " " + s2MoveWithScore);
                 }
             }
             ++plies;
@@ -60,12 +63,11 @@ public class ForkableAlphaBetaTest {
     }
 
     private static <M> void printResults(AnalysisResult<M> s1Result, AnalysisResult<M> s2Result) {
-        Map<M, Double> s1MovesWithScore = s1Result.getMovesWithScore();
-        Map<M, Double> s2MovesWithScore = s2Result.getMovesWithScore();
-        ArrayList<M> moves = new ArrayList<>(s1MovesWithScore.keySet());
-        moves.addAll(s2MovesWithScore.keySet());
-        for (M move : moves) {
-            System.out.println(move.toString() + " " + s1MovesWithScore.get(move) + " " + s2MovesWithScore.get(move));
+        List<MoveWithScore<M>> s1MovesWithScore = s1Result.getMovesWithScore();
+        List<MoveWithScore<M>> s2MovesWithScore = s2Result.getMovesWithScore();
+        for (MoveWithScore<M> s1MoveWithScore : s1MovesWithScore) {
+            double s2Score = MoveWithScoreFinder.find(s2MovesWithScore, s1MoveWithScore.move).score;
+            System.out.println(s1MoveWithScore.move + " " + s1MoveWithScore.score + " " + s2Score);
         }
     }
 }

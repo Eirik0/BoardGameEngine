@@ -5,6 +5,7 @@ import java.util.List;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
+import bge.analysis.MoveWithScore;
 import bge.analysis.PartialResultObservable;
 import bge.analysis.StrategyResult;
 import bge.igame.IPosition;
@@ -81,7 +82,7 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
         List<MonteCarloGameNode<M, P>> expandedChildren = monteCarloNode.expandedChildren;
         if (expandedChildren == null && monteCarloNode.statistics.isDecided) {
             AnalysisResult<M> result = new AnalysisResult<>(monteCarloNode.statistics.player);
-            result.addMoveWithScore(null, convertScore(monteCarloNode.statistics, true, monteCarloNode.statistics.numUncertain));
+            result.addMoveWithScore(new MoveWithScore<M>(null, convertScore(monteCarloNode.statistics, true, monteCarloNode.statistics.numUncertain)));
             return result;
         } else if (expandedChildren == null || expandedChildren.isEmpty()) {
             return null;
@@ -91,9 +92,9 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
         int i = 0;
         while (i < expandedChildren.size()) {
             MonteCarloGameNode<M, P> childNode = expandedChildren.get(i++);
-            result.addMoveWithScore(childNode.parentMove,
+            result.addMoveWithScore(new MoveWithScore<>(childNode.parentMove,
                     convertScore(childNode.statistics, monteCarloNode.statistics.player == childNode.statistics.player,
-                            monteCarloNode.statistics.numUncertain));
+                            monteCarloNode.statistics.numUncertain)));
         }
         return result;
     }
@@ -115,14 +116,13 @@ public class MonteCarloTreeSearcher<M, P extends IPosition<M>> implements ITreeS
         return monteCarloNode;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public StrategyResult getPartialResult() {
         if (monteCarloNode != null) {
             AnalysisResult<M> partialResult = result == null ? calculatePartialResult() : result;
-            return new StrategyResult((AnalysisResult<Object>) partialResult, Collections.emptyMap(), monteCarloNode.statistics.getTotalNodesEvaluated());
+            return new StrategyResult(partialResult, Collections.emptyList(), monteCarloNode.statistics.getTotalNodesEvaluated());
         } else {
-            return new StrategyResult(null, Collections.emptyMap(), 0);
+            return new StrategyResult(null, Collections.emptyList(), 0);
         }
     }
 }

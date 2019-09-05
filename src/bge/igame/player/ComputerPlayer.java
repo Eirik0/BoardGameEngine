@@ -51,6 +51,6 @@ public class ComputerPlayer implements IPlayer {
         if (strategy instanceof ObservableStrategy) {
             return ((ObservableStrategy) strategy).getCurrentResult();
         }
-        return new StrategyResult(new AnalysisResult<>(0), Collections.emptyMap(), 0); // TODO (re)consider this
+        return new StrategyResult(new AnalysisResult<>(0), Collections.emptyList(), 0); // TODO (re)consider this
     }
 }

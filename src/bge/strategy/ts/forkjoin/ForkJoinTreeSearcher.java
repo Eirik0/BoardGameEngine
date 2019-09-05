@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import bge.analysis.AnalysisResult;
+import bge.analysis.MoveWithScore;
 import bge.analysis.PartialResultObservable;
 import bge.analysis.StrategyResult;
 import bge.igame.IPosition;
@@ -86,8 +87,8 @@ public class ForkJoinTreeSearcher<M, P extends IPosition<M>> implements ITreeSea
             } else {
                 // add back decided moves
                 if (result != null) {
-                    for (Entry<M, Double> moveWithScore : result.getDecidedMoves().entrySet()) {
-                        search.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue());
+                    for (MoveWithScore<M> moveWithScore : result.getDecidedMoves()) {
+                        search.addMoveWithScore(moveWithScore);
                     }
                 }
                 // return the previous result if the current is a loss for longevity
@@ -148,10 +149,9 @@ public class ForkJoinTreeSearcher<M, P extends IPosition<M>> implements ITreeSea
         return plies;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public StrategyResult getPartialResult() {
-        return new StrategyResult((AnalysisResult<Object>) result, (Map<Object, Double>) treeSearchRoot.getPartialResult().getMovesWithScore(), plies);
+        return new StrategyResult(result, treeSearchRoot.getPartialResult().getMovesWithScore(), plies);
     }
 
     private AnalysisResult<M> search(P position, int plies) {
@@ -198,16 +198,16 @@ public class ForkJoinTreeSearcher<M, P extends IPosition<M>> implements ITreeSea
             searchMoveList = moveListFactory.newAnalysisMoveList();
             position.getPossibleMoves(searchMoveList);
         } else {
-            List<Entry<M, Double>> undecidedMoves = new ArrayList<>();
-            for (Entry<M, Double> moveWithScore : result.getMovesWithScore().entrySet()) {
-                if (!AnalysisResult.isGameOver(moveWithScore.getValue())) {
+            List<MoveWithScore<M>> undecidedMoves = new ArrayList<>();
+            for (MoveWithScore<M> moveWithScore : result.getMovesWithScore()) {
+                if (!AnalysisResult.isGameOver(moveWithScore.score)) {
                     undecidedMoves.add(moveWithScore);
                 }
             }
-            Collections.sort(undecidedMoves, (m1, m2) -> Double.compare(m2.getValue(), m1.getValue()));
+            Collections.sort(undecidedMoves, (m1, m2) -> Double.compare(m2.score, m1.score));
             searchMoveList = moveListFactory.newAnalysisMoveList();
-            for (Entry<M, Double> entry : undecidedMoves) {
-                searchMoveList.addQuietMove(entry.getKey(), position);
+            for (MoveWithScore<M> entry : undecidedMoves) {
+                searchMoveList.addQuietMove(entry.move, position);
             }
         }
         return searchMoveList;

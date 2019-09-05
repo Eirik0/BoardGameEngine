@@ -23,7 +23,7 @@ public class PhotosynthesisGame implements IGame<IPhotosynthesisMove, Photosynth
 
     @Override
     public int getMaxMoves() {
-        return 128;
+        return 128; // TODO review this number
     }
 
     @Override

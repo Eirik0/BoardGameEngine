@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -23,11 +22,12 @@ public class AnalysisResultTest {
         AnalysisResult<Integer> result2 = createResult(Arrays.asList(moveScore(1, 2.0), moveScore(2, 0.5)));
         AnalysisResult<Integer> mergedRestult = result1.mergeWith(result2);
         assertEquals(4, result1.getMovesWithScore().size());
-        Map<Integer, Double> movesWithScore = mergedRestult.getMovesWithScore();
-        assertEquals(2.0, movesWithScore.get(Integer.valueOf(1)).doubleValue());
-        assertEquals(0.5, movesWithScore.get(Integer.valueOf(2)).doubleValue());
-        assertEquals(1.0, movesWithScore.get(Integer.valueOf(3)).doubleValue());
-        assertEquals(1.0, movesWithScore.get(Integer.valueOf(4)).doubleValue());
+        List<MoveWithScore<Integer>> movesWithScore = mergedRestult.getMovesWithScore();
+
+        assertEquals(2.0, MoveWithScoreFinder.find(movesWithScore, Integer.valueOf(1)).score);
+        assertEquals(0.5, MoveWithScoreFinder.find(movesWithScore, Integer.valueOf(2)).score);
+        assertEquals(1.0, MoveWithScoreFinder.find(movesWithScore, Integer.valueOf(3)).score);
+        assertEquals(1.0, MoveWithScoreFinder.find(movesWithScore, Integer.valueOf(4)).score);
         MoveWithScore<Integer> bestMove = mergedRestult.getBestMove(mergedRestult.getPlayer());
         assertEquals(2.0, bestMove.score);
         assertEquals(Integer.valueOf(1), bestMove.move);
@@ -36,7 +36,7 @@ public class AnalysisResultTest {
     private static AnalysisResult<Integer> createResult(List<Pair<Integer, Double>> movesWithScore) {
         AnalysisResult<Integer> result = new AnalysisResult<>(1);
         for (Pair<Integer, Double> moveWithScore : movesWithScore) {
-            result.addMoveWithScore(moveWithScore.getFirst(), moveWithScore.getSecond().doubleValue());
+            result.addMoveWithScore(new MoveWithScore<>(moveWithScore.getFirst(), moveWithScore.getSecond().doubleValue()));
         }
         return result;
     }
@@ -44,7 +44,7 @@ public class AnalysisResultTest {
     @Test
     public void testFindBestMoveEvenIfLost() {
         AnalysisResult<String> result = new AnalysisResult<>(1);
-        result.addMoveWithScore("1", AnalysisResult.LOSS);
+        result.addMoveWithScore(new MoveWithScore<>("1", AnalysisResult.LOSS));
         assertEquals("1", result.getBestMove(result.getPlayer()).move);
     }
 

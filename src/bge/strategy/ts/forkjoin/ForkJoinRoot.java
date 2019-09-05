@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.MoveWithScore;
@@ -37,8 +36,8 @@ public class ForkJoinRoot<M> {
     public AnalysisResult<M> getPartialResult() {
         updatePartialResult();
         AnalysisResult<M> partialResultCopy = new AnalysisResult<>(partialResult.getPlayer());
-        for (Entry<M, Double> moveWithScore : partialResult.getMovesWithScore().entrySet()) {
-            partialResultCopy.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue());
+        for (MoveWithScore<M> moveWithScore : partialResult.getMovesWithScore()) {
+            partialResultCopy.addMoveWithScore(moveWithScore);
         }
         return partialResultCopy;
     }
@@ -53,7 +52,7 @@ public class ForkJoinRoot<M> {
                 if (bestMove == null) {
                     continue;
                 }
-                partialResult.addMoveWithScore(branch.getParentMove(), bestMove.score);
+                partialResult.addMoveWithScore(new MoveWithScore<>(branch.getParentMove(), bestMove.score));
                 branchIterator.remove();
             }
         }

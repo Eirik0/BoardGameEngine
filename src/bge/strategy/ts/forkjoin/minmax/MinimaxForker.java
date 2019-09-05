@@ -44,7 +44,7 @@ public class MinimaxForker {
             AnalysisResult<M> result = moveWithResult.getValue();
             MoveWithScore<M> moveWithScore = result.getBestMove(partialResult.getPlayer());
             if (moveWithScore != null && result.isSearchComplete()) {
-                partialResult.addMoveWithScore(move, moveWithScore.score);
+                partialResult.addMoveWithScore(new MoveWithScore<>(move, moveWithScore.score));
             }
         }
     }

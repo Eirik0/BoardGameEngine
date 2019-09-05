@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import bge.analysis.AnalysisResult;
+import bge.analysis.MoveWithScore;
 import bge.igame.IPosition;
 import bge.igame.MoveList;
 import bge.igame.MoveListFactory;
@@ -40,7 +41,8 @@ public class ForkableAlphaBeta<M, P extends IPosition<M>> implements IForkable<M
     @Override
     public AnalysisResult<M> search() {
         if (!isForkable()) {
-            AnalysisResult<M> result = new AnalysisResult<>(position.getCurrentPlayer(), null, strategy.evaluate(position, plies));
+            AnalysisResult<M> result = new AnalysisResult<>(position.getCurrentPlayer());
+            result.addMoveWithScore(new MoveWithScore<>(null, strategy.evaluate(position, plies)));
             result.searchCompleted();
             return result;
         }
@@ -57,7 +59,7 @@ public class ForkableAlphaBeta<M, P extends IPosition<M>> implements IForkable<M
             if (searchCanceled) { // we need to check search canceled after making the call to evaluate
                 break;
             } else {
-                analysisResult.addMoveWithScore(move, score);
+                analysisResult.addMoveWithScore(new MoveWithScore<>(move, score));
                 if (AnalysisResult.isGreater(score, alpha)) {
                     alpha = score;
                 }

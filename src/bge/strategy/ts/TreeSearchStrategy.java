@@ -72,7 +72,7 @@ public class TreeSearchStrategy<M> implements IStrategy<M>, InterruptableStrateg
         if (treeSearcher instanceof PartialResultObservable) {
             return ((PartialResultObservable) treeSearcher).getPartialResult();
         } else {
-            return new StrategyResult((AnalysisResult<Object>) treeSearcher.getResult(), Collections.emptyMap(), 0);
+            return new StrategyResult((AnalysisResult<Object>) treeSearcher.getResult(), Collections.emptyList(), 0);
         }
     }
 }

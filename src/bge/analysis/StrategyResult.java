@@ -5,14 +5,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class StrategyResult {
     public final List<ObservedMoveWithScore> moves;
     public final Integer depth;
     public final boolean isDecided;
 
-    public StrategyResult(AnalysisResult<Object> analysisResult, Map<Object, Double> partialResults, int depth) {
+    public <M> StrategyResult(AnalysisResult<M> analysisResult, List<MoveWithScore<M>> partialResults, int depth) {
         if (analysisResult == null && partialResults.size() == 0) {
             moves = Collections.emptyList();
             isDecided = false;
@@ -41,10 +40,10 @@ public class StrategyResult {
         this.depth = Integer.valueOf(depth);
     }
 
-    private static void addMovesToMap(Map<String, ObservedMoveWithScore> moveMap, Map<Object, Double> movesWithScore, boolean partial) {
-        for (Entry<Object, Double> moveWithScore : movesWithScore.entrySet()) {
-            String moveString = moveWithScore.getKey() == null ? "-" : moveWithScore.getKey().toString();
-            moveMap.put(moveString, new ObservedMoveWithScore(moveString, moveWithScore.getValue(), partial));
+    private static <M> void addMovesToMap(Map<String, ObservedMoveWithScore> moveMap, List<MoveWithScore<M>> movesWithScore, boolean partial) {
+        for (MoveWithScore<?> moveWithScore : movesWithScore) {
+            String moveString = moveWithScore.move == null ? "-" : moveWithScore.move.toString();
+            moveMap.put(moveString, new ObservedMoveWithScore(moveString, moveWithScore.score, partial));
         }
     }
 }
