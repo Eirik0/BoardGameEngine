@@ -81,7 +81,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
     static final Coordinate[] ALL_COORDS = Arrays.stream(ALL_TILES).flatMap(xs -> Arrays.stream(xs)).toArray(Coordinate[]::new);
 
-    static final Map<Coordinate, Map<Integer, List<Coordinate>>> PATHS_OF_LENGTH = MainBoard.preloadShortestPaths();
+    static final Map<Coordinate, List<Coordinate>[]> PATHS_OF_LENGTH = MainBoard.preloadShortestPaths();
 
     final int numPlayers;
 
@@ -168,7 +168,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             }
 
             if (adjustedScore[i] >= winningScore) {
-                winners.add(i);
+                winners.add(Integer.valueOf(i));
             }
         }
 
@@ -253,9 +253,9 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         }
     }
 
-    private void getNearCoordinates(Coordinate coord, int distance, Consumer<Coordinate> consumer) {
+    private static void getNearCoordinates(Coordinate coord, int distance, Consumer<Coordinate> consumer) {
         for (int d = 1; d <= distance; d++) {
-            for (final Coordinate coordinate : PATHS_OF_LENGTH.get(coord).get(d)) {
+            for (final Coordinate coordinate : PATHS_OF_LENGTH.get(coord)[d]) {
                 consumer.accept(coordinate);
             }
         }
@@ -882,10 +882,11 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             return map;
         }
 
-        static Map<Coordinate, Map<Integer, List<Coordinate>>> preloadShortestPaths() {
+        @SuppressWarnings("unchecked")
+        static Map<Coordinate, List<Coordinate>[]> preloadShortestPaths() {
             final int[][] paths = computeAllPairsShortestPaths();
 
-            final Map<Coordinate, Map<Integer, List<Coordinate>>> result = new HashMap<>();
+            final Map<Coordinate, List<Coordinate>[]> result = new HashMap<>();
 
             final int n = paths.length;
 
@@ -893,18 +894,23 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
                 for (int j = 0; j < n; j++) {
                     final int dist = paths[i][j];
 
-                    Map<Integer, List<Coordinate>> innerMap = result.getOrDefault(ALL_COORDS[i], null);
+                    List<Coordinate>[] innerMap = result.get(ALL_COORDS[i]);
 
                     if (innerMap == null) {
-                        innerMap = new HashMap<>();
+                        innerMap = new List[dist + 1];
+                        result.put(ALL_COORDS[i], innerMap);
+                    } else if (innerMap.length <= dist) {
+                        List<Coordinate>[] innerMapNew = new List[dist + 1];
+                        System.arraycopy(innerMap, 0, innerMapNew, 0, innerMap.length);
+                        innerMap = innerMapNew;
                         result.put(ALL_COORDS[i], innerMap);
                     }
 
-                    List<Coordinate> coords = innerMap.getOrDefault(dist, null);
+                    List<Coordinate> coords = innerMap[dist];
 
                     if (coords == null) {
                         coords = new ArrayList<>();
-                        innerMap.put(dist, coords);
+                        innerMap[dist] = coords;
                     }
 
                     coords.add(ALL_COORDS[j]);

@@ -373,10 +373,11 @@ public class PhotosynthesisPositionTest {
     public void TestAreNeighbors_Symmetry() {
         for (final Coordinate source : PhotosynthesisPosition.ALL_COORDS) {
             for (final Coordinate dest : PhotosynthesisPosition.ALL_COORDS) {
-                assertEquals(
-                        PhotosynthesisPosition.MainBoard.areNeighbors(source, dest),
-                        PhotosynthesisPosition.MainBoard.areNeighbors(dest, source));
-
+                if (PhotosynthesisPosition.MainBoard.areNeighbors(source, dest)) {
+                    assertTrue(PhotosynthesisPosition.MainBoard.areNeighbors(dest, source), source + " " + dest);
+                } else {
+                    assertFalse(PhotosynthesisPosition.MainBoard.areNeighbors(dest, source), source + " " + dest);
+                }
             }
         }
     }
