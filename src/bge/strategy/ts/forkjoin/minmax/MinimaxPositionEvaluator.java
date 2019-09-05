@@ -4,26 +4,27 @@ import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
 import bge.igame.IPosition;
 import bge.igame.MoveList;
-import bge.strategy.ts.MoveListProvider;
+import bge.igame.MoveListFactory;
+import bge.igame.MoveListProvider;
 import bge.strategy.ts.forkjoin.IDepthBasedPositionEvaluator;
 
 public class MinimaxPositionEvaluator<M, P extends IPosition<M>> implements IDepthBasedPositionEvaluator<M, P> {
     private final IPositionEvaluator<M, P> positionEvaluator;
-    private final MoveListProvider<M> moveListProvider;
+    private final MoveListFactory<M> moveListFactory;
 
     private volatile boolean searchCanceled = false;
 
-    public MinimaxPositionEvaluator(IPositionEvaluator<M, P> positionEvaluator, MoveListProvider<M> moveListProvider) {
+    public MinimaxPositionEvaluator(IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory) {
         this.positionEvaluator = positionEvaluator;
-        this.moveListProvider = moveListProvider;
+        this.moveListFactory = moveListFactory;
     }
 
     @Override
     public double evaluate(P position, int plies) {
-        return negamax(position, plies);
+        return negamax(moveListFactory.newAnalysisMoveListProvider(), position, plies);
     }
 
-    private double negamax(P position, int depth) {
+    private double negamax(MoveListProvider<M> moveListProvider, P position, int depth) {
         if (searchCanceled) {
             return 0;
         }
@@ -44,7 +45,8 @@ public class MinimaxPositionEvaluator<M, P extends IPosition<M>> implements IDep
         do {
             M move = possibleMoves.get(i);
             position.makeMove(move);
-            double score = parentPlayer == position.getCurrentPlayer() ? negamax(position, depth - 1) : -negamax(position, depth - 1);
+            double score = parentPlayer == position.getCurrentPlayer() ? negamax(moveListProvider, position, depth - 1)
+                    : -negamax(moveListProvider, position, depth - 1);
             position.unmakeMove(move);
 
             gameOver = gameOver && AnalysisResult.isGameOver(score);
@@ -64,10 +66,5 @@ public class MinimaxPositionEvaluator<M, P extends IPosition<M>> implements IDep
     @Override
     public void stopSearch() {
         searchCanceled = true;
-    }
-
-    @Override
-    public IDepthBasedPositionEvaluator<M, P> createCopy() {
-        return new MinimaxPositionEvaluator<>(positionEvaluator, moveListProvider.createCopy());
     }
 }

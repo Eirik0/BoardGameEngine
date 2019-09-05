@@ -29,7 +29,7 @@ public class AnalysisResult<M> {
     private final Map<M, Double> lostMoves = new HashMap<>();
     private final Set<M> invalidMoves = new HashSet<>();
 
-    private AnalyzedMove<M> bestMove;
+    private MoveWithScore<M> bestMove;
 
     private boolean searchComplete = false;
 
@@ -53,7 +53,7 @@ public class AnalysisResult<M> {
         }
         allValidMoves.put(move, score);
         if (bestMove == null || AnalysisResult.isGreater(score, bestMove.score)) {
-            bestMove = new AnalyzedMove<>(move, score);
+            bestMove = new MoveWithScore<>(move, score);
         }
         if (isWin(score) || isDraw(score)) {
             wonAndDrawnMoves.put(move, score);
@@ -88,11 +88,11 @@ public class AnalysisResult<M> {
         return new LinkedHashMap<>(allValidMoves);
     }
 
-    public synchronized AnalyzedMove<M> getBestMove(int currentPlayer) {
+    public synchronized MoveWithScore<M> getBestMove(int currentPlayer) {
         if (bestMove == null) {
             return null;
         }
-        return isDraw(bestMove.score) && !isDecided() ? new AnalyzedMove<>(bestMove.move, 0.0) : bestMove.transform(player == currentPlayer);
+        return isDraw(bestMove.score) && !isDecided() ? new MoveWithScore<>(bestMove.move, 0.0) : bestMove.transform(player == currentPlayer);
     }
 
     public synchronized List<M> getBestMoves() {
@@ -162,7 +162,7 @@ public class AnalysisResult<M> {
         Iterator<Entry<M, Double>> moveScoreIter = allValidMoves.entrySet().iterator();
         while (moveScoreIter.hasNext()) {
             Entry<M, Double> moveWithScore = moveScoreIter.next();
-            sb.append(AnalyzedMove.toString(moveWithScore.getKey(), moveWithScore.getValue()));
+            sb.append(MoveWithScore.toString(moveWithScore.getKey(), moveWithScore.getValue()));
             if (moveScoreIter.hasNext()) {
                 sb.append("\n");
             }

@@ -16,28 +16,17 @@ import bge.game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
 import bge.igame.Coordinate;
 import bge.igame.IPosition;
 import bge.igame.MoveListFactory;
-import bge.strategy.ts.MoveListProvider;
-import bge.strategy.ts.forkjoin.ForkJoinTreeSearcher;
-import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory;
-import bge.strategy.ts.forkjoin.alphabeta.AlphaBetaPositionEvaluator;
-import bge.strategy.ts.forkjoin.alphabeta.ForkableAlphaBetaFactory;
-import bge.strategy.ts.forkjoin.minmax.ForkableMinimaxFactory;
-import bge.strategy.ts.forkjoin.minmax.MinimaxPositionEvaluator;
+import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory.ForkableType;
 
 public class ForkableAlphaBetaTest {
     @Test
     public void testAlphaBetaEqualsMinMax() {
         MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
 
-        MinimaxPositionEvaluator<Coordinate, UltimateTicTacToePosition> minmaxStrategy = new MinimaxPositionEvaluator<>(
-                new UltimateTicTacToePositionEvaluator(),
-                new MoveListProvider<>(moveListFactory));
-        AlphaBetaPositionEvaluator<Coordinate, UltimateTicTacToePosition> alphabetaStrategy = new AlphaBetaPositionEvaluator<>(
-                new UltimateTicTacToePositionEvaluator(),
-                new MoveListProvider<>(moveListFactory));
-
-        compareStrategies(new UltimateTicTacToePosition(), moveListFactory, new ForkableMinimaxFactory<>(minmaxStrategy),
-                new ForkableAlphaBetaFactory<>(alphabetaStrategy), 4, 6);
+        compareStrategies(new UltimateTicTacToePosition(), moveListFactory,
+                new ForkableTreeSearchFactory<>(ForkableType.MINIMAX, new UltimateTicTacToePositionEvaluator(), moveListFactory),
+                new ForkableTreeSearchFactory<>(ForkableType.ALPHA_BETA, new UltimateTicTacToePositionEvaluator(), moveListFactory),
+                4, 6);
     }
 
     public static <M, P extends IPosition<M>> void compareStrategies(P position, MoveListFactory<M> moveListFactory, ForkableTreeSearchFactory<M, P> strat1,

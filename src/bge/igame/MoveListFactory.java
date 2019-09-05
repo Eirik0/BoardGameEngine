@@ -28,4 +28,8 @@ public class MoveListFactory<M> {
             throw new RuntimeException(e);
         }
     }
+
+    public MoveListProvider<M> newAnalysisMoveListProvider() {
+        return new MoveListProvider<>(this);
+    }
 }

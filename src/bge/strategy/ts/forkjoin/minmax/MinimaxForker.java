@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import bge.analysis.AnalysisResult;
-import bge.analysis.AnalyzedMove;
+import bge.analysis.MoveWithScore;
 import bge.igame.IPosition;
 import bge.igame.MoveList;
 import bge.igame.MoveListFactory;
@@ -42,7 +42,7 @@ public class MinimaxForker {
         for (Entry<M, AnalysisResult<M>> moveWithResult : movesWithResults.entrySet()) {
             M move = moveWithResult.getKey();
             AnalysisResult<M> result = moveWithResult.getValue();
-            AnalyzedMove<M> moveWithScore = result.getBestMove(partialResult.getPlayer());
+            MoveWithScore<M> moveWithScore = result.getBestMove(partialResult.getPlayer());
             if (moveWithScore == null) {
                 continue;
             }
@@ -80,7 +80,7 @@ public class MinimaxForker {
 
         private synchronized void joinSynchronized(boolean searchCanceled, Pair<M, AnalysisResult<M>> moveWithResult) {
             movesWithResults.put(moveWithResult.getFirst(), moveWithResult.getSecond());
-            AnalyzedMove<M> bestMove = moveWithResult.getSecond().getBestMove(remainderResult.getPlayer());
+            MoveWithScore<M> bestMove = moveWithResult.getSecond().getBestMove(remainderResult.getPlayer());
             if (bestMove != null) {
                 remainderResult.addMoveWithScore(moveWithResult.getFirst(), bestMove.score);
             }

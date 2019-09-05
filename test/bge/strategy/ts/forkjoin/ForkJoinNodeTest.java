@@ -18,20 +18,16 @@ import bge.game.value.TestGamePosition;
 import bge.igame.IPosition;
 import bge.igame.MoveList;
 import bge.igame.MoveListFactory;
-import bge.strategy.ts.MoveListProvider;
-import bge.strategy.ts.forkjoin.minmax.ForkableMinimaxFactory;
-import bge.strategy.ts.forkjoin.minmax.MinimaxPositionEvaluator;
+import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory.ForkableType;
 
 public class ForkJoinNodeTest {
     private static <M, P extends IPosition<M>> ForkJoinNode<M> newGameTreeSearch(P position, int plies, int maxMoves,
             IPositionEvaluator<M, P> positionEvaluator, List<AnalysisResult<M>> results) {
         MoveListFactory<M> moveListFactory = new MoveListFactory<>(maxMoves);
-        MoveListProvider<M> moveListProvider = new MoveListProvider<>(moveListFactory);
-        MinimaxPositionEvaluator<M, P> strategy = new MinimaxPositionEvaluator<>(positionEvaluator, moveListProvider);
-
         MoveList<M> moveList = moveListFactory.newAnalysisMoveList();
         position.getPossibleMoves(moveList);
-        return new ForkJoinNode<>(null, new ForkableMinimaxFactory<>(strategy).createNew(position, moveList, moveListFactory, plies),
+        return new ForkJoinNode<>(null,
+                new ForkableTreeSearchFactory<>(ForkableType.MINIMAX, positionEvaluator, moveListFactory).createNew(position, moveList, moveListFactory, plies),
                 (canceled, moveWithResult) -> results.add(moveWithResult.getSecond()));
     }
 

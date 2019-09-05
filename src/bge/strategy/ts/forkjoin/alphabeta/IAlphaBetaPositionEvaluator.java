@@ -11,7 +11,4 @@ public interface IAlphaBetaPositionEvaluator<M, P extends IPosition<M>> extends 
     }
 
     double evaluate(P position, int plies, double alpha, double beta);
-
-    @Override
-    IAlphaBetaPositionEvaluator<M, P> createCopy();
 }

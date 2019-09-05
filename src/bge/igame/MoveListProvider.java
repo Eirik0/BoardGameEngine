@@ -1,7 +1,4 @@
-package bge.strategy.ts;
-
-import bge.igame.MoveList;
-import bge.igame.MoveListFactory;
+package bge.igame;
 
 public class MoveListProvider<M> {
     protected static final int MAX_DEPTH = 128;
@@ -22,9 +19,5 @@ public class MoveListProvider<M> {
         }
         moveList.clear();
         return moveList;
-    }
-
-    public MoveListProvider<M> createCopy() {
-        return new MoveListProvider<>(moveListFactory);
     }
 }

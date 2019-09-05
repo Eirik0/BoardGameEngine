@@ -28,7 +28,7 @@ public class AnalysisResultTest {
         assertEquals(0.5, movesWithScore.get(Integer.valueOf(2)).doubleValue());
         assertEquals(1.0, movesWithScore.get(Integer.valueOf(3)).doubleValue());
         assertEquals(1.0, movesWithScore.get(Integer.valueOf(4)).doubleValue());
-        AnalyzedMove<Integer> bestMove = mergedRestult.getBestMove(mergedRestult.getPlayer());
+        MoveWithScore<Integer> bestMove = mergedRestult.getBestMove(mergedRestult.getPlayer());
         assertEquals(2.0, bestMove.score);
         assertEquals(Integer.valueOf(1), bestMove.move);
     }

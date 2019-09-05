@@ -2,17 +2,17 @@ package bge.analysis;
 
 import java.util.Objects;
 
-public class AnalyzedMove<M> {
+public class MoveWithScore<M> {
     public final M move;
     public final double score;
 
-    public AnalyzedMove(M move, double score) {
+    public MoveWithScore(M move, double score) {
         this.move = move;
         this.score = score;
     }
 
-    public AnalyzedMove<M> transform(boolean isCurrentPlayer) {
-        return isCurrentPlayer ? this : new AnalyzedMove<>(move, -score);
+    public MoveWithScore<M> transform(boolean isCurrentPlayer) {
+        return isCurrentPlayer ? this : new MoveWithScore<>(move, -score);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class AnalyzedMove<M> {
         } else if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        AnalyzedMove<?> other = (AnalyzedMove<?>) obj;
+        MoveWithScore<?> other = (MoveWithScore<?>) obj;
         return Objects.equals(move, other.move)
                 && (score == other.score || AnalysisResult.isDraw(score) && AnalysisResult.isDraw(other.score));
     }

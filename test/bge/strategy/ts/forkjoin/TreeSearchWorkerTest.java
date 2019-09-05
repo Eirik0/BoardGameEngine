@@ -11,9 +11,7 @@ import bge.game.value.TestGameNode;
 import bge.game.value.TestGamePosition;
 import bge.igame.MoveList;
 import bge.igame.MoveListFactory;
-import bge.strategy.ts.MoveListProvider;
-import bge.strategy.ts.forkjoin.minmax.ForkableMinimaxFactory;
-import bge.strategy.ts.forkjoin.minmax.MinimaxPositionEvaluator;
+import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory.ForkableType;
 import gt.async.ThreadWorker;
 
 public class TreeSearchWorkerTest {
@@ -28,9 +26,9 @@ public class TreeSearchWorkerTest {
         TestGamePosition position = TestGamePosition.createTestPosition();
         MoveList<TestGameNode> moveList = moveListFactory.newAnalysisMoveList();
         position.getPossibleMoves(moveList);
-        MinimaxPositionEvaluator<TestGameNode, TestGamePosition> strategy = new MinimaxPositionEvaluator<>(new TestGameEvaluator(),
-                new MoveListProvider<>(moveListFactory));
-        return new ForkJoinNode<>(null, new ForkableMinimaxFactory<>(strategy).createNew(position, moveList, moveListFactory, 0), join);
+        ForkableTreeSearchFactory<TestGameNode, TestGamePosition> forkableTreeSearchFactory = new ForkableTreeSearchFactory<>(ForkableType.MINIMAX,
+                new TestGameEvaluator(), moveListFactory);
+        return new ForkJoinNode<>(null, forkableTreeSearchFactory.createNew(position, moveList, moveListFactory, 0), join);
     }
 
     @Test

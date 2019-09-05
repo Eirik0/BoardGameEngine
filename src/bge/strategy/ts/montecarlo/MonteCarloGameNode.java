@@ -8,16 +8,14 @@ import bge.analysis.IPositionEvaluator;
 import bge.igame.IPosition;
 import bge.igame.MoveList;
 import bge.igame.MoveListFactory;
-import bge.strategy.ts.MoveListProvider;
 
 public class MonteCarloGameNode<M, P extends IPosition<M>> {
-    private MonteCarloGameNode<M, P> parentNode;
+    private final MonteCarloGameNode<M, P> parentNode;
 
     final M parentMove;
     final P position;
     final IPositionEvaluator<M, P> positionEvaluator;
     final MoveListFactory<M> moveListFactory;
-    private MoveListProvider<M> moveListProdiver;
     final int maxDepth;
     final int numSimulations;
 
@@ -45,7 +43,6 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
         this.moveListFactory = moveListFactory;
         this.numSimulations = numSimulations;
         this.maxDepth = maxDepth;
-        moveListProdiver = new MoveListProvider<>(moveListFactory);
         moveList = moveListFactory.newAnalysisMoveList();
         position.getPossibleMoves(moveList);
         unexpandedChildren = children.createNewWith(moveList.size());
@@ -146,7 +143,7 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
     private MonteCarloStatistics simulate() {
         MonteCarloStatistics result = new MonteCarloStatistics(statistics.player);
 
-        MoveList<M> possibleMoves = moveListProdiver.getMoveList(0);
+        MoveList<M> possibleMoves = moveListFactory.newAnalysisMoveList();
         position.getPossibleMoves(possibleMoves);
         if (possibleMoves.size() == 0) {
             return new MonteCarloStatistics(position.getCurrentPlayer(), positionEvaluator.evaluate(position, possibleMoves));

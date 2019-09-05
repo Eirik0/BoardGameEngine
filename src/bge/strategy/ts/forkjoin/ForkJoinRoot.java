@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import bge.analysis.AnalysisResult;
-import bge.analysis.AnalyzedMove;
+import bge.analysis.MoveWithScore;
 
 public class ForkJoinRoot<M> {
     private final List<ForkJoinNode<M>> branches;
@@ -49,7 +49,7 @@ public class ForkJoinRoot<M> {
             ForkJoinNode<M> branch = branchIterator.next();
             AnalysisResult<M> branchResult = branch.getResult();
             if (branchResult != null && branchResult.isSearchComplete()) {
-                AnalyzedMove<M> bestMove = branchResult.getBestMove(partialResult.getPlayer());
+                MoveWithScore<M> bestMove = branchResult.getBestMove(partialResult.getPlayer());
                 if (bestMove == null) {
                     continue;
                 }

@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import org.junit.jupiter.api.Test;
 
 import bge.analysis.AnalysisResult;
+import bge.analysis.IPositionEvaluator;
 import bge.game.lock.TestLockingEvaluator;
 import bge.game.lock.TestLockingNode;
 import bge.game.lock.TestLockingPosition;
@@ -23,21 +24,17 @@ import bge.igame.ArrayMoveList;
 import bge.igame.IPosition;
 import bge.igame.MoveList;
 import bge.igame.MoveListFactory;
-import bge.strategy.ts.MoveListProvider;
-import bge.strategy.ts.forkjoin.ForkJoinNode;
-import bge.strategy.ts.forkjoin.minmax.ForkableMinimax;
-import bge.strategy.ts.forkjoin.minmax.ForkableMinimaxFactory;
+import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory.ForkableType;
 import bge.strategy.ts.forkjoin.minmax.MinimaxForker;
-import bge.strategy.ts.forkjoin.minmax.MinimaxPositionEvaluator;
 
 public class ForkableMinimaxTest {
-    private synchronized <M, P extends IPosition<M>> AnalysisResult<M> search(MinimaxPositionEvaluator<M, P> minimaxStrategy, P testGamePosition, int plies) {
+    private synchronized <M, P extends IPosition<M>> AnalysisResult<M> search(IPositionEvaluator<M, P> positionEvaluator, P testGamePosition, int plies) {
         List<AnalysisResult<M>> result = new ArrayList<>();
         MoveListFactory<M> moveListFactory = new MoveListFactory<>(2);
         MoveList<M> moveList = moveListFactory.newAnalysisMoveList();
         testGamePosition.getPossibleMoves(moveList);
-        ForkJoinNode<M> gameTreeSearch = new ForkJoinNode<>(null,
-                new ForkableMinimax<>(testGamePosition, moveList, moveListFactory, plies, minimaxStrategy, new ForkableMinimaxFactory<>(minimaxStrategy)),
+        ForkableTreeSearchFactory<M, P> treeSearchFactory = new ForkableTreeSearchFactory<>(ForkableType.MINIMAX, positionEvaluator, moveListFactory);
+        ForkJoinNode<M> gameTreeSearch = new ForkJoinNode<>(null, treeSearchFactory.createNew(testGamePosition, moveList, moveListFactory, plies),
                 (canceled, moveWithResult) -> {
                     synchronized (this) {
                         result.add(moveWithResult.getSecond());
@@ -58,10 +55,7 @@ public class ForkableMinimaxTest {
     @Test
     public void testDepth_Zero() {
         TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
-        MinimaxPositionEvaluator<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxPositionEvaluator<>(new TestGameEvaluator(),
-                new MoveListProvider<>(new MoveListFactory<>(2)));
-
-        AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 0);
+        AnalysisResult<TestGameNode> result = search(new TestGameEvaluator(), testGamePosition, 0);
 
         assertEquals("0 -> [-1, -2]", testGamePosition.toString());
         assertNull(result.getBestMoves().get(0));
@@ -71,10 +65,7 @@ public class ForkableMinimaxTest {
     @Test
     public void testDepth_One() {
         TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
-        MinimaxPositionEvaluator<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxPositionEvaluator<>(new TestGameEvaluator(),
-                new MoveListProvider<>(new MoveListFactory<>(2)));
-
-        AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 1);
+        AnalysisResult<TestGameNode> result = search(new TestGameEvaluator(), testGamePosition, 1);
 
         assertEquals("0 -> [-1, -2]", testGamePosition.toString());
         assertEquals(-2, result.getBestMoves().get(0).getValue());
@@ -85,10 +76,7 @@ public class ForkableMinimaxTest {
     @Test
     public void testDepth_Two() {
         TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
-        MinimaxPositionEvaluator<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxPositionEvaluator<>(new TestGameEvaluator(),
-                new MoveListProvider<>(new MoveListFactory<>(2)));
-
-        AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 2);
+        AnalysisResult<TestGameNode> result = search(new TestGameEvaluator(), testGamePosition, 2);
 
         assertEquals("0 -> [-1, -2]", testGamePosition.toString());
         assertEquals(-1, result.getBestMoves().get(0).getValue());
@@ -99,10 +87,7 @@ public class ForkableMinimaxTest {
     @Test
     public void testDepth_Three() {
         TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
-        MinimaxPositionEvaluator<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxPositionEvaluator<>(new TestGameEvaluator(),
-                new MoveListProvider<>(new MoveListFactory<>(2)));
-
-        AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 3);
+        AnalysisResult<TestGameNode> result = search(new TestGameEvaluator(), testGamePosition, 3);
 
         assertEquals("0 -> [-1, -2]", testGamePosition.toString());
         assertEquals(-2, result.getBestMoves().get(0).getValue());
@@ -113,10 +98,7 @@ public class ForkableMinimaxTest {
     @Test
     public void testDepth_Four() {
         TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
-        MinimaxPositionEvaluator<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxPositionEvaluator<>(new TestGameEvaluator(),
-                new MoveListProvider<>(new MoveListFactory<>(2)));
-
-        AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 4);
+        AnalysisResult<TestGameNode> result = search(new TestGameEvaluator(), testGamePosition, 4);
 
         assertEquals("0 -> [-1, -2]", testGamePosition.toString());
         assertEquals(-1, result.getBestMoves().get(0).getValue());
@@ -127,10 +109,7 @@ public class ForkableMinimaxTest {
     @Test
     public void testDepth_Five() {
         TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
-        MinimaxPositionEvaluator<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxPositionEvaluator<>(new TestGameEvaluator(),
-                new MoveListProvider<>(new MoveListFactory<>(2)));
-
-        AnalysisResult<TestGameNode> result = search(minimaxStrategy, testGamePosition, 5);
+        AnalysisResult<TestGameNode> result = search(new TestGameEvaluator(), testGamePosition, 5);
 
         assertEquals("0 -> [-1, -2]", testGamePosition.toString());
         assertEquals(-1, result.getBestMoves().get(0).getValue());
@@ -152,8 +131,8 @@ public class ForkableMinimaxTest {
         MoveList<TestLockingNode> moveList = moveListFactory.newAnalysisMoveList();
         testLockingPosition.getPossibleMoves(moveList);
         List<AnalysisResult<TestLockingNode>> result = new ArrayList<>();
-        ForkableMinimaxFactory<TestLockingNode, TestLockingPosition> forkableFactory = new ForkableMinimaxFactory<>(
-                new MinimaxPositionEvaluator<>(new TestLockingEvaluator(), new MoveListProvider<>(moveListFactory)));
+        ForkableTreeSearchFactory<TestLockingNode, TestLockingPosition> forkableFactory = new ForkableTreeSearchFactory<>(
+                ForkableType.MINIMAX, new TestLockingEvaluator(), moveListFactory);
         ForkJoinNode<TestLockingNode> gameTreeSearch = new ForkJoinNode<>(null,
                 forkableFactory.createNew(testLockingPosition, moveList, moveListFactory, 1),
                 (canceled, moveWithResult) -> result.add(moveWithResult.getSecond()));
@@ -183,8 +162,6 @@ public class ForkableMinimaxTest {
     @Test
     public void testJoin_Results() {
         TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
-        MinimaxPositionEvaluator<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxPositionEvaluator<>(new TestGameEvaluator(),
-                new MoveListProvider<>(new MoveListFactory<>(2)));
         Map<TestGameNode, AnalysisResult<TestGameNode>> movesWithScore = new LinkedHashMap<>();
         MoveList<TestGameNode> possibleMoves = new ArrayMoveList<>(2);
         testGamePosition.getPossibleMoves(possibleMoves);
@@ -192,7 +169,7 @@ public class ForkableMinimaxTest {
         while (i < possibleMoves.size()) {
             TestGameNode move = possibleMoves.get(i);
             testGamePosition.makeMove(move);
-            movesWithScore.put(move, search(minimaxStrategy, testGamePosition, 3));
+            movesWithScore.put(move, search(new TestGameEvaluator(), testGamePosition, 3));
             testGamePosition.unmakeMove(move);
             ++i;
         }
@@ -205,9 +182,7 @@ public class ForkableMinimaxTest {
     @Test
     public void testJoin_MovesWithScore() {
         TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
-        MinimaxPositionEvaluator<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxPositionEvaluator<>(new TestGameEvaluator(),
-                new MoveListProvider<>(new MoveListFactory<>(2)));
-        Map<TestGameNode, Double> movesWithScore = search(minimaxStrategy, testGamePosition, 4).getMovesWithScore();
+        Map<TestGameNode, Double> movesWithScore = search(new TestGameEvaluator(), testGamePosition, 4).getMovesWithScore();
         AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(testGamePosition.getCurrentPlayer());
         for (Entry<TestGameNode, Double> moveWithScore : movesWithScore.entrySet()) {
             partialResult.addMoveWithScore(moveWithScore.getKey(), moveWithScore.getValue());
@@ -220,10 +195,7 @@ public class ForkableMinimaxTest {
     @Test
     public void testJoin_Mixed() {
         TestGamePosition testGamePosition = TestGamePosition.createTestPosition();
-        MinimaxPositionEvaluator<TestGameNode, TestGamePosition> minimaxStrategy = new MinimaxPositionEvaluator<>(new TestGameEvaluator(),
-                new MoveListProvider<>(new MoveListFactory<>(2)));
-
-        Entry<TestGameNode, Double> moveWithScore = search(minimaxStrategy, testGamePosition, 4).getMovesWithScore().entrySet().iterator().next();
+        Entry<TestGameNode, Double> moveWithScore = search(new TestGameEvaluator(), testGamePosition, 4).getMovesWithScore().entrySet().iterator().next();
         AnalysisResult<TestGameNode> partialResult = new AnalysisResult<>(testGamePosition.getCurrentPlayer(), moveWithScore.getKey(),
                 moveWithScore.getValue());
 
@@ -232,7 +204,7 @@ public class ForkableMinimaxTest {
 
         TestGameNode move = possibleMoves.get(1);
         testGamePosition.makeMove(move);
-        AnalysisResult<TestGameNode> score = search(minimaxStrategy, testGamePosition, 3);
+        AnalysisResult<TestGameNode> score = search(new TestGameEvaluator(), testGamePosition, 3);
         testGamePosition.unmakeMove(move);
 
         Map<TestGameNode, AnalysisResult<TestGameNode>> secondResult = Collections.singletonMap(move, score);

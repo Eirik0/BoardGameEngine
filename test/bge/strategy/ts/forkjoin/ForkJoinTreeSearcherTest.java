@@ -8,17 +8,14 @@ import bge.game.ultimatetictactoe.UltimateTicTacToePosition;
 import bge.game.ultimatetictactoe.UltimateTicTacToePositionEvaluator;
 import bge.igame.Coordinate;
 import bge.igame.MoveListFactory;
-import bge.strategy.ts.MoveListProvider;
-import bge.strategy.ts.forkjoin.minmax.ForkableMinimaxFactory;
-import bge.strategy.ts.forkjoin.minmax.MinimaxPositionEvaluator;
+import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory.ForkableType;
 
 public class ForkJoinTreeSearcherTest {
     private static void doTest(int numThreads) throws InterruptedException {
         MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
-        MinimaxPositionEvaluator<Coordinate, UltimateTicTacToePosition> minimaxStrategy = new MinimaxPositionEvaluator<>(
-                new UltimateTicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory));
+
         ForkJoinTreeSearcher<Coordinate, UltimateTicTacToePosition> iterativeDeepeningStrategy = new ForkJoinTreeSearcher<>(
-                new ForkableMinimaxFactory<>(minimaxStrategy), moveListFactory, numThreads);
+                new ForkableTreeSearchFactory<>(ForkableType.MINIMAX, new UltimateTicTacToePositionEvaluator(), moveListFactory), moveListFactory, numThreads);
 
         iterativeDeepeningStrategy.searchForever(new UltimateTicTacToePosition(), true);
         Thread.sleep(50);
@@ -71,11 +68,9 @@ public class ForkJoinTreeSearcherTest {
     private static void doSpeedTest(int numThreads) {
         int numPlies = 5;
         MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
-        MinimaxPositionEvaluator<Coordinate, UltimateTicTacToePosition> minimaxStrategy = new MinimaxPositionEvaluator<>(
-                new UltimateTicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory));
 
         ForkJoinTreeSearcher<Coordinate, UltimateTicTacToePosition> iterativeDeepeningSearcher = new ForkJoinTreeSearcher<>(
-                new ForkableMinimaxFactory<>(minimaxStrategy), moveListFactory, numThreads);
+                new ForkableTreeSearchFactory<>(ForkableType.MINIMAX, new UltimateTicTacToePositionEvaluator(), moveListFactory), moveListFactory, numThreads);
 
         long start = System.currentTimeMillis();
         iterativeDeepeningSearcher.startSearch(new UltimateTicTacToePosition(), numPlies, true);

@@ -33,7 +33,7 @@ public class ForkableAlphaBeta<M, P extends IPosition<M>> implements IForkable<M
         branchIndex = new AtomicInteger(0);
         this.moveListFactory = moveListFactory;
         this.plies = plies;
-        this.strategy = strategy.createCopy();
+        this.strategy = strategy;
         this.forkableFactory = forkableFactory;
     }
 

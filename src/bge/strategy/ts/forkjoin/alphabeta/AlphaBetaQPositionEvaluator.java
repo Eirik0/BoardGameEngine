@@ -4,25 +4,26 @@ import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
 import bge.igame.IPosition;
 import bge.igame.MoveList;
-import bge.strategy.ts.MoveListProvider;
+import bge.igame.MoveListFactory;
+import bge.igame.MoveListProvider;
 
 public class AlphaBetaQPositionEvaluator<M, P extends IPosition<M>> implements IAlphaBetaPositionEvaluator<M, P> {
     private final IPositionEvaluator<M, P> positionEvaluator;
-    private final MoveListProvider<M> moveListProvider;
+    private final MoveListFactory<M> moveListFactory;
 
     private volatile boolean searchCanceled = false;
 
-    public AlphaBetaQPositionEvaluator(IPositionEvaluator<M, P> positionEvaluator, MoveListProvider<M> moveListProvider) {
+    public AlphaBetaQPositionEvaluator(IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory) {
         this.positionEvaluator = positionEvaluator;
-        this.moveListProvider = moveListProvider;
+        this.moveListFactory = moveListFactory;
     }
 
     @Override
     public double evaluate(P position, int plies, double alpha, double beta) {
-        return alphaBeta(position, 0, plies, alpha, beta, false);
+        return alphaBeta(moveListFactory.newAnalysisMoveListProvider(), position, 0, plies, alpha, beta, false);
     }
 
-    private double alphaBeta(P position, int ply, int maxPly, double alpha, double beta, boolean quiescent) {
+    private double alphaBeta(MoveListProvider<M> moveListProvider, P position, int ply, int maxPly, double alpha, double beta, boolean quiescent) {
         if (searchCanceled) {
             return 0;
         }
@@ -53,8 +54,8 @@ public class AlphaBetaQPositionEvaluator<M, P extends IPosition<M>> implements I
         do {
             move = possibleMoves.get(i);
             position.makeMove(move);
-            double score = parentPlayer == position.getCurrentPlayer() ? alphaBeta(position, ply + 1, maxPly, alpha, beta, quiescent)
-                    : -alphaBeta(position, ply + 1, maxPly, -beta, -alpha, quiescent);
+            double score = parentPlayer == position.getCurrentPlayer() ? alphaBeta(moveListProvider, position, ply + 1, maxPly, alpha, beta, quiescent)
+                    : -alphaBeta(moveListProvider, position, ply + 1, maxPly, -beta, -alpha, quiescent);
             position.unmakeMove(move);
 
             gameOver = gameOver && AnalysisResult.isGameOver(score);
@@ -81,10 +82,5 @@ public class AlphaBetaQPositionEvaluator<M, P extends IPosition<M>> implements I
     @Override
     public void stopSearch() {
         searchCanceled = true;
-    }
-
-    @Override
-    public AlphaBetaQPositionEvaluator<M, P> createCopy() {
-        return new AlphaBetaQPositionEvaluator<>(positionEvaluator, moveListProvider.createCopy());
     }
 }

@@ -8,11 +8,10 @@ import org.junit.jupiter.api.Test;
 import bge.igame.Coordinate;
 import bge.igame.MoveListFactory;
 import bge.igame.player.ComputerPlayer;
-import bge.strategy.ts.MoveListProvider;
 import bge.strategy.ts.TreeSearchStrategy;
 import bge.strategy.ts.forkjoin.ForkJoinTreeSearcher;
-import bge.strategy.ts.forkjoin.minmax.ForkableMinimaxFactory;
-import bge.strategy.ts.forkjoin.minmax.MinimaxPositionEvaluator;
+import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory;
+import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory.ForkableType;
 
 public class UTTTComputerPlayerTest {
     @Test
@@ -62,7 +61,7 @@ public class UTTTComputerPlayerTest {
     private static ComputerPlayer newComputerPlayer(int numWorkers, long toWait) {
         MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(UltimateTicTacToeGame.MAX_MOVES);
         ForkJoinTreeSearcher<Coordinate, UltimateTicTacToePosition> treeSearcher = new ForkJoinTreeSearcher<>(
-                new ForkableMinimaxFactory<>(new MinimaxPositionEvaluator<>(new UltimateTicTacToePositionEvaluator(), new MoveListProvider<>(moveListFactory))),
+                new ForkableTreeSearchFactory<>(ForkableType.MINIMAX, new UltimateTicTacToePositionEvaluator(), moveListFactory),
                 moveListFactory, numWorkers);
         return new ComputerPlayer(new TreeSearchStrategy<>(treeSearcher, toWait, true));
     }

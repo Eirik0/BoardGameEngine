@@ -10,15 +10,10 @@ import bge.main.GameRegistry;
 import bge.strategy.IStrategy;
 import bge.strategy.RandomMoveStrategy;
 import bge.strategy.ts.ITreeSearcher;
-import bge.strategy.ts.MoveListProvider;
 import bge.strategy.ts.TreeSearchStrategy;
 import bge.strategy.ts.forkjoin.ForkJoinTreeSearcher;
 import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory;
-import bge.strategy.ts.forkjoin.alphabeta.AlphaBetaPositionEvaluator;
-import bge.strategy.ts.forkjoin.alphabeta.AlphaBetaQPositionEvaluator;
-import bge.strategy.ts.forkjoin.alphabeta.ForkableAlphaBetaFactory;
-import bge.strategy.ts.forkjoin.minmax.ForkableMinimaxFactory;
-import bge.strategy.ts.forkjoin.minmax.MinimaxPositionEvaluator;
+import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory.ForkableType;
 import bge.strategy.ts.montecarlo.MonteCarloTreeSearcher;
 import bge.strategy.ts.montecarlo.RandomMonteCarloChildren;
 import bge.strategy.ts.montecarlo.WeightedMonteCarloChildren;
@@ -96,17 +91,18 @@ public class PlayerInfo {
         if (TS_FORK_JOIN.equals(iStrategy)) {
             String fjStrategy = optionsMap.get(KEY_FJ_STRATEGY);
             int numThreads = getOptionInt(KEY_NUM_THREADS).intValue();
-            ForkableTreeSearchFactory<M, IPosition<M>> forkableFactory;
+            ForkableType forkableType;
             if (FJ_MINMAX.equals(fjStrategy)) {
-                forkableFactory = new ForkableMinimaxFactory<>(new MinimaxPositionEvaluator<>(positionEvaluator, new MoveListProvider<>(moveListFactory)));
+                forkableType = ForkableType.MINIMAX;
             } else if (FJ_ALPHA_BETA.equals(fjStrategy)) {
-                forkableFactory = new ForkableAlphaBetaFactory<>(new AlphaBetaPositionEvaluator<>(positionEvaluator, new MoveListProvider<>(moveListFactory)));
+                forkableType = ForkableType.ALPHA_BETA;
             } else if (FJ_ALPHA_BETA_Q.equals(fjStrategy)) {
-                forkableFactory = new ForkableAlphaBetaFactory<>(new AlphaBetaQPositionEvaluator<>(positionEvaluator, new MoveListProvider<>(moveListFactory)));
+                forkableType = ForkableType.ALPHA_BETA_Q;
             } else {
                 throw new IllegalStateException("Unknown fork join strategy: " + iStrategy);
             }
-            treeSearcher = new ForkJoinTreeSearcher<>(forkableFactory, moveListFactory, numThreads);
+            treeSearcher = new ForkJoinTreeSearcher<>(new ForkableTreeSearchFactory<>(forkableType, positionEvaluator, moveListFactory),
+                    moveListFactory, numThreads);
         } else if (TS_MONTE_CARLO.equals(iStrategy)) {
             int numSimulations = getOptionInt(KEY_NUM_SIMULATIONS).intValue();
             String mcStrategy = optionsMap.get(KEY_MC_STRATEGY);

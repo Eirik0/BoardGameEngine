@@ -4,26 +4,27 @@ import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
 import bge.igame.IPosition;
 import bge.igame.MoveList;
-import bge.strategy.ts.MoveListProvider;
+import bge.igame.MoveListFactory;
+import bge.igame.MoveListProvider;
 import bge.strategy.ts.forkjoin.alphabeta.IAlphaBetaPositionEvaluator;
 
 public class AlphaBetaQTestPositionEvaluator<M, P extends IPosition<M>> implements IAlphaBetaPositionEvaluator<M, P> {
     private final IPositionEvaluator<M, P> positionEvaluator;
-    private final MoveListProvider<M> moveListProvider;
+    private final MoveListFactory<M> moveListFactory;
 
     private volatile boolean searchCanceled = false;
 
-    public AlphaBetaQTestPositionEvaluator(IPositionEvaluator<M, P> positionEvaluator, MoveListProvider<M> moveListProvider) {
+    public AlphaBetaQTestPositionEvaluator(IPositionEvaluator<M, P> positionEvaluator, MoveListFactory<M> moveListFactory) {
         this.positionEvaluator = positionEvaluator;
-        this.moveListProvider = moveListProvider;
+        this.moveListFactory = moveListFactory;
     }
 
     @Override
     public double evaluate(P position, int plies, double alpha, double beta) {
-        return max(position, 0, plies, AnalysisResult.LOSS, AnalysisResult.WIN);
+        return max(moveListFactory.newAnalysisMoveListProvider(), position, 0, plies, AnalysisResult.LOSS, AnalysisResult.WIN);
     }
 
-    private double max(P position, int ply, int maxPly, double alpha, double beta) {
+    private double max(MoveListProvider<M> moveListProvider, P position, int ply, int maxPly, double alpha, double beta) {
         if (searchCanceled) {
             return 0;
         }
@@ -33,7 +34,7 @@ public class AlphaBetaQTestPositionEvaluator<M, P extends IPosition<M>> implemen
         int numMoves = possibleMoves.size();
 
         if (ply == maxPly) {
-            return maxQ(position, maxPly, alpha, beta);
+            return maxQ(moveListProvider, position, maxPly, alpha, beta);
         } else if (numMoves == 0) {
             return positionEvaluator.evaluate(position, possibleMoves);
         }
@@ -45,8 +46,8 @@ public class AlphaBetaQTestPositionEvaluator<M, P extends IPosition<M>> implemen
         do {
             M move = possibleMoves.get(i);
             position.makeMove(move);
-            double score = parentPlayer == position.getCurrentPlayer() ? max(position, ply + 1, maxPly, alpha, beta)
-                    : min(position, ply + 1, maxPly, alpha, beta);
+            double score = parentPlayer == position.getCurrentPlayer() ? max(moveListProvider, position, ply + 1, maxPly, alpha, beta)
+                    : min(moveListProvider, position, ply + 1, maxPly, alpha, beta);
             position.unmakeMove(move);
 
             if (!AnalysisResult.isGreater(bestScore, score)) {
@@ -64,7 +65,7 @@ public class AlphaBetaQTestPositionEvaluator<M, P extends IPosition<M>> implemen
         return bestScore;
     }
 
-    private double min(P position, int ply, int maxPly, double alpha, double beta) {
+    private double min(MoveListProvider<M> moveListProvider, P position, int ply, int maxPly, double alpha, double beta) {
         if (searchCanceled) {
             return 0;
         }
@@ -74,7 +75,7 @@ public class AlphaBetaQTestPositionEvaluator<M, P extends IPosition<M>> implemen
         int numMoves = possibleMoves.size();
 
         if (ply == maxPly) {
-            return minQ(position, maxPly, alpha, beta);
+            return minQ(moveListProvider, position, maxPly, alpha, beta);
         } else if (numMoves == 0) {
             return -positionEvaluator.evaluate(position, possibleMoves);
         }
@@ -86,8 +87,8 @@ public class AlphaBetaQTestPositionEvaluator<M, P extends IPosition<M>> implemen
         do {
             M move = possibleMoves.get(i);
             position.makeMove(move);
-            double score = parentPlayer == position.getCurrentPlayer() ? min(position, ply + 1, maxPly, alpha, beta)
-                    : max(position, ply + 1, maxPly, alpha, beta);
+            double score = parentPlayer == position.getCurrentPlayer() ? min(moveListProvider, position, ply + 1, maxPly, alpha, beta)
+                    : max(moveListProvider, position, ply + 1, maxPly, alpha, beta);
             position.unmakeMove(move);
 
             if (!AnalysisResult.isGreater(score, bestScore)) {
@@ -105,7 +106,7 @@ public class AlphaBetaQTestPositionEvaluator<M, P extends IPosition<M>> implemen
         return bestScore;
     }
 
-    private double maxQ(P position, int ply, double alpha, double beta) {
+    private double maxQ(MoveListProvider<M> moveListProvider, P position, int ply, double alpha, double beta) {
         if (searchCanceled) {
             return 0;
         }
@@ -132,7 +133,8 @@ public class AlphaBetaQTestPositionEvaluator<M, P extends IPosition<M>> implemen
         do {
             M move = possibleMoves.get(i);
             position.makeMove(move);
-            double score = parentPlayer == position.getCurrentPlayer() ? maxQ(position, ply + 1, alpha, beta) : minQ(position, ply + 1, alpha, beta);
+            double score = parentPlayer == position.getCurrentPlayer() ? maxQ(moveListProvider, position, ply + 1, alpha, beta)
+                    : minQ(moveListProvider, position, ply + 1, alpha, beta);
             position.unmakeMove(move);
 
             if (!AnalysisResult.isGreater(bestScore, score)) {
@@ -150,7 +152,7 @@ public class AlphaBetaQTestPositionEvaluator<M, P extends IPosition<M>> implemen
         return bestScore;
     }
 
-    private double minQ(P position, int ply, double alpha, double beta) {
+    private double minQ(MoveListProvider<M> moveListProvider, P position, int ply, double alpha, double beta) {
         if (searchCanceled) {
             return 0;
         }
@@ -177,7 +179,8 @@ public class AlphaBetaQTestPositionEvaluator<M, P extends IPosition<M>> implemen
         do {
             M move = possibleMoves.get(i);
             position.makeMove(move);
-            double score = parentPlayer == position.getCurrentPlayer() ? minQ(position, ply + 1, alpha, beta) : maxQ(position, ply + 1, alpha, beta);
+            double score = parentPlayer == position.getCurrentPlayer() ? minQ(moveListProvider, position, ply + 1, alpha, beta)
+                    : maxQ(moveListProvider, position, ply + 1, alpha, beta);
             position.unmakeMove(move);
 
             if (!AnalysisResult.isGreater(score, bestScore)) {
@@ -198,10 +201,5 @@ public class AlphaBetaQTestPositionEvaluator<M, P extends IPosition<M>> implemen
     @Override
     public void stopSearch() {
         searchCanceled = true;
-    }
-
-    @Override
-    public IAlphaBetaPositionEvaluator<M, P> createCopy() {
-        return new AlphaBetaQTestPositionEvaluator<>(positionEvaluator, moveListProvider.createCopy());
     }
 }

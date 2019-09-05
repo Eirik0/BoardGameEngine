@@ -10,10 +10,9 @@ import org.junit.jupiter.api.Test;
 import bge.analysis.AnalysisResult;
 import bge.igame.Coordinate;
 import bge.igame.MoveListFactory;
-import bge.strategy.ts.MoveListProvider;
 import bge.strategy.ts.forkjoin.ForkJoinTreeSearcher;
-import bge.strategy.ts.forkjoin.minmax.ForkableMinimaxFactory;
-import bge.strategy.ts.forkjoin.minmax.MinimaxPositionEvaluator;
+import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory;
+import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory.ForkableType;
 
 public class TicTacToeTreeSearchTest {
     private static ForkJoinTreeSearcher<Coordinate, TicTacToePosition> newTreeSearcher() {
@@ -22,9 +21,8 @@ public class TicTacToeTreeSearchTest {
 
     private static ForkJoinTreeSearcher<Coordinate, TicTacToePosition> newTreeSearcher(int numWorkers) {
         MoveListFactory<Coordinate> moveListFactory = new MoveListFactory<>(TicTacToeGame.MAX_MOVES);
-        MinimaxPositionEvaluator<Coordinate, TicTacToePosition> minimaxStrategy = new MinimaxPositionEvaluator<>(new TicTacToePositionEvaluator(),
-                new MoveListProvider<>(moveListFactory));
-        return new ForkJoinTreeSearcher<>(new ForkableMinimaxFactory<>(minimaxStrategy), moveListFactory, numWorkers);
+        return new ForkJoinTreeSearcher<>(new ForkableTreeSearchFactory<>(ForkableType.MINIMAX, new TicTacToePositionEvaluator(), moveListFactory),
+                moveListFactory, numWorkers);
     }
 
     @Test
