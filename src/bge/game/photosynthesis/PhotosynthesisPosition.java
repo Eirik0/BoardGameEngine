@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import bge.igame.Coordinate;
@@ -226,37 +225,25 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         for (final Coordinate coord : ALL_COORDS) {
             final Tile tile = mainBoard.grid[coord.x][coord.y];
 
-            if (tile.lastTouchedPlayerRoundsRemaining == playerRoundsRemaining) {
+            if (tile.lastTouchedPlayerRoundsRemaining == playerRoundsRemaining || tile.player != currentPlayer) {
                 continue;
             }
 
             final int cost = tile.level + 1;
             final int newLevel = cost % 4;
 
-            if (tile.player == currentPlayer) {
-                if (playerBoards[currentPlayer].available[newLevel] > 0 &&
-                        playerBoards[currentPlayer].lightPoints >= cost) {
-                    moveList.addQuietMove(new Upgrade(coord), this);
-                }
-
-                if (tile.level > 0 && playerBoards[currentPlayer].available[0] > 0) {
-                    getNearCoordinates(
-                            coord,
-                            tile.level,
-                            dest -> {
-                                if (mainBoard.grid[dest.x][dest.y].player == -1) {
-                                    moveList.addQuietMove(new Seed(coord, dest), this);
-                                }
-                            });
-                }
+            if (playerBoards[currentPlayer].available[newLevel] > 0 && playerBoards[currentPlayer].lightPoints >= cost) {
+                moveList.addQuietMove(new Upgrade(coord), this);
             }
-        }
-    }
 
-    private static void getNearCoordinates(Coordinate coord, int distance, Consumer<Coordinate> consumer) {
-        for (int d = 1; d <= distance; d++) {
-            for (final Coordinate coordinate : PATHS_OF_LENGTH.get(coord)[d]) {
-                consumer.accept(coordinate);
+            if (tile.level > 0 && playerBoards[currentPlayer].available[0] > 0) {
+                for (int d = 1; d <= tile.level; d++) {
+                    for (final Coordinate coordinate : PATHS_OF_LENGTH.get(coord)[d]) {
+                        if (mainBoard.grid[coordinate.x][coordinate.y].player == -1) {
+                            moveList.addQuietMove(new Seed(coord, coordinate), this);
+                        }
+                    }
+                }
             }
         }
     }

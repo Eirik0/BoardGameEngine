@@ -28,7 +28,6 @@ import bge.game.photosynthesis.PhotosynthesisPosition.Upgrade;
 import bge.igame.Coordinate;
 import bge.igame.IPosition;
 import bge.igame.MoveList;
-import bge.perf.PerfTest;
 
 public class PhotosynthesisPositionTest {
     @Test
@@ -425,36 +424,6 @@ public class PhotosynthesisPositionTest {
             }
             assertEquals(finalPosition, newPosition);
         }
-    }
-
-    @Test
-    public void testCountAtDepth0() {
-        PerfTest.countPos(new PhotosynthesisPosition(2), 0, 18);
-    }
-
-    @Test
-    public void testCountAtDepth1() {
-        PerfTest.countPos(new PhotosynthesisPosition(2), 1, 18 * 17);
-    }
-
-    @Test
-    public void testCountAtDepth2() {
-        PerfTest.countPos(new PhotosynthesisPosition(2), 2, 18 * 17 * 16);
-    }
-
-    @Test
-    public void testCountAtDepth3() {
-        PerfTest.countPos(new PhotosynthesisPosition(2), 3, 18 * 17 * 16 * 15);
-    }
-
-    @Test
-    public void testCountAtDepth4() {
-        PerfTest.countPos(new PhotosynthesisPosition(2), 4, 828568); // XXX is this correct ?
-    }
-
-    @Test
-    public void testCountAtDepth5() {
-        PerfTest.countPos(new PhotosynthesisPosition(2), 5, 6443828); // XXX is this correct ?
     }
 
     @Test
