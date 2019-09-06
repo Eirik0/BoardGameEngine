@@ -12,76 +12,7 @@ import bge.igame.IDeepCopy;
 import bge.igame.IPosition;
 import bge.igame.MoveList;
 
-public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove> {
-    // Game constants
-    static final int[][] SCORING_TOKENS = new int[][] {
-            new int[] { 12, 12, 12, 12, 13, 13, 13, 14, 14 },
-            new int[] { 13, 13, 14, 14, 16, 16, 17 },
-            new int[] { 17, 17, 18, 18, 19 },
-            new int[] { 20, 20, 21 }
-    };
-
-    static final int[][] PRICES = new int[][] {
-            new int[] { 2, 2, 1, 1 },
-            new int[] { 3, 3, 2, 2 },
-            new int[] { 4, 3, 3 },
-            new int[] { 5, 4 }
-    };
-
-    static final int MAX_LIGHT_POINTS = 20;
-
-    static final Coordinate[][] ALL_TILES = new Coordinate[][] {
-            new Coordinate[] {
-                    Coordinate.valueOf(0, 0),
-                    Coordinate.valueOf(1, 0),
-                    Coordinate.valueOf(2, 0),
-                    Coordinate.valueOf(3, 0),
-                    Coordinate.valueOf(4, 1),
-                    Coordinate.valueOf(5, 2),
-                    Coordinate.valueOf(6, 3),
-                    Coordinate.valueOf(6, 4),
-                    Coordinate.valueOf(6, 5),
-                    Coordinate.valueOf(6, 6),
-                    Coordinate.valueOf(5, 6),
-                    Coordinate.valueOf(4, 6),
-                    Coordinate.valueOf(3, 6),
-                    Coordinate.valueOf(2, 5),
-                    Coordinate.valueOf(1, 4),
-                    Coordinate.valueOf(0, 3),
-                    Coordinate.valueOf(0, 2),
-                    Coordinate.valueOf(0, 1)
-            },
-            new Coordinate[] {
-                    Coordinate.valueOf(1, 1),
-                    Coordinate.valueOf(2, 1),
-                    Coordinate.valueOf(3, 1),
-                    Coordinate.valueOf(4, 2),
-                    Coordinate.valueOf(5, 3),
-                    Coordinate.valueOf(5, 4),
-                    Coordinate.valueOf(5, 5),
-                    Coordinate.valueOf(4, 5),
-                    Coordinate.valueOf(3, 5),
-                    Coordinate.valueOf(2, 4),
-                    Coordinate.valueOf(1, 3),
-                    Coordinate.valueOf(1, 2)
-            },
-            new Coordinate[] {
-                    Coordinate.valueOf(2, 2),
-                    Coordinate.valueOf(3, 2),
-                    Coordinate.valueOf(4, 3),
-                    Coordinate.valueOf(4, 4),
-                    Coordinate.valueOf(3, 4),
-                    Coordinate.valueOf(2, 3),
-            },
-            new Coordinate[] {
-                    Coordinate.valueOf(3, 3),
-            }
-    };
-
-    static final Coordinate[] ALL_COORDS = Arrays.stream(ALL_TILES).flatMap(xs -> Arrays.stream(xs)).toArray(Coordinate[]::new);
-
-    static final Map<Coordinate, List<Coordinate>[]> PATHS_OF_LENGTH = MainBoard.preloadShortestPaths();
-
+public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMove>, PhotosynthesisConstants {
     final int numPlayers;
 
     int currentPlayer;
@@ -198,6 +129,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         if (playerRoundsRemaining == 0) {
             return;
         }
+
         // Setup actions
         if (setupPlayerRoundsRemaining > 0) {
             for (final Coordinate coordinate : ALL_TILES[0]) {
@@ -205,7 +137,6 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
                     moveList.addQuietMove(new Setup(coordinate), this);
                 }
             }
-
             return;
         }
 
@@ -266,55 +197,30 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = 1;
-        result = prime * result + currentPlayer;
-        result = prime * result + ((mainBoard == null) ? 0 : mainBoard.hashCode());
+        int result = prime + currentPlayer;
+        result = prime * result + mainBoard.hashCode();
         result = prime * result + numPlayers;
         result = prime * result + Arrays.hashCode(playerBoards);
         result = prime * result + playerRoundsRemaining;
         result = prime * result + Arrays.hashCode(scoringTokensRemaining);
-        result = prime * result + setupPlayerRoundsRemaining;
-        return result;
+        return prime * result + setupPlayerRoundsRemaining;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        } else if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
         final PhotosynthesisPosition other = (PhotosynthesisPosition) obj;
-        if (currentPlayer != other.currentPlayer) {
-            return false;
-        }
-        if (mainBoard == null) {
-            if (other.mainBoard != null) {
-                return false;
-            }
-        } else if (!mainBoard.equals(other.mainBoard)) {
-            return false;
-        }
-        if (numPlayers != other.numPlayers) {
-            return false;
-        }
-        if (!Arrays.equals(playerBoards, other.playerBoards)) {
-            return false;
-        }
-        if (playerRoundsRemaining != other.playerRoundsRemaining) {
-            return false;
-        }
-        if (!Arrays.equals(scoringTokensRemaining, other.scoringTokensRemaining)) {
-            return false;
-        }
-        if (setupPlayerRoundsRemaining != other.setupPlayerRoundsRemaining) {
-            return false;
-        }
-        return true;
+        return currentPlayer == other.currentPlayer &&
+                mainBoard.equals(other.mainBoard) &&
+                numPlayers == other.numPlayers &&
+                Arrays.equals(playerBoards, other.playerBoards) &&
+                playerRoundsRemaining == other.playerRoundsRemaining &&
+                Arrays.equals(scoringTokensRemaining, other.scoringTokensRemaining) &&
+                setupPlayerRoundsRemaining == other.setupPlayerRoundsRemaining;
     }
 
     public static final class Tile implements IDeepCopy<Tile> {
@@ -337,49 +243,25 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
         @Override
         public Tile createCopy() {
-            return new Tile(
-                    player,
-                    level,
-                    lastTouchedPlayerRoundsRemaining,
-                    tileReward);
+            return new Tile(player, level, lastTouchedPlayerRoundsRemaining, tileReward);
         }
 
         @Override
         public int hashCode() {
             final int prime = 31;
-            int result = 1;
-            result = prime * result + lastTouchedPlayerRoundsRemaining;
-            result = prime * result + level;
-            result = prime * result + player;
-            result = prime * result + tileReward;
-            return result;
+            return prime * (prime * (prime * (prime + lastTouchedPlayerRoundsRemaining) + level) + player) + tileReward;
         }
 
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            } else if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
             final Tile other = (Tile) obj;
-            if (lastTouchedPlayerRoundsRemaining != other.lastTouchedPlayerRoundsRemaining) {
-                return false;
-            }
-            if (level != other.level) {
-                return false;
-            }
-            if (player != other.player) {
-                return false;
-            }
-            if (tileReward != other.tileReward) {
-                return false;
-            }
-            return true;
+            return lastTouchedPlayerRoundsRemaining == other.lastTouchedPlayerRoundsRemaining &&
+                    level == other.level && player == other.player && tileReward == other.tileReward;
         }
     }
 
@@ -422,32 +304,18 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((coordinate == null) ? 0 : coordinate.hashCode());
-            return result;
+            return coordinate.hashCode();
         }
 
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            } else if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
             final Setup other = (Setup) obj;
-            if (coordinate == null) {
-                if (other.coordinate != null) {
-                    return false;
-                }
-            } else if (!coordinate.equals(other.coordinate)) {
-                return false;
-            }
-            return true;
+            return coordinate.equals(other.coordinate);
         }
 
         @Override
@@ -541,43 +409,24 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         @Override
         public int hashCode() {
             final int prime = 31;
-            int result = 1;
-            result = prime * result + ((coordinate == null) ? 0 : coordinate.hashCode());
+            int result = prime + coordinate.hashCode();
             result = prime * result + previousLastTouchedPlayerRoundsRemaining;
             result = prime * result + (returnedToPlayerBoard ? 1231 : 1237);
-            result = prime * result + tileRewardColumn;
-            return result;
+            return prime * result + tileRewardColumn;
         }
 
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            } else if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
             final Upgrade other = (Upgrade) obj;
-            if (coordinate == null) {
-                if (other.coordinate != null) {
-                    return false;
-                }
-            } else if (!coordinate.equals(other.coordinate)) {
-                return false;
-            }
-            if (previousLastTouchedPlayerRoundsRemaining != other.previousLastTouchedPlayerRoundsRemaining) {
-                return false;
-            }
-            if (returnedToPlayerBoard != other.returnedToPlayerBoard) {
-                return false;
-            }
-            if (tileRewardColumn != other.tileRewardColumn) {
-                return false;
-            }
-            return true;
+            return coordinate.equals(other.coordinate)
+                    && previousLastTouchedPlayerRoundsRemaining == other.previousLastTouchedPlayerRoundsRemaining
+                    && returnedToPlayerBoard == other.returnedToPlayerBoard
+                    && tileRewardColumn == other.tileRewardColumn;
         }
     }
 
@@ -593,9 +442,6 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             final PlayerBoard playerBoard = position.playerBoards[position.currentPlayer];
             playerBoard.available[buyColumn]++;
             int i = --playerBoard.buy[buyColumn];
-            if (i == -1) {
-                "".toString();
-            }
             playerBoard.lightPoints -= PRICES[buyColumn][i];
         }
 
@@ -608,28 +454,18 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + buyColumn;
-            return result;
+            return buyColumn;
         }
 
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            } else if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
             final Buy other = (Buy) obj;
-            if (buyColumn != other.buyColumn) {
-                return false;
-            }
-            return true;
+            return buyColumn == other.buyColumn;
         }
 
         @Override
@@ -677,43 +513,19 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         @Override
         public int hashCode() {
             final int prime = 31;
-            int result = 1;
-            result = prime * result + ((dest == null) ? 0 : dest.hashCode());
-            result = prime * result + ((source == null) ? 0 : source.hashCode());
-            result = prime * result + sourceLastTouchedPlayerRoundsRemaining;
-            return result;
+            return prime * (prime * (prime + source.hashCode()) + dest.hashCode()) + sourceLastTouchedPlayerRoundsRemaining;
         }
 
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            } else if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
             final Seed other = (Seed) obj;
-            if (dest == null) {
-                if (other.dest != null) {
-                    return false;
-                }
-            } else if (!dest.equals(other.dest)) {
-                return false;
-            }
-            if (source == null) {
-                if (other.source != null) {
-                    return false;
-                }
-            } else if (!source.equals(other.source)) {
-                return false;
-            }
-            if (sourceLastTouchedPlayerRoundsRemaining != other.sourceLastTouchedPlayerRoundsRemaining) {
-                return false;
-            }
-            return true;
+            return source.equals(other.source) && dest.equals(other.dest)
+                    && sourceLastTouchedPlayerRoundsRemaining == other.sourceLastTouchedPlayerRoundsRemaining;
         }
 
         @Override
@@ -740,7 +552,6 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
         @Override
         public void unapplyMove(PhotosynthesisPosition position) {
-
             if (position.currentPlayer == position.firstPlayer) {
                 // Restore points before photosynthesis phase
                 for (int player = 0; player < previousPlayerLightPoints.length; player++) {
@@ -797,28 +608,18 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + Arrays.deepHashCode(grid);
-            return result;
+            return Arrays.deepHashCode(grid);
         }
 
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            } else if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
             final MainBoard other = (MainBoard) obj;
-            if (!Arrays.deepEquals(grid, other.grid)) {
-                return false;
-            }
-            return true;
+            return Arrays.deepEquals(grid, other.grid);
         }
 
         int[][] getShadowMap(int sunPosition) {
@@ -1005,49 +806,32 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
         @Override
         public PlayerBoard createCopy() {
-            return new PlayerBoard(
-                    lightPoints,
-                    buy.clone(),
-                    available.clone(),
-                    victoryPoints);
+            int[] buyCopy = new int[buy.length];
+            System.arraycopy(buy, 0, buyCopy, 0, buy.length);
+            int[] availableCopy = new int[available.length];
+            System.arraycopy(available, 0, availableCopy, 0, available.length);
+            return new PlayerBoard(lightPoints, buyCopy, availableCopy, victoryPoints);
         }
 
         @Override
         public int hashCode() {
             final int prime = 31;
-            int result = 1;
-            result = prime * result + Arrays.hashCode(available);
+            int result = prime + Arrays.hashCode(available);
             result = prime * result + Arrays.hashCode(buy);
             result = prime * result + lightPoints;
-            result = prime * result + victoryPoints;
-            return result;
+            return prime * result + victoryPoints;
         }
 
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            } else if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
             final PlayerBoard other = (PlayerBoard) obj;
-            if (!Arrays.equals(available, other.available)) {
-                return false;
-            }
-            if (!Arrays.equals(buy, other.buy)) {
-                return false;
-            }
-            if (lightPoints != other.lightPoints) {
-                return false;
-            }
-            if (victoryPoints != other.victoryPoints) {
-                return false;
-            }
-            return true;
+            return Arrays.equals(available, other.available) && Arrays.equals(buy, other.buy)
+                    && lightPoints == other.lightPoints && victoryPoints == other.victoryPoints;
         }
     }
 }
