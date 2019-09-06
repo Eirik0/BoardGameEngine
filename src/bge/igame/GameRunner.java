@@ -21,7 +21,6 @@ public class GameRunner<M> {
     private final MoveHistory<M> moveHistory;
     private IPosition<M> positionCopy;
     private MoveList<M> possibleMovesCopy;
-    private M lastMove;
 
     private List<IPlayer> players;
     private IPlayer currentPlayer;
@@ -32,10 +31,10 @@ public class GameRunner<M> {
         this.gameObserver = gameObserver;
         this.moveListFactory = moveListFactory;
         position = game.newInitialPosition();
-        setPositionCopy(NO_PLAYER, null, true);
+        setPositionCopy(null, NO_PLAYER, null, true);
     }
 
-    private synchronized void setPositionCopy(int playerWhoMoved, IPlayer currentPlayer, boolean updateHistory) {
+    private synchronized void setPositionCopy(M lastMove, int playerWhoMoved, IPlayer currentPlayer, boolean updateHistory) {
         IPosition<M> newPositionCopy = position.createCopy();
         MoveList<M> newPossibleMoves = moveListFactory.newArrayMoveList();
         newPositionCopy.getPossibleMoves(newPossibleMoves);
@@ -52,8 +51,7 @@ public class GameRunner<M> {
     public synchronized void createNewGame() {
         pauseGame(true);
         position = game.newInitialPosition();
-        lastMove = null;
-        setPositionCopy(NO_PLAYER, null, true);
+        setPositionCopy(null, NO_PLAYER, null, true);
     }
 
     public synchronized void setPlayersAndResume(List<IPlayer> players) {
@@ -77,17 +75,16 @@ public class GameRunner<M> {
                 synchronized (this) {
                     playerToMove = position.getCurrentPlayer();
                     currentPlayer = players.get(playerToMove - game.getPlayerIndexOffset());
-                    setPositionCopy(NO_PLAYER, currentPlayer, false);
+                    setPositionCopy(null, NO_PLAYER, currentPlayer, false);
                 }
                 while (!stopRequested && possibleMovesCopy.size() > 0) {
                     M move = currentPlayer.getMove(positionCopy);
                     if (!stopRequested) {
                         synchronized (this) {
-                            lastMove = move;
                             position.makeMove(move);
                             currentPlayer.notifyTurnEnded();
                             currentPlayer = players.get(position.getCurrentPlayer() - game.getPlayerIndexOffset());
-                            setPositionCopy(playerToMove, currentPlayer, true); // now previous player
+                            setPositionCopy(move, playerToMove, currentPlayer, true); // now previous player
                             playerToMove = positionCopy.getCurrentPlayer();
                         }
                     }
@@ -128,9 +125,9 @@ public class GameRunner<M> {
         pauseGame(false);
         isSettingPosition = false;
         IPosition<M> newPosition = game.newInitialPosition();
-        lastMove = moveHistory.setPositionFromHistory(newPosition, moveNumToFind, playerNumToFind);
+        M lastMove = moveHistory.setPositionFromHistory(newPosition, moveNumToFind, playerNumToFind);
         position = newPosition;
-        setPositionCopy(NO_PLAYER, currentPlayer, false);
+        setPositionCopy(lastMove, NO_PLAYER, currentPlayer, false);
     }
 
     private synchronized void notifyGameEnded() {
