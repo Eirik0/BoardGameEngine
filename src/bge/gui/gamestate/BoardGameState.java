@@ -164,13 +164,17 @@ public class BoardGameState<M> implements GameState, Sized {
         }
         controllerPanel = panelBuilder.build();
 
-        moveHistoryState = new MoveHistoryState<>(new ComponentMouseTracker(mouseTracker, moveHistoryLocation), imageDrawer);
+        moveHistoryState = new MoveHistoryState<>(this, new ComponentMouseTracker(mouseTracker, moveHistoryLocation), imageDrawer);
 
         gameRunningState = new GameRunningState<>(imageDrawer,
                 GameRegistry.getGameRenderer(game.getName(), new ComponentMouseTracker(mouseTracker, gameLocation), imageDrawer));
 
         gameRunner.createNewGame();
         handleGameEvents();
+    }
+
+    public void setMoveFromHistory(int moveNumToFind, int playerNumToFind) {
+        gameRunner.setPositionFromHistory(moveNumToFind, playerNumToFind);
     }
 
     @SuppressWarnings("unchecked")
@@ -181,7 +185,7 @@ public class BoardGameState<M> implements GameState, Sized {
             } else if (event instanceof PositionChangedEvent<?>) {
                 PositionChangedEvent<M> changeEvent = (PositionChangedEvent<M>) event;
                 gameRunningState.positionChanged(changeEvent.changeInfo);
-                moveHistoryState.setMoveHistoryList(changeEvent.changeInfo.moveHistoryList);
+                moveHistoryState.setMoveHistoryList(changeEvent.changeInfo.moveHistoryList, changeEvent.changeInfo.historyMoveIndex);
                 analysisState.positionChanged(changeEvent.changeInfo);
             } else if (event instanceof GamePausedEvent) {
                 pausePlayButton.setSelected(false);

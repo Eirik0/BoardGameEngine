@@ -605,7 +605,11 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         public void applyMove(PhotosynthesisPosition position) {
             final PlayerBoard playerBoard = position.playerBoards[position.currentPlayer];
             playerBoard.available[buyColumn]++;
-            playerBoard.lightPoints -= PRICES[buyColumn][--playerBoard.buy[buyColumn]];
+            int i = --playerBoard.buy[buyColumn];
+            if (i == -1) {
+                "".toString();
+            }
+            playerBoard.lightPoints -= PRICES[buyColumn][i];
         }
 
         @Override

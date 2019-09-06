@@ -3,7 +3,9 @@ package bge.gui.movehistory;
 import java.awt.Color;
 import java.util.List;
 
+import bge.gui.gamestate.BoardGameState;
 import bge.igame.MoveHistory.HistoryMove;
+import bge.igame.MoveHistory.MoveIndex;
 import gt.component.IMouseTracker;
 import gt.ecomponent.EComponentPanel;
 import gt.ecomponent.EComponentPanelBuilder;
@@ -30,10 +32,10 @@ public class MoveHistoryState<M> implements GameState, Sized {
 
     private final MoveHistoryViewport<M> view;
 
-    public MoveHistoryState(IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
+    public MoveHistoryState(BoardGameState<M> parent, IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
         SizedComponentLocationAdapter cl = new SizedComponentLocationAdapter(this, 0, 0);
         spLoc = cl.createPaddedLocation(1, TITLE_HEIGHT, 1, 1);
-        view = new MoveHistoryViewport<>(spLoc);
+        view = new MoveHistoryViewport<>(parent, spLoc);
         scrollPane = new EScrollPane(spLoc, view, imageDrawer);
         componentPanel = new EComponentPanelBuilder(mouseTracker)
                 .add(0, new ETextLabel(cl.createGluedLocation(GlueSide.TOP, 0, 0, 0, TITLE_HEIGHT - 1), "Move History", true))
@@ -41,10 +43,12 @@ public class MoveHistoryState<M> implements GameState, Sized {
                 .build();
     }
 
-    public void setMoveHistoryList(List<HistoryMove<M>> moveHistoryList) {
-        view.setMoveHistoryList(moveHistoryList);
+    public void setMoveHistoryList(List<HistoryMove<M>> moveHistoryList, MoveIndex historyMoveIndex) {
+        boolean move = view.setMoveHistoryList(moveHistoryList, historyMoveIndex);
         scrollPane.setSize(spLoc.getWidth(), spLoc.getHeight());
-        view.getWindow().move(0, MoveHistoryViewport.ITEM_HEIGHT);
+        if (move) {
+            view.getWindow().move(0, MoveHistoryViewport.ITEM_HEIGHT);
+        }
     }
 
     @Override

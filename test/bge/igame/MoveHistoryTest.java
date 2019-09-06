@@ -1,7 +1,7 @@
 package bge.igame;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +13,7 @@ import bge.igame.MoveHistory.MoveIndex;
 public class MoveHistoryTest {
     private static MoveHistory<IChessMove> createMoveHistory(int movesToMake) {
         ChessPosition chessPosition = new ChessPosition();
-        MoveHistory<IChessMove> moveHistory = new MoveHistory<>(new ChessGame());
+        MoveHistory<IChessMove> moveHistory = new MoveHistory<>(new ChessGame().getNumberOfPlayers());
         makeMoves(chessPosition, moveHistory, ChessGame.MAX_MOVES, movesToMake);
         return moveHistory;
     }
@@ -35,10 +35,13 @@ public class MoveHistoryTest {
         return move;
     }
 
-    private static <M> void checkMove(MoveHistory<M> moveHistory, int index, boolean p1Expected, boolean p2Expected) {
+    private static <M> void checkMove(MoveHistory<M> moveHistory, int index, boolean... expectedPlayers) {
         M[] moves = moveHistory.getMoveHistoryListCopy().get(index).moves;
-        assertTrue(p1Expected == (moves[0] != null), "P1");
-        assertTrue(p2Expected == (moves[1] != null), "P2");
+        boolean[] actualPlayers = new boolean[moves.length];
+        for (int i = 0; i < moves.length; ++i) {
+            actualPlayers[i] = (moves[i] != null);
+        }
+        assertArrayEquals(expectedPlayers, actualPlayers);
     }
 
     private static <M> void checkIndex(MoveHistory<M> moveHistory, MoveIndex expectedSelectedMoveIndex, MoveIndex expectedMaxMoveIndex) {
@@ -109,5 +112,27 @@ public class MoveHistoryTest {
         checkMove(moveHistory, 0, true, true);
         checkMove(moveHistory, 1, true, true);
         checkIndex(moveHistory, new MoveIndex(1, 1), new MoveIndex(1, 1));
+    }
+
+    @Test
+    public void testPlayerIndexGoesBackwards() {
+        MoveHistory<String> moveHistory = new MoveHistory<>(3);
+        moveHistory.addMove("1", 1);
+        moveHistory.addMove("2", 2);
+        moveHistory.addMove("3", 3);
+        checkIndex(moveHistory, new MoveIndex(0, 2), new MoveIndex(0, 2));
+        checkMove(moveHistory, 0, true, true, true);
+        moveHistory.addMove("1", 1);
+        moveHistory.addMove("2", 2);
+        moveHistory.addMove("1", 1);
+        checkIndex(moveHistory, new MoveIndex(2, 0), new MoveIndex(2, 0));
+        checkMove(moveHistory, 1, true, true, false);
+        checkMove(moveHistory, 2, true, false, false);
+        moveHistory.addMove("1", 1);
+        moveHistory.addMove("3", 3);
+        moveHistory.addMove("2", 2);
+        checkIndex(moveHistory, new MoveIndex(4, 1), new MoveIndex(4, 1));
+        checkMove(moveHistory, 3, true, false, true);
+        checkMove(moveHistory, 4, false, true, false);
     }
 }

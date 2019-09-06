@@ -400,20 +400,30 @@ public class PhotosynthesisPositionTest {
         for (int seed = 0; seed < 100; seed++) {
             final Random random = new Random(seed);
 
-            final PhotosynthesisPosition position = new PhotosynthesisPosition(2);
+            final PhotosynthesisPosition position = new PhotosynthesisPosition(4);
 
+            List<IPhotosynthesisMove> moves = new ArrayList<>();
+            PhotosynthesisPosition finalPosition;
             do {
                 final List<IPhotosynthesisMove> quietMoves = new ArrayList<>();
                 position.getPossibleMoves(new MockMoveList(m -> quietMoves.add(m)));
 
                 final IPhotosynthesisMove move = quietMoves.get(random.nextInt(quietMoves.size()));
+                moves.add(move);
                 final PhotosynthesisPosition copy = (PhotosynthesisPosition) position.createCopy();
                 move.applyMove(position);
                 move.unapplyMove(position);
 
                 assertEquals(copy, position);
                 move.applyMove(position);
+                finalPosition = position;
             } while (position.playerRoundsRemaining > 0);
+
+            PhotosynthesisPosition newPosition = new PhotosynthesisPosition(4);
+            for (IPhotosynthesisMove move : moves) {
+                newPosition.makeMove(move);
+            }
+            assertEquals(finalPosition, newPosition);
         }
     }
 

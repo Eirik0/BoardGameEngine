@@ -28,7 +28,7 @@ public class GameRunner<M> {
 
     public GameRunner(IGame<M, ? extends IPosition<M>> game, GameObserver<M> gameObserver, MoveListFactory<M> moveListFactory) {
         this.game = game;
-        this.moveHistory = new MoveHistory<>(game);
+        this.moveHistory = new MoveHistory<>(game.getNumberOfPlayers());
         this.gameObserver = gameObserver;
         this.moveListFactory = moveListFactory;
         position = game.newInitialPosition();
@@ -42,10 +42,11 @@ public class GameRunner<M> {
         positionCopy = newPositionCopy;
         possibleMovesCopy = newPossibleMoves;
         if (updateHistory) {
-            moveHistory.addMove(lastMove, playerWhoMoved);
+            moveHistory.addMove(lastMove, playerWhoMoved + 1 - game.getPlayerIndexOffset());
         }
         gameObserver.notifyPositionChanged(
-                new PositionChangedInfo<>(positionCopy, possibleMovesCopy, currentPlayer, moveHistory.getMoveHistoryListCopy(), lastMove));
+                new PositionChangedInfo<>(positionCopy, possibleMovesCopy, currentPlayer, lastMove, moveHistory.getMoveHistoryListCopy(),
+                        moveHistory.selectedMoveIndex, isRunning));
     }
 
     public synchronized void createNewGame() {

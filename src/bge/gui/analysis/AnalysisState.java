@@ -127,7 +127,7 @@ public class AnalysisState implements GameState, Sized {
 
     public <M> void positionChanged(PositionChangedInfo<M> changeInfo) {
         currentPosition = changeInfo.position.createCopy();
-        boolean willObserve = changeInfo.currentPlayer instanceof ComputerPlayer;
+        boolean willObserve = (changeInfo.currentPlayer instanceof ComputerPlayer) && changeInfo.isRunning;
         if (mode == AnalysisMode.OBSERVING) {
             if (willObserve) {
                 analysisPlayer = (ComputerPlayer) changeInfo.currentPlayer;
