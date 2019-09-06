@@ -624,54 +624,47 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
 
         int[][] getShadowMap(int sunPosition) {
             final int[][] map = new int[AXIS_LENGTH][AXIS_LENGTH];
-
             // Loop over all the trees and compute their shadows
             for (final Coordinate[] coords : ALL_TILES) {
                 for (final Coordinate coord : coords) {
                     final Tile tile = grid[coord.x][coord.y];
-
-                    // Helper function to do bounds checking while updating the shadow map
-                    final class Helper {
-                        public void updateMap(int x, int y) {
-                            if (x >= 0 && y >= 0 && x < AXIS_LENGTH && y < AXIS_LENGTH && grid[x][y] != null) {
-                                map[x][y] = Math.max(map[x][y], tile.level);
-                            }
-                        }
-                    }
-
-                    final Helper helper = new Helper();
-
                     if (tile.level > 0) {
                         if (sunPosition == 0) {
                             for (int dx = 1; dx <= tile.level; dx++) {
-                                helper.updateMap(coord.x + dx, coord.y + dx);
+                                updateMapHelper(grid, coord.x + dx, coord.y + dx, map, tile.level);
                             }
                         } else if (sunPosition == 1) {
                             for (int dy = 1; dy <= tile.level; dy++) {
-                                helper.updateMap(coord.x, coord.y + dy);
+                                updateMapHelper(grid, coord.x, coord.y + dy, map, tile.level);
                             }
                         } else if (sunPosition == 2) {
                             for (int dx = 1; dx <= tile.level; dx++) {
-                                helper.updateMap(coord.x - dx, coord.y);
+                                updateMapHelper(grid, coord.x - dx, coord.y, map, tile.level);
                             }
                         } else if (sunPosition == 3) {
                             for (int dx = 1; dx <= tile.level; dx++) {
-                                helper.updateMap(coord.x - dx, coord.y - dx);
+                                updateMapHelper(grid, coord.x - dx, coord.y - dx, map, tile.level);
                             }
                         } else if (sunPosition == 4) {
                             for (int dy = 1; dy <= tile.level; dy++) {
-                                helper.updateMap(coord.x, coord.y - dy);
+                                updateMapHelper(grid, coord.x, coord.y - dy, map, tile.level);
                             }
                         } else if (sunPosition == 5) {
                             for (int dx = 1; dx <= tile.level; dx++) {
-                                helper.updateMap(coord.x + dx, coord.y);
+                                updateMapHelper(grid, coord.x + dx, coord.y, map, tile.level);
                             }
                         }
                     }
                 }
             }
-
             return map;
+        }
+
+        // Helper function to do bounds checking while updating the shadow map
+        static void updateMapHelper(Tile[][] grid, int x, int y, int[][] map, int tileLevel) {
+            if (x >= 0 && y >= 0 && x < AXIS_LENGTH && y < AXIS_LENGTH && grid[x][y] != null) {
+                map[x][y] = Math.max(map[x][y], tileLevel);
+            }
         }
 
         @SuppressWarnings("unchecked")

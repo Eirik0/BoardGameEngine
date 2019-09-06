@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -266,18 +267,19 @@ public class PhotosynthesisPositionTest {
                 for (final Coordinate coord : expectedShadowCoords) {
                     expectedShadows[coord.x][coord.y] = level;
                 }
-
-                assertTrue(Arrays.deepEquals(expectedShadows, actualShadows));
+                if (!Arrays.deepEquals(expectedShadows, actualShadows)) {
+                    System.out.println("fail: sunPos=" + sunPosition + ", level=" + level);
+                    System.out.println(Arrays.deepToString(expectedShadows) + "\n" + Arrays.deepToString(actualShadows));
+                    fail("Shadow maps not equal");
+                }
             }
         }
 
         final TestCase[] testCases = new TestCase[] {
-                // Sun at starting position, small tree, validate shadow at (4,4), next coordinate to the right
+                // Sun at starting position, small tree, validate shadow at (4, 4), next coordinate to the right
                 new TestCase(1, 0, new Coordinate[] { Coordinate.valueOf(4, 4) }),
                 new TestCase(2, 0, new Coordinate[] { Coordinate.valueOf(4, 4), Coordinate.valueOf(5, 5) }),
-                new TestCase(
-                        3,
-                        0,
+                new TestCase(3, 0,
                         new Coordinate[] {
                                 Coordinate.valueOf(4, 4),
                                 Coordinate.valueOf(5, 5),
