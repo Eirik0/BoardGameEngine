@@ -1,6 +1,5 @@
 package bge.main;
 
-import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,13 +28,13 @@ import bge.igame.player.PlayerOptions;
 import bge.igame.player.PlayerOptions.CPOptionIntRange;
 import bge.igame.player.PlayerOptions.CPOptionStringArray;
 import bge.main.GameRegistry.GameRegistryItem;
-import gt.component.ComponentCreator;
 import gt.component.GamePanel;
 import gt.component.MainFrame;
 import gt.gamestate.GameStateManager;
 import gt.util.Pair;
 
 public class BoardGameEngineMain {
+    private static final String PROJECT_NAME = "BoardGameEngine";
     private static final String TITLE = "Board Game Engine";
 
     public static final Font DEFAULT_FONT = new Font("consolas", Font.PLAIN, 24);
@@ -118,15 +117,11 @@ public class BoardGameEngineMain {
     public static void main(String[] args) {
         registerGames();
 
-        ComponentCreator.setCrossPlatformLookAndFeel();
-
-        GamePanel mainPanel = new GamePanel("BGE");
-        mainPanel.setPreferredSize(new Dimension(ComponentCreator.DEFAULT_WIDTH, ComponentCreator.DEFAULT_HEIGHT));
+        MainFrame mainFrame = new MainFrame(PROJECT_NAME, TITLE);
+        GamePanel mainPanel = mainFrame.getGamePanel();
 
         GameStateManager gameStateManager = mainPanel.getGameStateManager();
         gameStateManager.setGameState(new MainMenuState(gameStateManager));
-
-        MainFrame mainFrame = new MainFrame(TITLE, mainPanel);
 
         mainFrame.show();
     }
