@@ -126,7 +126,7 @@ public class ChessPositionPerfTest {
         return perfTests;
     }
 
-    static class ChessPerfTest {
+    private static class ChessPerfTest {
         final String fen;
         final ChessPosition position;
         long[] expectedPositions;

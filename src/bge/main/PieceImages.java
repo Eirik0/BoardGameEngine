@@ -16,7 +16,7 @@ import gt.component.JavaGameImage;
 public class PieceImages {
     public static BufferedImage loadImage(String gameName, String imageName) {
         try {
-            return ImageIO.read(PhotosynthesisPieceImages.class.getResource("/bge/game/" + gameName + "/" + imageName + ".png"));
+            return ImageIO.read(PhotosynthesisPieceImages.class.getResource("/bge/image/game/" + gameName + "/" + imageName + ".png"));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
