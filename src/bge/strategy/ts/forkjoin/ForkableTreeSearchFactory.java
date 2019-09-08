@@ -32,7 +32,7 @@ public class ForkableTreeSearchFactory<M, P extends IPosition<M>> {
             return new MinimaxPositionEvaluator<>(positionEvaluator, moveListFactory);
         case ALPHA_BETA:
             return new AlphaBetaPositionEvaluator<>(positionEvaluator, moveListFactory);
-        case ALPHA_BETA_Q: // TODO
+        case ALPHA_BETA_Q:
             return new AlphaBetaQPositionEvaluator<>(positionEvaluator, moveListFactory);
         default:
             throw new IllegalStateException("Unknown ForkableType: " + forkableType);

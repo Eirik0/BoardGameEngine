@@ -3,7 +3,6 @@ package bge.strategy.ts.montecarlo;
 import java.util.Random;
 
 import bge.igame.IPosition;
-import bge.igame.MoveList;
 
 public class RandomMonteCarloChildren<M> implements IMonteCarloChildren<M> {
     private static final Random RANDOM = new Random();
@@ -46,10 +45,5 @@ public class RandomMonteCarloChildren<M> implements IMonteCarloChildren<M> {
         int moveListIndex = unexpandedIndexes[moveIndex];
         unexpandedIndexes[moveIndex] = unexpandedIndexes[--numUnexpanded];
         return moveListIndex;
-    }
-
-    @Override
-    public int getNextMoveIndex(MoveList<M> moveList) {
-        return RANDOM.nextInt(moveList.size());
     }
 }

@@ -1,7 +1,6 @@
 package bge.strategy.ts.montecarlo;
 
 import bge.igame.IPosition;
-import bge.igame.MoveList;
 
 public interface IMonteCarloChildren<M> {
     IMonteCarloChildren<M> createNewWith(int numUnexpanded);
@@ -13,6 +12,4 @@ public interface IMonteCarloChildren<M> {
     void setNumUnexpanded(int numUnexpanded);
 
     int getNextNodeIndex();
-
-    int getNextMoveIndex(MoveList<M> moveList);
 }

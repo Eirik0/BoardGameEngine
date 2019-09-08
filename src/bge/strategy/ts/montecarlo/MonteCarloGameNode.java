@@ -2,6 +2,7 @@ package bge.strategy.ts.montecarlo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
@@ -10,6 +11,8 @@ import bge.igame.MoveList;
 import bge.igame.MoveListFactory;
 
 public class MonteCarloGameNode<M, P extends IPosition<M>> {
+    private static final Random RANDOM = new Random();
+
     private final MonteCarloGameNode<M, P> parentNode;
 
     final M parentMove;
@@ -154,7 +157,7 @@ public class MonteCarloGameNode<M, P extends IPosition<M>> {
         do {
             int i = 0;
             while (possibleMoves.size() > 0 && i <= maxDepth) {
-                M move = possibleMoves.get(unexpandedChildren.getNextMoveIndex(possibleMoves));
+                M move = possibleMoves.get(RANDOM.nextInt(possibleMoves.size()));
                 position.makeMove(move);
                 movesMade.add(move);
                 possibleMoves.clear();

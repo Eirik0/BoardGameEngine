@@ -1,7 +1,6 @@
 package bge.strategy.ts.montecarlo;
 
 import java.util.Arrays;
-import java.util.Random;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
@@ -9,8 +8,6 @@ import bge.igame.IPosition;
 import bge.igame.MoveList;
 
 public class WeightedMonteCarloChildren<M> implements IMonteCarloChildren<M> {
-    private static final Random RANDOM = new Random();
-
     private int numUnexpanded;
     private ScoredMove[] unexpandedIndexes;
 
@@ -34,12 +31,15 @@ public class WeightedMonteCarloChildren<M> implements IMonteCarloChildren<M> {
         boolean won = false;
         boolean allChildrenDecided = true;
 
+        MoveList<M> possibleMoves = parentNode.moveListFactory.newAnalysisMoveList();
         int index = 0;
         int i = 0;
         do {
             M move = moveList.get(i);
             position.makeMove(move);
-            double score = positionEvaluator.evaluate(position, moveList); // TODO XXX wrong move list
+            possibleMoves.clear();
+            position.getPossibleMoves(possibleMoves);
+            double score = positionEvaluator.evaluate(position, possibleMoves);
             if (AnalysisResult.isGameOver(score)) {
                 MonteCarloGameNode<M, P> childNode = new MonteCarloGameNode<>(parentNode, move, position, this, positionEvaluator, parentNode.moveListFactory,
                         parentNode.numSimulations, parentNode.maxDepth);
@@ -76,18 +76,18 @@ public class WeightedMonteCarloChildren<M> implements IMonteCarloChildren<M> {
         return unexpandedIndexes[--numUnexpanded].index;
     }
 
-    @Override
-    public int getNextMoveIndex(MoveList<M> moveList) {
-        return RANDOM.nextInt(moveList.size());
-    }
-
-    static class ScoredMove {
+    private static class ScoredMove {
         final int index;
         final double score;
 
         public ScoredMove(int index, double score) {
             this.index = index;
             this.score = score;
+        }
+
+        @Override
+        public String toString() {
+            return index + ". " + score;
         }
     }
 }
