@@ -40,6 +40,8 @@ import gt.gameentity.Sized;
 import gt.gamestate.GameState;
 import gt.gamestate.GameStateManager;
 import gt.gamestate.UserInput;
+import gt.settings.DoubleSetting;
+import gt.settings.GameSettings;
 import gt.util.EventQueue;
 
 public class BoardGameState<M> implements GameState, Sized {
@@ -151,17 +153,23 @@ public class BoardGameState<M> implements GameState, Sized {
             int x0 = 200 + i * (PLAYER_SELECTION_WIDTH + 25);
             EComponentLocation boxLoc = cpl.createRelativeLocation(x0, 10, x0 + PLAYER_SELECTION_WIDTH - 1, 34);
             EGluedLocation optionsPanelLocation = boxLoc.createGluedLocation(GlueSide.BOTTOM, 0, 5, 0, 120);
-            panelBuilder.add(1, new EComboBox(boxLoc, imageDrawer, playerNames, 2, 0, index -> {
+            String playerIndexSettingName = "bge." + game.getName() + ".player." + playerIndex;
+            String playerInfoSettingName = "bge." + game.getName() + ".playerinfo." + playerIndex;
+            int defaultPlayerIndex = GameSettings.getInt(playerIndexSettingName, new DoubleSetting(Double.valueOf(0)));
+            selectedPlayersIndexes[i] = defaultPlayerIndex;
+            panelBuilder.add(1, new EComboBox(boxLoc, imageDrawer, playerNames, 2, defaultPlayerIndex, index -> {
+                GameSettings.setValue(playerIndexSettingName, new DoubleSetting(Double.valueOf(index)));
                 selectedPlayersIndexes[playerIndex] = index;
                 PlayerOptions playerOptions = GameRegistry.getPlayerOptions(game.getName(), playerNames[index]);
-                playerOptionsPanels[playerIndex] = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions);
+                playerOptionsPanels[playerIndex] = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions,
+                        playerInfoSettingName);
             }));
             if (i < game.getNumberOfPlayers() - 1) {
                 EComponentLocation labelLoc = cpl.createRelativeLocation(x0 + PLAYER_SELECTION_WIDTH, 10, x0 + PLAYER_SELECTION_WIDTH + 25 - 1, 34);
                 panelBuilder.add(1, new ETextLabel(labelLoc, "v.", false));
             }
-            PlayerOptions playerOptions = GameRegistry.getPlayerOptions(game.getName(), playerNames[0]);
-            playerOptionsPanels[i] = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions);
+            PlayerOptions playerOptions = GameRegistry.getPlayerOptions(game.getName(), playerNames[defaultPlayerIndex]);
+            playerOptionsPanels[i] = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions, playerInfoSettingName);
         }
         controllerPanel = panelBuilder.build();
 

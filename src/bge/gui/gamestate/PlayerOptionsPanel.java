@@ -27,6 +27,8 @@ import gt.gameentity.IGameImageDrawer;
 import gt.gameentity.IGraphics;
 import gt.gameentity.UserInputHandler;
 import gt.gamestate.UserInput;
+import gt.settings.GameSettings;
+import gt.settings.StringSetting;
 
 public class PlayerOptionsPanel implements GameEntity, UserInputHandler {
     private static final int OPTION_BOX_HEIGHT = 20;
@@ -43,20 +45,27 @@ public class PlayerOptionsPanel implements GameEntity, UserInputHandler {
     private final PlayerOptions playerOptions;
     private final Set<String> excludedOptions;
     private final PlayerInfo playerInfo;
+    private final String playerInfoSettingName;
 
-    public PlayerOptionsPanel(EComponentLocation cl, IMouseTracker mouseTracker, IGameImageDrawer imageDrawer, PlayerOptions playerOptions) {
-        this(cl, mouseTracker, imageDrawer, playerOptions, new PlayerInfo(), Collections.emptySet());
+    public PlayerOptionsPanel(EComponentLocation cl, IMouseTracker mouseTracker, IGameImageDrawer imageDrawer, PlayerOptions playerOptions,
+            String playerInfoSettingName) {
+        this(cl, mouseTracker, imageDrawer, playerOptions, PlayerInfo.fromSetting(playerInfoSettingName), Collections.emptySet(), playerInfoSettingName);
     }
 
     public PlayerOptionsPanel(EComponentLocation cl, IMouseTracker mouseTracker, IGameImageDrawer imageDrawer, PlayerOptions playerOptions,
-            PlayerInfo playerInfo, Set<String> excludedOptions) {
+            PlayerInfo playerInfo, Set<String> excludedOptions, String playerInfoSettingName) {
         this.cl = cl;
         this.imageDrawer = imageDrawer;
         this.mouseTracker = mouseTracker;
         this.playerOptions = playerOptions;
         this.excludedOptions = excludedOptions;
         this.playerInfo = playerInfo;
+        this.playerInfoSettingName = playerInfoSettingName;
         rebuildComponentPanel();
+    }
+
+    private void setPlayerInfoSetting() {
+        GameSettings.setValue(playerInfoSettingName, new StringSetting(playerInfo.createUniqueCopy().toString()));
     }
 
     private void rebuildComponentPanel() {
@@ -98,6 +107,7 @@ public class PlayerOptionsPanel implements GameEntity, UserInputHandler {
             }
             components.add(new EComboBox(optionsCl, imageDrawer, values.array, 5, optionIndex, i -> {
                 playerInfo.setOption(values.getKey(), values.array[i]);
+                setPlayerInfoSetting();
                 rebuildComponentPanel();
             }));
             y += OPTION_BOX_HEIGHT + OPTION_PADDING;
@@ -119,6 +129,7 @@ public class PlayerOptionsPanel implements GameEntity, UserInputHandler {
             components.add(new ESlider(optionsCl, values.minValue, values.maxValue, option.intValue(), i -> {
                 Integer value = Integer.valueOf(i);
                 playerInfo.setOption(values.getKey(), value);
+                setPlayerInfoSetting();
                 valueLabel.setText(value.toString());
             }));
             components.add(valueLabel);

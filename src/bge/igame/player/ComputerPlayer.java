@@ -47,7 +47,7 @@ public class ComputerPlayer implements IPlayer {
     }
 
     @Override
-    public synchronized void notifyGameEnded() {
+    public void notifyGameEnded() {
         if (strategy instanceof InterruptableStrategy) {
             ((InterruptableStrategy) strategy).stopSearch();
         }

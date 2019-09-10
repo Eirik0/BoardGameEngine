@@ -1,6 +1,7 @@
 package bge.igame.player;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -18,8 +19,11 @@ import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory.ForkableType;
 import bge.strategy.ts.montecarlo.MonteCarloTreeSearcher;
 import bge.strategy.ts.montecarlo.RandomMonteCarloChildren;
 import bge.strategy.ts.montecarlo.WeightedMonteCarloChildren;
+import gt.settings.GameSettings;
+import gt.settings.StringSetting;
 
 public class PlayerInfo {
+    public static final StringSetting DEFAULT_PLAYER_INFO_SETTING = new StringSetting("{}");
     // * Strategy:
     //   - Random
     // * Strategy: ForkJoin
@@ -144,5 +148,36 @@ public class PlayerInfo {
             playerInfo.optionsMap.remove(KEY_NUM_THREADS);
         }
         return playerInfo;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("{");
+        Iterator<Entry<String, String>> iterator = optionsMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Entry<String, String> entry = iterator.next();
+            sb.append(entry.getKey()).append("=").append(entry.getValue());
+            if (iterator.hasNext()) {
+                sb.append(",");
+            }
+        }
+        return sb.append("}").toString();
+    }
+
+    public static PlayerInfo fromString(String playerInfoString) {
+        String substring = playerInfoString.substring(1, playerInfoString.length() - 1);
+        PlayerInfo playerInfo = new PlayerInfo();
+        if (substring.length() > 0) {
+            String[] split = substring.split(",");
+            for (String option : split) {
+                String[] optionKeyVal = option.split("=");
+                playerInfo.optionsMap.put(optionKeyVal[0], optionKeyVal[1]);
+            }
+        }
+        return playerInfo;
+    }
+
+    public static PlayerInfo fromSetting(String settingName) {
+        return fromString(GameSettings.getValue(settingName, DEFAULT_PLAYER_INFO_SETTING));
     }
 }

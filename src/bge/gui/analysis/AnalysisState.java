@@ -105,7 +105,7 @@ public class AnalysisState implements GameState, Sized {
                 .build();
         optionsPanelLocation = cl.createGluedLocation(GlueSide.TOP, 5, TITLE_HEIGHT + 5, -5, TITLE_HEIGHT + 120);
         playerOptions = GameRegistry.getPlayerOptions(gameName, ComputerPlayer.NAME);
-        playerInfo = new PlayerInfo();
+        playerInfo = PlayerInfo.fromSetting("bge." + gameName + ".analysisplayerinfo");
         playerInfo.setOption(PlayerInfo.KEY_MS_PER_MOVE, Integer.valueOf(Integer.MAX_VALUE));
         playerInfo.setOption(PlayerInfo.KEY_ESCAPE_EARLY, PlayerInfo.VALUE_DO_NOT_ESCAPE_EARLY);
         setAnalysisPanel();
@@ -114,7 +114,7 @@ public class AnalysisState implements GameState, Sized {
     private void setAnalysisPanel() {
         PlayerInfo analysisPlayerInfo = analysisPlayer == null ? playerInfo : analysisPlayer.getPlayerInfo().createUniqueCopy();
         playerOptionsPanel = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions, analysisPlayerInfo,
-                Collections.singleton(PlayerInfo.KEY_MS_PER_MOVE));
+                Collections.singleton(PlayerInfo.KEY_MS_PER_MOVE), "bge." + gameName + ".analysisplayerinfo");
     }
 
     private void createNewAnalysisPlayer() {
