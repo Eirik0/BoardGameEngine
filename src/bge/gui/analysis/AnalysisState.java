@@ -121,6 +121,9 @@ public class AnalysisState implements GameState, Sized {
         if (analysisPlayer != null) {
             analysisPlayer.notifyGameEnded();
         }
+        playerInfo = playerOptionsPanel.getPlayerInfo().createUniqueCopy();
+        playerInfo.setOption(PlayerInfo.KEY_MS_PER_MOVE, Integer.valueOf(Integer.MAX_VALUE));
+        playerInfo.setOption(PlayerInfo.KEY_ESCAPE_EARLY, PlayerInfo.VALUE_DO_NOT_ESCAPE_EARLY);
         analysisPlayer = new ComputerPlayer(gameName, playerInfo);
     }
 
