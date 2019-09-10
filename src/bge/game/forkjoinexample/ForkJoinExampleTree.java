@@ -3,9 +3,9 @@ package bge.game.forkjoinexample;
 import java.util.Random;
 
 import bge.analysis.AnalysisResult;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class ForkJoinExampleTree implements IPosition<ForkJoinExampleNode> {
     public static final int DEPTH = 15;

@@ -3,7 +3,7 @@ package bge.game.forkjoinexample;
 import java.util.ArrayList;
 import java.util.List;
 
-import bge.game.TwoPlayers;
+import bge.igame.player.TwoPlayers;
 
 public class ForkJoinExampleNode {
     private final int player;

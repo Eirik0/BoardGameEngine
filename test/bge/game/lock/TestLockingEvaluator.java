@@ -1,7 +1,7 @@
 package bge.game.lock;
 
 import bge.analysis.IPositionEvaluator;
-import bge.game.MoveList;
+import bge.igame.MoveList;
 
 public class TestLockingEvaluator implements IPositionEvaluator<TestLockingNode, TestLockingPosition> {
     @Override

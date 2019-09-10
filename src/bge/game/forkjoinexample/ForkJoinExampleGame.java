@@ -1,6 +1,9 @@
 package bge.game.forkjoinexample;
 
-import bge.game.IGame;
+import bge.gui.gamestate.IGameRenderer;
+import bge.igame.IGame;
+import gt.component.IMouseTracker;
+import gt.gameentity.IGameImageDrawer;
 
 public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinExampleTree> {
     public static final String NAME = "Fork Join Example";
@@ -27,5 +30,10 @@ public class ForkJoinExampleGame implements IGame<ForkJoinExampleNode, ForkJoinE
         ForkJoinExampleTree tree = new ForkJoinExampleTree(ForkJoinExampleTree.DEPTH, ForkJoinExampleTree.BRANCHING_FACTOR);
         ForkJoinExampleThreadTracker.init(tree);
         return tree;
+    }
+
+    @Override
+    public IGameRenderer<ForkJoinExampleNode, ForkJoinExampleTree> newGameRenderer(IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
+        return new ForkJoinExampleGameRenderer(mouseTracker);
     }
 }

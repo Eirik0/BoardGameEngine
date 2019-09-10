@@ -1,7 +1,10 @@
 package bge.game.gomoku;
 
-import bge.game.IGame;
-import bge.game.TwoPlayers;
+import bge.gui.gamestate.IGameRenderer;
+import bge.igame.IGame;
+import bge.igame.player.TwoPlayers;
+import gt.component.IMouseTracker;
+import gt.gameentity.IGameImageDrawer;
 
 public class GomokuGame implements IGame<Integer, GomokuPosition> {
     public static final String NAME = "Gomoku";
@@ -27,5 +30,10 @@ public class GomokuGame implements IGame<Integer, GomokuPosition> {
     @Override
     public GomokuPosition newInitialPosition() {
         return new GomokuPosition();
+    }
+
+    @Override
+    public IGameRenderer<Integer, GomokuPosition> newGameRenderer(IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
+        return new GomokuGameRenderer(mouseTracker);
     }
 }

@@ -1,21 +1,31 @@
 package bge.gui.gamestate;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import bge.gui.Drawable;
-import bge.gui.GameGuiManager;
-import bge.gui.GameRegistry;
-import bge.main.BoardGameEngineMain;
+import bge.main.GameRegistry;
+import gt.component.ComponentCreator;
+import gt.component.IMouseTracker;
+import gt.gameentity.Drawable;
+import gt.gameentity.IGraphics;
+import gt.gamestate.GameState;
+import gt.gamestate.GameStateManager;
 import gt.gamestate.UserInput;
+import gt.util.EMath;
 
 public class MainMenuState implements GameState {
-    private final List<MenuItem> menuItems = new ArrayList<>();
+    private final GameStateManager gameStateManager;
+    private final IMouseTracker mouseTracker;
 
-    public MainMenuState() {
+    private final List<MenuItem> menuItems = new ArrayList<>();
+    double width;
+    double height;
+
+    public MainMenuState(GameStateManager gameStateManager) {
+        this.gameStateManager = gameStateManager;
+        mouseTracker = gameStateManager.getMouseTracker();
         Set<String> gameNames = GameRegistry.getGameNames();
 
         double widthPercentStart = 0.25;
@@ -31,17 +41,22 @@ public class MainMenuState implements GameState {
     }
 
     @Override
-    public void drawOn(Graphics2D graphics) {
-        graphics.setColor(BoardGameEngineMain.BACKGROUND_COLOR);
-        graphics.fillRect(0, 0, GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
+    public void update(double dt) {
+    }
+
+    @Override
+    public void drawOn(IGraphics graphics) {
+        graphics.setColor(ComponentCreator.backgroundColor());
+        graphics.fillRect(0, 0, width, height);
         for (MenuItem menuItem : menuItems) {
             menuItem.drawOn(graphics);
         }
     }
 
     @Override
-    public void componentResized(int width, int height) {
-        // do nothing
+    public void setSize(double width, double height) {
+        this.width = width;
+        this.height = height;
     }
 
     @Override
@@ -49,14 +64,15 @@ public class MainMenuState implements GameState {
         if (input == UserInput.LEFT_BUTTON_RELEASED) {
             for (MenuItem menuItem : menuItems) {
                 if (menuItem.checkContainsCursor()) {
-                    GameGuiManager.setGame(menuItem.gameName);
+                    String gameName = menuItem.gameName;
+                    gameStateManager.setGameState(new BoardGameState<>(gameStateManager, GameRegistry.getGame(gameName)));
                     break;
                 }
             }
         }
     }
 
-    static class MenuItem implements Drawable {
+    class MenuItem implements Drawable {
         final String gameName;
 
         final double widthPercentStart;
@@ -73,39 +89,39 @@ public class MainMenuState implements GameState {
         }
 
         @Override
-        public void drawOn(Graphics2D graphics) {
+        public void drawOn(IGraphics graphics) {
             graphics.setColor(checkContainsCursor() ? Color.BLUE : Color.RED);
             graphics.drawRect(getX0(), getY0(), getX1() - getX0(), getY1() - getY0());
-            drawCenteredString(graphics, gameName, getCenterX(), getCenterY());
+            graphics.drawCenteredString(gameName, getCenterX(), getCenterY());
         }
 
         boolean checkContainsCursor() {
-            return GameGuiManager.isMouseEntered() && GameGuiManager.getMouseY() >= getY0() && GameGuiManager.getMouseY() <= getY1()
-                    && GameGuiManager.getMouseX() >= getX0() && GameGuiManager.getMouseX() <= getX1();
+            return mouseTracker.isMouseEntered() && mouseTracker.mouseY() >= getY0() && mouseTracker.mouseY() <= getY1()
+                    && mouseTracker.mouseX() >= getX0() && mouseTracker.mouseX() <= getX1();
         }
 
         int getX0() {
-            return round(GameGuiManager.getComponentWidth() * widthPercentStart);
+            return EMath.round(width * widthPercentStart);
         }
 
         private int getY0() {
-            return round(GameGuiManager.getComponentHeight() * heightPercentStart);
+            return EMath.round(height * heightPercentStart);
         }
 
         private int getX1() {
-            return round(GameGuiManager.getComponentWidth() * widthPercentEnd);
+            return EMath.round(width * widthPercentEnd);
         }
 
         private int getY1() {
-            return round(GameGuiManager.getComponentHeight() * heightPercentEnd);
+            return EMath.round(height * heightPercentEnd);
         }
 
         private double getCenterX() {
-            return (GameGuiManager.getComponentWidth() * (widthPercentStart + widthPercentEnd)) / 2;
+            return (width * (widthPercentStart + widthPercentEnd)) / 2;
         }
 
         private double getCenterY() {
-            return (GameGuiManager.getComponentHeight() * (heightPercentStart + heightPercentEnd)) / 2;
+            return (height * (heightPercentStart + heightPercentEnd)) / 2;
         }
     }
 }

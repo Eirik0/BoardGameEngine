@@ -1,8 +1,11 @@
 package bge.game.chess;
 
-import bge.game.IGame;
-import bge.game.TwoPlayers;
 import bge.game.chess.move.IChessMove;
+import bge.gui.gamestate.IGameRenderer;
+import bge.igame.IGame;
+import bge.igame.player.TwoPlayers;
+import gt.component.IMouseTracker;
+import gt.gameentity.IGameImageDrawer;
 
 public class ChessGame implements IGame<IChessMove, ChessPosition> {
     public static final String NAME = "Chess";
@@ -26,5 +29,10 @@ public class ChessGame implements IGame<IChessMove, ChessPosition> {
     @Override
     public ChessPosition newInitialPosition() {
         return new ChessPosition();
+    }
+
+    @Override
+    public IGameRenderer<IChessMove, ChessPosition> newGameRenderer(IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
+        return new ChessGameRenderer(mouseTracker, imageDrawer);
     }
 }

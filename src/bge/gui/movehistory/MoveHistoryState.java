@@ -1,71 +1,86 @@
 package bge.gui.movehistory;
 
-import java.awt.Graphics2D;
+import java.awt.Color;
+import java.util.List;
 
-import bge.game.GameRunner;
-import bge.game.IPosition;
-import bge.game.MoveHistory;
-import bge.gui.gamestate.GameState;
-import bge.gui.movehistory.GuiMoveHistory.MoveMenuItem;
-import bge.main.BoardGameEngineMain;
-import gt.component.MouseTracker;
-import gt.gameentity.SizedSizable;
+import bge.gui.gamestate.BoardGameState;
+import bge.igame.MoveHistory.HistoryMove;
+import bge.igame.MoveHistory.MoveIndex;
+import gt.component.IMouseTracker;
+import gt.ecomponent.EComponentPanel;
+import gt.ecomponent.EComponentPanelBuilder;
+import gt.ecomponent.ETextLabel;
+import gt.ecomponent.list.EComponentLocation;
+import gt.ecomponent.location.GlueSide;
+import gt.ecomponent.location.SizedComponentLocationAdapter;
+import gt.ecomponent.scrollbar.EScrollPane;
+import gt.gameentity.IGameImageDrawer;
+import gt.gameentity.IGraphics;
+import gt.gameentity.Sized;
+import gt.gamestate.GameState;
 import gt.gamestate.UserInput;
 
-public class MoveHistoryState<M> implements SizedSizable, GameState {
-    int width;
-    int height;
+public class MoveHistoryState<M> implements GameState, Sized {
+    public static final int TITLE_HEIGHT = 25;
 
-    public final MouseTracker mouseTracker = new MouseTracker(this::handleUserInput);
-    private GameRunner<M, IPosition<M>> gameRunner;
-    private GuiMoveHistory<M> guiMoveHistory;
+    double width;
+    double height;
 
-    public MoveHistoryState() {
-        guiMoveHistory = new GuiMoveHistory<>(new MoveHistory<>(1), mouseTracker);
+    private final EComponentPanel componentPanel;
+    private final EComponentLocation spLoc;
+    private final EScrollPane scrollPane;
+
+    private final MoveHistoryViewport<M> view;
+
+    public MoveHistoryState(BoardGameState<M> parent, IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
+        SizedComponentLocationAdapter cl = new SizedComponentLocationAdapter(this, 0, 0);
+        spLoc = cl.createPaddedLocation(1, TITLE_HEIGHT, 1, 1);
+        view = new MoveHistoryViewport<>(parent, spLoc);
+        scrollPane = new EScrollPane(spLoc, view, imageDrawer);
+        componentPanel = new EComponentPanelBuilder(mouseTracker)
+                .add(0, new ETextLabel(cl.createGluedLocation(GlueSide.TOP, 0, 0, 0, TITLE_HEIGHT - 1), "Move History", true))
+                .add(0, scrollPane)
+                .build();
     }
 
-    public void setGameRunner(GameRunner<M, IPosition<M>> gameRunner) {
-        this.gameRunner = gameRunner;
+    public void setMoveHistoryList(List<HistoryMove<M>> moveHistoryList, MoveIndex historyMoveIndex) {
+        boolean move = view.setMoveHistoryList(moveHistoryList, historyMoveIndex);
+        scrollPane.setSize(spLoc.getWidth(), spLoc.getHeight());
+        if (move) {
+            view.getWindow().move(0, MoveHistoryViewport.ITEM_HEIGHT);
+        }
     }
 
     @Override
-    public void setSize(int width, int height) {
+    public void update(double dt) {
+        componentPanel.update(dt);
+    }
+
+    @Override
+    public void drawOn(IGraphics graphics) {
+        componentPanel.drawOn(graphics);
+        graphics.drawRect(0, 0, width, height, Color.RED);
+    }
+
+    @Override
+    public void setSize(double width, double height) {
         this.width = width;
         this.height = height;
+        scrollPane.setSize(spLoc.getWidth(), spLoc.getHeight());
     }
 
     @Override
-    public int getWidth() {
+    public double getWidth() {
         return width;
     }
 
     @Override
-    public int getHeight() {
-        return Math.max(guiMoveHistory.getHeight(), height);
-    }
-
-    @Override
-    public void drawOn(Graphics2D graphics) {
-        fillRect(graphics, 0, 0, width, getHeight(), BoardGameEngineMain.BACKGROUND_COLOR);
-        guiMoveHistory.drawOn(graphics);
-    }
-
-    public void setMoveHistory(MoveHistory<M> moveHistory) {
-        guiMoveHistory = new GuiMoveHistory<>(moveHistory, mouseTracker);
-    }
-
-    @Override
-    public void componentResized(int width, int height) {
-        setSize(width, height);
+    public double getHeight() {
+        return height;
     }
 
     @Override
     public void handleUserInput(UserInput input) {
-        if (UserInput.LEFT_BUTTON_RELEASED == input) {
-            MoveMenuItem selectedMove = guiMoveHistory.getSelectedMove();
-            if (selectedMove != null) {
-                gameRunner.setPositionFromHistory(selectedMove.moveNum, selectedMove.playerNum);
-            }
-        }
+        componentPanel.handleUserInput(input);
     }
 }

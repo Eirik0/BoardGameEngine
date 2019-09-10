@@ -2,35 +2,37 @@ package bge.game.sudoku;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
 
-import bge.game.Coordinate;
-import bge.game.MoveList;
 import bge.game.ultimatetictactoe.UltimateTicTacToeGameRenderer;
-import bge.gui.GameGuiManager;
 import bge.gui.gamestate.IGameRenderer;
-import bge.main.BoardGameEngineMain;
+import bge.igame.Coordinate;
+import bge.igame.MoveList;
+import gt.component.ComponentCreator;
+import gt.component.IMouseTracker;
 import gt.gameentity.GridSizer;
+import gt.gameentity.IGraphics;
 import gt.gamestate.UserInput;
+import gt.util.EMath;
 
 public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosition>, SudokuConstants {
     private GridSizer sizer;
     private double smallBoardWidth = 0;
 
-    @Override
-    public void initializeAndDrawBoard(Graphics2D g) {
-        int imageWidth = GameGuiManager.getComponentWidth();
-        int imageHeight = GameGuiManager.getComponentHeight();
+    @SuppressWarnings("unused")
+    public SudokuGameRenderer(IMouseTracker mouseTracker) {
+    }
 
+    @Override
+    public void initializeAndDrawBoard(IGraphics g, double imageWidth, double imageHeight) {
         sizer = new GridSizer(imageWidth, imageHeight, NUM_DIGITS, NUM_DIGITS);
 
         smallBoardWidth = sizer.gridWidth / 3.0;
 
-        fillRect(g, 0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
+        g.fillRect(0, 0, imageWidth, imageHeight, ComponentCreator.backgroundColor());
 
-        drawRect(g, sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.gridWidth, BoardGameEngineMain.FOREGROUND_COLOR);
+        g.drawRect(sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.gridWidth, ComponentCreator.foregroundColor());
 
-        g.setColor(BoardGameEngineMain.FOREGROUND_COLOR);
+        g.setColor(ComponentCreator.foregroundColor());
         UltimateTicTacToeGameRenderer.drawBoard(g, sizer.offsetX, sizer.offsetY, sizer.gridWidth, 0, 2);
 
         for (int x = 0; x < 3; ++x) {
@@ -41,14 +43,14 @@ public class SudokuGameRenderer implements IGameRenderer<SudokuMove, SudokuPosit
     }
 
     @Override
-    public void drawPosition(Graphics2D g, SudokuPosition position, MoveList<SudokuMove> possibleMoves, SudokuMove lastMove) {
-        Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, round(sizer.cellSize * 0.33));
+    public void drawPosition(IGraphics g, SudokuPosition position, MoveList<SudokuMove> possibleMoves, SudokuMove lastMove) {
+        g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, EMath.round(sizer.cellSize * 0.33)));
         int i = 0;
         while (i < position.numDecided) {
             int cellIndex = position.decidedCells[i++];
             Coordinate coordinate = SudokuConstants.getCoordinate(cellIndex);
-            g.setColor(lastMove != null && cellIndex == lastMove.location ? Color.GREEN : BoardGameEngineMain.FOREGROUND_COLOR);
-            drawCenteredString(g, smallFont, position.cells[cellIndex].toString(), sizer.getCenterX(coordinate.x), sizer.getCenterY(coordinate.y));
+            g.setColor(lastMove != null && cellIndex == lastMove.location ? Color.GREEN : ComponentCreator.foregroundColor());
+            g.drawCenteredString(position.cells[cellIndex].toString(), sizer.getCenterX(coordinate.x), sizer.getCenterY(coordinate.y));
         }
     }
 

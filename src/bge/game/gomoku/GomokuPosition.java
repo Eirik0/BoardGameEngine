@@ -1,8 +1,8 @@
 package bge.game.gomoku;
 
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class GomokuPosition implements IPosition<Integer> {
     int currentPlayer;

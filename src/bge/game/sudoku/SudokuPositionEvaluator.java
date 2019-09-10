@@ -2,7 +2,7 @@ package bge.game.sudoku;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
-import bge.game.MoveList;
+import bge.igame.MoveList;
 
 public class SudokuPositionEvaluator implements IPositionEvaluator<SudokuMove, SudokuPosition>, SudokuConstants {
     @Override

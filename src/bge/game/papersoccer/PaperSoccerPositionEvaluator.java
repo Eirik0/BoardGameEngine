@@ -2,8 +2,8 @@ package bge.game.papersoccer;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class PaperSoccerPositionEvaluator implements IPositionEvaluator<Integer, PaperSoccerPosition> {
     // Scores are (player distance) - (other player distance)

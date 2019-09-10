@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import bge.game.ArrayMoveList;
-import bge.game.Coordinate;
-import bge.game.MoveList;
+import bge.igame.ArrayMoveList;
+import bge.igame.Coordinate;
+import bge.igame.MoveList;
 
 public class TicTacToePositionTest {
     @Test

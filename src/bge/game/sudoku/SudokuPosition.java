@@ -1,7 +1,7 @@
 package bge.game.sudoku;
 
-import bge.game.IPosition;
-import bge.game.MoveList;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
 
 public class SudokuPosition implements IPosition<SudokuMove>, SudokuConstants {
     final SudokuCell[] cells;

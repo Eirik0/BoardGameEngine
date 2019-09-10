@@ -2,10 +2,10 @@ package bge.game.ultimatetictactoe;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
-import bge.game.Coordinate;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
 import bge.game.ultimatetictactoe.UTTTProbabilityUtilities.WinCount;
+import bge.igame.Coordinate;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class UTTTProbabilityPositionEvaluator implements IPositionEvaluator<Coordinate, UltimateTicTacToePosition> {
     @Override

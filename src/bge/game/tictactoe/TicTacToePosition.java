@@ -1,9 +1,9 @@
 package bge.game.tictactoe;
 
-import bge.game.Coordinate;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
+import bge.igame.Coordinate;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class TicTacToePosition implements IPosition<Coordinate> {
     public static final int BOARD_WIDTH = 3;

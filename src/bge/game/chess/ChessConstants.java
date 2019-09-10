@@ -2,8 +2,8 @@ package bge.game.chess;
 
 import java.awt.Color;
 
-import bge.game.Coordinate;
-import bge.game.TwoPlayers;
+import bge.igame.Coordinate;
+import bge.igame.player.TwoPlayers;
 
 public interface ChessConstants {
     static final int BOARD_WIDTH = 8;

@@ -2,9 +2,9 @@ package bge.game.tictactoe;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
-import bge.game.Coordinate;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
+import bge.igame.Coordinate;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class TicTacToePositionEvaluator implements IPositionEvaluator<Coordinate, TicTacToePosition> {
     @Override

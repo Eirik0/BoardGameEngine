@@ -14,15 +14,15 @@ import static bge.game.chess.ChessConstants.newInitialPosition;
 import static bge.game.chess.ChessConstants.newInitialQueens;
 import static bge.game.chess.ChessConstants.newInitialRooks;
 
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
 import bge.game.chess.move.BasicChessMove;
 import bge.game.chess.move.CastleMove;
 import bge.game.chess.move.EnPassantCaptureMove;
 import bge.game.chess.move.IChessMove;
 import bge.game.chess.move.KingMove;
 import bge.game.chess.move.PawnPromotionMove;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
     public final int[] squares;

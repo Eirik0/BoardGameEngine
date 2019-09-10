@@ -1,7 +1,7 @@
 package bge.game.lock;
 
-import bge.game.IPosition;
-import bge.game.MoveList;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
 
 public class TestLockingPosition implements IPosition<TestLockingNode> {
     private TestLockingNode previousNode;

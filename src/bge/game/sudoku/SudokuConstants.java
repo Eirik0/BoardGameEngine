@@ -1,6 +1,6 @@
 package bge.game.sudoku;
 
-import bge.game.Coordinate;
+import bge.igame.Coordinate;
 
 public interface SudokuConstants {
     static final int NUM_DIGITS = 9;

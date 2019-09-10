@@ -2,8 +2,8 @@ package bge.game.gomoku;
 
 import bge.analysis.AnalysisResult;
 import bge.analysis.IPositionEvaluator;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class GomokuPositionEvaluator implements IPositionEvaluator<Integer, GomokuPosition> {
     @Override

@@ -1,9 +1,9 @@
 package bge.game.gomoku;
 
-import bge.game.ArrayMoveList;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
+import bge.igame.ArrayMoveList;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class GomokuMoveList implements MoveList<Integer> {
     private final ArrayMoveList<Integer> arrayMoveList;

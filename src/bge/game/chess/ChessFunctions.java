@@ -1,7 +1,7 @@
 package bge.game.chess;
 
-import bge.game.TwoPlayers;
 import bge.game.chess.fen.ForsythEdwardsNotation;
+import bge.igame.player.TwoPlayers;
 
 public class ChessFunctions implements ChessConstants {
     public static ChessPosition copyBoard(ChessPosition position) {

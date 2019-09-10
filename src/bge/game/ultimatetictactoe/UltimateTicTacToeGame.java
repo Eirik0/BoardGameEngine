@@ -1,8 +1,11 @@
 package bge.game.ultimatetictactoe;
 
-import bge.game.Coordinate;
-import bge.game.IGame;
-import bge.game.TwoPlayers;
+import bge.gui.gamestate.IGameRenderer;
+import bge.igame.Coordinate;
+import bge.igame.IGame;
+import bge.igame.player.TwoPlayers;
+import gt.component.IMouseTracker;
+import gt.gameentity.IGameImageDrawer;
 
 public class UltimateTicTacToeGame implements IGame<Coordinate, UltimateTicTacToePosition> {
     public static final String NAME = "Ultimate Tic Tac Toe";
@@ -26,5 +29,10 @@ public class UltimateTicTacToeGame implements IGame<Coordinate, UltimateTicTacTo
     @Override
     public UltimateTicTacToePosition newInitialPosition() {
         return new UltimateTicTacToePosition();
+    }
+
+    @Override
+    public IGameRenderer<Coordinate, UltimateTicTacToePosition> newGameRenderer(IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
+        return new UltimateTicTacToeGameRenderer(mouseTracker);
     }
 }

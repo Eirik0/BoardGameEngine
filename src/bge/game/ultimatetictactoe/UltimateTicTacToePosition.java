@@ -3,11 +3,11 @@ package bge.game.ultimatetictactoe;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import bge.game.Coordinate;
-import bge.game.IPosition;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
 import bge.game.tictactoe.TicTacToeUtilities;
+import bge.igame.Coordinate;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.player.TwoPlayers;
 
 public class UltimateTicTacToePosition implements IPosition<Coordinate> {
     static final int BOARD_WIDTH = 9;

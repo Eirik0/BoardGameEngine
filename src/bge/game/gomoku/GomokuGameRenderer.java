@@ -1,17 +1,16 @@
 package bge.game.gomoku;
 
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 
-import bge.game.Coordinate;
-import bge.game.MoveList;
-import bge.game.TwoPlayers;
-import bge.gui.GameGuiManager;
-import bge.gui.gamestate.GuiPlayerHelper;
 import bge.gui.gamestate.IGameRenderer;
-import bge.main.BoardGameEngineMain;
+import bge.igame.Coordinate;
+import bge.igame.MoveList;
+import bge.igame.player.GuiPlayerHelper;
+import bge.igame.player.TwoPlayers;
+import gt.component.ComponentCreator;
+import gt.component.IMouseTracker;
 import gt.gameentity.GridSizer;
+import gt.gameentity.IGraphics;
 import gt.gamestate.UserInput;
 
 public class GomokuGameRenderer implements IGameRenderer<Integer, GomokuPosition> {
@@ -22,74 +21,70 @@ public class GomokuGameRenderer implements IGameRenderer<Integer, GomokuPosition
             Coordinate.valueOf(3, 15), Coordinate.valueOf(9, 15), Coordinate.valueOf(15, 15)
     };
 
+    private final IMouseTracker mouseTracker;
     private GridSizer sizer;
 
-    @Override
-    public void initializeAndDrawBoard(Graphics2D g) {
-        int imageWidth = GameGuiManager.getComponentWidth();
-        int imageHeight = GameGuiManager.getComponentHeight();
+    public GomokuGameRenderer(IMouseTracker mouseTracker) {
+        this.mouseTracker = mouseTracker;
+    }
 
+    @Override
+    public void initializeAndDrawBoard(IGraphics g, double imageWidth, double imageHeight) {
         sizer = new GridSizer(imageWidth, imageHeight, GomokuUtilities.BOARD_WIDTH, GomokuUtilities.BOARD_WIDTH);
 
-        fillRect(g, 0, 0, imageWidth, imageHeight, BoardGameEngineMain.BACKGROUND_COLOR);
+        g.fillRect(0, 0, imageWidth, imageHeight, ComponentCreator.backgroundColor());
 
-        fillRect(g, sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.gridHeight, BOARD_COLOR);
+        g.fillRect(sizer.offsetX, sizer.offsetY, sizer.gridWidth, sizer.gridHeight, BOARD_COLOR);
 
         g.setColor(Color.BLACK);
         // Bounds & Grid
         for (int i = 0; i < GomokuUtilities.BOARD_WIDTH; ++i) {
-            int y0 = round(sizer.getCenterY(0));
-            int x0 = round(sizer.getCenterX(0));
-            int xi = round(sizer.getCenterX(i));
-            int yi = round(sizer.getCenterY(i));
-            int cx = round(sizer.getCenterX(GomokuUtilities.BOARD_WIDTH - 1));
-            int cy = round(sizer.getCenterY(GomokuUtilities.BOARD_WIDTH - 1));
-            g.drawLine(xi, y0, xi, cy);
-            g.drawLine(x0, yi, cx, yi);
+            g.drawLine(sizer.getCenterX(i), sizer.getCenterY(0), sizer.getCenterX(i), sizer.getCenterY(GomokuUtilities.BOARD_WIDTH - 1));
+            g.drawLine(sizer.getCenterX(0), sizer.getCenterY(i), sizer.getCenterX(GomokuUtilities.BOARD_WIDTH - 1), sizer.getCenterY(i));
         }
         // Small Circles
         double small = Math.min(2, sizer.gridWidth / 200.0);
         for (int x = 0; x < GomokuUtilities.BOARD_WIDTH; ++x) {
             for (int y = 0; y < GomokuUtilities.BOARD_WIDTH; ++y) {
-                fillCircle(g, sizer.getCenterX(x), sizer.getCenterY(y), small);
+                g.fillCircle(sizer.getCenterX(x), sizer.getCenterY(y), small);
             }
         }
         // Large
         double large = Math.min(4, sizer.gridWidth / 100.0);
         for (Coordinate starPoint : STAR_POINTS) {
-            fillCircle(g, sizer.getCenterX(starPoint.x), sizer.getCenterY(starPoint.y), large);
+            g.fillCircle(sizer.getCenterX(starPoint.x), sizer.getCenterY(starPoint.y), large);
         }
     }
 
     @Override
-    public void drawPosition(Graphics2D g, GomokuPosition position, MoveList<Integer> possibleMoves, Integer lastMove) {
+    public void drawPosition(IGraphics g, GomokuPosition position, MoveList<Integer> possibleMoves, Integer lastMove) {
         drawMoves(g, position, lastMove);
         drawMouseOn(g, possibleMoves);
     }
 
-    private void drawMoves(Graphics2D g, GomokuPosition position, Integer lastMove) {
+    private void drawMoves(IGraphics g, GomokuPosition position, Integer lastMove) {
         for (int y = 0; y < GomokuUtilities.BOARD_WIDTH; y++) {
             for (int x = 0; x < GomokuUtilities.BOARD_WIDTH; x++) {
                 int move = GomokuUtilities.getMove(x, y).intValue();
                 if (position.board[move] != TwoPlayers.UNPLAYED) {
                     Color color = position.board[move] == TwoPlayers.PLAYER_1 ? Color.BLACK : Color.WHITE;
                     g.setColor(color);
-                    fillCircle(g, sizer.getCenterX(x), sizer.getCenterY(y), sizer.cellSize * 0.45);
+                    g.fillCircle(sizer.getCenterX(x), sizer.getCenterY(y), sizer.cellSize * 0.45);
                 }
             }
         }
         if (lastMove != null) {
             g.setColor(Color.RED);
             Coordinate lastMoveCoord = GomokuUtilities.MOVE_COORDS[lastMove.intValue()];
-            drawCircle(g, sizer.getCenterX(lastMoveCoord.y), sizer.getCenterY(lastMoveCoord.x), sizer.cellSize * 0.225);
+            g.drawCircle(sizer.getCenterX(lastMoveCoord.y), sizer.getCenterY(lastMoveCoord.x), sizer.cellSize * 0.225);
         }
     }
 
-    private void drawMouseOn(Graphics g, MoveList<Integer> possibleMoves) {
-        if (GameGuiManager.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
-            Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, GomokuUtilities.BOARD_WIDTH);
+    private void drawMouseOn(IGraphics g, MoveList<Integer> possibleMoves) {
+        if (mouseTracker.isMouseEntered()) { // highlight the cell if the mouse if over a playable move
+            Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(mouseTracker, sizer, GomokuUtilities.BOARD_WIDTH);
             if (coordinate != null && possibleMoves.contains(GomokuUtilities.getMove(coordinate.x, coordinate.y))) {
-                GuiPlayerHelper.highlightCoordinate(g, sizer, 0.1);
+                GuiPlayerHelper.highlightCoordinate(g, mouseTracker, sizer, 0.1);
             }
         }
     }
@@ -97,7 +92,7 @@ public class GomokuGameRenderer implements IGameRenderer<Integer, GomokuPosition
     @Override
     public Integer maybeGetUserMove(UserInput input, GomokuPosition position, MoveList<Integer> possibleMoves) {
         if (input == UserInput.LEFT_BUTTON_RELEASED) {
-            Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(sizer, GomokuUtilities.BOARD_WIDTH);
+            Coordinate coordinate = GuiPlayerHelper.maybeGetCoordinate(mouseTracker, sizer, GomokuUtilities.BOARD_WIDTH);
             if (coordinate != null) {
                 return GomokuUtilities.getMove(coordinate.x, coordinate.y);
             }

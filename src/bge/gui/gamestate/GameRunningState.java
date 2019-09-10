@@ -1,46 +1,65 @@
 package bge.gui.gamestate;
 
-import java.awt.Graphics2D;
-
-import bge.game.GameRunner;
-import bge.game.IPosition;
-import bge.gui.GameGuiManager;
-import bge.gui.GameImage;
-import bge.gui.GuiPlayer;
+import bge.igame.IPosition;
+import bge.igame.MoveList;
+import bge.igame.PositionChangedInfo;
+import bge.igame.player.GuiPlayer;
+import gt.gameentity.IGameImage;
+import gt.gameentity.IGameImageDrawer;
+import gt.gameentity.IGraphics;
+import gt.gamestate.GameState;
 import gt.gamestate.UserInput;
 
 public class GameRunningState<M> implements GameState {
-    private final GameRunner<M, IPosition<M>> gameRunner;
+    private final IGameImageDrawer imageDrawer;
+
     private final IGameRenderer<M, IPosition<M>> gameRenderer;
-    private final GameImage boardImage = new GameImage();
+    private final IPositionObserver<M, IPosition<M>> positionObserver;
+
+    private final IGameImage boardImage;
+
+    private IPosition<M> position;
+    private MoveList<M> possibleMoves;
+    private M lastMove;
 
     @SuppressWarnings("unchecked")
-    public GameRunningState(GameRunner<M, IPosition<M>> gameRunner, IGameRenderer<M, IPosition<M>> gameRenderer) {
-        this.gameRunner = gameRunner;
+    public GameRunningState(IGameImageDrawer imageDrawer, IGameRenderer<M, IPosition<M>> gameRenderer) {
+        this.imageDrawer = imageDrawer;
         this.gameRenderer = gameRenderer;
-        if (gameRenderer instanceof IPositionObserver<?, ?>) {
-            gameRunner.setPositionObserver((IPositionObserver<M, IPosition<M>>) gameRenderer);
+        positionObserver = gameRenderer instanceof IPositionObserver<?, ?> ? (IPositionObserver<M, IPosition<M>>) gameRenderer : null;
+        boardImage = imageDrawer.newGameImage();
+    }
+
+    public void positionChanged(PositionChangedInfo<M> changeInfo) {
+        if (positionObserver != null) {
+            positionObserver.notifyPositionChanged(changeInfo.position, changeInfo.possibleMoves);
         }
-        componentResized(GameGuiManager.getComponentWidth(), GameGuiManager.getComponentHeight());
+        position = changeInfo.position;
+        possibleMoves = changeInfo.possibleMoves;
+        lastMove = changeInfo.lastMove;
     }
 
     @Override
-    public void drawOn(Graphics2D graphics) {
-        graphics.drawImage(boardImage.getImage(), 0, 0, null);
-        gameRenderer.drawPosition(graphics, gameRunner.getCurrentPositionCopy(), gameRunner.getPossibleMovesCopy(), gameRunner.getLastMove());
+    public void update(double dt) {
     }
 
     @Override
-    public void componentResized(int width, int height) {
-        boardImage.checkResized(width, height);
-        gameRenderer.initializeAndDrawBoard(boardImage.getGraphics());
+    public void drawOn(IGraphics graphics) {
+        imageDrawer.drawImage(graphics, boardImage, 0, 0);
+        gameRenderer.drawPosition(graphics, position, possibleMoves, lastMove);
+    }
+
+    @Override
+    public void setSize(double width, double height) {
+        boardImage.setSize(width, height);
+        gameRenderer.initializeAndDrawBoard(boardImage.getGraphics(), width, height);
     }
 
     @Override
     public void handleUserInput(UserInput input) {
-        M move = gameRenderer.maybeGetUserMove(input, gameRunner.getCurrentPositionCopy(), gameRunner.getPossibleMovesCopy());
+        M move = gameRenderer.maybeGetUserMove(input, position, possibleMoves);
         if (move != null) {
-            if (gameRunner.getPossibleMovesCopy().contains(move)) {
+            if (possibleMoves.contains(move)) {
                 GuiPlayer.HUMAN.setMove(move);
             }
         }
