@@ -67,6 +67,8 @@ public class AnalysisState implements GameState, Sized {
 
     private String analysisMsg = "";
 
+    private PlayerInfo playerInfo;
+
     public AnalysisState(String gameName, IMouseTracker mouseTracker, IGameImageDrawer imageDrawer) {
         this.gameName = gameName;
         this.mouseTracker = mouseTracker;
@@ -103,7 +105,15 @@ public class AnalysisState implements GameState, Sized {
                 .build();
         optionsPanelLocation = cl.createGluedLocation(GlueSide.TOP, 5, TITLE_HEIGHT + 5, -5, TITLE_HEIGHT + 120);
         playerOptions = GameRegistry.getPlayerOptions(gameName, ComputerPlayer.NAME);
-        playerOptionsPanel = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions,
+        playerInfo = new PlayerInfo();
+        playerInfo.setOption(PlayerInfo.KEY_MS_PER_MOVE, Integer.valueOf(Integer.MAX_VALUE));
+        playerInfo.setOption(PlayerInfo.KEY_ESCAPE_EARLY, PlayerInfo.VALUE_DO_NOT_ESCAPE_EARLY);
+        setAnalysisPanel();
+    }
+
+    private void setAnalysisPanel() {
+        PlayerInfo analysisPlayerInfo = analysisPlayer == null ? playerInfo : analysisPlayer.getPlayerInfo().createUniqueCopy();
+        playerOptionsPanel = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions, analysisPlayerInfo,
                 Collections.singleton(PlayerInfo.KEY_MS_PER_MOVE));
     }
 
@@ -111,9 +121,7 @@ public class AnalysisState implements GameState, Sized {
         if (analysisPlayer != null) {
             analysisPlayer.notifyGameEnded();
         }
-        PlayerInfo playerInfo = playerOptionsPanel.getPlayerInfo();
-        playerInfo.setOption(PlayerInfo.KEY_MS_PER_MOVE, Integer.valueOf(Integer.MAX_VALUE));
-        analysisPlayer = playerInfo.newComputerPlayer(gameName);
+        analysisPlayer = new ComputerPlayer(gameName, playerInfo);
     }
 
     private void analyze() {
@@ -132,8 +140,6 @@ public class AnalysisState implements GameState, Sized {
             if (willObserve) {
                 analysisPlayer = (ComputerPlayer) changeInfo.currentPlayer;
             } else {
-                playerOptionsPanel = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions,
-                        Collections.singleton(PlayerInfo.KEY_MS_PER_MOVE));
                 createNewAnalysisPlayer();
                 mode = AnalysisMode.STOPPED;
             }
@@ -154,17 +160,22 @@ public class AnalysisState implements GameState, Sized {
             analyzePauseButton.setSelected(true);
         }
         scrollPane.setSize(spLoc.getWidth(), spLoc.getHeight());
+        setAnalysisPanel();
     }
 
     public void gamePaused(boolean back) {
-        if (mode == AnalysisMode.ANALYZING) {
+        if (mode == AnalysisMode.OBSERVING) {
+            playerInfo = analysisPlayer.getPlayerInfo().createUniqueCopy();
+            playerInfo.setOption(PlayerInfo.KEY_MS_PER_MOVE, Integer.valueOf(Integer.MAX_VALUE));
+            playerInfo.setOption(PlayerInfo.KEY_ESCAPE_EARLY, PlayerInfo.VALUE_DO_NOT_ESCAPE_EARLY);
+            analyzePauseButton.setSelected(false);
+            mode = AnalysisMode.STOPPED;
+        }
+        setAnalysisPanel();
+        if (back) {
             if (analysisPlayer != null) {
                 analysisPlayer.notifyGameEnded();
             }
-        }
-        analyzePauseButton.setSelected(false);
-        mode = AnalysisMode.STOPPED;
-        if (back) {
             analysisWorker.joinThread();
         }
     }
@@ -200,8 +211,7 @@ public class AnalysisState implements GameState, Sized {
         this.width = width;
         this.height = height;
         scrollPane.setSize(spLoc.getWidth(), spLoc.getHeight());
-        playerOptionsPanel = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions,
-                Collections.singleton(PlayerInfo.KEY_MS_PER_MOVE));
+        setAnalysisPanel();
     }
 
     @Override

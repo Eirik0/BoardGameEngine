@@ -13,10 +13,16 @@ import bge.strategy.UpdatableStrategy;
 public class ComputerPlayer implements IPlayer {
     public static final String NAME = "Computer";
 
+    private final PlayerInfo playerInfo;
     private final IStrategy<?> strategy;
 
-    public ComputerPlayer(IStrategy<?> strategy) {
-        this.strategy = strategy;
+    public ComputerPlayer(String gameName, PlayerInfo playerInfo) {
+        this.playerInfo = playerInfo;
+        strategy = playerInfo.newStrategy(gameName);
+    }
+
+    public PlayerInfo getPlayerInfo() {
+        return playerInfo;
     }
 
     @SuppressWarnings("unchecked")

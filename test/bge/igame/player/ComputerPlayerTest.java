@@ -13,6 +13,7 @@ import bge.igame.Coordinate;
 import bge.igame.GameObserver;
 import bge.igame.GameRunner;
 import bge.igame.MoveListFactory;
+import bge.strategy.IStrategy;
 import bge.strategy.ts.TreeSearchStrategy;
 import bge.strategy.ts.forkjoin.ForkJoinTreeSearcher;
 import bge.strategy.ts.forkjoin.ForkableTreeSearchFactory;
@@ -27,7 +28,13 @@ public class ComputerPlayerTest {
         ForkJoinTreeSearcher<Coordinate, TicTacToePosition> treeSearcher = new ForkJoinTreeSearcher<>(
                 new ForkableTreeSearchFactory<>(ForkableType.MINIMAX, new TicTacToePositionEvaluator(), moveListFactory),
                 moveListFactory, 2);
-        ComputerPlayer player = new ComputerPlayer(new TreeSearchStrategy<>(treeSearcher, 500, true));
+        class MockPlayerInfo extends PlayerInfo {
+            @Override
+            public <M> IStrategy<M> newStrategy(String gameName) {
+                return new TreeSearchStrategy<>(treeSearcher, 500, true);
+            }
+        }
+        ComputerPlayer player = new ComputerPlayer("", new MockPlayerInfo());
         GameRunner<Coordinate> gameRunner = new GameRunner<>(game, new GameObserver<>(), moveListFactory);
         for (int i = 0; i < 100; ++i) {
             gameRunner.createNewGame();

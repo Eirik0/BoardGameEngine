@@ -2,7 +2,6 @@ package bge.gui.gamestate;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import bge.gui.analysis.AnalysisState;
@@ -16,6 +15,7 @@ import bge.igame.GameRunner;
 import bge.igame.IGame;
 import bge.igame.IPosition;
 import bge.igame.MoveListFactory;
+import bge.igame.player.ComputerPlayer;
 import bge.igame.player.GuiPlayer;
 import bge.igame.player.IPlayer;
 import bge.igame.player.PlayerOptions;
@@ -116,8 +116,10 @@ public class BoardGameState<M> implements GameState, Sized {
                     String playerName = GameRegistry.getPlayerNames(game.getName())[selectedPlayersIndexes[i]];
                     if (GuiPlayer.NAME.equals(playerName)) {
                         players.add(GuiPlayer.HUMAN);
+                    } else if (ComputerPlayer.NAME.equals(playerName)) {
+                        players.add(new ComputerPlayer(game.getName(), playerOptionsPanels[i].getPlayerInfo()));
                     } else {
-                        players.add(playerOptionsPanels[i].getPlayerInfo().newComputerPlayer(game.getName()));
+                        throw new IllegalStateException("Unknown player: " + playerName);
                     }
                 }
                 gameRunner.setPlayersAndResume(players);
@@ -152,15 +154,14 @@ public class BoardGameState<M> implements GameState, Sized {
             panelBuilder.add(1, new EComboBox(boxLoc, imageDrawer, playerNames, 2, 0, index -> {
                 selectedPlayersIndexes[playerIndex] = index;
                 PlayerOptions playerOptions = GameRegistry.getPlayerOptions(game.getName(), playerNames[index]);
-                playerOptionsPanels[playerIndex] = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions,
-                        Collections.emptySet());
+                playerOptionsPanels[playerIndex] = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions);
             }));
             if (i < game.getNumberOfPlayers() - 1) {
                 EComponentLocation labelLoc = cpl.createRelativeLocation(x0 + PLAYER_SELECTION_WIDTH, 10, x0 + PLAYER_SELECTION_WIDTH + 25 - 1, 34);
                 panelBuilder.add(1, new ETextLabel(labelLoc, "v.", false));
             }
             PlayerOptions playerOptions = GameRegistry.getPlayerOptions(game.getName(), playerNames[0]);
-            playerOptionsPanels[i] = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions, Collections.emptySet());
+            playerOptionsPanels[i] = new PlayerOptionsPanel(optionsPanelLocation, mouseTracker, imageDrawer, playerOptions);
         }
         controllerPanel = panelBuilder.build();
 

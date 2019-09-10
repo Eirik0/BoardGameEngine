@@ -2,6 +2,7 @@ package bge.igame.player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import bge.analysis.IPositionEvaluator;
 import bge.igame.IPosition;
@@ -55,10 +56,13 @@ public class PlayerInfo {
     public static final String MC_WEIGHTED = "Weighted";
     public static final String[] ALL_MC_STRATEGIES = { MC_RANDOM, MC_WEIGHTED };
 
+    public static final String KEY_ESCAPE_EARLY = "KeyEscapeEarly";
     public static final String KEY_EVALUATOR = "KeyEvaluator";
     public static final String KEY_NUM_THREADS = "KeyNumThreads";
     public static final String KEY_NUM_SIMULATIONS = "KeyNumSimulations";
     public static final String KEY_MS_PER_MOVE = "KeyMsPerMove";
+
+    public static final String VALUE_DO_NOT_ESCAPE_EARLY = "false";
 
     private final Map<String, String> optionsMap = new HashMap<>();
 
@@ -79,7 +83,7 @@ public class PlayerInfo {
         return value == null ? null : Integer.valueOf(value);
     }
 
-    private <M> IStrategy<M> newStrategy(String gameName) {
+    public <M> IStrategy<M> newStrategy(String gameName) {
         MoveListFactory<M> moveListFactory = GameRegistry.getMoveListFactory(gameName);
         IPositionEvaluator<M, IPosition<M>> positionEvaluator = GameRegistry.getPositionEvaluator(gameName, optionsMap.get(KEY_EVALUATOR));
 
@@ -87,6 +91,7 @@ public class PlayerInfo {
         if (TS_RANDOM.equals(iStrategy)) {
             return new RandomMoveStrategy<>(moveListFactory);
         }
+
         ITreeSearcher<M, IPosition<M>> treeSearcher;
         if (TS_FORK_JOIN.equals(iStrategy)) {
             String fjStrategy = optionsMap.get(KEY_FJ_STRATEGY);
@@ -118,10 +123,26 @@ public class PlayerInfo {
             throw new IllegalStateException("Unknown tree searcher: " + iStrategy);
         }
         long msPerMove = Long.parseLong(optionsMap.get(KEY_MS_PER_MOVE));
-        return new TreeSearchStrategy<>(treeSearcher, msPerMove, true);// TODO evaluate escape early
+        String escapeEarlyStr = optionsMap.get(KEY_ESCAPE_EARLY);
+        boolean escapeEarly = escapeEarlyStr == null ? true : Boolean.parseBoolean(escapeEarlyStr);
+        return new TreeSearchStrategy<>(treeSearcher, msPerMove, escapeEarly);
     }
 
-    public ComputerPlayer newComputerPlayer(String gameName) {
-        return new ComputerPlayer(newStrategy(gameName));
+    public PlayerInfo createUniqueCopy() {
+        PlayerInfo playerInfo = new PlayerInfo();
+        String iStrategy = optionsMap.get(KEY_ISTRATEGY);
+        if (TS_RANDOM.equals(iStrategy)) {
+            playerInfo.optionsMap.put(KEY_ISTRATEGY, TS_RANDOM);
+            return playerInfo;
+        }
+        for (Entry<String, String> option : optionsMap.entrySet()) {
+            playerInfo.optionsMap.put(option.getKey(), option.getValue());
+        }
+        if (TS_FORK_JOIN.equals(iStrategy)) {
+            playerInfo.optionsMap.remove(KEY_NUM_SIMULATIONS);
+        } else if (TS_MONTE_CARLO.equals(iStrategy)) {
+            playerInfo.optionsMap.remove(KEY_NUM_THREADS);
+        }
+        return playerInfo;
     }
 }

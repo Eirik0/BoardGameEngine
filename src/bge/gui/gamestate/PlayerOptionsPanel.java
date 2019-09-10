@@ -2,6 +2,7 @@ package bge.gui.gamestate;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -43,14 +44,18 @@ public class PlayerOptionsPanel implements GameEntity, UserInputHandler {
     private final Set<String> excludedOptions;
     private final PlayerInfo playerInfo;
 
+    public PlayerOptionsPanel(EComponentLocation cl, IMouseTracker mouseTracker, IGameImageDrawer imageDrawer, PlayerOptions playerOptions) {
+        this(cl, mouseTracker, imageDrawer, playerOptions, new PlayerInfo(), Collections.emptySet());
+    }
+
     public PlayerOptionsPanel(EComponentLocation cl, IMouseTracker mouseTracker, IGameImageDrawer imageDrawer, PlayerOptions playerOptions,
-            Set<String> excludedOptions) {
+            PlayerInfo playerInfo, Set<String> excludedOptions) {
         this.cl = cl;
         this.imageDrawer = imageDrawer;
         this.mouseTracker = mouseTracker;
         this.playerOptions = playerOptions;
         this.excludedOptions = excludedOptions;
-        playerInfo = new PlayerInfo();
+        this.playerInfo = playerInfo;
         rebuildComponentPanel();
     }
 
