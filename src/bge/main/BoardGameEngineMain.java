@@ -95,7 +95,7 @@ public class BoardGameEngineMain {
 
         registerGame(new UltimateTicTacToeGame(),
                 Arrays.asList(Pair.valueOf("Evaluator1", new UltimateTicTacToePositionEvaluator()),
-                        Pair.valueOf("Evaluator2", new UTTTProbabilityPositionEvaluator())),
+                        Pair.valueOf("ProbabilityGuesser1", new UTTTProbabilityPositionEvaluator())),
                 50, 10000, maxThreads, 20);
 
         // TODO GomokuMoveList.class

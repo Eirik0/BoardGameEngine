@@ -4,18 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bge.game.tictactoe.TicTacToeUtilities;
+import bge.igame.player.TwoPlayers;
 
 public class UTTTProbabilityUtilities {
-    static final WinCount[] WIN_COUNTS = new WinCount[TicTacToeUtilities.PLAYER_2_ALL_POS];
+    public static final WinCount[] WIN_COUNTS = new WinCount[TicTacToeUtilities.PLAYER_2_ALL_POS];
 
     static {
         WIN_COUNTS[0] = countWins(new TicTacBoard());
     }
 
     private static WinCount countWins(TicTacBoard ticTacBoard) {
-        if (ticTacBoard.win == 1) {
+        if (ticTacBoard.winningPlayer == 1) {
             return new WinCount(1, 0, 0);
-        } else if (ticTacBoard.win == 2) {
+        } else if (ticTacBoard.winningPlayer == 2) {
             return new WinCount(0, 0, 1);
         }
 
@@ -29,44 +30,33 @@ public class UTTTProbabilityUtilities {
             ticTacBoard.makeMove(move);
             int boardInt = ticTacBoard.getIntValue();
             if (WIN_COUNTS[boardInt] == null) {
-                WinCount countWins = countWins(ticTacBoard);
-                winCount.add(countWins);
-                WIN_COUNTS[boardInt] = countWins;
-            } else {
-                winCount.add(WIN_COUNTS[boardInt]);
+                WIN_COUNTS[boardInt] = countWins(ticTacBoard);
             }
+            winCount = winCount.add(WIN_COUNTS[boardInt]);
             ticTacBoard.unmakeMove(move);
         }
         return winCount;
     }
 
     static class WinCount {
-        int p1Wins;
-        int draws;
-        int p2Wins;
+        final int p1Wins;
+        final int draws;
+        final int p2Wins;
+        final int total;
+        final double p1Probability;
+        final double p2Probability;
 
-        WinCount(int p1Wins, int drawn, int p2Wins) {
+        public WinCount(int p1Wins, int draws, int p2Wins) {
             this.p1Wins = p1Wins;
-            draws = drawn;
+            this.draws = draws;
             this.p2Wins = p2Wins;
+            total = p1Wins + draws + p2Wins;
+            p1Probability = (double) p1Wins / total;
+            p2Probability = (double) p2Wins / total;
         }
 
-        void add(WinCount countWins) {
-            p1Wins += countWins.p1Wins;
-            draws += countWins.draws;
-            p2Wins += countWins.p2Wins;
-        }
-
-        int getTotal() {
-            return p1Wins + draws + p2Wins;
-        }
-
-        public double getP1Probability() {
-            return (double) p1Wins / getTotal();
-        }
-
-        public double getP2Probability() {
-            return (double) p2Wins / getTotal();
+        public WinCount add(WinCount countWins) {
+            return new WinCount(p1Wins + countWins.p1Wins, draws + countWins.draws, p2Wins + countWins.p2Wins);
         }
 
         @Override
@@ -76,25 +66,21 @@ public class UTTTProbabilityUtilities {
     }
 
     static class TicTacBoard {
-        int[] board = new int[9];
-        int win = 0;
+        final int[] board = new int[9];
+        int winningPlayer = TwoPlayers.UNPLAYED;
 
-        TicTacBoard() {
-
-        }
-
-        List<TicTacMove> getPossibleMoves() {
+        public List<TicTacMove> getPossibleMoves() {
             List<TicTacMove> moves = new ArrayList<>();
             for (int i = 0; i < board.length; ++i) {
                 if (board[i] == 0) {
-                    moves.add(new TicTacMove(i, 1));
-                    moves.add(new TicTacMove(i, 2));
+                    moves.add(new TicTacMove(i, TwoPlayers.PLAYER_1));
+                    moves.add(new TicTacMove(i, TwoPlayers.PLAYER_2));
                 }
             }
             return moves;
         }
 
-        void makeMove(TicTacMove move) {
+        public void makeMove(TicTacMove move) {
             board[move.position] = move.player;
             if ((board[0] == move.player && board[1] == move.player && board[2] == move.player) ||
                     (board[0] == move.player && board[1] == move.player && board[2] == move.player) ||
@@ -105,16 +91,16 @@ public class UTTTProbabilityUtilities {
                     (board[2] == move.player && board[5] == move.player && board[8] == move.player) ||
                     (board[0] == move.player && board[4] == move.player && board[8] == move.player) ||
                     (board[2] == move.player && board[4] == move.player && board[6] == move.player)) {
-                win = move.player;
+                winningPlayer = move.player;
             }
         }
 
-        void unmakeMove(TicTacMove move) {
-            board[move.position] = 0;
-            win = 0;
+        public void unmakeMove(TicTacMove move) {
+            board[move.position] = TwoPlayers.UNPLAYED;
+            winningPlayer = TwoPlayers.UNPLAYED;
         }
 
-        int getIntValue() {
+        public int getIntValue() {
             return board[0] | (board[1] << 2) | (board[2] << 4) | (board[3] << 6) | (board[4] << 8) | (board[5] << 10) | (board[6] << 12) | (board[7] << 14)
                     | (board[8] << 16);
         }

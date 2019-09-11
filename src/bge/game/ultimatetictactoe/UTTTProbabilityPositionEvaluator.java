@@ -8,6 +8,22 @@ import bge.igame.MoveList;
 import bge.igame.player.TwoPlayers;
 
 public class UTTTProbabilityPositionEvaluator implements IPositionEvaluator<Coordinate, UltimateTicTacToePosition> {
+    private final double[] p1Probs;
+    private final double[] p2Probs;
+
+    public UTTTProbabilityPositionEvaluator() {
+        WinCount[] winCounts = UTTTProbabilityUtilities.WIN_COUNTS;
+        p1Probs = new double[winCounts.length];
+        p2Probs = new double[winCounts.length];
+        for (int i = 0; i < winCounts.length; ++i) {
+            if (winCounts[i] == null) {
+                continue;
+            }
+            p1Probs[i] = winCounts[i].p1Probability;
+            p2Probs[i] = winCounts[i].p2Probability;
+        }
+    }
+
     @Override
     public double evaluate(UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves) {
         int player = position.currentPlayer;
@@ -15,42 +31,32 @@ public class UTTTProbabilityPositionEvaluator implements IPositionEvaluator<Coor
         if (UltimateTicTacToeUtilities.winExists(position.wonBoards, opponent)) {
             return AnalysisResult.LOSS;
         } else {
-            if (!UltimateTicTacToeUtilities.hasPossibleWins(position.wonBoards | position.fullBoards, opponent)
-                    && !UltimateTicTacToeUtilities.hasPossibleWins(position.wonBoards | position.fullBoards, player)) {
+            double p1W1 = p1Probs[position.boards[0]] * p1Probs[position.boards[1]] * p1Probs[position.boards[2]];
+            double p1W2 = p1Probs[position.boards[3]] * p1Probs[position.boards[4]] * p1Probs[position.boards[5]];
+            double p1W3 = p1Probs[position.boards[6]] * p1Probs[position.boards[7]] * p1Probs[position.boards[8]];
+            double p1W4 = p1Probs[position.boards[0]] * p1Probs[position.boards[3]] * p1Probs[position.boards[6]];
+            double p1W5 = p1Probs[position.boards[1]] * p1Probs[position.boards[4]] * p1Probs[position.boards[7]];
+            double p1W6 = p1Probs[position.boards[2]] * p1Probs[position.boards[5]] * p1Probs[position.boards[8]];
+            double p1W7 = p1Probs[position.boards[0]] * p1Probs[position.boards[4]] * p1Probs[position.boards[8]];
+            double p1W8 = p1Probs[position.boards[2]] * p1Probs[position.boards[4]] * p1Probs[position.boards[6]];
+
+            double p2W1 = p2Probs[position.boards[0]] * p2Probs[position.boards[1]] * p2Probs[position.boards[2]];
+            double p2W2 = p2Probs[position.boards[3]] * p2Probs[position.boards[4]] * p2Probs[position.boards[5]];
+            double p2W3 = p2Probs[position.boards[6]] * p2Probs[position.boards[7]] * p2Probs[position.boards[8]];
+            double p2W4 = p2Probs[position.boards[0]] * p2Probs[position.boards[3]] * p2Probs[position.boards[6]];
+            double p2W5 = p2Probs[position.boards[1]] * p2Probs[position.boards[4]] * p2Probs[position.boards[7]];
+            double p2W6 = p2Probs[position.boards[2]] * p2Probs[position.boards[5]] * p2Probs[position.boards[8]];
+            double p2W7 = p2Probs[position.boards[0]] * p2Probs[position.boards[4]] * p2Probs[position.boards[8]];
+            double p2W8 = p2Probs[position.boards[2]] * p2Probs[position.boards[4]] * p2Probs[position.boards[6]];
+
+            double p1Prob = p1W1 + p1W2 + p1W3 + p1W4 + p1W5 + p1W6 + p1W7 + p1W8;
+            double p2Prob = p2W1 + p2W2 + p2W3 + p2W4 + p2W5 + p2W6 + p2W7 + p2W8;
+
+            if (p1Prob == 0 && p2Prob == 0) {
                 return AnalysisResult.DRAW;
             }
-            WinCount[] probabilities = { UTTTProbabilityUtilities.WIN_COUNTS[position.boards[0]],
-                    UTTTProbabilityUtilities.WIN_COUNTS[position.boards[1]],
-                    UTTTProbabilityUtilities.WIN_COUNTS[position.boards[2]],
-                    UTTTProbabilityUtilities.WIN_COUNTS[position.boards[3]],
-                    UTTTProbabilityUtilities.WIN_COUNTS[position.boards[4]],
-                    UTTTProbabilityUtilities.WIN_COUNTS[position.boards[5]],
-                    UTTTProbabilityUtilities.WIN_COUNTS[position.boards[6]],
-                    UTTTProbabilityUtilities.WIN_COUNTS[position.boards[7]],
-                    UTTTProbabilityUtilities.WIN_COUNTS[position.boards[8]]
-            };
-            double p1W1 = probabilities[0].getP1Probability() * probabilities[1].getP1Probability() * probabilities[2].getP1Probability();
-            double p1W2 = probabilities[3].getP1Probability() * probabilities[4].getP1Probability() * probabilities[5].getP1Probability();
-            double p1W3 = probabilities[6].getP1Probability() * probabilities[7].getP1Probability() * probabilities[8].getP1Probability();
-            double p1W4 = probabilities[0].getP1Probability() * probabilities[3].getP1Probability() * probabilities[6].getP1Probability();
-            double p1W5 = probabilities[1].getP1Probability() * probabilities[4].getP1Probability() * probabilities[7].getP1Probability();
-            double p1W6 = probabilities[2].getP1Probability() * probabilities[5].getP1Probability() * probabilities[8].getP1Probability();
-            double p1W7 = probabilities[0].getP1Probability() * probabilities[4].getP1Probability() * probabilities[8].getP1Probability();
-            double p1W8 = probabilities[2].getP1Probability() * probabilities[4].getP1Probability() * probabilities[6].getP1Probability();
 
-            double p2W1 = probabilities[0].getP2Probability() * probabilities[1].getP2Probability() * probabilities[2].getP2Probability();
-            double p2W2 = probabilities[3].getP2Probability() * probabilities[4].getP2Probability() * probabilities[5].getP2Probability();
-            double p2W3 = probabilities[6].getP2Probability() * probabilities[7].getP2Probability() * probabilities[8].getP2Probability();
-            double p2W4 = probabilities[0].getP2Probability() * probabilities[3].getP2Probability() * probabilities[6].getP2Probability();
-            double p2W5 = probabilities[1].getP2Probability() * probabilities[4].getP2Probability() * probabilities[7].getP2Probability();
-            double p2W6 = probabilities[2].getP2Probability() * probabilities[5].getP2Probability() * probabilities[8].getP2Probability();
-            double p2W7 = probabilities[0].getP2Probability() * probabilities[4].getP2Probability() * probabilities[8].getP2Probability();
-            double p2W8 = probabilities[2].getP2Probability() * probabilities[4].getP2Probability() * probabilities[6].getP2Probability();
-            if (player == TwoPlayers.PLAYER_1) {
-                return (p1W1 + p1W2 + p1W3 + p1W4 + p1W5 + p1W6 + p1W7 + p1W8) - (p2W1 + p2W2 + p2W3 + p2W4 + p2W5 + p2W6 + p2W7 + p2W8);
-            } else {
-                return (p2W1 + p2W2 + p2W3 + p2W4 + p2W5 + p2W6 + p2W7 + p2W8) - (p1W1 + p1W2 + p1W3 + p1W4 + p1W5 + p1W6 + p1W7 + p1W8);
-            }
+            return player == TwoPlayers.PLAYER_1 ? p1Prob - p2Prob : p2Prob - p1Prob;
         }
     }
 }
