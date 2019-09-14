@@ -204,8 +204,8 @@ public class AnalysisState implements GameState, Sized {
         graphics.fillRect(0, TITLE_HEIGHT + 120, width, TITLE_HEIGHT + 120 + 25, ComponentCreator.backgroundColor());
         graphics.setColor(ComponentCreator.foregroundColor());
         graphics.drawCenteredYString(analysisMsg, 5, TITLE_HEIGHT + 120 + 12.5);
-        playerOptionsPanel.drawOn(graphics);
         componentPanel.drawOn(graphics);
+        playerOptionsPanel.drawOn(graphics);
         graphics.drawRect(0, 0, width, height, Color.RED);
     }
 
