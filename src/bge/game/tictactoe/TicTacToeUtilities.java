@@ -51,15 +51,15 @@ public class TicTacToeUtilities {
     }
 
     public static boolean winExists(int board, int player) {
-        boolean has0 = ((board >> 0) & player) == player;
-        boolean has1 = ((board >> 2) & player) == player;
-        boolean has2 = ((board >> 4) & player) == player;
-        boolean has3 = ((board >> 6) & player) == player;
-        boolean has4 = ((board >> 8) & player) == player;
-        boolean has5 = ((board >> 10) & player) == player;
-        boolean has6 = ((board >> 12) & player) == player;
-        boolean has7 = ((board >> 14) & player) == player;
-        boolean has8 = ((board >> 16) & player) == player;
+        boolean has0 = ((board >> 0) & TwoPlayers.BOTH_PLAYERS) == player;
+        boolean has1 = ((board >> 2) & TwoPlayers.BOTH_PLAYERS) == player;
+        boolean has2 = ((board >> 4) & TwoPlayers.BOTH_PLAYERS) == player;
+        boolean has3 = ((board >> 6) & TwoPlayers.BOTH_PLAYERS) == player;
+        boolean has4 = ((board >> 8) & TwoPlayers.BOTH_PLAYERS) == player;
+        boolean has5 = ((board >> 10) & TwoPlayers.BOTH_PLAYERS) == player;
+        boolean has6 = ((board >> 12) & TwoPlayers.BOTH_PLAYERS) == player;
+        boolean has7 = ((board >> 14) & TwoPlayers.BOTH_PLAYERS) == player;
+        boolean has8 = ((board >> 16) & TwoPlayers.BOTH_PLAYERS) == player;
         return (has0 && has1 && has2) ||
                 (has3 && has4 && has5) ||
                 (has6 && has7 && has8) ||

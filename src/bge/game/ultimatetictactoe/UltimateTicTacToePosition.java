@@ -16,7 +16,6 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate> {
 
     final int[] boards;
     int wonBoards;
-    int fullBoards;
     int currentBoard;
     int currentPlayer;
 
@@ -24,14 +23,12 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate> {
     int plyCount;
 
     public UltimateTicTacToePosition() {
-        this(new int[BOARD_WIDTH], 0, 0, ANY_BOARD, TwoPlayers.PLAYER_1, new int[MAX_MOVES], 0);
+        this(new int[BOARD_WIDTH], 0, ANY_BOARD, TwoPlayers.PLAYER_1, new int[MAX_MOVES], 0);
     }
 
-    public UltimateTicTacToePosition(int[] boards, int wonBoards, int fullBoards, int currentBoard, int currentPlayer, int[] currentBoardHistory,
-            int plyCount) {
+    public UltimateTicTacToePosition(int[] boards, int wonBoards, int currentBoard, int currentPlayer, int[] currentBoardHistory, int plyCount) {
         this.boards = boards;
         this.wonBoards = wonBoards;
-        this.fullBoards = fullBoards;
         this.currentBoard = currentBoard;
         this.currentPlayer = currentPlayer;
         this.currentBoardHistory = currentBoardHistory;
@@ -46,7 +43,7 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate> {
         if (currentBoard == ANY_BOARD) {
             int n = 0;
             while (n < BOARD_WIDTH) {
-                if (((wonBoards | fullBoards) & TicTacToeUtilities.POS[n]) == TwoPlayers.UNPLAYED) {
+                if ((wonBoards & (TwoPlayers.BOTH_PLAYERS << (n << 1))) == TwoPlayers.UNPLAYED) {
                     addMovesFromBoard(possibleMoves, n);
                 }
                 ++n;
@@ -80,21 +77,21 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate> {
     public void makeMove(Coordinate move) {
         currentBoardHistory[plyCount++] = currentBoard;
 
-        int boardNum = move.x;
-        int position = move.y;
-        int oldBoard = boards[boardNum] |= TicTacToeUtilities.getPlayerAtPosition(currentPlayer, position);
-        if (UltimateTicTacToeUtilities.winExists(boards[boardNum], currentPlayer)) {
-            wonBoards |= TicTacToeUtilities.getPlayerAtPosition(currentPlayer, boardNum);
-        }
+        int boardNum = move.x << 1;
+        int position = move.y << 1;
+        int oldBoard = boards[move.x] |= currentPlayer << position;
 
+        if (UltimateTicTacToeUtilities.winExists(oldBoard, currentPlayer)) {
+            wonBoards |= currentPlayer << boardNum;
+        } else
         // Check if the old board is full
         if ((((oldBoard << 1) | oldBoard) & TicTacToeUtilities.PLAYER_2_ALL_POS) == TicTacToeUtilities.PLAYER_2_ALL_POS) {
-            fullBoards |= TicTacToeUtilities.POS[boardNum];
+            wonBoards |= TwoPlayers.BOTH_PLAYERS << boardNum;
         }
 
         // Check if the new board is won or full
-        if (((wonBoards | fullBoards) & TicTacToeUtilities.POS[position]) == TwoPlayers.UNPLAYED) { // not won
-            currentBoard = position;
+        if ((wonBoards & (TwoPlayers.BOTH_PLAYERS << position)) == TwoPlayers.UNPLAYED) {
+            currentBoard = move.y;
         } else {
             currentBoard = ANY_BOARD;
         }
@@ -109,8 +106,7 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate> {
         int boardNum = move.x;
         int undoWonBoard = ~(TwoPlayers.BOTH_PLAYERS << (boardNum << 1));
         wonBoards &= undoWonBoard;
-        fullBoards &= undoWonBoard;
-        boards[boardNum] &= ~(TwoPlayers.BOTH_PLAYERS << (move.y << 1));
+        boards[boardNum] ^= currentPlayer << (move.y << 1);
 
         currentBoard = currentBoardHistory[--plyCount];
     }
@@ -121,7 +117,7 @@ public class UltimateTicTacToePosition implements IPosition<Coordinate> {
         System.arraycopy(boards, 0, cellsCopy, 0, BOARD_WIDTH);
         int[] currentBoardHistoryCopy = new int[MAX_MOVES];
         System.arraycopy(currentBoardHistory, 0, currentBoardHistoryCopy, 0, MAX_MOVES);
-        return new UltimateTicTacToePosition(cellsCopy, wonBoards, fullBoards, currentBoard, currentPlayer, currentBoardHistoryCopy, plyCount);
+        return new UltimateTicTacToePosition(cellsCopy, wonBoards, currentBoard, currentPlayer, currentBoardHistoryCopy, plyCount);
     }
 
     @Override

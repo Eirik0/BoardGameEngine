@@ -97,7 +97,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
         if (position.currentBoard == UltimateTicTacToePosition.ANY_BOARD) {
             int n = 0;
             do {
-                if (((position.wonBoards | position.fullBoards) & TicTacToeUtilities.POS[n]) == TwoPlayers.UNPLAYED) {
+                if ((position.wonBoards & TicTacToeUtilities.POS[n]) == TwoPlayers.UNPLAYED) {
                     highlightBoard(g, n);
                 }
             } while (++n < UltimateTicTacToePosition.BOARD_WIDTH);
@@ -109,7 +109,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
     private void highlightBoard(IGraphics g, int board) {
         Coordinate boardXY = getBoardXY(board, 0); // 0 = upper left square
         double highlightWidth = smallBoardWidth - 2;
-        g.fillRect(sizer.getCornerX(boardXY.x), sizer.getCornerY(boardXY.y), highlightWidth, highlightWidth);
+        g.fillRect(sizer.getCornerX(boardXY.x) + 1, sizer.getCornerY(boardXY.y) + 1, highlightWidth, highlightWidth);
     }
 
     public Color getHighlightColor(int currentPlayer) {
@@ -142,7 +142,7 @@ public class UltimateTicTacToeGameRenderer implements IGameRenderer<Coordinate, 
         }
         for (int m = 0; m < UltimateTicTacToePosition.BOARD_WIDTH; ++m) {
             int wonBoardsInt = (position.wonBoards >> (m << 1)) & TwoPlayers.BOTH_PLAYERS;
-            if (wonBoardsInt != TwoPlayers.UNPLAYED) {
+            if (wonBoardsInt != TwoPlayers.UNPLAYED && wonBoardsInt != TwoPlayers.BOTH_PLAYERS) {
                 String player = wonBoardsInt == TwoPlayers.PLAYER_1 ? "X" : "O";
                 g.setColor(getPlayerColor(wonBoardsInt, lastMove != null && lastMove.x == m));
                 Coordinate intersection = getBoardXY(m, 4); // 4 = the center square of that board

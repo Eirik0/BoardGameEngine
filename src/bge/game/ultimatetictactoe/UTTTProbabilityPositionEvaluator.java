@@ -27,36 +27,52 @@ public class UTTTProbabilityPositionEvaluator implements IPositionEvaluator<Coor
     @Override
     public double evaluate(UltimateTicTacToePosition position, MoveList<Coordinate> possibleMoves) {
         int player = position.currentPlayer;
-        int opponent = TwoPlayers.otherPlayer(player);
-        if (UltimateTicTacToeUtilities.winExists(position.wonBoards, opponent)) {
+        if (UltimateTicTacToeUtilities.winExists(position.wonBoards, TwoPlayers.otherPlayer(player))) {
             return AnalysisResult.LOSS;
-        } else {
-            double p1W1 = p1Probs[position.boards[0]] * p1Probs[position.boards[1]] * p1Probs[position.boards[2]];
-            double p1W2 = p1Probs[position.boards[3]] * p1Probs[position.boards[4]] * p1Probs[position.boards[5]];
-            double p1W3 = p1Probs[position.boards[6]] * p1Probs[position.boards[7]] * p1Probs[position.boards[8]];
-            double p1W4 = p1Probs[position.boards[0]] * p1Probs[position.boards[3]] * p1Probs[position.boards[6]];
-            double p1W5 = p1Probs[position.boards[1]] * p1Probs[position.boards[4]] * p1Probs[position.boards[7]];
-            double p1W6 = p1Probs[position.boards[2]] * p1Probs[position.boards[5]] * p1Probs[position.boards[8]];
-            double p1W7 = p1Probs[position.boards[0]] * p1Probs[position.boards[4]] * p1Probs[position.boards[8]];
-            double p1W8 = p1Probs[position.boards[2]] * p1Probs[position.boards[4]] * p1Probs[position.boards[6]];
-
-            double p2W1 = p2Probs[position.boards[0]] * p2Probs[position.boards[1]] * p2Probs[position.boards[2]];
-            double p2W2 = p2Probs[position.boards[3]] * p2Probs[position.boards[4]] * p2Probs[position.boards[5]];
-            double p2W3 = p2Probs[position.boards[6]] * p2Probs[position.boards[7]] * p2Probs[position.boards[8]];
-            double p2W4 = p2Probs[position.boards[0]] * p2Probs[position.boards[3]] * p2Probs[position.boards[6]];
-            double p2W5 = p2Probs[position.boards[1]] * p2Probs[position.boards[4]] * p2Probs[position.boards[7]];
-            double p2W6 = p2Probs[position.boards[2]] * p2Probs[position.boards[5]] * p2Probs[position.boards[8]];
-            double p2W7 = p2Probs[position.boards[0]] * p2Probs[position.boards[4]] * p2Probs[position.boards[8]];
-            double p2W8 = p2Probs[position.boards[2]] * p2Probs[position.boards[4]] * p2Probs[position.boards[6]];
-
-            double p1Prob = p1W1 + p1W2 + p1W3 + p1W4 + p1W5 + p1W6 + p1W7 + p1W8;
-            double p2Prob = p2W1 + p2W2 + p2W3 + p2W4 + p2W5 + p2W6 + p2W7 + p2W8;
-
-            if (p1Prob == 0 && p2Prob == 0) {
-                return AnalysisResult.DRAW;
-            }
-
-            return player == TwoPlayers.PLAYER_1 ? p1Prob - p2Prob : p2Prob - p1Prob;
+        } else if (possibleMoves.size() == 0) {
+            return AnalysisResult.DRAW;
         }
+
+        double p1B0 = p1Probs[position.boards[0]];
+        double p1B1 = p1Probs[position.boards[1]];
+        double p1B2 = p1Probs[position.boards[2]];
+        double p1Prob = p1B0 * p1B1 * p1B2;
+        double p1B3 = p1Probs[position.boards[3]];
+        double p1B4 = p1Probs[position.boards[4]];
+        double p1B5 = p1Probs[position.boards[5]];
+        p1Prob += p1B3 * p1B4 * p1B5;
+        double p1B6 = p1Probs[position.boards[6]];
+        double p1B7 = p1Probs[position.boards[7]];
+        double p1B8 = p1Probs[position.boards[8]];
+        p1Prob += p1B6 * p1B7 * p1B8;
+        p1Prob += p1B0 * p1B3 * p1B6;
+        p1Prob += p1B1 * p1B4 * p1B7;
+        p1Prob += p1B2 * p1B5 * p1B8;
+        p1Prob += p1B0 * p1B4 * p1B8;
+        p1Prob += p1B2 * p1B4 * p1B6;
+
+        double p2B0 = p2Probs[position.boards[0]];
+        double p2B1 = p2Probs[position.boards[1]];
+        double p2B2 = p2Probs[position.boards[2]];
+        double p2Prob = p2B0 * p2B1 * p2B2;
+        double p2B3 = p2Probs[position.boards[3]];
+        double p2B4 = p2Probs[position.boards[4]];
+        double p2B5 = p2Probs[position.boards[5]];
+        p2Prob += p2B3 * p2B4 * p2B5;
+        double p2B6 = p2Probs[position.boards[6]];
+        double p2B7 = p2Probs[position.boards[7]];
+        double p2B8 = p2Probs[position.boards[8]];
+        p2Prob += p2B6 * p2B7 * p2B8;
+        p2Prob += p2B0 * p2B3 * p2B6;
+        p2Prob += p2B1 * p2B4 * p2B7;
+        p2Prob += p2B2 * p2B5 * p2B8;
+        p2Prob += p2B0 * p2B4 * p2B8;
+        p2Prob += p2B2 * p2B4 * p2B6;
+
+        if (p1Prob == 0 && p2Prob == 0) {
+            return AnalysisResult.DRAW;
+        }
+
+        return player == TwoPlayers.PLAYER_1 ? p1Prob - p2Prob : p2Prob - p1Prob;
     }
 }

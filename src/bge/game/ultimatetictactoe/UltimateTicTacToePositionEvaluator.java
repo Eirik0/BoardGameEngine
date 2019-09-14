@@ -17,8 +17,8 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<Co
         if (UltimateTicTacToeUtilities.winExists(position.wonBoards, opponent)) {
             return AnalysisResult.LOSS;
         } else {
-            if (!UltimateTicTacToeUtilities.hasPossibleWins(position.wonBoards | position.fullBoards, opponent)
-                    && !UltimateTicTacToeUtilities.hasPossibleWins(position.wonBoards | position.fullBoards, player)) {
+            if (!UltimateTicTacToeUtilities.hasPossibleWins(position.wonBoards, opponent)
+                    && !UltimateTicTacToeUtilities.hasPossibleWins(position.wonBoards, player)) {
                 return AnalysisResult.DRAW;
             }
             int totalPlayerPossibleWins = 0;
@@ -28,23 +28,21 @@ public class UltimateTicTacToePositionEvaluator implements IPositionEvaluator<Co
             int n = 0;
             while (n < UltimateTicTacToePosition.BOARD_WIDTH) {
                 int twoN = n << 1;
-                if (((position.fullBoards >> twoN) & TwoPlayers.BOTH_PLAYERS) != TwoPlayers.UNPLAYED) {
+                int wonBoardInt = (position.wonBoards >> twoN) & TwoPlayers.BOTH_PLAYERS;
+                if (wonBoardInt == TwoPlayers.BOTH_PLAYERS) {
                     playerPossibleWonBoards |= TicTacToeUtilities.getPlayerAtPosition(opponent, n);
                     opponentPossibleWonBoards |= TicTacToeUtilities.getPlayerAtPosition(player, n);
+                } else if (wonBoardInt == player) {
+                    totalPlayerPossibleWins += WINS_PER_BOARD;
+                } else if (wonBoardInt == opponent) {
+                    totalOpponentPossibleWins += WINS_PER_BOARD;
                 } else {
-                    int wonBoardInt = (position.wonBoards >> twoN) & TwoPlayers.BOTH_PLAYERS;
-                    if (wonBoardInt == TwoPlayers.UNPLAYED) {
-                        int countPossiblePlayerWins = UltimateTicTacToeUtilities.countPossibleWins(position.boards[n], opponent);
-                        int countPossibleOpponentWins = UltimateTicTacToeUtilities.countPossibleWins(position.boards[n], player);
-                        totalPlayerPossibleWins += countPossiblePlayerWins;
-                        totalOpponentPossibleWins += countPossibleOpponentWins;
-                        playerPossibleWonBoards |= (countPossiblePlayerWins > 0 ? player : opponent) << twoN;
-                        opponentPossibleWonBoards |= (countPossiblePlayerWins > 0 ? opponent : player) << twoN;
-                    } else if (wonBoardInt == player) {
-                        totalPlayerPossibleWins += WINS_PER_BOARD;
-                    } else {
-                        totalOpponentPossibleWins += WINS_PER_BOARD;
-                    }
+                    int countPossiblePlayerWins = UltimateTicTacToeUtilities.countPossibleWins(position.boards[n], opponent);
+                    int countPossibleOpponentWins = UltimateTicTacToeUtilities.countPossibleWins(position.boards[n], player);
+                    totalPlayerPossibleWins += countPossiblePlayerWins;
+                    totalOpponentPossibleWins += countPossibleOpponentWins;
+                    playerPossibleWonBoards |= (countPossiblePlayerWins > 0 ? player : opponent) << twoN;
+                    opponentPossibleWonBoards |= (countPossiblePlayerWins > 0 ? opponent : player) << twoN;
                 }
                 ++n;
             }

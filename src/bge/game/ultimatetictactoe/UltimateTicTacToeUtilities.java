@@ -26,11 +26,11 @@ public class UltimateTicTacToeUtilities {
             // We need has possible wins for "invalid" boards
             hasPossibleWins[board] = calcHasPossibleWins(board, TwoPlayers.PLAYER_1);
             hasPossibleWins[PLAYER_2_MASK | board] = calcHasPossibleWins(board, TwoPlayers.PLAYER_2);
+            winsExist[board] = TicTacToeUtilities.winExists(board, TwoPlayers.PLAYER_1);
+            winsExist[PLAYER_2_MASK | board] = TicTacToeUtilities.winExists(board, TwoPlayers.PLAYER_2);
             if (!checkValidBoard(board)) {
                 continue;
             }
-            winsExist[board] = TicTacToeUtilities.winExists(board, TwoPlayers.PLAYER_1);
-            winsExist[PLAYER_2_MASK | board] = TicTacToeUtilities.winExists(board, TwoPlayers.PLAYER_2);
             countPossibleWins[board] = calcCountPossibleWins(board, TwoPlayers.PLAYER_1);
             countPossibleWins[PLAYER_2_MASK | board] = calcCountPossibleWins(board, TwoPlayers.PLAYER_2);
             Pair<List<Integer>, List<Integer>> p1Moves = calculatePossibleMoves(board, TwoPlayers.PLAYER_1);
