@@ -29,7 +29,6 @@ import gt.ecomponent.location.GlueSide;
 import gt.gameentity.Drawable;
 import gt.gameentity.DrawingMethods;
 import gt.gameentity.GridSizer;
-import gt.gameentity.IGameImage;
 import gt.gameentity.IGameImageDrawer;
 import gt.gameentity.IGraphics;
 import gt.gamestate.UserInput;
@@ -156,10 +155,10 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
 
         // Draw player boards
         g.setFont(PHOTO_FONT);
-        for (int i = 0; i < position.numPlayers; ++i) {
-            PlayerBoard pb = position.playerBoards[i];
-            GuiPlayerBoard gpb = playerBoards[i];
-            Color playerColor = PLAYER_COLORS[i];
+        for (int playerIndex = 0; playerIndex < position.numPlayers; ++playerIndex) {
+            PlayerBoard pb = position.playerBoards[playerIndex];
+            GuiPlayerBoard gpb = playerBoards[playerIndex];
+            Color playerColor = PLAYER_COLORS[playerIndex];
             gpb.drawOn(g);
             // light points
             g.setColor(Color.YELLOW);
@@ -167,18 +166,31 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             // victory points
             g.setColor(Color.GREEN);
             g.drawCenteredString(Integer.toString(pb.victoryPoints), gpb.victoryPointsLocation.getCenterX(), gpb.victoryPointsLocation.getCenterY());
-            // seeds
-            for (int j = 0; j < pb.buy.length; ++j) {
-                EComponentLocation loc = gpb.buyableLocations[j];
+            // seeds, etc
+            for (int treeIndex = 0; treeIndex < pb.buy.length; ++treeIndex) {
+                EComponentLocation treeImageLoc = gpb.treeCostLocations[treeIndex];
                 g.setColor(new Color(255 - playerColor.getRed(), 255 - playerColor.getGreen(), 255 - playerColor.getBlue()));
-                int pbBuy = pb.buy[j] - 1;
-                g.drawCenteredString(pbBuy < 0 ? "X" : Integer.toString(PhotosynthesisPosition.PRICES[0][pbBuy]),
-                        loc.getX0() + loc.getHeight() / 2,
-                        loc.getY0() + loc.getHeight() / 2);
+                int pbBuy = pb.buy[treeIndex] - 1;
+                g.drawCenteredString(pbBuy < 0 ? "X" : Integer.toString(PhotosynthesisPosition.PRICES[treeIndex][pbBuy]),
+                        treeImageLoc.getCenterX(), treeImageLoc.getCenterY());
                 g.setColor(playerColor);
-                g.drawCenteredString(treeString(pb.buy[j], 4, pb.available[j]),
-                        loc.getX0() + (loc.getWidth() - loc.getHeight()) / 2,
-                        loc.getY0() + loc.getHeight() / 2);
+                for (int i = 0; i < pb.buy[treeIndex]; ++i) {
+                    EComponentLocation treeLoc = gpb.buyTreeLocations[treeIndex][i];
+                    double treeHeight = Math.max(treeLoc.getWidth(), treeLoc.getHeight());
+                    imageDrawer.drawImage(g, PhotosynthesisPieceImages.getInstance().getPieceImage(treeIndex, playerIndex, false),
+                            treeLoc.getCenterX() - treeHeight / 2, treeLoc.getCenterY() - treeHeight / 2, treeHeight, treeHeight);
+                }
+                int available = pb.available[treeIndex];
+                double avilableWidth = gpb.treeRowLocations[treeIndex].getX1() - gpb.buyLocations[treeIndex].getX1();
+                double avaliableTreeWidth = avilableWidth / available;
+                double availableTreeHeight = Math.min(avaliableTreeWidth, gpb.buyLocations[treeIndex].getHeight());
+                double treeCenterY = gpb.buyLocations[treeIndex].getCenterY();
+                double availableX0 = gpb.buyLocations[treeIndex].getX1() + avaliableTreeWidth / 2;
+                for (int i = 0; i < available; ++i) {
+                    imageDrawer.drawImage(g, PhotosynthesisPieceImages.getInstance().getPieceImage(treeIndex, playerIndex, false),
+                            availableX0 - availableTreeHeight / 2, treeCenterY - availableTreeHeight / 2, availableTreeHeight, availableTreeHeight);
+                    availableX0 += avaliableTreeWidth;
+                }
             }
         }
 
@@ -186,7 +198,6 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
         int currentPlayer = position.currentPlayer;
         EComponentLocation cpbCL = playerBoards[currentPlayer].cl;
         g.drawRect(cpbCL.getX0(), cpbCL.getY0(), cpbCL.getWidth(), cpbCL.getHeight(), Color.GREEN);
-        maybeHighlightUserMove(g, position);
 
         // Draw trees
         Tile[][] grid = position.mainBoard.grid;
@@ -208,11 +219,13 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
                     g.fillCircle(cx, cy, sizer.cellSize / 2);
                 }
                 boolean shadow = (tile.level == 0 && shadowMap[a][b] > 0) || (tile.level > 0 && tile.level <= shadowMap[a][b]);
-                drawTree(g, cx, cy, tile.level, tile.player, shadow);
+                imageDrawer.drawImage(g, PhotosynthesisPieceImages.getInstance().getPieceImage(tile.level, tile.player, shadow),
+                        cx - sizer.cellSize / 2, cy - sizer.cellSize / 2, sizer.cellSize, sizer.cellSize);
             }
         }
 
-        drawLastMove(g, lastMove, currentPlayer);
+        drawLastMove(g, lastMove, position, currentPlayer);
+        maybeHighlightUserMove(g, position);
     }
 
     private void drawBoard(IGraphics g, PhotosynthesisPosition position) {
@@ -220,6 +233,7 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
         double fadePercent = 1 - (double) position.playerRoundsRemaining / (position.numPlayers * 18);
         g.setColor(DrawingMethods.fadeToColor(Color.YELLOW, Color.DARK_GRAY, fadePercent));
         g.fillCircle(hexGrid.centerX(sunPos.x, sunPos.y), hexGrid.centerY(sunPos.x, sunPos.y), sizer.cellSize * 3);
+        g.setColor(ComponentCreator.foregroundColor());
         g.drawCenteredYString("Rounds remaining: " + position.playerRoundsRemaining, 5, 20);
         g.fillCircle(hexGrid.centerX(3, 3), hexGrid.centerY(3, 3), sizer.cellSize * 3.25, new Color(3, 16, 79));
 
@@ -235,7 +249,8 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
         }
     }
 
-    private void drawLastMove(IGraphics g, IPhotosynthesisMove move, int currentPlayer) {
+    private void drawLastMove(IGraphics g, IPhotosynthesisMove move, PhotosynthesisPosition position, int currentPlayer) {
+        EComponentLocation lightLoc = playerBoards[currentPlayer].lightPointsLocation;
         g.setColor(Color.YELLOW);
         if (move instanceof Setup) {
             Setup setupMove = (Setup) move;
@@ -247,6 +262,11 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             Coordinate coordinate = upgradeMove.coordinate;
             DoublePair centerXY = hexGrid.centerXY(coordinate);
             g.drawCircle(centerXY.getFirst(), centerXY.getSecond(), sizer.cellSize * .33);
+            g.drawRect(lightLoc.getX0() + 4, lightLoc.getY0() + 4, lightLoc.getWidth() - 8, lightLoc.getHeight() - 8);
+            if (position.mainBoard.grid[coordinate.x][coordinate.y].level == -1) {
+                EComponentLocation victoryLoc = playerBoards[currentPlayer].victoryPointsLocation;
+                g.drawRect(victoryLoc.getX0() + 4, victoryLoc.getY0() + 4, victoryLoc.getWidth() - 8, victoryLoc.getHeight() - 8);
+            }
         } else if (move instanceof Seed) {
             Seed seedMove = (Seed) move;
             DoublePair fromXY = hexGrid.centerXY(seedMove.source);
@@ -254,10 +274,12 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             g.drawCircle(fromXY.getFirst(), fromXY.getSecond(), sizer.cellSize * .33);
             g.drawCircle(toXY.getFirst(), toXY.getSecond(), sizer.cellSize * .33);
             g.drawLine(fromXY.getFirst(), fromXY.getSecond(), toXY.getFirst(), toXY.getSecond());
+            g.drawRect(lightLoc.getX0() + 4, lightLoc.getY0() + 4, lightLoc.getWidth() - 8, lightLoc.getHeight() - 8);
         } else if (move instanceof Buy) {
             Buy buyMove = (Buy) move;
-            EComponentLocation buyLocation = playerBoards[currentPlayer].buyableLocations[buyMove.buyColumn];
-            g.drawRect(buyLocation.getX0() + 5, buyLocation.getY0() + 5, buyLocation.getWidth() - 10, buyLocation.getHeight() - 10);
+            EComponentLocation buyLocation = playerBoards[currentPlayer].buyLocations[buyMove.buyColumn];
+            g.drawRect(buyLocation.getX0(), buyLocation.getY0(), buyLocation.getWidth(), buyLocation.getHeight());
+            g.drawRect(lightLoc.getX0() + 4, lightLoc.getY0() + 4, lightLoc.getWidth() - 8, lightLoc.getHeight() - 8);
         } else if (move instanceof EndTurn) {
             g.drawRect(endTurnLocation.getX0() + 5, endTurnLocation.getY0() + 5, endTurnLocation.getWidth() - 10, endTurnLocation.getHeight() - 10);
         }
@@ -312,7 +334,7 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             if (buy == null) {
                 continue;
             }
-            EComponentLocation buyLocation = playerBoards[currentPlayer].buyableLocations[buy.buyColumn];
+            EComponentLocation buyLocation = playerBoards[currentPlayer].buyLocations[buy.buyColumn];
             if (buyLocation.containsPoint(mouseTracker.mouseX(), mouseTracker.mouseY())) {
                 g.setColor(Color.GREEN);
                 g.drawRect(buyLocation.getX0(), buyLocation.getY0(), buyLocation.getWidth(), buyLocation.getHeight());
@@ -328,17 +350,6 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             g.drawLine(fromXY.getFirst(), fromXY.getSecond(), toXY.getFirst(), toXY.getSecond());
             g.drawCircle(toXY.getFirst(), toXY.getSecond(), sizer.cellSize / 2 - 1);
         }
-    }
-
-    private void drawTree(IGraphics g, double cx, double cy, int level, int player, boolean shadow) {
-        double x0 = cx - sizer.cellSize / 2;
-        double y0 = cy - sizer.cellSize / 2;
-        IGameImage pieceImage = PhotosynthesisPieceImages.getInstance().getPieceImage(level, player, shadow);
-        imageDrawer.drawImage(g, pieceImage, x0, y0, sizer.cellSize, sizer.cellSize);
-    }
-
-    private static String treeString(int buy, int total, int available) {
-        return Integer.toString(buy) + "/" + Integer.toString(total) + " (" + Integer.toString(available) + ")";
     }
 
     private Coordinate maybeGetCoordinate() {
@@ -371,8 +382,8 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
                 int mouseX = mouseTracker.mouseX();
                 int mouseY = mouseTracker.mouseY();
 
-                for (int i = 0; i < currentPlayerBoard.buyableLocations.length; i++) {
-                    if (currentPlayerBoard.buyableLocations[i].containsPoint(mouseTracker.mouseX(), mouseTracker.mouseY())
+                for (int i = 0; i < currentPlayerBoard.buyLocations.length; i++) {
+                    if (currentPlayerBoard.buyLocations[i].containsPoint(mouseTracker.mouseX(), mouseTracker.mouseY())
                             && allowedBuyMoves[i] != null) {
                         return allowedBuyMoves[i];
                     }
@@ -423,26 +434,41 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
     }
 
     private static class GuiPlayerBoard implements Drawable {
+        private static final int[] NUM_TREE_SPACES = { 4, 4, 3, 2 };
         private final EComponentLocation cl;
         private final IGameImageDrawer imageDrawer;
 
         private final int playerNum;
 
-        private final EComponentLocation[] buyableLocations = new EComponentLocation[4];
         private final EComponentLocation lightPointsLocation;
         private final EComponentLocation victoryPointsLocation;
+        private final EComponentLocation[] treeRowLocations = new EComponentLocation[4];
+        private final EComponentLocation[] treeCostLocations = new EComponentLocation[4];
+        private final EComponentLocation[] buyLocations = new EComponentLocation[4];
+        private final EComponentLocation[][] buyTreeLocations = new EComponentLocation[4][];
 
         public GuiPlayerBoard(EComponentLocation cl, IGameImageDrawer imageDrawer, int playerNum) {
             this.cl = cl;
             this.imageDrawer = imageDrawer;
             this.playerNum = playerNum;
-            double y0 = cl.getHeight() / 5;
-            for (int i = 0; i < buyableLocations.length; ++i) {
-                buyableLocations[i] = cl.createGluedLocation(GlueSide.TOP, 0, y0, 0, y0 + cl.getWidth() / 5 - 1);
-                y0 += cl.getHeight() / 5;
+            double treeRowHeight = cl.getHeight() / 5;
+            double y0 = treeRowHeight;
+            for (int i = 0; i < treeRowLocations.length; ++i) {
+                treeRowLocations[i] = cl.createGluedLocation(GlueSide.TOP, 0, y0, 0, y0 + treeRowHeight - 1);
+                treeCostLocations[i] = treeRowLocations[i].createGluedLocation(GlueSide.LEFT, 1, 1, treeRowHeight - 1, -1);
+                double buyDx1 = (cl.getWidth() + treeRowHeight) / 2;
+                buyLocations[i] = treeRowLocations[i].createGluedLocation(GlueSide.LEFT, treeRowHeight, 1, buyDx1, -1);
+                buyTreeLocations[i] = new EComponentLocation[NUM_TREE_SPACES[i]];
+                double buyTreeX0 = 0;
+                double buyTreeWidth = buyLocations[i].getWidth() / NUM_TREE_SPACES[i];
+                for (int j = 0; j < NUM_TREE_SPACES[i]; ++j) {
+                    buyTreeLocations[i][j] = buyLocations[i].createGluedLocation(GlueSide.LEFT, buyTreeX0, 1, buyTreeX0 + buyTreeWidth - 1, -1);
+                    buyTreeX0 += buyTreeWidth;
+                }
+                y0 += treeRowHeight;
             }
-            EGluedLocation topLocation = cl.createGluedLocation(GlueSide.TOP, 0, 0, 0, cl.getWidth() / 5 - 1);
-            lightPointsLocation = topLocation.createGluedLocation(GlueSide.LEFT, 0, 0, cl.getHeight() / 5 - 1, 0);
+            EGluedLocation topLocation = cl.createGluedLocation(GlueSide.TOP, 0, 0, 0, treeRowHeight - 1);
+            lightPointsLocation = topLocation.createGluedLocation(GlueSide.LEFT, 0, 0, treeRowHeight - 1, 0);
             victoryPointsLocation = topLocation.createGluedLocation(GlueSide.RIGHT, -cl.getHeight() / 5 + 1, 0, 0, 0);
         }
 
@@ -451,11 +477,15 @@ public class PhotosynthesisGameRenderer implements IGameRenderer<IPhotosynthesis
             g.fillRect(cl.getX0(), cl.getY0(), cl.getWidth(), cl.getHeight(), ComponentCreator.backgroundColor());
             g.setColor(Color.RED);
             g.drawRect(cl.getX0(), cl.getY0(), cl.getWidth(), cl.getHeight());
-            for (int i = 0; i < buyableLocations.length; ++i) {
-                double x0 = buyableLocations[i].getX0() + 2;
-                double y0 = buyableLocations[i].getY0() + 2;
-                double height = buyableLocations[i].getHeight() - 4;
-                imageDrawer.drawImage(g, PhotosynthesisPieceImages.getInstance().getPieceImage(i, playerNum, false), x0, y0, height, height);
+            for (int i = 0; i < treeRowLocations.length; ++i) {
+                EComponentLocation tl = treeCostLocations[i];
+                imageDrawer.drawImage(g, PhotosynthesisPieceImages.getInstance().getPieceImage(i, playerNum, false),
+                        tl.getX0(), tl.getY0(), tl.getWidth(), tl.getHeight());
+                double treeRadius = Math.min(buyLocations[i].getHeight(), buyLocations[i].getWidth() / NUM_TREE_SPACES[i]) / 2;
+                g.setColor(PLAYER_COLORS[playerNum]);
+                for (int j = 0; j < NUM_TREE_SPACES[i]; ++j) {
+                    g.drawCircle(buyTreeLocations[i][j].getCenterX(), buyTreeLocations[i][j].getCenterY(), treeRadius);
+                }
             }
             g.setColor(PLAYER_COLORS[playerNum]);
             g.drawRect(lightPointsLocation.getX0(), lightPointsLocation.getY0(), lightPointsLocation.getWidth(), lightPointsLocation.getHeight());
