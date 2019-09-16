@@ -153,6 +153,10 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         }
 
         // Upgrade and seed actions
+        if (playerBoards[currentPlayer].lightPoints == 0) {
+            return; // Seeds require 1 light point
+        }
+
         for (final Coordinate coord : ALL_COORDS) {
             final Tile tile = mainBoard.grid[coord.x][coord.y];
 
@@ -278,8 +282,9 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             tile.level = 1;
             tile.player = position.currentPlayer;
 
-            position.currentPlayer = (position.currentPlayer + 1) % position.numPlayers;
             position.setupPlayerRoundsRemaining--;
+            --position.playerBoards[position.currentPlayer].available[1];
+            position.currentPlayer = (position.currentPlayer + 1) % position.numPlayers;
 
             if (position.setupPlayerRoundsRemaining == 0) {
                 position.doPhotosynthesis();
@@ -299,6 +304,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             tile.level = -1;
 
             position.currentPlayer = (position.currentPlayer + position.numPlayers - 1) % position.numPlayers;
+            ++position.playerBoards[position.currentPlayer].available[1];
             position.setupPlayerRoundsRemaining++;
         }
 
@@ -495,6 +501,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             destTile.level = 0;
 
             position.playerBoards[position.currentPlayer].available[0]--;
+            --position.playerBoards[position.currentPlayer].lightPoints;
         }
 
         @Override
@@ -502,6 +509,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
             final Tile sourceTile = position.mainBoard.grid[source.x][source.y];
             final Tile destTile = position.mainBoard.grid[dest.x][dest.y];
 
+            ++position.playerBoards[position.currentPlayer].lightPoints;
             position.playerBoards[position.currentPlayer].available[0]++;
 
             sourceTile.lastTouchedPlayerRoundsRemaining = sourceLastTouchedPlayerRoundsRemaining;
@@ -787,7 +795,7 @@ public final class PhotosynthesisPosition implements IPosition<IPhotosynthesisMo
         public PlayerBoard() {
             lightPoints = 0;
             buy = new int[] { 4, 4, 3, 2 };
-            available = new int[] { 2, 2, 1, 0 };
+            available = new int[] { 2, 4, 1, 0 };
         }
 
         private PlayerBoard(int lightPoints, int[] buy, int[] available, int victoryPoints) {
