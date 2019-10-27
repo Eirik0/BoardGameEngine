@@ -18,7 +18,7 @@ public class ChessPositionHistory implements ChessConstants {
     }
 
     public void saveState(ChessPosition position) {
-        undoChessMoves[plyCount++] = new UndoChessMove(position.castleState, position.enPassantSquare, position.halfMoveClock);
+        undoChessMoves[plyCount++] = new UndoChessMove(position.castleState, position.enPassantSquare, position.halfMoveClock, position.zobristHash);
     }
 
     public void unmakeMove(ChessPosition position) {
@@ -26,6 +26,7 @@ public class ChessPositionHistory implements ChessConstants {
         position.castleState = undoChessMove.priorCastleState;
         position.enPassantSquare = undoChessMove.priorEnPassantSquare;
         position.halfMoveClock = undoChessMove.priorHalfMoveClock;
+        position.zobristHash = undoChessMove.zobristHash;
     }
 
     public ChessPositionHistory createCopy() {
@@ -38,12 +39,13 @@ public class ChessPositionHistory implements ChessConstants {
         final int priorCastleState;
         final int priorEnPassantSquare;
         final int priorHalfMoveClock;
+        final long zobristHash;
 
-        // XXX hash of position for 3 fold repetition check
-        public UndoChessMove(int priorCastleState, int priorEnPassantSquare, int priorHalfMoveClock) {
+        public UndoChessMove(int priorCastleState, int priorEnPassantSquare, int priorHalfMoveClock, long zobristHash) {
             this.priorCastleState = priorCastleState;
             this.priorEnPassantSquare = priorEnPassantSquare;
             this.priorHalfMoveClock = priorHalfMoveClock;
+            this.zobristHash = zobristHash;
         }
     }
 }
