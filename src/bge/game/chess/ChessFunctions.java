@@ -45,7 +45,9 @@ public class ChessFunctions implements ChessConstants {
                 kingSquaresCopy,
                 position.currentPlayer, position.otherPlayer, position.white,
                 position.castleState, position.enPassantSquare, position.halfMoveClock,
-                materialScoreCopy);
+                materialScoreCopy,
+                position.zobristHash,
+                position.threefoldDrawn);
     }
 
     public static boolean isSquareAttacked(ChessPosition position, int square, int opponent) {
@@ -134,7 +136,7 @@ public class ChessFunctions implements ChessConstants {
     }
 
     public static void removePiece(ChessPosition position, int captureSquare, int piece, int player) {
-        switch (piece & ALL_PIECES) {
+        switch (piece & PIECE_MASK) {
         case PAWN:
             int[] pawns = position.pawns[player];
             int numPawns = position.numPawns[player];
@@ -201,7 +203,7 @@ public class ChessFunctions implements ChessConstants {
     }
 
     public static void updatePiece(ChessPosition position, int from, int to, int piece, int player) {
-        switch (piece & ALL_PIECES) {
+        switch (piece & PIECE_MASK) {
         case PAWN:
             int[] pawns = position.pawns[player];
             int numPawns = position.numPawns[player];
@@ -282,7 +284,7 @@ public class ChessFunctions implements ChessConstants {
     }
 
     public static void addPiece(ChessPosition position, int captureSquare, int piece, int player) {
-        switch (piece & ALL_PIECES) { // Add the piece to end
+        switch (piece & PIECE_MASK) { // Add the piece to end
         case PAWN:
             position.pawns[player][position.numPawns[player]++] = captureSquare;
             return;
@@ -304,7 +306,7 @@ public class ChessFunctions implements ChessConstants {
     }
 
     public static double getPieceScore(int piece) {
-        switch (piece & ALL_PIECES) {
+        switch (piece & PIECE_MASK) {
         case UNPLAYED:
             return 0;
         case PAWN:

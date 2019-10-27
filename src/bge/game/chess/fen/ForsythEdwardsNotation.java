@@ -6,6 +6,7 @@ import java.util.List;
 import bge.game.chess.ChessConstants;
 import bge.game.chess.ChessFunctions;
 import bge.game.chess.ChessPosition;
+import bge.game.chess.ChessPositionHasher;
 import bge.game.chess.ChessPositionHistory;
 import bge.igame.Coordinate;
 import bge.igame.player.TwoPlayers;
@@ -37,13 +38,17 @@ public class ForsythEdwardsNotation implements ChessConstants {
 
         double[] materialScore = getMaterialScore(squares);
 
+        long hash = ChessPositionHasher.computeHash(squares, white, castleState, enPassantSquare);
+
         return new ChessPosition(squares, positionHistory,
                 pieceSquares[0], pieceSquares[1], pieceSquares[2], pieceSquares[3], pieceSquares[4],
                 numPieces[0], numPieces[1], numPieces[2], numPieces[3], numPieces[4],
                 kingSquares,
                 currentPlayer, otherPlayer, white,
                 castleState, enPassantSquare, halfMoveClock,
-                materialScore);
+                materialScore,
+                hash,
+                false);
     }
 
     private static int[][] getSquares(String piecePlacement) {
@@ -338,6 +343,11 @@ public class ForsythEdwardsNotation implements ChessConstants {
         for (int y = 0; y < BOARD_WIDTH; ++y) {
             for (int x = 0; x < BOARD_WIDTH; ++x) {
                 int piece = squares[SQUARE_64_TO_SQUARE[y][x]];
+
+                if ((piece & PIECE_MASK) == KING) {
+                    continue;
+                }
+
                 addScore(materialScore, piece, TwoPlayers.PLAYER_1);
                 addScore(materialScore, piece, TwoPlayers.PLAYER_2);
             }

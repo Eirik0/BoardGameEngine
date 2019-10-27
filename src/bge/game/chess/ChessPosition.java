@@ -51,9 +51,12 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
     public int enPassantSquare;
 
     public int halfMoveClock; // The number of half moves since the last capture or pawn advance
-    // XXX 3 fold repetition
 
     public double[] materialScore;
+
+    public long zobristHash;
+
+    public boolean threefoldDrawn;
 
     public ChessPosition() {
         this(newInitialPosition(), new ChessPositionHistory(),
@@ -62,7 +65,9 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
                 newInitialKingSquares(),
                 TwoPlayers.PLAYER_1, TwoPlayers.PLAYER_2, true,
                 ALL_CASTLES, NO_SQUARE, 0,
-                newInitialMaterialScore());
+                newInitialMaterialScore(),
+                ChessPositionHasher.INITIAL_BOARD_HASH,
+                false);
     }
 
     public ChessPosition(int[] squares, ChessPositionHistory positionHistory,
@@ -71,7 +76,9 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
             int[] kingSquares,
             int currentPlayer, int otherPlayer, boolean white,
             int castleState, int enPassantSquare, int halfMoveClock,
-            double[] materialScore) {
+            double[] materialScore,
+            long zobristHash,
+            boolean threefoldDrawn) {
         this.squares = squares;
         this.positionHistory = positionHistory;
         this.pawns = pawns;
@@ -92,13 +99,16 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
         this.kingSquares = kingSquares;
         this.halfMoveClock = halfMoveClock;
         this.materialScore = materialScore;
+        this.zobristHash = zobristHash;
+        this.threefoldDrawn = threefoldDrawn;
     }
 
     @Override
     public void getPossibleMoves(MoveList<IChessMove> possibleMoves) {
-        if (halfMoveClock == 100) {
+        if (halfMoveClock == 100 || threefoldDrawn) {
             return;
         }
+
         // Pawns
         int pawnOffset = white ? PAWN_OFFSET : -PAWN_OFFSET;
         int[] playerPawns = pawns[currentPlayer];
@@ -257,13 +267,13 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
 
     private void addCastlingMoves(MoveList<IChessMove> possibleMoves) {
         if (white) {
-            addCastingMoves(possibleMoves, E1, WHITE_KING_CASTLE, WHITE_QUEEN_CASTLE);
+            addCastlingMoves(possibleMoves, E1, WHITE_KING_CASTLE, WHITE_QUEEN_CASTLE);
         } else {
-            addCastingMoves(possibleMoves, E8, BLACK_KING_CASTLE, BLACK_QUEEN_CASTLE);
+            addCastlingMoves(possibleMoves, E8, BLACK_KING_CASTLE, BLACK_QUEEN_CASTLE);
         }
     }
 
-    private void addCastingMoves(MoveList<IChessMove> possibleMoves, int kingSquare, int kingCastle, int queenCastle) {
+    private void addCastlingMoves(MoveList<IChessMove> possibleMoves, int kingSquare, int kingCastle, int queenCastle) {
         int fSquare = kingSquare - 1;
         int gSquare = fSquare - 1;
         if ((castleState & kingCastle) == kingCastle && squares[fSquare] == UNPLAYED && squares[gSquare] == UNPLAYED &&
@@ -293,10 +303,28 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
         int from = move.getFrom();
         int to = move.getTo();
         int pieceCaptured = move.getPieceCaptured();
+
+        if (pieceCaptured != UNPLAYED) {
+            zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[pieceCaptured][to];
+        }
+
+        zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[squares[from]][from];
+        zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[squares[from]][to];
+
+        zobristHash ^= ChessPositionHasher.CASTLE_HASHES[castleState];
         castleState &= CASTLING_PERMISSIONS[from];
         castleState &= CASTLING_PERMISSIONS[to];
+        zobristHash ^= ChessPositionHasher.CASTLE_HASHES[castleState];
+
+        if (enPassantSquare != NO_SQUARE) {
+            zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[UNPLAYED][enPassantSquare];
+        }
         enPassantSquare = move.getEnPassantSquare();
-        halfMoveClock = pieceCaptured != 0 || (squares[from] & PAWN) == PAWN ? 0 : halfMoveClock + 1;
+        if (enPassantSquare != NO_SQUARE) {
+            zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[UNPLAYED][enPassantSquare];
+        }
+
+        halfMoveClock = pieceCaptured != 0 || (squares[from] & PIECE_MASK) == PAWN ? 0 : halfMoveClock + 1;
 
         move.updateMaterial(this);
         move.applyMove(this);
@@ -304,10 +332,23 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
         otherPlayer = currentPlayer;
         currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
         white = !white;
+        zobristHash ^= ChessPositionHasher.WHITE_TURN_HASH;
+
+        int repetitionCount = 0;
+        for (int i = 0; i < halfMoveClock; i++) {
+            if (positionHistory.undoChessMoves[positionHistory.plyCount - i - 1].zobristHash == zobristHash) {
+                repetitionCount++;
+            }
+        }
+
+        if (repetitionCount == 3) {
+            threefoldDrawn = true;
+        }
     }
 
     @Override
     public void unmakeMove(IChessMove move) {
+        threefoldDrawn = false;
         white = !white;
         otherPlayer = currentPlayer;
         currentPlayer = TwoPlayers.otherPlayer(currentPlayer);

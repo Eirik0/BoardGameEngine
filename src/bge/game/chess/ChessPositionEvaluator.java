@@ -10,8 +10,14 @@ public class ChessPositionEvaluator implements IPositionEvaluator<IChessMove, Ch
     @Override
     public double evaluate(ChessPosition position, MoveList<IChessMove> possibleMoves) {
         if (possibleMoves.size() == 0) {
+            if (position.threefoldDrawn) {
+                return AnalysisResult.DRAW;
+            }
+
             int lastPlayer = TwoPlayers.otherPlayer(position.currentPlayer);
             int playerKingSquare = position.kingSquares[position.currentPlayer];
+
+            // XXX BUGBUG what happens when halfMoveClock == 100 and it is checkmate
             if (position.halfMoveClock < 100 && ChessFunctions.isSquareAttacked(position, playerKingSquare, lastPlayer)) {
                 return AnalysisResult.LOSS;
             } else {
