@@ -302,11 +302,6 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
 
         int from = move.getFrom();
         int to = move.getTo();
-        int pieceCaptured = move.getPieceCaptured();
-
-        if (pieceCaptured != UNPLAYED) {
-            zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[pieceCaptured][to];
-        }
 
         zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[squares[from]][from];
         zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[squares[from]][to];
@@ -325,7 +320,7 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
         }
 
         if (move.getClass() == CastleMove.class) {
-            // Also hash the rook out of its old square and into its new square
+            // Hash the rook out of its old square and into its new square
             CastleMove castleMove = (CastleMove) move;
             int rookFrom = castleMove.getRookFrom();
             int rookTo = castleMove.getRookTo();
@@ -333,6 +328,18 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
 
             zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookFrom];
             zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookTo];
+        }
+
+        int pieceCaptured = move.getPieceCaptured();
+
+        // Hash out the captured piece
+        if (move.getClass() == EnPassantCaptureMove.class) {
+            EnPassantCaptureMove enPassantCaptureMove = (EnPassantCaptureMove) move;
+
+            zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[pieceCaptured][enPassantCaptureMove.getCaptureSquare()];
+        }
+        else if (pieceCaptured != UNPLAYED) {
+            zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[pieceCaptured][to];
         }
 
         halfMoveClock = pieceCaptured != 0 || (squares[from] & PIECE_MASK) == PAWN ? 0 : halfMoveClock + 1;

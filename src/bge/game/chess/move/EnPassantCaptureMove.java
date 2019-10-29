@@ -59,6 +59,10 @@ public class EnPassantCaptureMove implements IChessMove {
         return basicMove.to;
     }
 
+    public int getCaptureSquare() {
+        return captureSquare;
+    }
+
     @Override
     public int hashCode() {
         return basicMove.hashCode();
