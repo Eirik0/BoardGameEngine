@@ -2,6 +2,7 @@ package bge.game.chess.move;
 
 import bge.game.chess.ChessFunctions;
 import bge.game.chess.ChessPosition;
+import bge.game.chess.ChessPositionHasher;
 
 public class EnPassantCaptureMove implements IChessMove {
     private final BasicChessMove basicMove;
@@ -15,6 +16,10 @@ public class EnPassantCaptureMove implements IChessMove {
     @Override
     public void applyMove(ChessPosition position) {
         basicMove.applyMove(position);
+
+        // Assume we (incorrectly) hashed out the captured piece from the dest square
+        position.zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[basicMove.pieceCaptured][basicMove.getTo()];
+        position.zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[basicMove.pieceCaptured][captureSquare];
         position.squares[captureSquare] = UNPLAYED;
     }
 

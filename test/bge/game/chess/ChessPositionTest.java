@@ -2,6 +2,7 @@ package bge.game.chess;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,6 +79,10 @@ public class ChessPositionTest implements ChessConstants {
         double[] expectedMaterialScore = ForsythEdwardsNotation.getMaterialScore(position.squares);
         assertEquals(expectedMaterialScore[1], position.materialScore[1], "White material score");
         assertEquals(expectedMaterialScore[2], position.materialScore[2], "Black material score");
+
+        if (ChessPositionHasher.computeHash(position.squares, position.white, position.castleState, position.enPassantSquare) != position.zobristHash) {
+            fail(ChessFunctions.getBoardStr(position));
+        }
     }
 
     public static void assertPositionsEqual(ChessPosition expected, ChessPosition actual) {

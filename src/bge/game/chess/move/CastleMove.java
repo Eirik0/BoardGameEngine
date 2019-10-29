@@ -2,6 +2,7 @@ package bge.game.chess.move;
 
 import bge.game.chess.ChessFunctions;
 import bge.game.chess.ChessPosition;
+import bge.game.chess.ChessPositionHasher;
 
 public class CastleMove implements IChessMove {
     private final BasicChessMove basicMove;
@@ -18,6 +19,10 @@ public class CastleMove implements IChessMove {
     public void applyMove(ChessPosition position) {
         int king = position.squares[basicMove.from];
         int rook = position.squares[rookFrom];
+
+        position.zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookFrom];
+        position.zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookTo];
+
         position.squares[basicMove.from] = UNPLAYED;
         position.squares[rookFrom] = UNPLAYED;
         position.squares[basicMove.to] = king;
@@ -29,6 +34,10 @@ public class CastleMove implements IChessMove {
     public void unapplyMove(ChessPosition position) {
         int king = position.squares[basicMove.to];
         int rook = position.squares[rookTo];
+
+        position.zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookFrom];
+        position.zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookTo];
+
         position.squares[basicMove.to] = UNPLAYED;
         position.squares[rookTo] = UNPLAYED;
         position.squares[basicMove.from] = king;
@@ -64,14 +73,6 @@ public class CastleMove implements IChessMove {
     @Override
     public int getTo() {
         return basicMove.to;
-    }
-
-    public int getRookFrom() {
-        return rookFrom;
-    }
-
-    public int getRookTo() {
-        return rookTo;
     }
 
     @Override
