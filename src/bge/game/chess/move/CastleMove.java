@@ -66,6 +66,14 @@ public class CastleMove implements IChessMove {
         return basicMove.to;
     }
 
+    public int getRookFrom() {
+        return rookFrom;
+    }
+
+    public int getRookTo() {
+        return rookTo;
+    }
+
     @Override
     public int hashCode() {
         return basicMove.hashCode();

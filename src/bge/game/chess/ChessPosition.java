@@ -324,6 +324,17 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
             zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[UNPLAYED][enPassantSquare];
         }
 
+        if (move.getClass() == CastleMove.class) {
+            // Also hash the rook out of its old square and into its new square
+            CastleMove castleMove = (CastleMove) move;
+            int rookFrom = castleMove.getRookFrom();
+            int rookTo = castleMove.getRookTo();
+            int rook = squares[rookFrom];
+
+            zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookFrom];
+            zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookTo];
+        }
+
         halfMoveClock = pieceCaptured != 0 || (squares[from] & PIECE_MASK) == PAWN ? 0 : halfMoveClock + 1;
 
         move.updateMaterial(this);
