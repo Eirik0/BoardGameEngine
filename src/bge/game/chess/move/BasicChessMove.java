@@ -2,6 +2,7 @@ package bge.game.chess.move;
 
 import bge.game.chess.ChessFunctions;
 import bge.game.chess.ChessPosition;
+import bge.game.chess.ChessPositionHasher;
 import bge.game.chess.fen.ForsythEdwardsNotation;
 
 public class BasicChessMove implements IChessMove {
@@ -18,13 +19,13 @@ public class BasicChessMove implements IChessMove {
     }
 
     @Override
-    public void applyMove(ChessPosition position) {
+    public void movePieces(ChessPosition position) {
         position.squares[to] = position.squares[from];
         position.squares[from] = UNPLAYED;
     }
 
     @Override
-    public void unapplyMove(ChessPosition position) {
+    public void unMovePieces(ChessPosition position) {
         position.squares[from] = position.squares[to];
         position.squares[to] = pieceCaptured;
     }
@@ -45,6 +46,14 @@ public class BasicChessMove implements IChessMove {
             position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] + ChessFunctions.getPieceScore(pieceCaptured);
             ChessFunctions.addPiece(position, to, pieceCaptured, position.otherPlayer);
         }
+    }
+
+    @Override
+    public long getZobristHash(ChessPosition position) {
+        long zobristHash = ChessPositionHasher.PIECE_POSITION_HASHES[position.squares[from]][from]
+                ^ ChessPositionHasher.PIECE_POSITION_HASHES[position.squares[from]][to];
+        return pieceCaptured == UNPLAYED ? zobristHash
+                : zobristHash ^ ChessPositionHasher.PIECE_POSITION_HASHES[pieceCaptured][to];
     }
 
     @Override

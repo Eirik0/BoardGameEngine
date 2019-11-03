@@ -11,14 +11,14 @@ public class KingMove implements IChessMove {
     }
 
     @Override
-    public void applyMove(ChessPosition position) {
-        basicMove.applyMove(position);
+    public void movePieces(ChessPosition position) {
+        basicMove.movePieces(position);
         position.kingSquares[position.currentPlayer] = basicMove.to;
     }
 
     @Override
-    public void unapplyMove(ChessPosition position) {
-        basicMove.unapplyMove(position);
+    public void unMovePieces(ChessPosition position) {
+        basicMove.unMovePieces(position);
         position.kingSquares[position.currentPlayer] = basicMove.from;
     }
 
@@ -36,6 +36,11 @@ public class KingMove implements IChessMove {
             position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] + ChessFunctions.getPieceScore(basicMove.pieceCaptured);
             ChessFunctions.addPiece(position, basicMove.to, basicMove.pieceCaptured, position.otherPlayer);
         }
+    }
+
+    @Override
+    public long getZobristHash(ChessPosition position) {
+        return basicMove.getZobristHash(position);
     }
 
     @Override

@@ -4,19 +4,21 @@ import bge.game.chess.ChessConstants;
 import bge.game.chess.ChessPosition;
 
 public interface IChessMove extends ChessConstants {
-    public void applyMove(ChessPosition position);
+    void movePieces(ChessPosition position);
 
-    public void unapplyMove(ChessPosition position);
+    void unMovePieces(ChessPosition position);
 
-    public void updateMaterial(ChessPosition position);
+    void updateMaterial(ChessPosition position);
 
-    public void unupdateMaterial(ChessPosition position);
+    void unupdateMaterial(ChessPosition position);
 
-    public int getEnPassantSquare();
+    long getZobristHash(ChessPosition position);
 
-    public int getPieceCaptured();
+    int getEnPassantSquare();
 
-    public int getFrom();
+    int getPieceCaptured();
 
-    public int getTo();
+    int getFrom();
+
+    int getTo();
 }

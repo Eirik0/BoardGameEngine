@@ -2,6 +2,7 @@ package bge.game.chess.move;
 
 import bge.game.chess.ChessFunctions;
 import bge.game.chess.ChessPosition;
+import bge.game.chess.ChessPositionHasher;
 
 public class EnPassantCaptureMove implements IChessMove {
     private final BasicChessMove basicMove;
@@ -13,13 +14,13 @@ public class EnPassantCaptureMove implements IChessMove {
     }
 
     @Override
-    public void applyMove(ChessPosition position) {
-        basicMove.applyMove(position);
+    public void movePieces(ChessPosition position) {
+        basicMove.movePieces(position);
         position.squares[captureSquare] = UNPLAYED;
     }
 
     @Override
-    public void unapplyMove(ChessPosition position) {
+    public void unMovePieces(ChessPosition position) {
         position.squares[captureSquare] = basicMove.pieceCaptured;
         position.squares[basicMove.from] = position.squares[basicMove.to];
         position.squares[basicMove.to] = UNPLAYED;
@@ -40,6 +41,13 @@ public class EnPassantCaptureMove implements IChessMove {
     }
 
     @Override
+    public long getZobristHash(ChessPosition position) {
+        return ChessPositionHasher.PIECE_POSITION_HASHES[position.squares[basicMove.from]][basicMove.from] // remove from
+                ^ ChessPositionHasher.PIECE_POSITION_HASHES[position.squares[basicMove.from]][basicMove.to] // add to
+                ^ ChessPositionHasher.PIECE_POSITION_HASHES[basicMove.pieceCaptured][captureSquare]; // remove capture
+    }
+
+    @Override
     public int getEnPassantSquare() {
         return NO_SQUARE;
     }
@@ -57,6 +65,10 @@ public class EnPassantCaptureMove implements IChessMove {
     @Override
     public int getTo() {
         return basicMove.to;
+    }
+
+    public int getCaptureSquare() {
+        return captureSquare;
     }
 
     @Override

@@ -101,8 +101,10 @@ public class ChessPositionPerfTest {
         }
         ChessPosition positionCopy = position.createCopy();
         int i = 0;
+        position.getPossibleMoves(possibleMoves);
         while (i < possibleMoves.size()) {
             IChessMove move = possibleMoves.get(i);
+            ChessPositionTest.assertPositionIntegrity(position);
             position.makeMove(move);
             checkPositionIntegrity(position, depth - 1);
             position.unmakeMove(move);
@@ -139,6 +141,11 @@ public class ChessPositionPerfTest {
             for (int i = 1; i < split.length; ++i) {
                 expectedPositions[i - 1] = Long.parseLong(split[i].split(" ")[1]);
             }
+        }
+
+        @Override
+        public String toString() {
+            return fen;
         }
     }
 }
