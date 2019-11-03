@@ -81,7 +81,10 @@ public class ChessPositionTest implements ChessConstants {
         assertEquals(expectedMaterialScore[2], position.materialScore[2], "Black material score");
 
         if (ChessPositionHasher.computeHash(position.squares, position.white, position.castleState, position.enPassantSquare) != position.zobristHash) {
-            fail(ChessFunctions.getBoardStr(position));
+            String boardStr = ChessFunctions.getBoardStr(position);
+            System.out.println("Incorrect hash for position:");
+            System.out.println(boardStr);
+            fail(boardStr);
         }
     }
 

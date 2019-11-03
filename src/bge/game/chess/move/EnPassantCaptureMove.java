@@ -14,17 +14,13 @@ public class EnPassantCaptureMove implements IChessMove {
     }
 
     @Override
-    public void applyMove(ChessPosition position) {
-        basicMove.applyMove(position);
-
-        // Assume we (incorrectly) hashed out the captured piece from the dest square
-        position.zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[basicMove.pieceCaptured][basicMove.getTo()];
-        position.zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[basicMove.pieceCaptured][captureSquare];
+    public void movePieces(ChessPosition position) {
+        basicMove.movePieces(position);
         position.squares[captureSquare] = UNPLAYED;
     }
 
     @Override
-    public void unapplyMove(ChessPosition position) {
+    public void unMovePieces(ChessPosition position) {
         position.squares[captureSquare] = basicMove.pieceCaptured;
         position.squares[basicMove.from] = position.squares[basicMove.to];
         position.squares[basicMove.to] = UNPLAYED;
@@ -42,6 +38,13 @@ public class EnPassantCaptureMove implements IChessMove {
         ChessFunctions.updatePiece(position, basicMove.to, basicMove.from, PAWN, position.currentPlayer);
         position.materialScore[position.otherPlayer] = position.materialScore[position.otherPlayer] + ChessFunctions.getPieceScore(basicMove.pieceCaptured);
         ChessFunctions.addPiece(position, captureSquare, basicMove.pieceCaptured, position.otherPlayer);
+    }
+
+    @Override
+    public long getZobristHash(ChessPosition position) {
+        return ChessPositionHasher.PIECE_POSITION_HASHES[position.squares[basicMove.from]][basicMove.from] // remove from
+                ^ ChessPositionHasher.PIECE_POSITION_HASHES[position.squares[basicMove.from]][basicMove.to] // add to
+                ^ ChessPositionHasher.PIECE_POSITION_HASHES[basicMove.pieceCaptured][captureSquare]; // remove capture
     }
 
     @Override

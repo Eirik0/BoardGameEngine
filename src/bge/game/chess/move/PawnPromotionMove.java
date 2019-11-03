@@ -4,11 +4,12 @@ import java.util.Locale;
 
 import bge.game.chess.ChessFunctions;
 import bge.game.chess.ChessPosition;
+import bge.game.chess.ChessPositionHasher;
 import bge.game.chess.fen.ForsythEdwardsNotation;
 
 public class PawnPromotionMove implements IChessMove {
     private final BasicChessMove basicMove;
-    public final int promotion;
+    private final int promotion;
     private final int pawn;
 
     public PawnPromotionMove(BasicChessMove basicMove, int promotion, int pawn) {
@@ -18,13 +19,13 @@ public class PawnPromotionMove implements IChessMove {
     }
 
     @Override
-    public void applyMove(ChessPosition position) {
+    public void movePieces(ChessPosition position) {
         position.squares[basicMove.to] = promotion;
         position.squares[basicMove.from] = UNPLAYED;
     }
 
     @Override
-    public void unapplyMove(ChessPosition position) {
+    public void unMovePieces(ChessPosition position) {
         position.squares[basicMove.from] = pawn;
         position.squares[basicMove.to] = basicMove.pieceCaptured;
     }
@@ -54,6 +55,14 @@ public class PawnPromotionMove implements IChessMove {
     @Override
     public int getEnPassantSquare() {
         return NO_SQUARE;
+    }
+
+    @Override
+    public long getZobristHash(ChessPosition position) {
+        long zobristHash = ChessPositionHasher.PIECE_POSITION_HASHES[position.squares[basicMove.from]][basicMove.from] // remove from
+                ^ ChessPositionHasher.PIECE_POSITION_HASHES[promotion][basicMove.to]; // add promotion
+        return basicMove.pieceCaptured == UNPLAYED ? zobristHash
+                : zobristHash ^ ChessPositionHasher.PIECE_POSITION_HASHES[basicMove.pieceCaptured][basicMove.to];
     }
 
     @Override

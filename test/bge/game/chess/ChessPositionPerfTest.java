@@ -142,5 +142,10 @@ public class ChessPositionPerfTest {
                 expectedPositions[i - 1] = Long.parseLong(split[i].split(" ")[1]);
             }
         }
+
+        @Override
+        public String toString() {
+            return fen;
+        }
     }
 }

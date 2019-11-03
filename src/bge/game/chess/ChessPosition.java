@@ -158,7 +158,7 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
 
     private void addPossibleMove(MoveList<IChessMove> possibleMoves, IChessMove chessMove) {
         // Move the pieces and then check if the king is attacked before adding the move
-        chessMove.applyMove(this);
+        chessMove.movePieces(this);
         int kingSquare = kingSquares[currentPlayer];
         if (!ChessFunctions.isSquareAttacked(this, kingSquare, otherPlayer)) {
             if (chessMove.getPieceCaptured() == 0) {
@@ -167,7 +167,7 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
                 possibleMoves.addDynamicMove(chessMove, this);
             }
         }
-        chessMove.unapplyMove(this);
+        chessMove.unMovePieces(this);
     }
 
     private void addPawnMoves(MoveList<IChessMove> possibleMoves, int from, int offset, boolean white) {
@@ -303,9 +303,6 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
         int from = move.getFrom();
         int to = move.getTo();
 
-        zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[squares[from]][from];
-        zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[squares[from]][to];
-
         zobristHash ^= ChessPositionHasher.CASTLE_HASHES[castleState];
         castleState &= CASTLING_PERMISSIONS[from];
         castleState &= CASTLING_PERMISSIONS[to];
@@ -321,14 +318,11 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
 
         int pieceCaptured = move.getPieceCaptured();
 
-        if (pieceCaptured != UNPLAYED) {
-            zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[pieceCaptured][to];
-        }
-
         halfMoveClock = pieceCaptured != 0 || (squares[from] & PIECE_MASK) == PAWN ? 0 : halfMoveClock + 1;
 
         move.updateMaterial(this);
-        move.applyMove(this);
+        zobristHash ^= move.getZobristHash(this);
+        move.movePieces(this);
 
         otherPlayer = currentPlayer;
         currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
@@ -354,7 +348,7 @@ public class ChessPosition implements IPosition<IChessMove>, ChessConstants {
         otherPlayer = currentPlayer;
         currentPlayer = TwoPlayers.otherPlayer(currentPlayer);
 
-        move.unapplyMove(this);
+        move.unMovePieces(this);
         move.unupdateMaterial(this);
 
         positionHistory.unmakeMove(this);

@@ -16,12 +16,9 @@ public class CastleMove implements IChessMove {
     }
 
     @Override
-    public void applyMove(ChessPosition position) {
+    public void movePieces(ChessPosition position) {
         int king = position.squares[basicMove.from];
         int rook = position.squares[rookFrom];
-
-        position.zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookFrom];
-        position.zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookTo];
 
         position.squares[basicMove.from] = UNPLAYED;
         position.squares[rookFrom] = UNPLAYED;
@@ -31,12 +28,9 @@ public class CastleMove implements IChessMove {
     }
 
     @Override
-    public void unapplyMove(ChessPosition position) {
+    public void unMovePieces(ChessPosition position) {
         int king = position.squares[basicMove.to];
         int rook = position.squares[rookTo];
-
-        position.zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookFrom];
-        position.zobristHash ^= ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookTo];
 
         position.squares[basicMove.to] = UNPLAYED;
         position.squares[rookTo] = UNPLAYED;
@@ -53,6 +47,13 @@ public class CastleMove implements IChessMove {
     @Override
     public void unupdateMaterial(ChessPosition position) {
         ChessFunctions.updatePiece(position, rookTo, rookFrom, ROOK, position.currentPlayer);
+    }
+
+    @Override
+    public long getZobristHash(ChessPosition position) {
+        int rook = position.squares[rookFrom];
+        return basicMove.getZobristHash(position) ^ ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookFrom] ^
+                ChessPositionHasher.PIECE_POSITION_HASHES[rook][rookTo];
     }
 
     @Override
